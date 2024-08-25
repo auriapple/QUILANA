@@ -1,0 +1,40 @@
+
+.course-details-table table {
+    width: 100%;
+    border-spacing: 0; /* Remove spacing between table cells */
+    border-radius: 10px; /* Round the edges of the table */
+    overflow: hidden; /* Ensure the rounded corners are visible */
+    background-color: #f9f9f9; /* Background color for the table */
+    border-color: #1E1A43;
+    box-shadow: 0 2px 5px #1E1A43; /* Optional: Add a slight shadow */
+}
+
+.course-details-table th, .course-details-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Add a light bottom border */
+}
+
+.course-details-table th {
+    background-color: #f2f2f2; /* Light background color for table headers */
+    font-size: small;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+
+}
+
+.course-details-table tr {
+    font-size: small;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+
+}
+
+.course-details-table td:last-child {
+    border-bottom: none; /* Remove border from last row */
+}
+
+.course-details-table tr:last-child td {
+    border-bottom: none; /* Remove border from the last row */
+}
+

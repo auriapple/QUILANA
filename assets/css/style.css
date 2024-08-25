@@ -1,0 +1,377 @@
+div#sidebar {
+    width: 250px;
+    height: 100%;
+    position: absolute;
+    background-image: linear-gradient(#1E1A43, #4A4CA6);
+}
+
+#sidebar .sidebar-item {
+    position: relative;
+    height: 50px;
+    padding: 10px;
+    display: inline-flex;
+    font-size: 15px;
+    align-items: center;
+    /* border-bottom: 1px solid #007bff6b; */
+    width: 100%;
+    color: white !important;
+    font-weight: 700
+}
+
+.page-item.active .page-link{
+    background-color: #1E1A43;
+    border-color: #1E1A43;
+}
+#sidebar .sidebar-item:hover{
+    text-decoration: unset;
+    background: #fffdfd;
+    color: #353535 !important;
+}
+
+#sidebar .sidebar-item.active {
+    text-decoration: unset;
+    background: #fffdfd !important;
+    color: rgb(0, 0, 0) !important;
+}
+
+#sidebar .sidebar-item.active .sidebar-icon {
+    color: #000 !important;
+}
+
+#sidebar .sidebar-item:hover .sidebar-icon {
+    color: #000 !important;
+}
+
+#sidebar .sidebar-item .sidebar-icon {
+	width:11%;
+	padding: auto;
+    color: white;
+}
+
+div#main{
+	margin-top: 10px;
+	margin-left:250px;
+	padding: 20px
+}
+.admin{
+    margin-top: 10px;
+    margin-left:250px;
+    padding: 20px;
+    width:82% !important;
+}
+.pull-right{
+	float: right;
+}
+button.btn-rounded{
+	border-radius: 50% !important;
+}
+
+#login-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+#left-section {
+    flex: 1;
+    background-image: linear-gradient(#1E1A43, #4A4CA6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 2rem;
+    overflow: hidden;
+    position: relative;
+}
+#left-section::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -25%;
+    width: 45%;
+    height: 200%;
+    background-color:white;
+    border-radius: 50%;
+    transform: rotate(-10deg);
+}
+
+#left-section h1 {
+    color: white;
+    font-size: 70px;
+    font-weight: bold;
+    margin-top: 100px;
+    margin-left: 140px;
+    padding: 0;
+}
+
+#right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 3rem 0 0 3rem; /* Curves the left side */
+    position: relative;
+    margin-left: -3rem; /* Adjust to overlap the left section */
+    box-sizing: border-box;
+}
+
+
+.logo {
+    color: white;
+    font-size: 70px;
+    font-weight: bold;
+    margin-left: 190px;
+    padding: 0;
+    position: absolute; 
+    top: 15%; 
+    left: 22%; 
+    transform: translateX(-50%); 
+    z-index: 2; 
+}
+
+.illustration {
+    width: 100%;
+    height: 100%;
+    max-width: 600px;
+    max-height: 700px;
+    margin-left: 10px;
+    background-image: url('http://localhost/QUILANA/image/User.png');
+    background-size: 500px 680px;
+    background-repeat: no-repeat;
+    background-position: center;
+    top: 5%;
+    position: relative; /* Make sure it can be layered */
+    z-index: 1; /* Ensure it's behind the logo */
+}
+
+.sign-in-form {
+    width: 100%;
+    max-width: 400px; 
+    margin: 4rem 0;
+    box-sizing: border-box; 
+    background-color: white;
+    border-radius: 8px;
+}
+
+.sign-in-form h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-left: 8rem;
+    margin-bottom: 1rem;
+    color: black;
+}
+
+.form-group {
+    margin-bottom: 0.5rem;
+}
+
+.form-group.text-center{
+    margin-top: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: medium;
+    font-weight: lighter;
+    
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-group.row {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 0rem;
+    margin-right: 0rem;
+}
+
+.col-half {
+    width: 48%; /* Each half will take 48% of the row */
+    box-sizing: border-box;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+
+.btn-sign-in {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: #4A4CA6; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    background-image: url('http://localhost/QUILANA/image/HomePage.png');
+    background-size: 1200px 800px;
+    background-position: right center;
+    background-repeat: no-repeat;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-page h1 {
+    position: absolute;
+    font-size: 60px;
+    font-weight: bold;
+    background: linear-gradient(#1E1A43, #4A4CA6);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    top: 20px;
+    left: 20px;
+    margin: 0;
+    z-index: 2; /* Ensure it's above other content */
+}
+
+.custom-button {
+    background-color: #4A4CA6;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 5px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 300px;
+    margin-bottom: 100px;
+    z-index: 2; /* Ensure it's above other content */
+}
+
+.custom-button:hover {
+    background-color: #1E1A43;
+}
+
+#getStartedButton {
+    margin-top: 550px;
+    z-index: 2;
+}
+.tabs-container {
+    margin-bottom: 20px;
+}
+
+.tabs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    border-bottom: 2px solid #ddd;
+}
+
+.tabs .tab-link {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.3s;
+}
+
+.tabs .tab-link.active {
+    border-bottom: 2px solid #5a5ada; /* Line color under active tab */
+    color: #5a5ada; /* Active tab text color */
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.course-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.course-card {
+    background-color: #ffffff; 
+    border: 1px solid #090909;
+    border-radius: 5px;
+    width: 20%; 
+    margin-bottom: 10px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
+.course-card-body {
+    padding: 15px;
+}
+
+.course-card-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.course-card-text {
+    font-size: 14px;
+    color: #666; 
+    margin-bottom: 15px; 
+}
+
+.course-actions {
+    display: flex;
+    justify-content: space-around;
+}
+
+.course-actions .btn {
+    font-size: 14px;
+    padding: 5px 15px;
+}
+
+.add-course-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.add-btn{
+    margin-left: 850px;
+    background-color: #4A4CA6;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input[type="text"] {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar button {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    background-color: #4A4CA6;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #1E1A43;
+}
