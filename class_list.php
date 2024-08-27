@@ -5,9 +5,10 @@
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
     <title>Courses | Quialana</title>
+    <link rel="stylesheet" href="meatballMenuTest/meatball.css">
 </head>
 <body>
-    <?php include('nav_bar.php') ?>
+    <?php // include('nav_bar.php') ?>
 
     <div class="container-fluid admin">
         <div class="add-course-container">
@@ -40,16 +41,27 @@
                         $classCountRow = $result->fetch_assoc();
                         $classCount = $classCountRow['classCount'];
                 ?>
-                <div class="course-card">
-                    <div class="course-card-body">
-                        <div class="course-card-title"><?php echo $row['course_name'] ?></div>
-                        <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
-                        <div class="course-actions">
-                        <button class="btn btn-outline-primary btn-sm classes" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
-                            <button class="btn btn-primary btn-sm view_course_details" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
+                        <div class="course-card">
+                            <div class="course-card-body">
+                                <div class="meatball-menu-container">
+                                    <button class="meatball-menu-btn">
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                    </button>
+                                    <div class="meatball-menu">
+                                        <a href="#">Edit</a>
+                                        <a href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <div class="course-card-title"><?php echo $row['course_name'] ?></div>
+                                <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
+                                <div class="course-actions">
+                                <button class="btn btn-outline-primary btn-sm classes" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
+                                    <button class="btn btn-primary btn-sm view_course_details" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
                 <?php
                     }
                 }
@@ -107,7 +119,7 @@
         </div>
     </div>
 
-    <script>
+    <script src="meatballMenuTest/meatball.js">
         $(document).ready(function() {
         // Show the appropriate button based on the active tab
         function updateButtons() {
