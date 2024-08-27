@@ -34,13 +34,18 @@
                 $qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."' ORDER BY course_name ASC");
                 if ($qry->num_rows > 0) {
                     while ($row = $qry->fetch_assoc()) {
+                        // Count the number of classes for each course
+                        $course_id =  $row['course_id'];
+                        $result = $conn->query("SELECT COUNT(*) as classCount FROM class WHERE course_id = '$course_id'");
+                        $classCountRow = $result->fetch_assoc();
+                        $classCount = $classCountRow['classCount'];
                 ?>
                 <div class="course-card">
                     <div class="course-card-body">
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
-                        <div class="course-card-text"><?php echo $row['class_id'] ?> Class(es)</div>
+                        <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
                         <div class="course-actions">
-                            <button class="btn btn-outline-primary btn-sm classes" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
+                        <button class="btn btn-outline-primary btn-sm classes" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
                             <button class="btn btn-primary btn-sm view_course_details" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
                         </div>
                     </div>

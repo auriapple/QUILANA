@@ -18,6 +18,20 @@ if (!isset($_SESSION['login_user_type'])) {
 </head>
 <body>
     <?php include 'nav_bar.php'; ?>
+    <div class="container-flud admin">
+        <?php
+        // Output for the total courses and classes (No Design)
+        $result = $conn->query("SELECT COUNT(*) as totalCourses FROM course");
+        $resTotalCourses = $result->fetch_assoc();
+        $totalCourses = $resTotalCourses['totalCourses'];
+        echo "Total Number of Courses: ". $totalCourses;
+        $result = $conn->query("SELECT COUNT(*) as totalClasses FROM class");
+        $resTotalClasses = $result->fetch_assoc();
+        $totalClasses = $resTotalClasses['totalClasses'];
+        echo "<br>" ."Total Number of Classes: ". $totalClasses;
+        ?>
+    </div>
     
+
 </body>
 </html>
