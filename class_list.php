@@ -36,8 +36,7 @@
                     while ($row = $qry->fetch_assoc()) {
                         // Count the number of classes for each course
                         $course_id =  $row['course_id'];
-                        $sql = "SELECT COUNT(*) as classCount FROM class WHERE course_id = '$course_id'";
-                        $result = $conn->query($sql);
+                        $result = $conn->query("SELECT COUNT(*) as classCount FROM class WHERE course_id = '$course_id'");
                         $classCountRow = $result->fetch_assoc();
                         $classCount = $classCountRow['classCount'];
                 ?>
