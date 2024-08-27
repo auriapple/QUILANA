@@ -1,52 +1,10 @@
-div#sidebar {
-    width: 250px;
-    height: 100%;
-    position: absolute;
-    background-image: linear-gradient(#1E1A43, #4A4CA6);
-}
-
-#sidebar .sidebar-item {
-    position: relative;
-    height: 50px;
-    padding: 10px;
-    display: inline-flex;
-    font-size: 15px;
-    align-items: center;
-    /* border-bottom: 1px solid #007bff6b; */
-    width: 100%;
-    color: white !important;
-    font-weight: 700
-}
 
 .page-item.active .page-link{
     background-color: #1E1A43;
     border-color: #1E1A43;
 }
-#sidebar .sidebar-item:hover{
-    text-decoration: unset;
-    background: #fffdfd;
-    color: #353535 !important;
-}
 
-#sidebar .sidebar-item.active {
-    text-decoration: unset;
-    background: #fffdfd !important;
-    color: rgb(0, 0, 0) !important;
-}
 
-#sidebar .sidebar-item.active .sidebar-icon {
-    color: #000 !important;
-}
-
-#sidebar .sidebar-item:hover .sidebar-icon {
-    color: #000 !important;
-}
-
-#sidebar .sidebar-item .sidebar-icon {
-	width:11%;
-	padding: auto;
-    color: white;
-}
 
 div#main{
 	margin-top: 10px;
@@ -375,3 +333,4 @@ button.btn-rounded{
 .search-bar button:hover {
     background-color: #1E1A43;
 }
+
