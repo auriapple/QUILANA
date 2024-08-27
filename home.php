@@ -18,9 +18,9 @@ if (!isset($_SESSION['login_user_type'])) {
 </head>
 <body>
     <?php include 'nav_bar.php'; ?>
-    <!-- Output for the total courses and classes (No Design) -->
     <div class="container-flud admin">
         <?php
+        // Output for the total courses and classes (No Design)
         $result = $conn->query("SELECT COUNT(*) as totalCourses FROM course");
         $resTotalCourses = $result->fetch_assoc();
         $totalCourses = $resTotalCourses['totalCourses'];
