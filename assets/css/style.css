@@ -66,12 +66,16 @@ button.btn-rounded{
 	border-radius: 50% !important;
 }
 
+/* Base Styles */
+
+/* Container for Login Section */
 #login-container {
     display: flex;
     height: 100vh;
     width: 100vw;
 }
 
+/* Left Section of Login */
 #left-section {
     flex: 1;
     background-image: linear-gradient(#1E1A43, #4A4CA6);
@@ -90,11 +94,12 @@ button.btn-rounded{
     right: -25%;
     width: 45%;
     height: 200%;
-    background-color:white;
+    background-color: white;
     border-radius: 50%;
     transform: rotate(-10deg);
 }
 
+/* Heading in Left Section */
 #left-section h1 {
     color: white;
     font-size: 70px;
@@ -104,32 +109,34 @@ button.btn-rounded{
     padding: 0;
 }
 
+/* Right Section of Login */
 #right-section {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: white;
-    border-radius: 3rem 0 0 3rem; /* Curves the left side */
+    border-radius: 3rem 0 0 3rem;
     position: relative;
-    margin-left: -3rem; /* Adjust to overlap the left section */
+    margin-left: -3rem;
     box-sizing: border-box;
 }
 
-
+/* Logo */
 .logo {
     color: white;
     font-size: 70px;
     font-weight: bold;
     margin-left: 190px;
     padding: 0;
-    position: absolute; 
-    top: 15%; 
-    left: 22%; 
-    transform: translateX(-50%); 
-    z-index: 2; 
+    position: absolute;
+    top: 15%;
+    left: 22%;
+    transform: translateX(-50%);
+    z-index: 2;
 }
 
+/* Illustration in Left Section */
 .illustration {
     width: 100%;
     height: 100%;
@@ -141,15 +148,16 @@ button.btn-rounded{
     background-repeat: no-repeat;
     background-position: center;
     top: 5%;
-    position: relative; /* Make sure it can be layered */
-    z-index: 1; /* Ensure it's behind the logo */
+    position: relative;
+    z-index: 1;
 }
 
+/* Sign In Form */
 .sign-in-form {
     width: 100%;
-    max-width: 400px; 
+    max-width: 400px;
     margin: 4rem 0;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     background-color: white;
     border-radius: 8px;
 }
@@ -162,11 +170,12 @@ button.btn-rounded{
     color: black;
 }
 
+/* Form Group Styles */
 .form-group {
     margin-bottom: 0.5rem;
 }
 
-.form-group.text-center{
+.form-group.text-center {
     margin-top: 1rem;
 }
 
@@ -174,7 +183,6 @@ button.btn-rounded{
     display: block;
     font-size: medium;
     font-weight: lighter;
-    
 }
 
 .form-group input {
@@ -184,6 +192,7 @@ button.btn-rounded{
     border-radius: 4px;
 }
 
+/* Row Form Group */
 .form-group.row {
     display: flex;
     justify-content: space-between;
@@ -192,28 +201,30 @@ button.btn-rounded{
 }
 
 .col-half {
-    width: 48%; /* Each half will take 48% of the row */
+    width: 48%;
     box-sizing: border-box;
 }
 
+/* Form Control */
 .form-control {
     width: 100%;
     padding: 0.5rem;
     box-sizing: border-box;
 }
 
-
+/* Sign In Button */
 .btn-sign-in {
     width: 100%;
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background-color: #4A4CA6; 
+    background-color: #4A4CA6;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
+/* Landing Page */
 .landing-page {
     display: flex;
     flex-direction: column;
@@ -241,9 +252,10 @@ button.btn-rounded{
     top: 20px;
     left: 20px;
     margin: 0;
-    z-index: 2; /* Ensure it's above other content */
+    z-index: 2;
 }
 
+/* Custom Button */
 .custom-button {
     background-color: #4A4CA6;
     color: white;
@@ -255,17 +267,20 @@ button.btn-rounded{
     transition: background-color 0.3s ease;
     margin-right: 300px;
     margin-bottom: 100px;
-    z-index: 2; /* Ensure it's above other content */
+    z-index: 2;
 }
 
 .custom-button:hover {
     background-color: #1E1A43;
 }
 
+/* Get Started Button */
 #getStartedButton {
     margin-top: 550px;
     z-index: 2;
 }
+
+/* Tabs Container */
 .tabs-container {
     margin-bottom: 20px;
 }
@@ -286,8 +301,8 @@ button.btn-rounded{
 }
 
 .tabs .tab-link.active {
-    border-bottom: 2px solid #5a5ada; /* Line color under active tab */
-    color: #5a5ada; /* Active tab text color */
+    border-bottom: 2px solid #5a5ada;
+    color: #5a5ada;
 }
 
 .tab-content {
@@ -298,6 +313,7 @@ button.btn-rounded{
     display: block;
 }
 
+/* Course Container */
 .course-container {
     display: flex;
     flex-wrap: wrap;
@@ -305,7 +321,7 @@ button.btn-rounded{
 }
 
 .course-card {
-    background-color: #ffffff; 
+    background-color: #ffffff;
     border: 1px solid #090909;
     border-radius: 5px;
     width: 20%; 
@@ -326,10 +342,11 @@ button.btn-rounded{
 
 .course-card-text {
     font-size: 14px;
-    color: #666; 
-    margin-bottom: 15px; 
+    color: #666;
+    margin-bottom: 15px;
 }
 
+/* Course Actions */
 .course-actions {
     display: flex;
     justify-content: space-around;
@@ -343,13 +360,25 @@ button.btn-rounded{
 .add-course-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: right;
     margin-bottom: 20px;
+    
 }
 
-.add-btn{
-    margin-left: 850px;
+.add-btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
     background-color: #4A4CA6;
+    color: white;
+    border-radius: 4px;
+    margin-left: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-btn:hover {
+    background-color: #1E1A43;
 }
 
 .search-bar {
@@ -362,6 +391,7 @@ button.btn-rounded{
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    margin-left: .5rem;
 }
 
 .search-bar button {
@@ -371,9 +401,122 @@ button.btn-rounded{
     background-color: #4A4CA6;
     color: white;
     border-radius: 4px;
+    margin-left: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .search-bar button:hover {
     background-color: #1E1A43;
+}
+
+/* Media Queries for Responsiveness */
+
+/* For tablets and smaller devices (width 768px and below) */
+@media (max-width: 768px) {
+    /* Left Section Adjustments */
+    #left-section h1 {
+        font-size: 50px;
+        margin-left: 80px;
+    }
+
+    .logo {
+        font-size: 50px;
+        top: 10%;
+        left: 18%;
+    }
+
+    .illustration {
+        max-width: 400px;
+        max-height: 500px;
+        background-size: 400px 550px;
+    }
+
+    /* Right Section Adjustments */
+    #right-section {
+        margin-left: -2rem;
+    }
+
+    .sign-in-form h2 {
+        font-size: 1.5rem;
+        margin-left: 6rem;
+    }
+
+    .custom-button {
+        font-size: 16px;
+        padding: 8px 20px;
+        margin-right: 100px;
+        margin-bottom: 50px;
+    }
+
+    #getStartedButton {
+        margin-top: 300px;
+    }
+
+    /* Course Container Adjustments */
+    .course-card {
+        width: 45%;
+    }
+}
+
+/* For mobile devices (width 576px and below) */
+@media (max-width: 576px) {
+    /* Container Adjustments */
+    #login-container {
+        flex-direction: column;
+    }
+
+    /* Left Section Adjustments */
+    #left-section {
+        height: 50vh;
+        padding: 1rem;
+    }
+
+    #left-section h1 {
+        font-size: 40px;
+        margin-left: 40px;
+    }
+
+    .logo {
+        font-size: 40px;
+        top: 5%;
+        left: 15%;
+    }
+
+    .illustration {
+        max-width: 300px;
+        max-height: 400px;
+        background-size: 300px 400px;
+    }
+
+    /* Right Section Adjustments */
+    #right-section {
+        margin-left: 0;
+        border-radius: 0;
+    }
+
+    .sign-in-form {
+        margin: 2rem 1rem;
+    }
+
+    .sign-in-form h2 {
+        font-size: 1.2rem;
+        margin-left: 4rem;
+    }
+
+    .custom-button {
+        font-size: 14px;
+        padding: 6px 16px;
+        margin-right: 50px;
+        margin-bottom: 30px;
+    }
+
+    #getStartedButton {
+        margin-top: 200px;
+    }
+
+    /* Course Container Adjustments */
+    .course-card {
+        width: 100%;
+    }
 }

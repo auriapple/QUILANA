@@ -11,8 +11,9 @@
 
 .course-details-table th, .course-details-table td {
     padding: 10px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #ddd; /* Add a light bottom border */
+    justify-content: center;
 }
 
 .course-details-table th {
@@ -29,6 +30,7 @@
     font-family: 'Inter', sans-serif;
 
 }
+
 
 .course-details-table td:last-child {
     border-bottom: none; /* Remove border from last row */

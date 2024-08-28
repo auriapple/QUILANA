@@ -9,16 +9,16 @@
     <?php
     include('db_connect.php');
 
-    if (isset($_GET['course_id'])) {  // Use course_id instead of class_id
-        $course_id = $_GET['course_id'];
+    if (isset($_GET['course_id'])) {
+        $course_id = $conn->real_escape_string($_GET['course_id']);
 
         // Fetch the course details
         $qry_course = $conn->query("SELECT course_name FROM course WHERE course_id = '$course_id'");
         if ($qry_course->num_rows > 0) {
             $course = $qry_course->fetch_assoc();
-            echo "<p><strong>{$course['course_name']}</strong></p>";
+            echo "<h4><strong>{$course['course_name']}</strong></h4>";
         } else {
-            echo "<p><br><strong>Course not found.</strong></p>";
+            echo "<p><strong>Course not found.</strong></p>";
         }
 
         // Fetch the class details associated with the course
@@ -26,14 +26,17 @@
 
         // Display the table
         echo '<div class="course-details-table">
-                <table border="1">
-                    <tr>
-                        <th>Year</th>
-                        <th>Section</th>
-                        <th>Class Name</th>
-                        <th>Course Subject</th>
-                        <th>Action</th>
-                    </tr>';
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Section</th>
+                            <th>Class Name</th>
+                            <th>Course Subject</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
 
         if ($qry_class->num_rows > 0) {
             while ($class = $qry_class->fetch_assoc()) {
@@ -48,14 +51,16 @@
         } else {
             // Show an empty row if no class data is available
             echo '<tr>
-                    <td colspan="5" style="text-align: center;">No classes found.</td>
+                    <td colspan="5" class="text-center">No classes found.</td>
                 </tr>';
         }
 
-        echo '</table></div>';
+        echo '</tbody></table></div>';
     } else {
         echo "<p>No course ID provided.</p>";
     }
+
+    $conn->close();
     ?>
 </body>
 </html>
