@@ -295,22 +295,34 @@
                 // AJAX form submission for adding a class
                 $('#class-frm').submit(function(e) {
                     e.preventDefault();
+                    
                     $.ajax({
                         url: 'save_class.php',
                         method: 'POST',
                         data: $(this).serialize(),
+                        dataType: 'json', // Expect JSON response from the server
                         success: function(response) {
-                            var course_id = $('input[name="course_id"]').val();
-                            // Fetch and display the updated classes
-                            $.ajax({
-                                url: 'get_classes.php',
-                                method: 'POST',
-                                data: { course_id: course_id },
-                                success: function(response) {
-                                    $('#class-container').html(response);
-                                    $('#manage_class').modal('hide');
-                                }
-                            });
+                            if (response.status === 1) {
+                                alert(response.msg); // Show success message
+                                
+                                var course_id = $('input[name="course_id"]').val();
+                                // Fetch and display the updated classes
+                                $.ajax({
+                                    url: 'get_classes.php',
+                                    method: 'POST',
+                                    data: { course_id: course_id },
+                                    success: function(response) {
+                                        $('#class-container').html(response);
+                                        $('#manage_class').modal('hide');
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                                alert(response.msg); // Show error message
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred while adding the class.');
                         }
                     });
                 });
