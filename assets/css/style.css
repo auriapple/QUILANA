@@ -327,6 +327,7 @@ button.btn-rounded{
     width: 20%;
     margin-bottom: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .course-card-body {
@@ -336,6 +337,7 @@ button.btn-rounded{
 .course-card-title {
     font-size: 18px;
     font-weight: bold;
+    position: relative;
 }
 
 .course-card-text {

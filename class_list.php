@@ -5,6 +5,7 @@
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
     <title>Courses | Quialana</title>
+    <link rel="stylesheet" href="meatballMenuTest/meatball.css">
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -41,6 +42,18 @@
                 ?>
                 <div class="course-card">
                     <div class="course-card-body">
+                        <div class="meatball-menu-container">
+                            <script src="meatballMenuTest/meatball.js"> </script>
+                            <button class="meatball-menu-btn">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </button>
+                            <div class="meatball-menu">
+                                <a href="#">Edit</a>
+                                <a href="#">Delete</a>
+                            </div>
+                        </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
                         <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
                         <div class="course-actions">
