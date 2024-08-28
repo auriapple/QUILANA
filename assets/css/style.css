@@ -347,12 +347,24 @@ button.btn-rounded{
 /* Course Actions */
 .course-actions {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
 }
 
 .course-actions .btn {
     font-size: 14px;
     padding: 5px 15px;
+    margin-left: .5rem;
+    margin-right: .5rem;
+}
+
+.class-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.class-actions .btn {
+    font-size: 14px;
+    padding: 5px 60px;
 }
 
 .add-course-container {

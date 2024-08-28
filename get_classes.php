@@ -17,7 +17,7 @@ if (isset($_POST['course_id'])) {
             echo '<div class="course-card-title">' . htmlspecialchars($row['class_name']) . '</div>';
             echo '<div class="course-card-text"><br>Course Subject: <br> ' . htmlspecialchars($row['subject']) . '</div>';
             echo '<div class="class-actions">';
-            echo '<button class="btn btn-primary btn-sm view_course_details" data-id="'. $row['course_id'].' "type="button">View Details</button>';
+            echo '<button class="btn btn-primary btn-sm view_class_details" data-id="'. $row['class_id'].' "type="button">View Details</button>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
