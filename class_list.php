@@ -43,15 +43,14 @@
                 <div class="course-card">
                     <div class="course-card-body">
                         <div class="meatball-menu-container">
-                            <script src="meatballMenuTest/meatball.js"> </script>
                             <button class="meatball-menu-btn">
                                 <span class="dot"></span>
                                 <span class="dot"></span>
                                 <span class="dot"></span>
                             </button>
                             <div class="meatball-menu">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
+                                <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
+                                <a href="#" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
                             </div>
                         </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
@@ -109,6 +108,32 @@
                                 <input type="hidden" name="course_id" />
                                 <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
                                 <input type="text" name="course_name" required="required" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Course Modal -->
+        <div class="modal fade" id="manage_edit_course" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Edit Course</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <form id='edit-course-frm'>
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label>Course Name</label>
+                                <input type="hidden" name="course_id" id="course_id"/>
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                <input type="text" name="course_name" required="required" class="form-control" value=""/>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -193,6 +218,25 @@
                     $('#manage_course').modal('show');
                 });
 
+                //When edit button is clicked
+                $('.edit_course').click(function() {
+                    
+                    var courseId = $(this).data('id');
+                    var courseName = $(this).data('name');
+
+                    // You can now use selectedCourseId as needed, such as opening a modal for editing
+                    console.log('Selected Course ID:', courseId);
+                    console.log('Selected Course Name:', courseName);
+
+                    // Example: Open a modal for editing and populate it with the course data
+                    $('#msg').html('');
+                    $('#manage_edit_course .modal-title').html('Edit Course');
+                    $('#manage_edit_course #edit-course-frm').get(0).reset();
+                    $('#manage_edit_course #course_id').val(courseId);
+                    $('#manage_edit_course #course_name').val(courseName);
+                    $('#manage_edit_course').modal('show');
+                });
+
                 // When add new class button is clicked
                 $('#add_class').click(function() {
                     $('#msg').html('');
@@ -201,7 +245,31 @@
                     $('#manage_class').modal('show');
                 });
 
-                        // View course details button
+                // Edit Button
+                $('#edit-course-frm').submit(function(event) {
+                    
+
+                    $.ajax({
+                        url: './save_editted_course.php', 
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status == 1) {
+                                alert('Course saved successfully.');
+                                $('#manage_edit_course').modal('hide');
+                                location.reload(); // Reload the page to see the updated course list
+                            } else {
+                                alert('Failed to save course: ' + response.msg);
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred while saving course details.');
+                        }
+                    });
+                });
+
+                // View course details button
                 $(document).on('click', '.view_course_details', function() {
                     var course_id = $(this).attr('data-id');
                     $.ajax({
@@ -246,7 +314,7 @@
                         }
                     });
                 });
-                
+
                 // Handle Classes button click
                 $('.classes').click(function() {
                     var course_id = $(this).attr('data-id');
@@ -289,6 +357,38 @@
                                     $('#manage_class').modal('hide');
                                 }
                             });
+                        }
+                    });
+                });
+            });
+            
+            // For Meatball Menu
+            document.addEventListener('DOMContentLoaded', function() {
+                const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
+                
+                meatballMenuBtns.forEach(function(meatballMenuBtn) {
+                    meatballMenuBtn.addEventListener('click', function(event) {
+                        // Close any open menus first
+                        document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
+                            if (container !== meatballMenuBtn.parentElement) {
+                                container.classList.remove('show');
+                            }
+                        });
+
+                        // Toggle the clicked menu
+                        const meatballMenuContainer = meatballMenuBtn.parentElement;
+                        meatballMenuContainer.classList.toggle('show');
+
+                        // Stop the event from bubbling up to the document
+                        event.stopPropagation();
+                    });
+                });
+
+                // Close the menu if clicked outside
+                document.addEventListener('click', function(event) {
+                    document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
+                        if (!container.contains(event.target)) {
+                            container.classList.remove('show');
                         }
                     });
                 });
