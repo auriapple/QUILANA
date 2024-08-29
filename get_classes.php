@@ -33,7 +33,7 @@
                                 <div class="course-card-title"><?php echo htmlspecialchars($row['class_name']) ?></div>
                                 <div class="course-card-text"><br>Course Subject: <br> <?php echo htmlspecialchars($row['subject']) ?> </div>
                                 <div class="class-actions">
-                                    <button class="btn btn-primary btn-sm view_class_details" data-id="'. $row['class_id'].' "type="button">View Details</button>
+                                    <button class="btn btn-primary btn-sm view_class_details" data-id="<?php echo $row['class_id']?> "type="button">View Details</button>
                                 </div>
                             </div>
                         </div>
