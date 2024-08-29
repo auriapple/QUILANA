@@ -92,6 +92,24 @@
             </div>
         </div>
 
+        <!-- Class Details Modal -->
+        <div class="modal fade" id="class_details" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="classDetailsLabel">Class Details</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body" id="classDetailsBody">
+                        <!-- Class details will be dynamically loaded here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Manage Course Modal -->
         <div class="modal fade" id="manage_course" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
@@ -286,6 +304,23 @@
                     });
                 });
 
+                  // View class details button
+                  $(document).on('click', '.view_class_details', function() {
+                    var class_id = $(this).attr('data-id');
+                    $.ajax({
+                        url: 'get_class_details.php',
+                        method: 'GET',
+                        data: { class_id: class_id },
+                        success: function(response) {
+                            $('#classDetailsBody').html(response);
+                            $('#class_details').modal('show');
+                        },
+                        error: function() {
+                            alert('An error occurred while fetching class details.');
+                        }
+                    });
+                });
+
                 // Saving new course
                 $('#course-frm').submit(function(e) {
                     e.preventDefault();
@@ -341,22 +376,34 @@
                 // AJAX form submission for adding a class
                 $('#class-frm').submit(function(e) {
                     e.preventDefault();
+                    
                     $.ajax({
                         url: 'save_class.php',
                         method: 'POST',
                         data: $(this).serialize(),
+                        dataType: 'json', // Expect JSON response from the server
                         success: function(response) {
-                            var course_id = $('input[name="course_id"]').val();
-                            // Fetch and display the updated classes
-                            $.ajax({
-                                url: 'get_classes.php',
-                                method: 'POST',
-                                data: { course_id: course_id },
-                                success: function(response) {
-                                    $('#class-container').html(response);
-                                    $('#manage_class').modal('hide');
-                                }
-                            });
+                            if (response.status === 1) {
+                                alert(response.msg); // Show success message
+                                
+                                var course_id = $('input[name="course_id"]').val();
+                                // Fetch and display the updated classes
+                                $.ajax({
+                                    url: 'get_classes.php',
+                                    method: 'POST',
+                                    data: { course_id: course_id },
+                                    success: function(response) {
+                                        $('#class-container').html(response);
+                                        $('#manage_class').modal('hide');
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                                alert(response.msg); // Show error message
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred while adding the class.');
                         }
                     });
                 });
