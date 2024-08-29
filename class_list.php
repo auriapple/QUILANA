@@ -247,7 +247,7 @@
 
                 // Edit Button
                 $('#edit-course-frm').submit(function(event) {
-                    
+                    event.preventDefault();
 
                     $.ajax({
                         url: './save_editted_course.php', 

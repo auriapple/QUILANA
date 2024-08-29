@@ -2,9 +2,10 @@
 include('db_connect.php');
 include('auth.php');
 
-if(isset($_POST['course_name'])){
-    var_dump($_POST);
+// Set content type to JSON
+header('Content-Type: application/json');
 
+if(isset($_POST['course_name'])){
     $course_id = isset($_POST['course_id']) ? $_POST['course_id'] : '';
     $faculty_id = $_POST['faculty_id'];
     $course_name = $_POST['course_name'];
