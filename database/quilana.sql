@@ -72,6 +72,7 @@ CREATE TABLE administer_assessment (
     course_id INT NOT NULL,
     class_id INT NOT NULL,
     timelimit INT NOT NULL,
+    date_administered DATE NOT NULL DEFAULT CURRENT_DATE,
     FOREIGN KEY (assessment_id) REFERENCES assessment(assessment_id),
     FOREIGN KEY (course_id) REFERENCES course(course_id),
     FOREIGN KEY (class_id) REFERENCES class(class_id)
