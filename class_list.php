@@ -50,7 +50,7 @@
                             </button>
                             <div class="meatball-menu">
                                 <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
-                                <a href="#" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
+                                <a href="#" class="delete_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
                             </div>
                         </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
@@ -162,6 +162,31 @@
             </div>
         </div>
 
+        <!-- Delete Course Modal -->
+        <div class="modal fade" id="manage_delete_course" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Delete Course</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <form id='delete-course-frm'>
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label> Are you sure you want to delete the course: <strong id="modal_course_name"></strong>?</label>
+                                <input type="hidden" name="course_id" id="course_id"/>
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" name="save">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Manage Class Modal -->
         <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
@@ -238,21 +263,30 @@
 
                 //When edit button is clicked
                 $('.edit_course').click(function() {
-                    
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
 
-                    // You can now use selectedCourseId as needed, such as opening a modal for editing
-                    console.log('Selected Course ID:', courseId);
-                    console.log('Selected Course Name:', courseName);
-
-                    // Example: Open a modal for editing and populate it with the course data
+                    //Open a modal for editing
                     $('#msg').html('');
                     $('#manage_edit_course .modal-title').html('Edit Course');
                     $('#manage_edit_course #edit-course-frm').get(0).reset();
                     $('#manage_edit_course #course_id').val(courseId);
                     $('#manage_edit_course #course_name').val(courseName);
                     $('#manage_edit_course').modal('show');
+                });
+
+                //When delete button is clicked
+                $('.delete_course').click(function() {
+                    var courseId = $(this).data('id');
+                    var courseName = $(this).data('name');
+
+                    //Open a modal for deleting
+                    $('#msg').html('');
+                    $('#manage_delete_course .modal-title').html('Delete Course');
+                    $('#manage_delete_course #delete-course-frm').get(0).reset();
+                    $('#manage_delete_course #course_id').val(courseId);
+                    $('#modal_course_name').text(courseName);
+                    $('#manage_delete_course').modal('show');
                 });
 
                 // When add new class button is clicked
@@ -285,6 +319,31 @@
                             alert('An error occurred while saving course details.');
                         }
                         
+                    });
+                });
+
+                // Handle Delete Form
+                $('#delete-course-frm').submit(function(event) {
+                    event.preventDefault();
+
+                    $.ajax({
+                        url: 'delete_course.php', 
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status == 1) {
+                                alert('Course deleted successfully.');
+                                $('#manage_delete_course').modal('hide');
+                                location.reload(); // Reload the page to see the updated course list
+                            } else {
+                                alert('Failed to delete course: ' + response.msg);
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while deleting the course.');
+                        }
                     });
                 });
 
