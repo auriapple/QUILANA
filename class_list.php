@@ -284,6 +284,7 @@
                         error: function() {
                             alert('An error occurred while saving course details.');
                         }
+                        
                     });
                 });
 
