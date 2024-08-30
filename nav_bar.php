@@ -33,7 +33,7 @@
 
 			<?php else: ?>
 			<div id="sidebar-field">
-				<a href="enroll.php" class="sidebar-item text-dark">
+				<a href="student_class.php" class="sidebar-item text-dark">
 						<div class="sidebar-icon"><i class="fa fa-sign-in"></i></div> Classes
 				</a>
 			</div>
