@@ -168,179 +168,215 @@
                 
             </div>
 
-            <!-- Modal for managing assessments -->
-            <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="myModalLabel">Add New Assessment</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                        <form id="assessment-frm">
-                            <div class="modal-body">
-                                <div id="msg"></div>
-                                <div class="form-group">
-                                    <label>Assessment Name</label>
-                                    <input type="hidden" name="assessment_id" />
-                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                    <input type="text" name="assessment_name" required="required" class="form-control" />
-                                    <label>Assessment Type</label>
-                                    <select name="assessment_type" id="assessment_type" required="required" class="form-control">
-                                        <option value="1">Quiz</option>
-                                        <option value="2">Exam</option>
-                                    </select>
-                                    <label>Assessment Mode</label>
-                                    <select name="assessment_mode" id="assessment_mode" required="required" class="form-control">
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                    <label>Select Course</label>
-                                    <select name="course_id" id="course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
-                                        <?php
-                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                        while($course_row = $course_qry->fetch_assoc()) {
-                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                    <label>Select Course Subject</label>
-                                    <select name="class_id" id="class_id" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
-                                    </select>
-                                    <label>Topic</label>
-                                    <input type="text" name="topic" required="required" class="form-control" />
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
-                            </div>
-                        </form>
+        <!-- Modal for managing assessments -->
+        <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Add New Assessment</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
+                    <form id="assessment-frm">
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label>Assessment Name</label>
+                                <input type="hidden" name="assessment_id" />
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                <input type="text" name="assessment_name" required="required" class="form-control" />
+                                <label>Assessment Type</label>
+                                <select name="assessment_type" id="assessment_type" required="required" class="form-control">
+                                    <option value="1">Quiz</option>
+                                    <option value="2">Exam</option>
+                                </select>
+                                <label>Assessment Mode</label>
+                                <select name="assessment_mode" id="assessment_mode" required="required" class="form-control">
+                                    <option value="1">Normal Mode</option>
+                                    <option value="2">Quiz Bee Mode</option>
+                                    <option value="3">Speed Mode</option>
+                                </select>
+                                <label>Select Course</label>
+                                <select name="course_id" id="course_id" required="required" class="form-control">
+                                    <option value="">Select Course</option>
+                                    <?php
+                                    $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
+                                    while($course_row = $course_qry->fetch_assoc()) {
+                                        echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <label>Select Course Subject</label>
+                                <select name="class_id" id="class_id" required="required" class="form-control">
+                                    <option value="">Select Subject</option>
+                                </select>
+                                <label>Topic</label>
+                                <input type="text" name="topic" required="required" class="form-control" />
+                                <label>Time Limit (in minutes)</label>
+                                <input type="number" name="time_limit" id="time_limit" class="form-control" required />
+                                <small id="time-limit-hint" class="form-text text-muted">
+                                    For Normal Mode, this is the total time. For Quiz Bee and Speed Mode, this is the time per question.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                        </div>
+                    </form>
                 </div>
             </div>
+        </div>
 
-            <!-- Modal for administering assessments -->
-            <div class="modal fade" id="administer_assessment_modal" tabindex="-1">
-                <div class="modal-dialog modal-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="administerAssessmentLabel">Administer Assessment</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form id="administer-assessment-frm">
-                            <div class="modal-body">
-                                <div id="msg"></div>
-                                <div class="form-group">
-                                    <label for="administer_course">Course</label>
-                                    <input type="text" id="administer_course" class="form-control" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_subject">Subject</label>
-                                    <input type="text" id="administer_subject" class="form-control" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_mode">Mode</label>
-                                    <select id="administer_mode" class="form-control" disabled>
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_class_id">Select Class</label>
-                                    <select name="class_id" id="administer_class_id" required class="form-control">
-                                        <option value="">Select Class</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="time-limit-group">
-                                    <label for="time_limit">Time Limit (in minutes)</label>
-                                    <input type="number" name="time_limit" id="time_limit" class="form-control" required />
-                                    <small id="time-limit-hint" class="form-text text-muted">
-                                        For Normal Mode, this is the total time. For Quiz Bee and Speed Mode, this is the time per question.
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
-                            </div>
-                        </form>
+        <!-- Modal for administering assessments -->
+        <div class="modal fade" id="administer_assessment_modal" tabindex="-1">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="administerAssessmentLabel">Administer Assessment</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    <form id="administer-assessment-frm">
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label for="administer_course">Course</label>
+                                <input type="text" id="administer_course" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="administer_subject">Subject</label>
+                                <input type="text" id="administer_subject" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="administer_mode">Mode</label>
+                                <select id="administer_mode" class="form-control" disabled>
+                                    <option value="1">Normal Mode</option>
+                                    <option value="2">Quiz Bee Mode</option>
+                                    <option value="3">Speed Mode</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="administer_class_id">Select Class</label>
+                                <select name="class_id" id="administer_class_id" required class="form-control">
+                                    <option value="">Select Class</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="time-limit-group">
+                                <label for="time_limit">Time Limit (in minutes)</label>
+                                <input type="number" name="time_limit" id="time_limit" class="form-control" required />
+                                <small id="time-limit-hint" class="form-text text-muted">
+                                    For Normal Mode, this is the total time. For Quiz Bee and Speed Mode, this is the time per question.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
+                        </div>
+                    </form>
                 </div>
             </div>
+        </div>
+
 
             <script>
-             $(document).ready(function() {
-                // Show modal when "Add Assessment" is clicked
-                $('#add_assessment').click(function() {
-                    $('#manage_assessment').modal('show');
-                });
+          $(document).ready(function() {
+            // Show modal when "Add Assessment" is clicked
+            $('#add_assessment').click(function() {
+                $('#manage_assessment').modal('show');
+            });
             
-                // Handle assessment type change
-                $('#assessment_type').change(function() {
-                    var type = $(this).val();
-                    if (type == '2') { // Exam
-                        $('#assessment_mode').val('1').change(); // Set to Normal Mode
-                        $('#assessment_mode').find('option').not('[value="1"]').hide(); // Hide all other modes
-                    } else {
-                        $('#assessment_mode').find('option').show(); // Show all modes
+            // Handle assessment type change
+            $('#assessment_type').change(function() {
+                var type = $(this).val();
+                if (type == '2') { // Exam
+                    $('#assessment_mode').val('1').change(); // Set to Normal Mode
+                    $('#assessment_mode').find('option').not('[value="1"]').hide(); // Hide all other modes
+                } else {
+                    $('#assessment_mode').find('option').show(); // Show all modes
+                }
+            });
+
+            // Load subjects based on selected course
+            $('#course_id').change(function() {
+                var course_id = $(this).val();
+                if (course_id) {
+                    $.ajax({
+                        url: 'get_subjects.php',
+                        method: 'POST',
+                        data: { course_id: course_id },
+                        success: function(response) {
+                            $('#class_id').html(response); // Populate subjects dropdown
+                        }
+                    });
+                } else {
+                    $('#class_id').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
+                }
+            });
+
+            // Update time limit hint based on assessment mode
+            $('#assessment_mode').change(function() {
+                var mode = $(this).val();
+                if (mode == '1') { // Normal Mode
+                    $('#time_limit').attr('placeholder', 'Total time for the entire assessment');
+                    $('#time-limit-hint').text('For Normal Mode, this is the total time.');
+                } else { // Quiz Bee or Speed Mode
+                    $('#time_limit').attr('placeholder', 'Time limit per question');
+                    $('#time-limit-hint').text('For Quiz Bee and Speed Mode, this is the time per question.');
+                }
+            });
+
+            // Show modal when "Administer Assessment" is clicked
+            $(document).on('click', '.administer', function() {
+                var courseId = $(this).data('course');  // Get the course ID
+                var subjectName = $(this).data('subject');  // Get the subject name
+                var mode = $(this).data('mode');  // Get the assessment mode
+                var assessmentId = $(this).data('id');  // Get the assessment ID
+
+                // Set the course, subject, and mode fields in the modal
+                $('#administer_course').val(courseId);
+                $('#administer_mode').val(mode);
+                $('#administer_subject').val(subjectName);
+
+                // Set the hidden assessment ID field in the form
+                $('input[name="assessment_id"]').val(assessmentId);
+
+                // Load classes based on selected course and subject
+                if (courseId && subjectName) {
+                    $.ajax({
+                        url: 'administer_class.php',
+                        method: 'POST',
+                        data: { course_id: courseId, subject: subjectName },
+                        success: function(response) {
+                            $('#administer_class_id').html(response); // Populate classes dropdown
+                        }
+                    });
+                } else {
+                    $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
+                }
+
+                // Show the modal
+                $('#administer_assessment_modal').modal('show');
+            });
+
+            // Handle administer form submission
+            $('#administer-assessment-frm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: 'administer_assessment.php',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        alert('Assessment administered successfully!');
+                        $('#administer_assessment_modal').modal('hide');
+                    },
+                    error: function() {
+                        alert('Error administering assessment.');
                     }
-                });
-
-                // Load subjects based on selected course
-                $('#course_id').change(function() {
-                    var course_id = $(this).val();
-                    if (course_id) {
-                        $.ajax({
-                            url: 'get_subjects.php',
-                            method: 'POST',
-                            data: { course_id: course_id },
-                            success: function(response) {
-                                $('#class_id').html(response); // Populate subjects dropdown
-                            }
-                        });
-                    } else {
-                        $('#class_id').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
-                    }
-                });
-
-               // Show modal when "Administer Assessment" is clicked
-               $(document).on('click', '.administer', function() {
-                    var courseId = $(this).data('course');  // Get the course ID
-                    var subjectName = $(this).data('subject');  // Get the subject name
-                    var mode = $(this).data('mode');  // Get the assessment mode
-                    var assessmentId = $(this).data('id');  // Get the assessment ID
-
-                    // Set the course, subject, and mode fields in the modal
-                    $('#administer_course').val(courseId);
-                    $('#administer_mode').val(mode);
-                    $('#administer_subject').val(subjectName);
-
-                    // Set the hidden assessment ID field in the form
-                    $('input[name="assessment_id"]').val(assessmentId);
-
-                    // Load classes based on selected course and subject
-                    if (courseId && subjectName) {
-                        $.ajax({
-                            url: 'administer_class.php',
-                            method: 'POST',
-                            data: { course_id: courseId, subject: subjectName },
-                            success: function(response) {
-                                $('#administer_class_id').html(response); // Populate classes dropdown
-                            }
-                        });
-                    } else {
-                        $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
-                    }
-
-                    // Show the modal
-                    $('#administer_assessment_modal').modal('show');
                 });
             });
+        });
             </script>
         </div>
     </div>
