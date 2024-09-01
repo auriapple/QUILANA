@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
 </head>
 <body>
-    <?php // include('nav_bar.php') ?>
+    <?php include('nav_bar.php') ?>
 
     <div class="container-fluid admin">
         <div class="add-course-container">
@@ -220,12 +220,12 @@
             </div>
         </div>
 
-    <script src="meatballMenuTest/meatball.js">
-        $(document).ready(function() {
-        // Show the appropriate button based on the active tab
-        function updateButtons() {
-            var activeTab = $('.tab-link.active').data('tab');
-            $('.add-btn').hide(); // Hide all buttons initially
+        <script>
+            $(document).ready(function() {
+                // Show the appropriate button based on the active tab
+                function updateButtons() {
+                    var activeTab = $('.tab-link.active').data('tab');
+                    $('.add-btn').hide(); // Hide all buttons initially
 
                     if (activeTab === 'courses-tab') {
                         $('#add_course').show();
