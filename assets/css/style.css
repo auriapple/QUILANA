@@ -321,6 +321,8 @@ button.btn-rounded{
 }
 
 .course-card {
+    width: 100%; /* Full width of the container */
+    max-width: calc(20% - 10px);
     background-color: #ffffff;
     border: 1px solid #090909;
     border-radius: 5px;
@@ -328,6 +330,7 @@ button.btn-rounded{
     margin-bottom: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: relative;
+    min-width: 280px;
 }
 
 .course-card-body {
