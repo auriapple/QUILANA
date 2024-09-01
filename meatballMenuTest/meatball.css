@@ -45,6 +45,7 @@
     padding: 8px 16px;
     text-decoration: none;
     display: block;
+    white-space: nowrap;
 }
 
 .meatball-menu a:hover {
