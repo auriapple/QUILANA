@@ -98,13 +98,14 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title" id="classDetailsLabel">Class Details</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close back_vcd_false" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body" id="classDetailsBody">
                         <!-- Class details will be dynamically loaded here -->
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <div id="back-button-container"></div> <!-- If View Class from the View Course Details is clicked -->
+                    <button class="btn btn-secondary back_vcd_false" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -555,6 +556,69 @@
                         }
                     });
                 });
+                
+                let isButtonClicked = false;
+                
+                // View Course Details Action Button: View Class
+                $(document).on('click', '.action_vcd', function() {
+                    isButtonClicked = true;
+
+                    $('#course_details').modal('hide');
+
+                    $('#course_details').one('hidden.bs.modal', function() {
+                        $('#class_details').modal('show');
+                    });
+                });
+
+                // View Class Details: Back Button
+                $(document).on('click', '.back_vcd', function() {
+                    isButtonClicked = false;
+                    
+                    $('#class_details').modal('hide');
+
+                    $('#class_details').one('hidden.bs.modal', function() {
+                        $('#course_details').modal('show');
+                    });
+                });
+
+                // To make sure that the isButtonClicked false after exiting the Class Details
+                $(document).on('click', '.back_vcd_false', function() {
+                    isButtonClicked = false;
+                });
+                
+                // When the next modal is shown, check the boolean value
+                $('#class_details').on('shown.bs.modal', function() {
+                    if (isButtonClicked) {
+                        $('#back-button-container').html('<button class="btn btn-secondary back_vcd" data-dismiss="modal">Back</button>');
+                    } else {
+                        $('#back-button-container').html('');
+                    }
+                });
+
+                $(document).on('click', '.accept-btn, .reject-btn', function() {
+                    var classId = $(this).data('class-id');
+                    var studentId = $(this).data('student-id');
+                    var status = $(this).data('status');
+
+                    $.ajax({
+                        url: 'status_update.php',
+                        type: 'POST',
+                        data: {
+                            class_id: classId,
+                            student_id: studentId,
+                            status: status
+                        },
+                        success: function(response) {
+                            if (response == 'success') {
+                                alert('Student status updated.');
+                                location.reload(); // Refresh the page to see the updated status
+                            } else {
+                                alert('Failed to update status.');
+                            }
+                        } 
+                    });
+                });
+
 
                 // Saving new course
                 $('#course-frm').submit(function(e) {

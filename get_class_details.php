@@ -28,10 +28,10 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the students with concatenated name and enrollment status
     $qry_student = $conn->query("
-        SELECT s.student_number, CONCAT(s.lastname, ', ', s.firstname) AS student_name, se.status
+        SELECT s.student_id, s.student_number, CONCAT(s.lastname, ', ', s.firstname) AS student_name, se.status
         FROM student_enrollment se
         JOIN student s ON se.student_id = s.student_id
-        WHERE se.class_id = '$class_id'
+        WHERE se.class_id = '$class_id AND se.status != 2'
     ");
 
     if (!$qry_student) {
@@ -71,7 +71,7 @@ if (isset($_GET['class_id'])) {
                         <td>' . htmlspecialchars($assessment['assessment_name']) . '</td>
                         <td>' . htmlspecialchars($assessment['date_administered']) . '</td>
                         <td>' . htmlspecialchars($assessment['total_points']) . '</td>
-                        <td><!-- Action buttons here --></td>
+                        <td>' ?> . <button class="btn btn-primary btn-sm" data-id="<?php // echo $assessment['assessment_id']?>"  type="button">View Assessment</button> . <?php '</td>
                     </tr>';
             }
         } else {
@@ -88,6 +88,8 @@ if (isset($_GET['class_id'])) {
 <!-- Tab content for Students -->
 <div id="Students" class="tabcontent" style="display: none;">
     <?php
+    $class_id = $conn->real_escape_string($_GET['class_id']);
+
     if (isset($qry_student)) {
         // Display the table for students
         echo '<div class="course-details-table">
@@ -106,10 +108,31 @@ if (isset($_GET['class_id'])) {
             while ($student = $qry_student->fetch_assoc()) {
                 echo '<tr>
                         <td>' . htmlspecialchars($student['student_number']) . '</td>
-                        <td>' . htmlspecialchars($student['student_name']) . '</td>
-                        <td>' . htmlspecialchars($student['status']) . '</td>
-                        <td><!-- Action buttons here --></td>
-                    </tr>';
+                        <td>' . htmlspecialchars($student['student_name']) . '</td>';
+                        if (htmlspecialchars($student['status']) == 0) {
+                            echo '<td> Pending </td>';
+                            echo '<td>'; 
+                            ?> <div>
+                                <button class="btn btn-primary btn-sm accept-btn" 
+                                        data-class-id="<?php echo $class_id ?>" 
+                                        data-student-id="<?php echo $student['student_id'] ?>" 
+                                        data-status="1" 
+                                        type="button">Accept</button>
+                                <button class="btn btn-primary btn-sm reject-btn" 
+                                        data-class-id="<?php echo $class_id ?>" 
+                                        data-student-id="<?php echo $student['student_id'] ?>" 
+                                        data-status="2" 
+                                        type="button">Reject</button>
+                            </div> 
+                            <?php echo '</td>';
+                        } else if (htmlspecialchars($student['status']) == 1){
+                            echo '<td> Enrolled </td>';
+                            echo '<td>' ?> . <div>
+                            <button class="btn btn-primary btn-sm" data-class-id="<?php $class_id ?>"  type="button">Scores</button>
+                            <button class="btn btn-primary btn-sm reject-btn" data-class-id="<?php $class_id ?>"  type="button">Remove</button> . 
+                            </div> <?php '</td>';
+                        };
+                    echo '</tr>';
             }
         } else {
             echo '<tr>

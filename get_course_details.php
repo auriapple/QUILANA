@@ -40,12 +40,13 @@
 
         if ($qry_class->num_rows > 0) {
             while ($class = $qry_class->fetch_assoc()) {
+
                 echo '<tr>
                         <td>' . $class['year'] . '</td>
                         <td>' . $class['section'] . '</td>
                         <td>' . $class['class_name'] . '</td>
                         <td>' . $class['subject'] . '</td>
-                        <td><!-- Action buttons here --></td>
+                        <td>' ?> . <button class="btn btn-primary btn-sm view_class_details action_vcd" data-id="<?php echo $class['class_id']?>"  type="button">View Class</button> . <?php '</td>
                     </tr>';
             }
         } else {
