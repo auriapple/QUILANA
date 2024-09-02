@@ -150,7 +150,8 @@
                             <a class="btn btn-sm btn-outline-primary view_assessment_details" 
                             href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
                             <button class="btn btn-primary btn-sm administer" 
-                                data-course="<?php echo $row['course_id']; ?>" 
+                                data-course-id="<?php echo $row['course_id']; ?>" 
+                                data-course-name="<?php echo $row['course_name']; ?>" 
                                 data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
                                 data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
                                 data-id="<?php echo $row['assessment_id']; ?>">Administer</button>
@@ -232,6 +233,8 @@
                         </button>
                     </div>
                     <form id="administer-assessment-frm">
+                    <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
+                    <input type="hidden" name="course_id" id="course_id_hidden" />
                         <div class="modal-body">
                             <div id="msg"></div>
                             <div class="form-group">
@@ -311,18 +314,22 @@
 
             // Show modal when "Administer Assessment" is clicked
             $(document).on('click', '.administer', function() {
-                var courseId = $(this).data('course');  // Get the course ID
-                var subjectName = $(this).data('subject');  // Get the subject name
-                var mode = $(this).data('mode');  // Get the assessment mode
-                var assessmentId = $(this).data('id');  // Get the assessment ID
+                var assessmentId = $(this).data('id');      // Get the assessment ID
+                var courseId = $(this).data('course-id');   // Get the course ID
 
-                // Set the course, subject, and mode fields in the modal
-                $('#administer_course').val(courseId);
+                // Set the hidden fields
+                $('#assessment_id_hidden').val(assessmentId);
+                $('#course_id_hidden').val(courseId);
+
+                // Set other fields
+                var courseName = $(this).data('course-name'); // Get the course name
+                var subjectName = $(this).data('subject');  // Get the subject name
+                var mode = $(this).data('mode');            // Get the assessment mode
+
+                // Set the course name, subject, and mode fields in the modal
+                $('#administer_course').val(courseName); // Display course name
                 $('#administer_mode').val(mode);
                 $('#administer_subject').val(subjectName);
-
-                // Set the hidden assessment ID field in the form
-                $('input[name="assessment_id"]').val(assessmentId);
 
                 // Load classes based on selected course and subject
                 if (courseId && subjectName) {
@@ -332,6 +339,9 @@
                         data: { course_id: courseId, subject: subjectName },
                         success: function(response) {
                             $('#administer_class_id').html(response); // Populate classes dropdown
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
                         }
                     });
                 } else {
@@ -339,11 +349,12 @@
                 }
 
                 // Adjust time limit hint based on mode
-                 adjustTimeLimitHint(mode);
+                adjustTimeLimitHint(mode);
 
                 // Show the modal
                 $('#administer_assessment_modal').modal('show');
             });
+
 
             // Adjust time limit hint function
             function adjustTimeLimitHint(mode) {
@@ -359,14 +370,20 @@
             // Handle administer form submission
             $('#administer-assessment-frm').submit(function(e) {
                 e.preventDefault();
-                var formData = $(this).serialize();
+                var formData = $(this).serialize(); // This will serialize all form fields including hidden ones
+
                 $.ajax({
                     url: 'administer_assessment.php',
                     method: 'POST',
                     data: formData,
                     success: function(response) {
-                        alert('Assessment administered successfully!');
-                        $('#administer_assessment_modal').modal('hide');
+                        alert('Server response: ' + response);
+                        if (response.trim() === 'success') {
+                            alert('Assessment administered successfully!');
+                            $('#administer_assessment_modal').modal('hide');
+                        } else {
+                            alert('Error: ' + response);
+                        }
                     },
                     error: function() {
                         alert('Error administering assessment.');

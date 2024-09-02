@@ -15,11 +15,12 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the assessments with related details
     $qry_assessments = $conn->query("
-        SELECT a.assessment_name, aa.date_administered, q.total_points
+        SELECT a.assessment_name, aa.date_administered, SUM(q.total_points) AS total_points
         FROM administer_assessment aa
         JOIN assessment a ON aa.assessment_id = a.assessment_id
         JOIN questions q ON q.assessment_id = a.assessment_id
         WHERE aa.class_id = '$class_id'
+        GROUP BY a.assessment_name, aa.date_administered
     ");
 
     if (!$qry_assessments) {
@@ -57,7 +58,7 @@ if (isset($_GET['class_id'])) {
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Quiz Name</th>
+                            <th>Assessment Name</th>
                             <th>Date Administered</th>
                             <th>Total Score</th>
                             <th>Action</th>
@@ -71,7 +72,10 @@ if (isset($_GET['class_id'])) {
                         <td>' . htmlspecialchars($assessment['assessment_name']) . '</td>
                         <td>' . htmlspecialchars($assessment['date_administered']) . '</td>
                         <td>' . htmlspecialchars($assessment['total_points']) . '</td>
-                        <td><!-- Action buttons here --></td>
+                        <td><a href="view_assessment.php?id=<?php echo $assessment[$assessment_id]; ?>" class="btn btn-info btn-sm">View</a>
+                        <a href="view_assessment.php?id=<?php echo $assessment[$assessment_id]; ?>" class="btn btn-info btn-sm">Delete</a>
+
+                        </td>
                     </tr>';
             }
         } else {

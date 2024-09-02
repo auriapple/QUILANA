@@ -284,24 +284,25 @@
                     }
                 }
 
-                // Handle tab switching
+                 
+                    // Hide Classes tab link initially
+                    $('#classes-tab-link').hide();
+
+                // Handle tab click for courses tab
                 $('.tab-link').click(function() {
-                    var tab_id = $(this).attr('data-tab');
+                    var tabId = $(this).data('tab');
 
-                    // Remove active class from all tabs and content
+                    if (tabId === 'courses-tab') {
+                        $('#classes-tab-link').hide(); // Hide the Classes tab when Courses tab is clicked
+                    }
+
                     $('.tab-link').removeClass('active');
-                    $('.tab-content').removeClass('active');
-
-                    // Add active class to the clicked tab and corresponding content
                     $(this).addClass('active');
-                    $("#" + tab_id).addClass('active');
+                    $('.tab-content').removeClass('active');
+                    $('#' + tabId).addClass('active');
 
-                    // Update buttons visibility
                     updateButtons();
                 });
-
-                // Show the correct button when the page loads
-                updateButtons();
 
                 // When add new course button is clicked
                 $('#add_course').click(function() {
@@ -330,8 +331,6 @@
                     $('#manage_edit_course').modal('show');
                 });
 
-<<<<<<< HEAD
-=======
                 //When delete button (course) is clicked
                 $('.delete_course').click(function() {
                     var courseId = $(this).data('id');
@@ -346,7 +345,6 @@
                     $('#manage_delete_course').modal('show');
                 });
 
->>>>>>> nathan
                 // When add new class button is clicked
                 $('#add_class').click(function() {
                     $('#msg').html('');
