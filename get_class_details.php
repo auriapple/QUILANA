@@ -31,7 +31,7 @@ if (isset($_GET['class_id'])) {
         SELECT s.student_id, s.student_number, CONCAT(s.lastname, ', ', s.firstname) AS student_name, se.status
         FROM student_enrollment se
         JOIN student s ON se.student_id = s.student_id
-        WHERE se.class_id = '$class_id AND se.status != 2'
+        WHERE se.class_id = '$class_id' AND se.status != 2
     ");
 
     if (!$qry_student) {
