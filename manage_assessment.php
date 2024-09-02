@@ -274,6 +274,7 @@
                         <button type="submit" class="btn btn-primary">Save Question</button>
                     </div>
                 </form>
+                <div id="msg"></div>
             </div>
         </div>
     </div>
@@ -383,7 +384,6 @@
 				});
 			});
 
-			// Trigger change event on page load to set up initial state
 			$('#question_type').trigger('change');
 		});
     </script>

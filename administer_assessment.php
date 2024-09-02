@@ -1,4 +1,8 @@
 <?php
+header('Content-Type: application/json');
+$response = array('status' => 'success', 'message' => 'Assessment successfully administered!');
+echo json_encode($response);
+
 
 include('db_connect.php');
 
@@ -10,20 +14,26 @@ $course_id = $_POST['course_id'];
 
 // Validate inputs
 if (empty($assessment_id) || empty($class_id) || empty($timelimit) || empty($course_id)) {
-  echo 'Please fill out all required fields.';
-  exit;
+    echo 'Please fill out all required fields.';
+    exit;
 }
 
-// Prepare SQL statement without administer_id
-$sql = "INSERT INTO administer_assessment (assessment_id, class_id, timelimit, course_id, date_administered) VALUES (?, ?, ?, ?, CURRENT_DATE())";
+// Prepare SQL statement with ON DUPLICATE KEY UPDATE
+$sql = "
+    INSERT INTO administer_assessment (assessment_id, class_id, timelimit, course_id, date_administered)
+    VALUES (?, ?, ?, ?, CURRENT_DATE())
+    ON DUPLICATE KEY UPDATE 
+        timelimit = VALUES(timelimit),
+        date_administered = VALUES(date_administered)
+";
+
 $stmt = $conn->prepare($sql);
 
 // Bind parameters and execute statement
 $stmt->bind_param('iiii', $assessment_id, $class_id, $timelimit, $course_id);
 if ($stmt->execute()) {
-  echo 'success';
 } else {
-  echo 'Error: ' . $conn->error;
+    echo 'Error: ' . $conn->error;
 }
 
 // Close statement and connection
