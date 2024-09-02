@@ -326,8 +326,8 @@ button.btn-rounded{
     background-color: #ffffff;
     border: 1px solid #090909;
     border-radius: 5px;
-    width: 20%;
-    margin-bottom: 10px;
+    width: 20%; 
+    margin-bottom: 10px; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: relative;
     min-width: 280px;

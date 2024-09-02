@@ -211,11 +211,6 @@
                                 </select>
                                 <label>Topic</label>
                                 <input type="text" name="topic" required="required" class="form-control" />
-                                <label>Time Limit (in minutes)</label>
-                                <input type="number" name="time_limit" id="time_limit" class="form-control" required />
-                                <small id="time-limit-hint" class="form-text text-muted">
-                                    For Normal Mode, this is the total time. For Quiz Bee and Speed Mode, this is the time per question.
-                                </small>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -314,18 +309,6 @@
                 }
             });
 
-            // Update time limit hint based on assessment mode
-            $('#assessment_mode').change(function() {
-                var mode = $(this).val();
-                if (mode == '1') { // Normal Mode
-                    $('#time_limit').attr('placeholder', 'Total time for the entire assessment');
-                    $('#time-limit-hint').text('For Normal Mode, this is the total time.');
-                } else { // Quiz Bee or Speed Mode
-                    $('#time_limit').attr('placeholder', 'Time limit per question');
-                    $('#time-limit-hint').text('For Quiz Bee and Speed Mode, this is the time per question.');
-                }
-            });
-
             // Show modal when "Administer Assessment" is clicked
             $(document).on('click', '.administer', function() {
                 var courseId = $(this).data('course');  // Get the course ID
@@ -355,9 +338,23 @@
                     $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
                 }
 
+                // Adjust time limit hint based on mode
+                 adjustTimeLimitHint(mode);
+
                 // Show the modal
                 $('#administer_assessment_modal').modal('show');
             });
+
+            // Adjust time limit hint function
+            function adjustTimeLimitHint(mode) {
+                if (mode == '1') { // Normal Mode
+                    $('#time_limit').attr('placeholder', 'Total time for the entire assessment');
+                    $('#time-limit-hint').text('For Normal Mode, this is the total time.');
+                } else { // Quiz Bee or Speed Mode
+                    $('#time_limit').attr('placeholder', 'Time limit per question');
+                    $('#time-limit-hint').text('For Quiz Bee and Speed Mode, this is the time per question.');
+                }
+            }
 
             // Handle administer form submission
             $('#administer-assessment-frm').submit(function(e) {

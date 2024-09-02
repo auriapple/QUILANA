@@ -2,7 +2,6 @@
 <html lang="en">
     <body>
         <?php
-            // Include database connection
             include('db_connect.php');
 
             // Check if course_id is set
@@ -15,7 +14,7 @@
 
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                    ?>  
+        ?>  
                         <div class="course-card">
                             <div class="course-card-body">
                                 <div class="meatball-menu-container">
@@ -25,9 +24,9 @@
                                         <span class="dot"></span>
                                     </button>
                                     <div class="meatball-menu">
-                                        <a href="#">Edit</a>
-                                        <a href="#">Delete</a>
-                                        <a href="#">Get Code</a>
+                                        <a href="#" class="edit_class" data-class-id="<?php echo $row['class_id'] ?>" data-class-name="<?php echo $row['class_name']?>" data-subject="<?php echo $row['subject']?>">Edit</a>
+                                        <a href="#" class="delete_class" data-class-id="<?php echo $row['class_id'] ?>" data-class-name="<?php echo $row['class_name'] ?>" data-subject="<?php echo $row['subject']?>">Delete</a>
+                                        <a href="#" class="get_code" data-class-id="<?php echo $row['class_id'] ?>">Get Code</a>
                                     </div>
                                 </div>
                                 <div class="course-card-title"><?php echo htmlspecialchars($row['class_name']) ?></div>
@@ -37,19 +36,7 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!--
-                        echo '<div class="course-card">';
-                        echo '<div class="course-card-body">';
-                        echo '<div class="course-card-title">' . htmlspecialchars($row['class_name']) . '</div>';
-                        echo '<div class="course-card-text"><br>Course Subject: <br> ' . htmlspecialchars($row['subject']) . '</div>';
-                        echo '<div class="class-actions">';
-                        echo '<button class="btn btn-primary btn-sm view_class_details" data-id="'. $row['class_id'].' "type="button">View Details</button>';
-                        echo '</div>';
-                        echo '</div>';
-                        echo '</div>';
-                    -->
-                    <?php 
+        <?php 
                     }
                 } else {
                     echo '<div class="alert alert-info">No classes found for this course.</div>';
@@ -62,14 +49,31 @@
             }
         ?>
 
+        <!-- Get Code Modal -->
+        <div class="modal fade" id="manage_get_code" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Join Code</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="msg"></div>
+                        <div class="form-group">
+                            <h1 id="modal_code"></h1>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal">Return</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
-            // For Meatball Menu
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log("Adding Event listener to button: ", index);
                 const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
-                
+
                 meatballMenuBtns.forEach(function(meatballMenuBtn) {
-                    console.log('Meatball menu button clicked:', meatballMenuBtn);
                     meatballMenuBtn.addEventListener('click', function(event) {
                         // Close any open menus first
                         document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
@@ -95,7 +99,39 @@
                         }
                     });
                 });
-            });
+
+                // Handle "Get Code" clicks
+                document.querySelectorAll('.get_code').forEach(function(link) {
+                    link.addEventListener('click', function(event) {
+                        event.preventDefault();
+
+                        const classId = this.getAttribute('data-class-id');
+
+                        fetch('generated_code.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: 'class_id=' + encodeURIComponent(classId)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update the modal content
+                                document.getElementById('modal_class_name').textContent = data.class_name;
+                                document.getElementById('modal_subject').textContent = data.subject;
+                                document.getElementById('modal_code').textContent = data.code;
+                                // Show the modal
+                                $('#manage_get_code').modal('show');
+                            } else {
+                                alert('Error generating code: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('A network error occurred.');
+                        });
+                    });
+                });
+            
         </script>
     </body>
 </html>

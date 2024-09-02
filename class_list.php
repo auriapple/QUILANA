@@ -4,7 +4,7 @@
     <?php include('header.php') ?>
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
-    <title>Courses | Quialana</title>
+    <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
 </head>
 <body>
@@ -195,6 +195,81 @@
             </div>
         </div>
 
+        <!-- Edit Class Modal -->
+        <div class="modal fade" id="manage_edit_class" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Edit Class</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <form id='edit-class-frm'>
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label>Class Name</label>
+                                <input type="hidden" name="class_id" id="class_id"/>
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                <input type="text" name="class_name" required="required" class="form-control" value=""/>
+                                <label>Course Subject</label>
+                                <input type="text" name="subject" required="required" class="form-control" value=""/>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span>Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Class Modal -->
+        <div class="modal fade" id="manage_delete_class" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Delete Class</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <form id='delete-class-frm'>
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label> Are you sure you want to delete the class: <strong id="modal_class_name"></strong> (<strong id="modal_subject"></strong>)?</label>
+                                <input type="hidden" name="class_id" id="class_id"/>
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" name="save">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Get Code Modal -->
+        <div class="modal fade" id="manage_get_code" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Join Code</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="msg"></div>
+                        <div class="form-group">
+                            <h3><a id="modal_class_name"></a> (<a id="modal_subject"></a>)</h3>
+                            <h1 id="modal_code"></h1>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal">Return</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             $(document).ready(function() {
                 // Show the appropriate button based on the active tab
@@ -236,7 +311,7 @@
                     $('#manage_course').modal('show');
                 });
 
-                //When edit button is clicked
+                //When edit button (course) is clicked
                 $('.edit_course').click(function() {
                     
                     var courseId = $(this).data('id');
@@ -255,6 +330,23 @@
                     $('#manage_edit_course').modal('show');
                 });
 
+<<<<<<< HEAD
+=======
+                //When delete button (course) is clicked
+                $('.delete_course').click(function() {
+                    var courseId = $(this).data('id');
+                    var courseName = $(this).data('name');
+
+                    //Open a modal for deleting
+                    $('#msg').html('');
+                    $('#manage_delete_course .modal-title').html('Delete Course');
+                    $('#manage_delete_course #delete-course-frm').get(0).reset();
+                    $('#manage_delete_course #course_id').val(courseId);
+                    $('#modal_course_name').text(courseName);
+                    $('#manage_delete_course').modal('show');
+                });
+
+>>>>>>> nathan
                 // When add new class button is clicked
                 $('#add_class').click(function() {
                     $('#msg').html('');
@@ -263,7 +355,55 @@
                     $('#manage_class').modal('show');
                 });
 
-                // Edit Button
+                //When edit button (class) is clicked
+                $(document).on('click', '.edit_class', function() {
+                    var classId = $(this).data('class-id');
+                    var className = $(this).data('class-name');
+                    var subject = $(this).data('subject');
+
+                    //Open a modal for editing
+                    $('#msg').html('');
+                    $('#manage_edit_class .modal-title').html('Edit Class');
+                    $('#manage_edit_class #edit-class-frm').get(0).reset();
+                    $('#manage_edit_class #class_id').val(classId);
+                    $('#manage_edit_class #class_name').val(className);
+                    $('#manage_edit_class #subject').val(subject);
+                    $('#manage_edit_class').modal('show');
+                });
+
+                //When delete button (class) is clicked
+                $(document).on('click', '.delete_class', function() {
+                    var classId = $(this).data('class-id');
+                    var className = $(this).data('class-name');
+                    var subject = $(this).data('subject');
+
+                    //Open a modal for deleting
+                    $('#msg').html('');
+                    $('#manage_delete_class .modal-title').html('Delete Course');
+                    $('#manage_delete_class #delete-class-frm').get(0).reset();
+                    $('#manage_delete_class #class_id').val(classId);
+                    $('#modal_class_name').text(className);
+                    $('#modal_subject').text(subject);
+                    $('#manage_delete_class').modal('show');
+                });
+
+                $(document).on('click', '.get_code', function() {
+                    var classId = $(this).data('class-id');
+                    var className = $(this).data('class-name');
+                    var subject = $(this).data('subject');
+                    var code = $(this).data('code');
+
+                    //Open a modal for deleting
+                    $('#msg').html('');
+                    $('#manage_get_code .modal-title').html('Join Code');
+                    $('#manage_get_code #class_id').val(classId);
+                    $('#manage_get_code #modal_class_name').text(className);
+                    $('#manage_get_code #modal_subject').text(subject);
+                    $('#modal_code').text(code);
+                    $('#manage_get_code').modal('show');
+                });
+
+                // Handle Edit Form (Course)
                 $('#edit-course-frm').submit(function(event) {
                     event.preventDefault();
 
@@ -287,6 +427,82 @@
                     });
                 });
 
+                // Handle Delete Form (Course)
+                $('#delete-course-frm').submit(function(event) {
+                    event.preventDefault();
+
+                    $.ajax({
+                        url: 'delete_course.php', 
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status == 1) {
+                                alert('Course deleted successfully.');
+                                $('#manage_delete_course').modal('hide');
+                                location.reload(); // Reload the page to see the updated course list
+                            } else {
+                                alert('Failed to delete course: ' + response.msg);
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while deleting the course.');
+                        }
+                    });
+                });
+
+                // Handle Edit Form (Class)
+                $('#edit-class-frm').submit(function(event) {
+                    event.preventDefault();
+
+                    // sessionStorage.setItem('classsesTabVisible', true); //wip
+
+                    $.ajax({
+                        url: './save_editted_class.php', 
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status == 1) {
+                                alert('Class saved successfully.');
+                                $('#manage_edit_class').modal('hide');
+                                location.reload();
+                            } else {
+                                alert('Failed to save class: ' + response.msg);
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred while saving class details.');
+                        }
+                    });
+                });
+
+                // Handle Delete Form (Class)
+                $('#delete-class-frm').submit(function(event) {
+                    event.preventDefault();
+
+                    $.ajax({
+                        url: './delete_class.php', 
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status == 1) {
+                                alert('Class deleted successfully.');
+                                $('#manage_delete_class').modal('hide');
+                                location.reload(); // Reload the page to see the updated class list
+                            } else {
+                                alert('Failed to delete class: ' + response.msg);
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while deleting the class.');
+                        }
+                    });
+                });
+
                 // View course details button
                 $(document).on('click', '.view_course_details', function() {
                     var course_id = $(this).attr('data-id');
@@ -298,14 +514,15 @@
                             $('#courseDetailsBody').html(response);
                             $('#course_details').modal('show');
                         },
-                        error: function() {
-                            alert('An error occurred while fetching course details.');
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while saving the course.');
                         }
                     });
                 });
 
-                  // View class details button
-                  $(document).on('click', '.view_class_details', function() {
+                // View class details button
+                $(document).on('click', '.view_class_details', function() {
                     var class_id = $(this).attr('data-id');
                     $.ajax({
                         url: 'get_class_details.php',
@@ -315,8 +532,9 @@
                             $('#classDetailsBody').html(response);
                             $('#class_details').modal('show');
                         },
-                        error: function() {
-                            alert('An error occurred while fetching class details.');
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while saving the course.');
                         }
                     });
                 });
@@ -402,13 +620,20 @@
                                 alert(response.msg); // Show error message
                             }
                         },
-                        error: function() {
-                            alert('An error occurred while adding the class.');
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while saving the course.');
                         }
                     });
                 });
             });
             
+            // wip: Show the class container after editting or deleting classes
+            /* if (sessionStorage.getItem('classesTabVisible') === true) {
+                $('#classes').click();
+                sessionStorage.removeItem('classesTabVisible');
+            } */
+
             // For Meatball Menu
             document.addEventListener('DOMContentLoaded', function() {
                 const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
