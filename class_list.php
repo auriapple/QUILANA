@@ -44,9 +44,7 @@
                     <div class="course-card-body">
                         <div class="meatball-menu-container">
                             <button class="meatball-menu-btn">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="meatball-menu">
                                 <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
@@ -324,6 +322,9 @@
 
                     // Update buttons visibility
                     updateButtons();
+
+                    // For Meatball Menu to load
+                    initializeMeatballMenu();
                 });
 
                 // Show the correct button when the page loads
@@ -716,7 +717,8 @@
             } */
 
             // For Meatball Menu
-            document.addEventListener('DOMContentLoaded', function() {
+            function initializeMeatballMenu() {
+                console.log("thing worked");
                 const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
                 
                 meatballMenuBtns.forEach(function(meatballMenuBtn) {
@@ -745,6 +747,14 @@
                         }
                     });
                 });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeMeatballMenu();
+            });
+
+            document.addEventListener('click', function() {
+                initializeMeatballMenu();
             });
         </script>
     </body>

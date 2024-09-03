@@ -19,9 +19,7 @@
                             <div class="course-card-body">
                                 <div class="meatball-menu-container">
                                     <button class="meatball-menu-btn">
-                                        <span class="dot"></span>
-                                        <span class="dot"></span>
-                                        <span class="dot"></span>
+                                        <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="meatball-menu">
                                         <a href="#" class="edit_class" data-class-id="<?php echo $row['class_id'] ?>" data-class-name="<?php echo $row['class_name']?>" data-subject="<?php echo $row['subject']?>">Edit</a>
@@ -71,67 +69,37 @@
         </div>
 
         <script>
-                const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
+            // Handle "Get Code" clicks
+            document.querySelectorAll('.get_code').forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
 
-                meatballMenuBtns.forEach(function(meatballMenuBtn) {
-                    meatballMenuBtn.addEventListener('click', function(event) {
-                        // Close any open menus first
-                        document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
-                            if (container !== meatballMenuBtn.parentElement) {
-                                container.classList.remove('show');
-                            }
-                        });
+                    const classId = this.getAttribute('data-class-id');
 
-                        // Toggle the clicked menu
-                        const meatballMenuContainer = meatballMenuBtn.parentElement;
-                        meatballMenuContainer.classList.toggle('show');
-
-                        // Stop the event from bubbling up to the document
-                        event.stopPropagation();
-                    });
-                });
-
-                // Close the menu if clicked outside
-                document.addEventListener('click', function(event) {
-                    document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
-                        if (!container.contains(event.target)) {
-                            container.classList.remove('show');
+                    fetch('generated_code.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'class_id=' + encodeURIComponent(classId)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update the modal content
+                            document.getElementById('modal_class_name').textContent = data.class_name;
+                            document.getElementById('modal_subject').textContent = data.subject;
+                            document.getElementById('modal_code').textContent = data.code;
+                            // Show the modal
+                            $('#manage_get_code').modal('show');
+                        } else {
+                            alert('Error generating code: ' + data.error);
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('A network error occurred.');
                     });
                 });
-
-                // Handle "Get Code" clicks
-                document.querySelectorAll('.get_code').forEach(function(link) {
-                    link.addEventListener('click', function(event) {
-                        event.preventDefault();
-
-                        const classId = this.getAttribute('data-class-id');
-
-                        fetch('generated_code.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: 'class_id=' + encodeURIComponent(classId)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Update the modal content
-                                document.getElementById('modal_class_name').textContent = data.class_name;
-                                document.getElementById('modal_subject').textContent = data.subject;
-                                document.getElementById('modal_code').textContent = data.code;
-                                // Show the modal
-                                $('#manage_get_code').modal('show');
-                            } else {
-                                alert('Error generating code: ' + data.error);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('A network error occurred.');
-                        });
-                    });
-                });
-            
+            });
         </script>
     </body>
 </html>

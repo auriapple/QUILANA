@@ -37,6 +37,16 @@ if (isset($_GET['class_id'])) {
     if (!$qry_student) {
         die("Error: " . $conn->error);
     }
+
+    // Fetch the student's results of the assessments in that class
+    $qry_results = $conn->query("
+        SELECT * FROM student_results 
+        WHERE class_id = '$class_id' AND student_id = '$_POST[student_id]'
+    ");
+
+    if (!$qry_results) {
+        die("Error: " . $conn->error);
+    }
 }
 ?>
 
