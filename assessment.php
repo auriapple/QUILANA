@@ -315,7 +315,7 @@
             $('#assessment-frm').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
                 $.ajax({
-                    url: 'save_assessment.php', // The PHP file that handles the form data
+                    url: 'save_assessment.php', 
                     method: 'POST', // Use POST to send form data
                     data: $(this).serialize(), // Serialize form data
                     success: function(resp){
