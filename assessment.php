@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
         .course-section {
             margin-bottom: 30px;
@@ -135,9 +137,7 @@
                     <div class="course-card-body">
                         <div class="meatball-menu-container">
                             <button class="meatball-menu-btn">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="meatball-menu">
                                 <a href="#" class="edit_assessment" data-id="<?php echo $assessment_id ?>">Edit</a>

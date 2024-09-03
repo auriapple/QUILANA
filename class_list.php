@@ -6,6 +6,8 @@
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -43,11 +45,9 @@
                 <div class="course-card">
                     <div class="course-card-body">
                         <div class="meatball-menu-container">
-                            <button class="meatball-menu-btn">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                            </button>
+                        <button class="meatball-menu-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
                             <div class="meatball-menu">
                                 <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
                                 <a href="#" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
@@ -175,15 +175,11 @@
                         <div class="modal-body">
                             <div id="msg"></div>
                             <div class="form-group">
-                                <label>Class Name</label>
+                                <label>Section</label>
                                 <input type="hidden" name="course_id" />
                                 <input type="hidden" name="class_id" />
                                 <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="class_name" required="required" class="form-control" />
-                                <label>Year</label>
-                                <input type="number" name="year" required="required" class="form-control" />
-                                <label>Section</label>
-                                <input type="text" name="section" required="required" class="form-control" />
+                                <input type="text" name="class_name" required="required" placeholder="Course, Year, and Section (ex. BSIT 1-1)" class="form-control" />
                                 <label>Course Subject</label>
                                 <input type="text" name="subject" required="required" class="form-control" />
                             </div>

@@ -19,9 +19,7 @@
                             <div class="course-card-body">
                                 <div class="meatball-menu-container">
                                     <button class="meatball-menu-btn">
-                                        <span class="dot"></span>
-                                        <span class="dot"></span>
-                                        <span class="dot"></span>
+                                        <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="meatball-menu">
                                         <a href="#" class="edit_class" data-class-id="<?php echo $row['class_id'] ?>" data-class-name="<?php echo $row['class_name']?>" data-subject="<?php echo $row['subject']?>">Edit</a>
