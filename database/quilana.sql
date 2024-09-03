@@ -38,7 +38,7 @@ CREATE TABLE course (
 
 CREATE TABLE class (
     class_id INT AUTO_INCREMENT PRIMARY KEY,
-    code_id INT NOT NULL,
+    code_id INT NULL,
     faculty_id INT NOT NULL,
     course_id INT NOT NULL,
     subject VARCHAR(100) NOT NULL,

@@ -26,7 +26,7 @@
        			 </a>
    			 </div>
 			<div id="sidebar-field">
-				<a href="quiz.php" class="sidebar-item text-dark">
+				<a href="assessment.php" class="sidebar-item text-dark">
 						<div class="sidebar-icon"><i class="fa fa-list"> </i></div>  Assessments
 				</a>
 			</div>

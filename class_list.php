@@ -6,13 +6,15 @@
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 <body>
     <?php include('nav_bar.php') ?>
 
     <div class="container-fluid admin">
         <div class="add-course-container">
-            <button class="btn btn-primary btn-sm add-btn" id="add_course" style="display:none;"><i class="fa fa-plus"></i> Add Course</button>
+            <button class="btn btn-primary btn-sm add-btn" id="add_course"><i class="fa fa-plus"></i> Add Course</button>
             <button class="btn btn-primary btn-sm add-btn" id="add_class" style="display:none;"><i class="fa fa-plus"></i> Add Class</button>
             <div class="search-bar">
                 <form action="search_courses.php" method="GET">
@@ -43,12 +45,12 @@
                 <div class="course-card">
                     <div class="course-card-body">
                         <div class="meatball-menu-container">
-                            <button class="meatball-menu-btn">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
+                        <button class="meatball-menu-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
                             <div class="meatball-menu">
                                 <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
-                                <a href="#" class="delete_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
+                                <a href="#" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
                             </div>
                         </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
@@ -161,31 +163,6 @@
             </div>
         </div>
 
-        <!-- Delete Course Modal -->
-        <div class="modal fade" id="manage_delete_course" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Delete Course</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <form id='delete-course-frm'>
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <label> Are you sure you want to delete the course: <strong id="modal_course_name"></strong>?</label>
-                                <input type="hidden" name="course_id" id="course_id"/>
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" name="save">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Manage Class Modal -->
         <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
@@ -198,15 +175,11 @@
                         <div class="modal-body">
                             <div id="msg"></div>
                             <div class="form-group">
-                                <label>Class Name</label>
+                                <label>Section</label>
                                 <input type="hidden" name="course_id" />
                                 <input type="hidden" name="class_id" />
                                 <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="class_name" required="required" class="form-control" />
-                                <label>Year</label>
-                                <input type="number" name="year" required="required" class="form-control" />
-                                <label>Section</label>
-                                <input type="text" name="section" required="required" class="form-control" />
+                                <input type="text" name="class_name" required="required" placeholder="Course, Year, and Section (ex. BSIT 1-1)" class="form-control" />
                                 <label>Course Subject</label>
                                 <input type="text" name="subject" required="required" class="form-control" />
                             </div>
@@ -308,27 +281,28 @@
                     }
                 }
 
-                // Handle tab switching
+                 
+                    // Hide Classes tab link initially
+                    $('#classes-tab-link').hide();
+
+                // Handle tab click for courses tab
                 $('.tab-link').click(function() {
-                    var tab_id = $(this).attr('data-tab');
+                    var tabId = $(this).data('tab');
 
-                    // Remove active class from all tabs and content
+                    if (tabId === 'courses-tab') {
+                        $('#classes-tab-link').hide(); // Hide the Classes tab when Courses tab is clicked
+                    }
+
                     $('.tab-link').removeClass('active');
-                    $('.tab-content').removeClass('active');
-
-                    // Add active class to the clicked tab and corresponding content
                     $(this).addClass('active');
-                    $("#" + tab_id).addClass('active');
+                    $('.tab-content').removeClass('active');
+                    $('#' + tabId).addClass('active');
 
-                    // Update buttons visibility
                     updateButtons();
 
                     // For Meatball Menu to load
                     initializeMeatballMenu();
                 });
-
-                // Show the correct button when the page loads
-                updateButtons();
 
                 // When add new course button is clicked
                 $('#add_course').click(function() {
@@ -340,10 +314,15 @@
 
                 //When edit button (course) is clicked
                 $('.edit_course').click(function() {
+                    
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
 
-                    //Open a modal for editing
+                    // You can now use selectedCourseId as needed, such as opening a modal for editing
+                    console.log('Selected Course ID:', courseId);
+                    console.log('Selected Course Name:', courseName);
+
+                    // Example: Open a modal for editing and populate it with the course data
                     $('#msg').html('');
                     $('#manage_edit_course .modal-title').html('Edit Course');
                     $('#manage_edit_course #edit-course-frm').get(0).reset();
@@ -718,7 +697,7 @@
 
             // For Meatball Menu
             function initializeMeatballMenu() {
-                console.log("thing worked");
+                console.log("Meatball menu initialized");
                 const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
                 
                 meatballMenuBtns.forEach(function(meatballMenuBtn) {
@@ -748,11 +727,7 @@
                     });
                 });
             }
-
-            document.addEventListener('DOMContentLoaded', function() {
-                initializeMeatballMenu();
-            });
-
+            
             document.addEventListener('click', function() {
                 initializeMeatballMenu();
             });

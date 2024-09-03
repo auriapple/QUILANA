@@ -15,11 +15,12 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the assessments with related details
     $qry_assessments = $conn->query("
-        SELECT a.assessment_name, aa.date_administered, q.total_points
+        SELECT a.assessment_id, a.assessment_name, aa.date_administered, SUM(q.total_points) AS total_points
         FROM administer_assessment aa
         JOIN assessment a ON aa.assessment_id = a.assessment_id
         JOIN questions q ON q.assessment_id = a.assessment_id
         WHERE aa.class_id = '$class_id'
+        GROUP BY a.assessment_id, a.assessment_name, aa.date_administered
     ");
 
     if (!$qry_assessments) {
@@ -37,7 +38,7 @@ if (isset($_GET['class_id'])) {
     if (!$qry_student) {
         die("Error: " . $conn->error);
     }
-
+    /* WIP
     // Fetch the student's results of the assessments in that class
     $qry_results = $conn->query("
         SELECT * FROM student_results 
@@ -47,6 +48,7 @@ if (isset($_GET['class_id'])) {
     if (!$qry_results) {
         die("Error: " . $conn->error);
     }
+        */
 }
 ?>
 
@@ -67,7 +69,7 @@ if (isset($_GET['class_id'])) {
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Quiz Name</th>
+                            <th>Assessment Name</th>
                             <th>Date Administered</th>
                             <th>Total Score</th>
                             <th>Action</th>
@@ -81,7 +83,12 @@ if (isset($_GET['class_id'])) {
                         <td>' . htmlspecialchars($assessment['assessment_name']) . '</td>
                         <td>' . htmlspecialchars($assessment['date_administered']) . '</td>
                         <td>' . htmlspecialchars($assessment['total_points']) . '</td>
-                        <td>' ?> . <button class="btn btn-primary btn-sm" data-id="<?php // echo $assessment['assessment_id']?>"  type="button">View Assessment</button> . <?php '</td>
+                      <td>
+                        <div class="btn-container">
+                            <button class="btn btn-primary btn-sm view-assessment" data-id="' . htmlspecialchars($assessment['assessment_id']) . '" type="button">View</button>
+                            <button class="btn btn-primary btn-sm" data-id="' . htmlspecialchars($assessment['assessment_id']) . '" type="button">Remove</button>
+                        </div>
+                    </td>
                     </tr>';
             }
         } else {
@@ -155,6 +162,27 @@ if (isset($_GET['class_id'])) {
     ?>
 </div>
 
+<!-- Assessment Details Modal -->
+<div class="modal fade" id="assessmentModal" tabindex="-1" role="dialog" aria-labelledby="assessmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assessmentModalLabel">Assessment Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Content will be loaded here dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
@@ -174,6 +202,15 @@ function openTab(evt, tabName) {
 
     // Ensure the first tab is shown by default when the page loads
     document.addEventListener('DOMContentLoaded', function() {
+    var defaultTab = document.querySelector('.tab-link.active');
+    if (defaultTab) {
+        var defaultTabName = defaultTab.getAttribute('onclick').match(/'(.*?)'/)[1];
+        document.getElementById(defaultTabName).style.display = "block";
+        document.getElementById(defaultTabName).classList.add("active");
+    }
+
+    // Ensure the first tab is shown by default when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
         var defaultTab = document.querySelector('.tab-link.active');
         if (defaultTab) {
             var defaultTabName = defaultTab.getAttribute('onclick').match(/'(.*?)'/)[1];
@@ -181,6 +218,29 @@ function openTab(evt, tabName) {
             document.getElementById(defaultTabName).classList.add("active");
         }
     });
+
+    // AJAX request to load assessment details into the modal using event delegation
+    $(document).on('click', '.view-assessment', function() {
+        var assessmentId = $(this).data('id');
+
+        $.ajax({
+            url: 'view_assessment.php',
+            type: 'GET',
+            data: { id: assessmentId },
+            success: function(response) {
+                // Load the response into the modal body
+                $('#assessmentModal .modal-body').html(response);
+                // Show the modal
+                $('#assessmentModal').modal('show');
+            },
+            error: function() {
+                alert('Failed to retrieve assessment details.');
+            }
+        });
+    });
+
+});
+
     </script>
 
 <?php $conn->close(); ?>
