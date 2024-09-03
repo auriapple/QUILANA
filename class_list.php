@@ -12,7 +12,7 @@
 
     <div class="container-fluid admin">
         <div class="add-course-container">
-            <button class="btn btn-primary btn-sm add-btn" id="add_course" style="display:none;"><i class="fa fa-plus"></i> Add Course</button>
+            <button class="btn btn-primary btn-sm add-btn" id="add_course"><i class="fa fa-plus"></i> Add Course</button>
             <button class="btn btn-primary btn-sm add-btn" id="add_class" style="display:none;"><i class="fa fa-plus"></i> Add Class</button>
             <div class="search-bar">
                 <form action="search_courses.php" method="GET">
