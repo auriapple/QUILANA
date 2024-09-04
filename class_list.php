@@ -267,6 +267,7 @@
             </div>
         </div>
 
+
         <script>
             $(document).ready(function() {
                 // Show the appropriate button based on the active tab
@@ -728,9 +729,36 @@
                 });
             }
             
-            document.addEventListener('click', function() {
-                initializeMeatballMenu();
-            });
+            document.addEventListener('DOMContentLoaded', function () {
+            // Check if the URL contains `show_modal=true`
+            const urlParams = new URLSearchParams(window.location.search);
+            const showModal = urlParams.get('show_modal');
+            const classId = urlParams.get('class_id');
+
+            // If `show_modal` is true, open the class details modal
+            if (showModal === 'true' && classId) {
+                // Show the modal
+                $('#class_details').modal('show');
+
+                // Fetch class details dynamically
+                fetchClassDetails(classId);
+            }
+        });
+
+            function fetchClassDetails(classId) {
+                $.ajax({
+                    url: 'get_class_details.php',
+                    type: 'GET',
+                    data: { class_id: classId },
+                    success: function (response) {
+                        // Load the response into the modal body
+                        $('#classDetailsBody').html(response);
+                    },
+                    error: function () {
+                        $('#classDetailsBody').html('<p>Error loading class details.</p>');
+                    }
+                });
+            }
         </script>
     </body>
 </html>

@@ -3,11 +3,11 @@ include('db_connect.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve form data
+    $question_id = isset($_POST['id']) ? intval($_POST['id']) : null;
     $assessment_id = intval($_POST['assessment_id']);
     $question_text = $_POST['question'];
     $question_type = $_POST['question_type'];
     $total_points = intval($_POST['points']);
-    $case_sensitive = isset($_POST['case_sensitive']) ? 1 : 0;
 
     // Map question type to numeric value
     $ques_type_map = [
@@ -29,12 +29,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        // Insert question into questions table
-        $query = "INSERT INTO questions (question, assessment_id, ques_type, total_points) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("siii", $question_text, $assessment_id, $ques_type, $total_points);
-        $stmt->execute();
-        $question_id = $stmt->insert_id;
+        if ($question_id) {
+            // Update existing question
+            $query = "UPDATE questions SET question = ?, ques_type = ?, total_points = ? WHERE question_id = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("siii", $question_text, $ques_type, $total_points, $question_id);
+            $stmt->execute();
+
+            // Delete existing options/answers
+            $conn->query("DELETE FROM question_options WHERE question_id = $question_id");
+            $conn->query("DELETE FROM question_identifications WHERE question_id = $question_id");
+        } else {
+            // Insert new question
+            $query = "INSERT INTO questions (question, assessment_id, ques_type, total_points) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("siii", $question_text, $assessment_id, $ques_type, $total_points);
+            $stmt->execute();
+            $question_id = $stmt->insert_id;
+        }
 
         // Handle options based on question type
         switch ($question_type) {
@@ -42,17 +54,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'checkbox':
                 $options = $_POST['question_opt'] ?? [];
                 $is_right = isset($_POST['is_right']) ? (array)$_POST['is_right'] : [];
-
+        
                 foreach ($options as $index => $option) {
                     $option_text = trim($option);
-                    $is_correct = in_array((string)$index, $is_right) ? 1 : 0;
-
-                    $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
-                    $option_stmt = $conn->prepare($options_query);
-                    $option_stmt->bind_param("sii", $option_text, $is_correct, $question_id);
-                    $option_stmt->execute();
+                    if (!empty($option_text)) { 
+                        $is_correct = in_array((string)$index, $is_right) ? 1 : 0;
+        
+                        $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
+                        $option_stmt = $conn->prepare($options_query);
+                        $option_stmt->bind_param("sii", $option_text, $is_correct, $question_id);
+                        $option_stmt->execute();
+                    }
                 }
-                break;
+                    break;
 
             case 'true_false':
                 $tf_answer = $_POST['tf_answer'] ?? '';

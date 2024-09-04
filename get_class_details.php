@@ -85,8 +85,8 @@ if (isset($_GET['class_id'])) {
                         <td>' . htmlspecialchars($assessment['total_points']) . '</td>
                       <td>
                         <div class="btn-container">
-                            <button class="btn btn-primary btn-sm view-assessment" data-id="' . htmlspecialchars($assessment['assessment_id']) . '" type="button">View</button>
-                            <button class="btn btn-primary btn-sm" data-id="' . htmlspecialchars($assessment['assessment_id']) . '" type="button">Remove</button>
+                        <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm">View</a>
+                        <button class="btn btn-primary btn-sm" data-id="' . htmlspecialchars($assessment['assessment_id']) . '" type="button">Remove</button>
                         </div>
                     </td>
                     </tr>';
@@ -162,27 +162,6 @@ if (isset($_GET['class_id'])) {
     ?>
 </div>
 
-<!-- Assessment Details Modal -->
-<div class="modal fade" id="assessmentModal" tabindex="-1" role="dialog" aria-labelledby="assessmentModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="assessmentModalLabel">Assessment Details</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Content will be loaded here dynamically -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 <script>
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
@@ -218,27 +197,7 @@ function openTab(evt, tabName) {
             document.getElementById(defaultTabName).classList.add("active");
         }
     });
-
-    // AJAX request to load assessment details into the modal using event delegation
-    $(document).on('click', '.view-assessment', function() {
-        var assessmentId = $(this).data('id');
-
-        $.ajax({
-            url: 'view_assessment.php',
-            type: 'GET',
-            data: { id: assessmentId },
-            success: function(response) {
-                // Load the response into the modal body
-                $('#assessmentModal .modal-body').html(response);
-                // Show the modal
-                $('#assessmentModal').modal('show');
-            },
-            error: function() {
-                alert('Failed to retrieve assessment details.');
-            }
-        });
-    });
-
+    
 });
 
     </script>

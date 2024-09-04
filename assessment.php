@@ -425,6 +425,7 @@
                     $('#msg1').empty();
                 });
             });
+
             </script>
         </div>
     </div>
