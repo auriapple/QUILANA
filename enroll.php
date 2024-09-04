@@ -35,7 +35,7 @@
                                                         FROM student_enrollment e
                                                         JOIN class c ON e.class_id = c.class_id
                                                         JOIN faculty f ON c.faculty_id = f.faculty_id
-                                                        WHERE e.student_id = '$student_id' AND e.status = 'accepted'");
+                                                        WHERE e.student_id = '$student_id'");
 
                 while ($row = $enrolled_classes_query->fetch_assoc()) {
                 ?>
@@ -80,17 +80,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Update button visibility based on the active tab
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
-                $('.join-btn').hide(); // Hide all buttons initially
+                $('.join-btn').hide();
 
                 if (activeTab === 'classes-tab') {
                     $('#join_class').show();
                 }
             }
 
-            // Handle tab switching
             $('.tab-link').click(function() {
                 var tab_id = $(this).attr('data-tab');
                 $('.tab-link').removeClass('active');
@@ -100,24 +98,21 @@
                 updateButtons();
             });
 
-            // Show the correct button when the page loads
             updateButtons();
 
-            // Show the modal when "Join Class" button is clicked
             $('#join_class').click(function() {
                 $('#msg').html('');
                 $('#manage_class #code-frm').get(0).reset();
                 $('#manage_class').modal('show');
             });
 
-            // Handle form submission with AJAX
             $('#code-frm').submit(function(event) {
-                event.preventDefault(); // Prevent the default form submission
+                event.preventDefault();
 
                 $.ajax({
                     type: 'POST',
-                    url: 'join_class.php', // Path to the join_class PHP script
-                    data: $(this).serialize(), // Serialize form data
+                    url: 'join_class.php',
+                    data: $(this).serialize(),
                     success: function(response) {
                         var result = JSON.parse(response);
                         
