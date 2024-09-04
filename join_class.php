@@ -22,7 +22,7 @@ if (isset($_POST['get_code'])) {
         
         if ($check_student && $check_student->num_rows == 0) {
             // Add student to the class with pending status
-            $conn->query("INSERT INTO student_enrollment (class_id, student_id, status) VALUES ('$class_id', '$student_id', 'pending')");
+            $conn->query("INSERT INTO student_enrollment (class_id, student_id, status) VALUES ('$class_id', '$student_id', '0')");
 
             if ($conn->affected_rows > 0) {
                 // Return a success message to be displayed

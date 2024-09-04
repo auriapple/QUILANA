@@ -35,7 +35,7 @@
                                                         FROM student_enrollment e
                                                         JOIN class c ON e.class_id = c.class_id
                                                         JOIN faculty f ON c.faculty_id = f.faculty_id
-                                                        WHERE e.student_id = '$student_id' AND e.status = 'accepted'");
+                                                        WHERE e.student_id = '$student_id' AND e.status = '1'");
 
                 while ($row = $enrolled_classes_query->fetch_assoc()) {
                 ?>
@@ -116,7 +116,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: 'join_class.php', // Path to the join_class PHP script
+                    url: './join_class.php', // Path to the join_class PHP script
                     data: $(this).serialize(), // Serialize form data
                     success: function(response) {
                         var result = JSON.parse(response);
@@ -128,6 +128,10 @@
                         } else {
                             $('#msg').html('<div class="alert alert-danger">' + result.message + '</div>');
                         }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("Request failed: " + textStatus + ", " + errorThrown);
+                        alert('An error occurred while saving the course.');
                     }
                 });
             });
