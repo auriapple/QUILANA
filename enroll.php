@@ -24,6 +24,7 @@
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-link active" data-tab="classes-tab">Classes</li>
+                <li class="tab-link" id="class-name-tab" data-tab="assessments-tab" style="display: none;"></li>
             </ul>
         </div>
 
@@ -52,6 +53,10 @@
             </div>
         </div>
 
+        <div id="assessments-tab" class="tab-content">
+            <div id="course-container"></div>
+        </div>
+
         <!-- Modal for entering class code -->
         <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
@@ -76,15 +81,14 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
-                $('.join-btn').hide();
-
-                if (activeTab === 'classes-tab') {
+        
+                if (activeTab === 'assessments-tab') {
+                    $('#join_class').hide();
+                } else {
                     $('#join_class').show();
                 }
             }
@@ -95,6 +99,13 @@
                 $('.tab-content').removeClass('active');
                 $(this).addClass('active');
                 $("#" + tab_id).addClass('active');
+
+                // If the "Classes" tab is clicked, hide the assessment tab
+                if (tab_id === 'classes-tab') {
+                    $('#class-name-tab').hide();
+                    $('#assessments-tab').removeClass('active').empty(); // Optionally empty the content
+                }
+
                 updateButtons();
             });
 
@@ -104,6 +115,32 @@
                 $('#msg').html('');
                 $('#manage_class #code-frm').get(0).reset();
                 $('#manage_class').modal('show');
+            });
+
+            $('.view_course_details').click(function() {
+                var class_id = $(this).data('id');
+                var class_name = $(this).closest('.course-card').find('.course-card-title').text();
+
+                // Change the tab title to the class name
+                $('#class-name-tab').text(class_name).show();
+
+                // Switch to the new tab
+                $('.tab-link').removeClass('active');
+                $('.tab-content').removeClass('active');
+                $('#class-name-tab').addClass('active');
+                $('#assessments-tab').addClass('active');
+
+                // Load the assessments for the selected class
+                $.ajax({
+                    type: 'POST',
+                    url: 'load_assessments.php',
+                    data: { class_id: class_id },
+                    success: function(response) {
+                        $('#assessments-tab').html(response);
+                    }
+                });
+
+                updateButtons();
             });
 
             $('#code-frm').submit(function(event) {
@@ -129,4 +166,5 @@
         });
     </script>
 </body>
+
 </html>
