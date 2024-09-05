@@ -10,7 +10,7 @@
 		</nav>
 		<style>
             .bg-primary{
-                background-image: linear-gradient(to right, #1E1A43, #4A4CA6 85%) !important;
+                background-image: linear-gradient(to right, #1E1A43, #4A4CA6);
             }
         </style>
 		<div id="sidebar" class="bg-light">
