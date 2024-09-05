@@ -86,7 +86,7 @@ if (isset($_GET['class_id'])) {
                       <td>
                         <div class="btn-container">
                         <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm">View</a>
-                        <button class="btn btn-primary btn-sm" data-id="' . htmlspecialchars($assessment['assessment_id']) . '" type="button">Remove</button>
+                        <button class="btn btn-danger btn-sm" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ')">Remove</button>
                         </div>
                     </td>
                     </tr>';
@@ -197,8 +197,32 @@ function openTab(evt, tabName) {
             document.getElementById(defaultTabName).classList.add("active");
         }
     });
-    
 });
+    function removeAdministeredAssessment(assessmentId, classId) {
+    if (confirm("Are you sure you want to remove this administered assessment from this class?")) {
+        fetch('remove_administered_assessment.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'assessment_id=' + assessmentId + '&class_id=' + classId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Administered assessment removed successfully from this class");
+                location.reload(); // Reload the page to reflect the changes
+            } else {
+                alert("Failed to remove administered assessment: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred while removing the administered assessment");
+        });
+    }
+}
+
 
     </script>
 

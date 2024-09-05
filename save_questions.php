@@ -8,6 +8,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $question_text = $_POST['question'];
     $question_type = $_POST['question_type'];
     $total_points = intval($_POST['points']);
+    
+    // Retrieve the assessment mode
+    $mode_query = "SELECT assessment_mode FROM assessment WHERE assessment_id = ?";
+    $mode_stmt = $conn->prepare($mode_query);
+    $mode_stmt->bind_param("i", $assessment_id);
+    $mode_stmt->execute();
+    $mode_result = $mode_stmt->get_result();
+    $assessment_mode = $mode_result->fetch_assoc()['assessment_mode'];
+    $mode_stmt->close();
+
+    // Handle time limit based on assessment mode
+    $time_limit = ($assessment_mode == 2 || $assessment_mode == 3) ? intval($_POST['time_limit']) : null;
 
     // Map question type to numeric value
     $ques_type_map = [
@@ -31,19 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($question_id) {
             // Update existing question
-            $query = "UPDATE questions SET question = ?, ques_type = ?, total_points = ? WHERE question_id = ?";
+            $query = "UPDATE questions SET question = ?, ques_type = ?, total_points = ?, time_limit = ? WHERE question_id = ?";
+            $time_limit_param = is_null($time_limit) ? null : $time_limit;
             $stmt = $conn->prepare($query);
-            $stmt->bind_param("siii", $question_text, $ques_type, $total_points, $question_id);
+            $stmt->bind_param("siiii", $question_text, $ques_type, $total_points, $time_limit_param, $question_id);
             $stmt->execute();
 
-            // Delete existing options/answers
+            // Delete existing options
             $conn->query("DELETE FROM question_options WHERE question_id = $question_id");
-            $conn->query("DELETE FROM question_identifications WHERE question_id = $question_id");
         } else {
             // Insert new question
-            $query = "INSERT INTO questions (question, assessment_id, ques_type, total_points) VALUES (?, ?, ?, ?)";
+            $query = "INSERT INTO questions (question, assessment_id, ques_type, total_points, time_limit) VALUES (?, ?, ?, ?, ?)";
+            $time_limit_param = is_null($time_limit) ? null : $time_limit;
             $stmt = $conn->prepare($query);
-            $stmt->bind_param("siii", $question_text, $assessment_id, $ques_type, $total_points);
+            $stmt->bind_param("siiii", $question_text, $assessment_id, $ques_type, $total_points, $time_limit_param);
             $stmt->execute();
             $question_id = $stmt->insert_id;
         }
@@ -54,19 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'checkbox':
                 $options = $_POST['question_opt'] ?? [];
                 $is_right = isset($_POST['is_right']) ? (array)$_POST['is_right'] : [];
-        
+
                 foreach ($options as $index => $option) {
                     $option_text = trim($option);
                     if (!empty($option_text)) { 
                         $is_correct = in_array((string)$index, $is_right) ? 1 : 0;
-        
+
                         $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
                         $option_stmt = $conn->prepare($options_query);
                         $option_stmt->bind_param("sii", $option_text, $is_correct, $question_id);
                         $option_stmt->execute();
                     }
                 }
-                    break;
+                break;
 
             case 'true_false':
                 $tf_answer = $_POST['tf_answer'] ?? '';
@@ -83,10 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $answer_text = $_POST[$question_type . '_answer'] ?? '';
 
                 if (!empty($answer_text)) {
-                    $answers_query = "INSERT INTO question_identifications (identification_answer, question_id) VALUES (?, ?)";
-                    $answers_stmt = $conn->prepare($answers_query);
-                    $answers_stmt->bind_param("si", $answer_text, $question_id);
-                    $answers_stmt->execute();
+                    $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, 1, ?)";
+                    $option_stmt = $conn->prepare($options_query);
+                    $option_stmt->bind_param("si", $answer_text, $question_id);
+                    $option_stmt->execute();
                 } else {
                     throw new Exception(ucfirst($question_type) . ' answer is required.');
                 }

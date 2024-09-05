@@ -259,17 +259,10 @@
                                     <option value="">Select Class</option>
                                 </select>
                             </div>
-                            <div class="form-group" id="time-limit-group">
-                                <label for="time_limit">Time Limit (in minutes)</label>
-                                <input type="number" name="time_limit" id="time_limit" class="form-control" required />
-                                <small id="time-limit-hint" class="form-text text-muted">
-                                    For Normal Mode, this is the total time. For Quiz Bee and Speed Mode, this is the time per question.
-                                </small>
-                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
+                            <button id="administer_btn" type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
                         </div>
                     </form>
                 </div>
@@ -373,8 +366,6 @@
                                     $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
                                 }
 
-                                // Adjust time limit hint based on mode
-                                adjustTimeLimitHint(mode);
 
                                 // Show the modal
                                 $('#administer_assessment_modal').modal('show');
@@ -386,45 +377,36 @@
                     });
                 });
 
-                // Adjust time limit hint function
-                function adjustTimeLimitHint(mode) {
-                    if (mode == '1') { // Normal Mode
-                        $('#time_limit').attr('placeholder', 'Total time for the entire assessment');
-                        $('#time-limit-hint').text('For Normal Mode, this is the total time.');
-                    } else { // Quiz Bee or Speed Mode
-                        $('#time_limit').attr('placeholder', 'Time limit per question');
-                        $('#time-limit-hint').text('For Quiz Bee and Speed Mode, this is the time per question.');
-                    }
-                }
             });
-
-
             // Handle administer form submission
-            $('#administer-assessment-frm').submit(function(e) {
+            $('#administer-assessment-frm').submit(function (e) {
                 e.preventDefault();
-                var formData = $(this).serialize(); 
+                var formData = $(this).serialize();
 
                 $.ajax({
                     url: 'administer_assessment.php',
                     method: 'POST',
                     data: formData,
                     dataType: 'json', // Expect JSON response
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'success') {
                             $('#msg1').html('<div class="alert alert-success">' + response.message + '</div>');
+                            $('#administer_btn').prop('disabled', true).text('Administered'); // Disable the button
+
                         } else {
                             $('#msg1').html('<div class="alert alert-danger">' + response.message + '</div>');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         $('#msg1').html('<div class="alert alert-danger">Failed to administer. Please try again.</div>');
                     }
                 });
-                
+
                 $('#administer_assessment_modal').on('hide.bs.modal', function () {
                     $('#msg1').empty();
                 });
             });
+
 
             </script>
         </div>
