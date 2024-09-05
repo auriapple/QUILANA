@@ -12,7 +12,6 @@
 
     <div class="container-fluid admin">
         <div class="add-course-container">
-           <!-- Changed button text and ID back to "Join Class" -->
             <button class="btn btn-primary btn-sm join-btn" id="join_class"><i class="fa fa-plus"></i>Join Class</button>
             <div class="search-bar">
                 <form action="#" method="GET">
@@ -25,17 +24,40 @@
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-link active" data-tab="classes-tab">Classes</li>
-                
+                <li class="tab-link" id="class-name-tab" data-tab="assessments-tab" style="display: none;"></li>
             </ul>
         </div>
 
         <div id="classes-tab" class="tab-content active">
             <div class="course-container">
-                
+                <?php
+                $student_id = $_SESSION['login_id'];
+                $enrolled_classes_query = $conn->query("SELECT c.class_id, c.subject, f.firstname, f.lastname 
+                                                        FROM student_enrollment e
+                                                        JOIN class c ON e.class_id = c.class_id
+                                                        JOIN faculty f ON c.faculty_id = f.faculty_id
+                                                        WHERE e.student_id = '$student_id' AND e.status = '1'");
+
+                while ($row = $enrolled_classes_query->fetch_assoc()) {
+                ?>
+                <div class="course-card">
+                    <div class="course-card-body">
+                        <div class="course-card-title"><?php echo $row['subject'] ?></div>
+                        <div class="course-card-text">Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
+                        <div class="course-actions">
+                            <button class="btn btn-primary btn-sm view_course_details" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
             </div>
         </div>
 
-        <!-- Modal with updated text -->
+        <div id="assessments-tab" class="tab-content">
+            <div id="course-container"></div>
+        </div>
+
+        <!-- Modal for entering class code -->
         <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
                 <div class="modal-content">
@@ -51,108 +73,102 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit "class="btn btn-primary" name="join_by_code"><span class="glyphicon glyphicon-save"></span>Join</button>
+                            <button type="submit" class="btn btn-primary" name="join_by_code"><span class="glyphicon glyphicon-save"></span>Join</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            function updateButtons() {
+                var activeTab = $('.tab-link.active').data('tab');
         
-        <div class="row">
-  <div class="col-sm-3 mb-3 mb-sm-0">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-3">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-  </div>
-  
-</div>
+                if (activeTab === 'assessments-tab') {
+                    $('#join_class').hide();
+                } else {
+                    $('#join_class').show();
+                }
+            }
 
-</div>
+            $('.tab-link').click(function() {
+                var tab_id = $(this).attr('data-tab');
+                $('.tab-link').removeClass('active');
+                $('.tab-content').removeClass('active');
+                $(this).addClass('active');
+                $("#" + tab_id).addClass('active');
 
-        <script>
-            $(document).ready(function() {
-                // Show the appropriate button based on the active tab
-                function updateButtons() {
-                    var activeTab = $('.tab-link.active').data('tab');
-                    $('.join-btn').hide(); // Hide all buttons initially
-
-                    if (activeTab === 'classes-tab') {
-                        $('#join_class').show();
-                    } else if (activeTab === '') {
-                        $('#add_class').show();
-                    }
+                // If the "Classes" tab is clicked, hide the assessment tab
+                if (tab_id === 'classes-tab') {
+                    $('#class-name-tab').hide();
+                    $('#assessments-tab').removeClass('active').empty(); // Optionally empty the content
                 }
 
-                // Handle tab switching
-                $('.tab-link').click(function() {
-                    var tab_id = $(this).attr('data-tab');
-
-                    // Remove active class from all tabs and content
-                    $('.tab-link').removeClass('active');
-                    $('.tab-content').removeClass('active');
-
-                    // Add active class to the clicked tab and corresponding content
-                    $(this).addClass('active');
-                    $("#" + tab_id).addClass('active');
-
-                    // Update buttons visibility
-                    updateButtons();
-                });
-
-                // Show the correct button when the page loads
                 updateButtons();
+            });
 
-                // When "Join Class" button is clicked
-                $('#join_class').click(function() {
-                    $('#msg').html('');
-                    $('#manage_class #code-frm').get(0).reset();
-                    $('#manage_class').modal('show');
+            updateButtons();
+
+            $('#join_class').click(function() {
+                $('#msg').html('');
+                $('#manage_class #code-frm').get(0).reset();
+                $('#manage_class').modal('show');
+            });
+
+            $('.view_course_details').click(function() {
+                var class_id = $(this).data('id');
+                var class_name = $(this).closest('.course-card').find('.course-card-title').text();
+
+                // Change the tab title to the class name
+                $('#class-name-tab').text(class_name).show();
+
+                // Switch to the new tab
+                $('.tab-link').removeClass('active');
+                $('.tab-content').removeClass('active');
+                $('#class-name-tab').addClass('active');
+                $('#assessments-tab').addClass('active');
+
+                // Load the assessments for the selected class
+                $.ajax({
+                    type: 'POST',
+                    url: 'load_assessments.php',
+                    data: { class_id: class_id },
+                    success: function(response) {
+                        $('#assessments-tab').html(response);
+                    }
                 });
 
-                // Joining Class
-                $('#code-frm').submit(function(e) {
-                    e.preventDefault();
-                    $('#code-frm [name="join"]').attr('disabled', true).html('Joining...');
-                    $('#msg').html('');
+                updateButtons();
+            });
 
-                    $.ajax({
-                        url: './join_class.php',
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        error: function(err) {
-                            console.log(err);
-                            alert('An error occurred');
-                            $('#code-frm [name="join"]').removeAttr('disabled').html('Join');
-                        },
-                        success: function(resp) {
-                            if (typeof resp != undefined) {
-                                resp = JSON.parse(resp);
-                                if (resp.status == 1) {
-                                    alert('Data successfully saved');
-                                    location.reload();
-                                } else {
-                                    $('#msg').html('<div class="alert alert-danger">' + resp.msg + '</div>');
-                                }
-                            }
+            $('#code-frm').submit(function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'join_class.php',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        
+                        if (result.status === 'success') {
+                            $('#msg').html('<div class="alert alert-success">' +
+                                            'Enrollment request sent! Please wait for approval.' +
+                                            '</div>');
+                        } else {
+                            $('#msg').html('<div class="alert alert-danger">' + result.message + '</div>');
                         }
-                    });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("Request failed: " + textStatus + ", " + errorThrown);
+                        alert('An error occurred while saving the course.');
+                    }
                 });
-
-               
+            });
         });
-        </script>
-    </body>
+    </script>
+</body>
+
 </html>
