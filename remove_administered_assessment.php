@@ -16,10 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assessment_id']) && i
         $stmt->bind_param("ii", $assessment_id, $class_id);
         $stmt->execute();
 
-        // Remove from student_results table
+        /*Remove from student_results table
         $stmt = $conn->prepare("DELETE FROM student_results WHERE assessment_id = ? AND class_id = ?");
         $stmt->bind_param("ii", $assessment_id, $class_id);
-        $stmt->execute();
+        $stmt->execute();*/
 
         // Commit the transaction
         $conn->commit();
