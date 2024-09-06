@@ -1,4 +1,3 @@
--- Create tables that do not have foreign key dependencies
 CREATE TABLE faculty (
     faculty_id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(150) NOT NULL,
