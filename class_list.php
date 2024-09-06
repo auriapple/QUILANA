@@ -181,7 +181,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                        <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Delete</button>
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
                         </div>
                     </form>
                 </div>
@@ -263,7 +264,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" name="save">Delete</button>
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
                         </div>
                     </form>
                 </div>

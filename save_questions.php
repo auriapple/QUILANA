@@ -51,6 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Delete existing options
             $conn->query("DELETE FROM question_options WHERE question_id = $question_id");
+            // Also delete from question_identifications if applicable
+            if ($ques_type === 4 || $ques_type === 5) {
+                $conn->query("DELETE FROM question_identifications WHERE question_id = $question_id");
+            }
         } else {
             // Insert new question
             $query = "INSERT INTO questions (question, assessment_id, ques_type, total_points, time_limit) VALUES (?, ?, ?, ?, ?)";
@@ -96,10 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $answer_text = $_POST[$question_type . '_answer'] ?? '';
 
                 if (!empty($answer_text)) {
-                    $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, 1, ?)";
-                    $option_stmt = $conn->prepare($options_query);
-                    $option_stmt->bind_param("si", $answer_text, $question_id);
-                    $option_stmt->execute();
+                    $identification_query = "INSERT INTO question_identifications (identification_answer, question_id) VALUES (?, ?)";
+                    $identification_stmt = $conn->prepare($identification_query);
+                    $identification_stmt->bind_param("si", $answer_text, $question_id);
+                    $identification_stmt->execute();
                 } else {
                     throw new Exception(ucfirst($question_type) . ' answer is required.');
                 }
