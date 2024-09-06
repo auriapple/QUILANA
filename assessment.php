@@ -259,19 +259,88 @@
                                     <option value="">Select Class</option>
                                 </select>
                             </div>
-                            <div class="form-group" id="time-limit-group">
-                                <label for="time_limit">Time Limit (in minutes)</label>
-                                <input type="number" name="time_limit" id="time_limit" class="form-control" required />
-                                <small id="time-limit-hint" class="form-text text-muted">
-                                    For Normal Mode, this is the total time. For Quiz Bee and Speed Mode, this is the time per question.
-                                </small>
-                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
+                            <button id="administer_btn" type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Assessment Modal -->
+        <div class="modal fade" id="edit_assessment_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editModalLabel">Edit Assessment</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="edit-assessment-frm">
+                        <div class="modal-body">
+                            <div id="edit-msg"></div>
+                            <div class="form-group">
+                                <label>Assessment Name</label>
+                                <input type="hidden" name="assessment_id" id="edit_assessment_id" />
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                <input type="text" name="assessment_name" id="edit_assessment_name" required="required" class="form-control" />
+                                <label>Assessment Type</label>
+                                <select name="assessment_type" id="edit_assessment_type" required="required" class="form-control">
+                                    <option value="1">Quiz</option>
+                                    <option value="2">Exam</option>
+                                </select>
+                                <label>Assessment Mode</label>
+                                <select name="assessment_mode" id="edit_assessment_mode" required="required" class="form-control">
+                                    <option value="1">Normal Mode</option>
+                                    <option value="2">Quiz Bee Mode</option>
+                                    <option value="3">Speed Mode</option>
+                                </select>
+                                <label>Select Course</label>
+                                <select name="course_id" id="edit_course_id" required="required" class="form-control">
+                                    <option value="">Select Course</option>
+                                    <?php
+                                    $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
+                                    while($course_row = $course_qry->fetch_assoc()) {
+                                        echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <label>Select Course Subject</label>
+                                <select name="class_id" id="edit_class_id" required="required" class="form-control">
+                                    <option value="">Select Subject</option>
+                                </select>
+                                <label>Topic</label>
+                                <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="delete_assessment_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Delete Assessment</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this assessment?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -373,8 +442,6 @@
                                     $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
                                 }
 
-                                // Adjust time limit hint based on mode
-                                adjustTimeLimitHint(mode);
 
                                 // Show the modal
                                 $('#administer_assessment_modal').modal('show');
@@ -386,45 +453,154 @@
                     });
                 });
 
-                // Adjust time limit hint function
-                function adjustTimeLimitHint(mode) {
-                    if (mode == '1') { // Normal Mode
-                        $('#time_limit').attr('placeholder', 'Total time for the entire assessment');
-                        $('#time-limit-hint').text('For Normal Mode, this is the total time.');
-                    } else { // Quiz Bee or Speed Mode
-                        $('#time_limit').attr('placeholder', 'Time limit per question');
-                        $('#time-limit-hint').text('For Quiz Bee and Speed Mode, this is the time per question.');
-                    }
-                }
             });
-
-
             // Handle administer form submission
-            $('#administer-assessment-frm').submit(function(e) {
+            $('#administer-assessment-frm').submit(function (e) {
                 e.preventDefault();
-                var formData = $(this).serialize(); 
+                var formData = $(this).serialize();
 
                 $.ajax({
                     url: 'administer_assessment.php',
                     method: 'POST',
                     data: formData,
                     dataType: 'json', // Expect JSON response
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'success') {
                             $('#msg1').html('<div class="alert alert-success">' + response.message + '</div>');
+                            $('#administer_btn').prop('disabled', true).text('Administered'); // Disable the button
+
                         } else {
                             $('#msg1').html('<div class="alert alert-danger">' + response.message + '</div>');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         $('#msg1').html('<div class="alert alert-danger">Failed to administer. Please try again.</div>');
                     }
                 });
-                
+
                 $('#administer_assessment_modal').on('hide.bs.modal', function () {
                     $('#msg1').empty();
                 });
             });
+
+            // Toggle the meatball menu visibility when the button is clicked
+            $(document).on('click', '.meatball-menu-btn', function(e) {
+                e.stopPropagation(); // Prevent click from bubbling up
+                var $menu = $(this).siblings('.meatball-menu');
+                $('.meatball-menu').not($menu).hide(); // Hide other open meatball menus
+                $menu.toggle(); // Toggle the current menu
+            });
+
+            // Close the meatball menu if clicking outside of it
+            $(document).click(function() {
+                $('.meatball-menu').hide(); // Hide all menus when clicking outside
+            });
+
+            // Prevent the menu from closing when clicking inside the menu
+            $(document).on('click', '.meatball-menu', function(e) {
+                e.stopPropagation();
+            });
+
+            // Edit button functionality
+            $(document).on('click', '.edit_assessment', function() {
+                var assessmentId = $(this).data('id');
+                
+                $.ajax({
+                    url: 'get_assessment.php',
+                    method: 'POST',
+                    data: { assessment_id: assessmentId },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Populate the edit modal fields with the assessment data
+                        $('#edit_assessment_id').val(data.assessment_id);
+                        $('#edit_assessment_name').val(data.assessment_name);
+                        $('#edit_assessment_type').val(data.assessment_type);
+                        $('#edit_assessment_mode').val(data.assessment_mode);
+                        $('#edit_course_id').val(data.course_id);
+                        $('#edit_topic').val(data.topic);
+                        
+                        // Populate subjects dropdown
+                        $.ajax({
+                            url: 'get_subjects.php',
+                            method: 'POST',
+                            data: { course_id: data.course_id },
+                            success: function(response) {
+                                $('#edit_class_id').html(response);
+                                $('#edit_class_id').val(data.class_id); // Set the selected subject
+                            }
+                        });
+
+                        // Ensure assessment mode is set to Normal Mode if type is Exam
+                        if (data.assessment_type == '2') { // Exam
+                            $('#edit_assessment_mode').val('1'); // Set to Normal Mode
+                            $('#edit_assessment_mode').find('option').not('[value="1"]').hide(); // Hide other modes
+                        } else {
+                            $('#edit_assessment_mode').find('option').show(); // Show all modes
+                        }
+
+                        // Show the edit modal
+                        $('#edit_assessment_modal').modal('show');
+                    }
+                });
+            });
+
+            // Handle assessment type change in the edit form
+            $('#edit_assessment_type').change(function() {
+                var type = $(this).val();
+                if (type == '2') { // Exam
+                    $('#edit_assessment_mode').val('1').change(); // Set to Normal Mode
+                    $('#edit_assessment_mode').find('option').not('[value="1"]').hide(); // Hide all other modes
+                } else {
+                    $('#edit_assessment_mode').find('option').show(); // Show all modes
+                }
+            });
+
+            // Save the edited assessment
+            $('#edit-assessment-frm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: 'save_edit_assessment.php',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response == 1) {
+                            alert('Assessment successfully updated');
+                            location.reload(); // Reload the page to show updated data
+                        } else {
+                            $('#edit-msg').html('<div class="alert alert-danger">An error occurred. Please try again.</div>');
+                        }
+                    }
+                });
+            });
+
+            // Delete button functionality
+            $(document).on('click', '.delete_assessment', function() {
+                var assessmentId = $(this).data('id');
+                $('#confirm_delete_btn').data('id', assessmentId); // Set assessment ID on confirm button
+                $('#delete_assessment_modal').modal('show'); // Show confirmation modal
+            });
+
+            // Confirm delete action
+            $('#confirm_delete_btn').click(function() {
+                var assessmentId = $(this).data('id');
+
+                $.ajax({
+                    url: 'delete_assessment.php',
+                    method: 'POST',
+                    data: { assessment_id: assessmentId },
+                    success: function(response) {
+                        if (response == 1) {
+                            alert('Assessment successfully deleted');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert('Error: Unable to delete the assessment.');
+                        }
+                    }
+                });
+            });
+
             </script>
         </div>
     </div>

@@ -25,7 +25,7 @@ if (isset($_POST['get_code'])) {
                 echo json_encode(['status' => 'error', 'message' => 'You are already enrolled in this class.']);
             }
         } else {
-            $conn->query("INSERT INTO student_enrollment (class_id, student_id, status) VALUES ('$class_id', '$student_id', 'pending')");
+            $conn->query("INSERT INTO student_enrollment (class_id, student_id, status) VALUES ('$class_id', '$student_id', '0')");
 
             if ($conn->affected_rows > 0) {
                 echo json_encode([

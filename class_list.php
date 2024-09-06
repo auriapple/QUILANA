@@ -50,7 +50,7 @@
                         </button>
                             <div class="meatball-menu">
                                 <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
-                                <a href="#" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
+                                <a href="#" class="delete_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
                             </div>
                         </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
@@ -163,6 +163,32 @@
             </div>
         </div>
 
+        <!-- Delete Course Modal -->
+        <div class="modal fade" id="manage_delete_course" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Delete Course</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <form id='delete-course-frm'>
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label> Are you sure you want to delete the course: <strong id="modal_course_name"></strong>?</label>
+                                <input type="hidden" name="course_id" id="course_id"/>
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Manage Class Modal -->
         <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
@@ -238,7 +264,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" name="save">Delete</button>
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
                         </div>
                     </form>
                 </div>
@@ -267,76 +294,73 @@
             </div>
         </div>
 
-        <script>
-            $(document).ready(function() {
-                // Show the appropriate button based on the active tab
-                function updateButtons() {
-                    var activeTab = $('.tab-link.active').data('tab');
-                    $('.add-btn').hide(); // Hide all buttons initially
 
-                    if (activeTab === 'courses-tab') {
-                        $('#add_course').show();
-                    } else if (activeTab === 'classes-tab') {
-                        $('#add_class').show();
-                    }
+        <script>
+        $(document).ready(function() {
+            // Initialize meatball menu
+            initializeMeatballMenu();
+
+            // Show the appropriate button based on the active tab
+            function updateButtons() {
+                var activeTab = $('.tab-link.active').data('tab');
+                $('.add-btn').hide(); // Hide all buttons initially
+
+                if (activeTab === 'courses-tab') {
+                    $('#add_course').show();
+                } else if (activeTab === 'classes-tab') {
+                    $('#add_class').show();
+                }
+            }
+
+            // Hide Classes tab link initially
+            $('#classes-tab-link').hide();
+
+            // Handle tab click for courses tab
+            $('.tab-link').click(function() {
+                var tabId = $(this).data('tab');
+
+                if (tabId === 'courses-tab') {
+                    $('#classes-tab-link').hide(); // Hide the Classes tab when Courses tab is clicked
                 }
 
-                 
-                    // Hide Classes tab link initially
-                    $('#classes-tab-link').hide();
+                $('.tab-link').removeClass('active');
+                $(this).addClass('active');
+                $('.tab-content').removeClass('active');
+                $('#' + tabId).addClass('active');
 
-                // Handle tab click for courses tab
-                $('.tab-link').click(function() {
-                    var tabId = $(this).data('tab');
+                updateButtons();
 
-                    if (tabId === 'courses-tab') {
-                        $('#classes-tab-link').hide(); // Hide the Classes tab when Courses tab is clicked
-                    }
+                // For Meatball Menu to load
+                updateMeatballMenu();
+            });
 
-                    $('.tab-link').removeClass('active');
-                    $(this).addClass('active');
-                    $('.tab-content').removeClass('active');
-                    $('#' + tabId).addClass('active');
+            // When add new course button is clicked
+            $('#add_course').click(function() {
+                $('#msg').html('');
+                $('#manage_course .modal-title').html('Add New Course');
+                $('#manage_course #course-frm').get(0).reset();
+                $('#manage_course').modal('show');
+            });
 
-                    updateButtons();
+            // When edit button (course) is clicked
+            $(document).on('click', '.edit_course', function() {
+                var courseId = $(this).data('id');
+                var courseName = $(this).data('name');
 
-                    // For Meatball Menu to load
-                    initializeMeatballMenu();
-                });
+                $('#msg').html('');
+                $('#manage_edit_course .modal-title').html('Edit Course');
+                $('#manage_edit_course #edit-course-frm').get(0).reset();
+                $('#manage_edit_course #course_id').val(courseId);
+                $('#manage_edit_course input[name="course_name"]').val(courseName);
+                $('#manage_edit_course').modal('show');
+            });
 
-                // When add new course button is clicked
-                $('#add_course').click(function() {
-                    $('#msg').html('');
-                    $('#manage_course .modal-title').html('Add New Course');
-                    $('#manage_course #course-frm').get(0).reset();
-                    $('#manage_course').modal('show');
-                });
-
-                //When edit button (course) is clicked
-                $('.edit_course').click(function() {
-                    
-                    var courseId = $(this).data('id');
-                    var courseName = $(this).data('name');
-
-                    // You can now use selectedCourseId as needed, such as opening a modal for editing
-                    console.log('Selected Course ID:', courseId);
-                    console.log('Selected Course Name:', courseName);
-
-                    // Example: Open a modal for editing and populate it with the course data
-                    $('#msg').html('');
-                    $('#manage_edit_course .modal-title').html('Edit Course');
-                    $('#manage_edit_course #edit-course-frm').get(0).reset();
-                    $('#manage_edit_course #course_id').val(courseId);
-                    $('#manage_edit_course #course_name').val(courseName);
-                    $('#manage_edit_course').modal('show');
-                });
-
-                //When delete button (course) is clicked
+                //When delete button is clicked
                 $('.delete_course').click(function() {
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
 
-                    //Open a modal for deleting
+                    // Open a modal for deleting
                     $('#msg').html('');
                     $('#manage_delete_course .modal-title').html('Delete Course');
                     $('#manage_delete_course #delete-course-frm').get(0).reset();
@@ -345,32 +369,31 @@
                     $('#manage_delete_course').modal('show');
                 });
 
-                // When add new class button is clicked
-                $('#add_class').click(function() {
-                    $('#msg').html('');
-                    $('#manage_class .modal-title').html('Add New Class');
-                    $('#manage_class #class-frm').get(0).reset();
-                    $('#manage_class').modal('show');
-                });
+            // When add new class button is clicked
+            $('#add_class').click(function() {
+                $('#msg').html('');
+                $('#manage_class .modal-title').html('Add New Class');
+                $('#manage_class #class-frm').get(0).reset();
+                $('#manage_class').modal('show');
+            });
 
-                //When edit button (class) is clicked
-                $(document).on('click', '.edit_class', function() {
-                    var classId = $(this).data('class-id');
-                    var className = $(this).data('class-name');
-                    var subject = $(this).data('subject');
+            // When edit button (class) is clicked
+            $(document).on('click', '.edit_class', function() {
+                var classId = $(this).data('class-id');
+                var className = $(this).data('class-name');
+                var subject = $(this).data('subject');
 
-                    //Open a modal for editing
-                    $('#msg').html('');
-                    $('#manage_edit_class .modal-title').html('Edit Class');
-                    $('#manage_edit_class #edit-class-frm').get(0).reset();
-                    $('#manage_edit_class #class_id').val(classId);
-                    $('#manage_edit_class #class_name').val(className);
-                    $('#manage_edit_class #subject').val(subject);
-                    $('#manage_edit_class').modal('show');
-                });
+                $('#msg').html('');
+                $('#manage_edit_class .modal-title').html('Edit Class');
+                $('#manage_edit_class #edit-class-frm').get(0).reset();
+                $('#manage_edit_class #class_id').val(classId);
+                $('#manage_edit_class input[name="class_name"]').val(className);
+                $('#manage_edit_class input[name="subject"]').val(subject);
+                $('#manage_edit_class').modal('show');
+            });
 
-                //When delete button (class) is clicked
-                $(document).on('click', '.delete_class', function() {
+            //When delete button (class) is clicked
+            $(document).on('click', '.delete_class', function() {
                     var classId = $(this).data('class-id');
                     var className = $(this).data('class-name');
                     var subject = $(this).data('subject');
@@ -385,99 +408,96 @@
                     $('#manage_delete_class').modal('show');
                 });
 
-                $(document).on('click', '.get_code', function() {
-                    var classId = $(this).data('class-id');
-                    var className = $(this).data('class-name');
-                    var subject = $(this).data('subject');
-                    var code = $(this).data('code');
+            $(document).on('click', '.get_code', function() {
+                var classId = $(this).data('class-id');
+                var className = $(this).data('class-name');
+                var subject = $(this).data('subject');
+                var code = $(this).data('code');
 
-                    //Open a modal for deleting
-                    $('#msg').html('');
-                    $('#manage_get_code .modal-title').html('Join Code');
-                    $('#manage_get_code #class_id').val(classId);
-                    $('#manage_get_code #modal_class_name').text(className);
-                    $('#manage_get_code #modal_subject').text(subject);
-                    $('#modal_code').text(code);
-                    $('#manage_get_code').modal('show');
-                });
+                $('#msg').html('');
+                $('#manage_get_code .modal-title').html('Join Code');
+                $('#manage_get_code #modal_class_name').text(className);
+                $('#manage_get_code #modal_subject').text(subject);
+                $('#modal_code').text(code);
+                $('#manage_get_code').modal('show');
+            });
 
-                // Handle Edit Form (Course)
-                $('#edit-course-frm').submit(function(event) {
-                    event.preventDefault();
+            // Handle Edit Form (Course)
+            $('#edit-course-frm').submit(function(event) {
+                event.preventDefault();
 
-                    $.ajax({
-                        url: './save_editted_course.php', 
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.status == 1) {
-                                alert('Course saved successfully.');
-                                $('#manage_edit_course').modal('hide');
-                                location.reload(); // Reload the page to see the updated course list
-                            } else {
-                                alert('Failed to save course: ' + response.msg);
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while saving course details.');
+                $.ajax({
+                    url: './save_editted_course.php',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 1) {
+                            alert('Course saved successfully.');
+                            $('#manage_edit_course').modal('hide');
+                            location.reload();
+                        } else {
+                            alert('Failed to save course: ' + response.msg);
                         }
-                    });
+                    },
+                    error: function() {
+                        alert('An error occurred while saving course details.');
+                    }
                 });
+            });
 
-                // Handle Delete Form (Course)
-                $('#delete-course-frm').submit(function(event) {
-                    event.preventDefault();
+            // Handle Delete Form (Course)
+            $('#delete-course-frm').submit(function(event) {
+                event.preventDefault();
 
-                    $.ajax({
-                        url: 'delete_course.php', 
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.status == 1) {
-                                alert('Course deleted successfully.');
-                                $('#manage_delete_course').modal('hide');
-                                location.reload(); // Reload the page to see the updated course list
-                            } else {
-                                alert('Failed to delete course: ' + response.msg);
-                            }
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.log("Request failed: " + textStatus + ", " + errorThrown);
-                            alert('An error occurred while deleting the course.');
+                $.ajax({
+                    url: 'delete_course.php', 
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 1) {
+                            alert('Course deleted successfully.');
+                            $('#manage_delete_course').modal('hide');
+                            location.reload(); // Reload the page to see the updated course list
+                        } else {
+                            alert('Failed to delete course: ' + response.msg);
                         }
-                    });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("Request failed: " + textStatus + ", " + errorThrown);
+                        alert('An error occurred while deleting the course.');
+                    }
                 });
+            });
 
-                // Handle Edit Form (Class)
-                $('#edit-class-frm').submit(function(event) {
-                    event.preventDefault();
 
-                    // sessionStorage.setItem('classsesTabVisible', true); //wip
+            // Handle Edit Form (Class)
+            $('#edit-class-frm').submit(function(event) {
+                event.preventDefault();
 
-                    $.ajax({
-                        url: './save_editted_class.php', 
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.status == 1) {
-                                alert('Class saved successfully.');
-                                $('#manage_edit_class').modal('hide');
-                                location.reload();
-                            } else {
-                                alert('Failed to save class: ' + response.msg);
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while saving class details.');
+                $.ajax({
+                    url: './save_editted_class.php',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 1) {
+                            alert('Class saved successfully.');
+                            $('#manage_edit_class').modal('hide');
+                            location.reload();
+                        } else {
+                            alert('Failed to save class: ' + response.msg);
                         }
-                    });
+                    },
+                    error: function() {
+                        alert('An error occurred while saving class details.');
+                    }
                 });
+            });
 
-                // Handle Delete Form (Class)
-                $('#delete-class-frm').submit(function(event) {
+             // Handle Delete Form (Class)
+             $('#delete-class-frm').submit(function(event) {
                     event.preventDefault();
 
                     $.ajax({
@@ -501,236 +521,251 @@
                     });
                 });
 
-                // View course details button
-                $(document).on('click', '.view_course_details', function() {
-                    var course_id = $(this).attr('data-id');
-                    $.ajax({
-                        url: 'get_course_details.php',
-                        method: 'GET',
-                        data: { course_id: course_id },
-                        success: function(response) {
-                            $('#courseDetailsBody').html(response);
-                            $('#course_details').modal('show');
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.log("Request failed: " + textStatus + ", " + errorThrown);
-                            alert('An error occurred while saving the course.');
-                        }
-                    });
-                });
-
-                // View class details button
-                $(document).on('click', '.view_class_details', function() {
-                    var class_id = $(this).attr('data-id');
-                    $.ajax({
-                        url: 'get_class_details.php',
-                        method: 'GET',
-                        data: { class_id: class_id },
-                        success: function(response) {
-                            $('#classDetailsBody').html(response);
-                            $('#class_details').modal('show');
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.log("Request failed: " + textStatus + ", " + errorThrown);
-                            alert('An error occurred while saving the course.');
-                        }
-                    });
-                });
-                
-                let isButtonClicked = false;
-                
-                // View Course Details Action Button: View Class
-                $(document).on('click', '.action_vcd', function() {
-                    isButtonClicked = true;
-
-                    $('#course_details').modal('hide');
-
-                    $('#course_details').one('hidden.bs.modal', function() {
-                        $('#class_details').modal('show');
-                    });
-                });
-
-                // View Class Details: Back Button
-                $(document).on('click', '.back_vcd', function() {
-                    isButtonClicked = false;
-                    
-                    $('#class_details').modal('hide');
-
-                    $('#class_details').one('hidden.bs.modal', function() {
+            // View course details button
+            $(document).on('click', '.view_course_details', function() {
+                var course_id = $(this).attr('data-id');
+                $.ajax({
+                    url: 'get_course_details.php',
+                    method: 'GET',
+                    data: { course_id: course_id },
+                    success: function(response) {
+                        $('#courseDetailsBody').html(response);
                         $('#course_details').modal('show');
-                    });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("Request failed: " + textStatus + ", " + errorThrown);
+                        alert('An error occurred while fetching course details.');
+                    }
                 });
+            });
 
-                // To make sure that the isButtonClicked false after exiting the Class Details
-                $(document).on('click', '.back_vcd_false', function() {
-                    isButtonClicked = false;
+            // View class details button
+            $(document).on('click', '.view_class_details', function() {
+                var class_id = $(this).attr('data-id');
+                $.ajax({
+                    url: 'get_class_details.php',
+                    method: 'GET',
+                    data: { class_id: class_id },
+                    success: function(response) {
+                        $('#classDetailsBody').html(response);
+                        $('#class_details').modal('show');
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("Request failed: " + textStatus + ", " + errorThrown);
+                        alert('An error occurred while fetching class details.');
+                    }
                 });
+            });
+            
+            let isButtonClicked = false;
+            
+            // View Course Details Action Button: View Class
+            $(document).on('click', '.action_vcd', function() {
+                isButtonClicked = true;
+
+                $('#course_details').modal('hide');
+
+                $('#course_details').one('hidden.bs.modal', function() {
+                    $('#class_details').modal('show');
+                });
+            });
+
+            // View Class Details: Back Button
+            $(document).on('click', '.back_vcd', function() {
+                isButtonClicked = false;
                 
-                // When the next modal is shown, check the boolean value
-                $('#class_details').on('shown.bs.modal', function() {
-                    if (isButtonClicked) {
-                        $('#back-button-container').html('<button class="btn btn-secondary back_vcd" data-dismiss="modal">Back</button>');
-                    } else {
-                        $('#back-button-container').html('');
+                $('#class_details').modal('hide');
+
+                $('#class_details').one('hidden.bs.modal', function() {
+                    $('#course_details').modal('show');
+                });
+            });
+
+            // To make sure that the isButtonClicked false after exiting the Class Details
+            $(document).on('click', '.back_vcd_false', function() {
+                isButtonClicked = false;
+            });
+            
+            // When the next modal is shown, check the boolean value
+            $('#class_details').on('shown.bs.modal', function() {
+                if (isButtonClicked) {
+                    $('#back-button-container').html('<button class="btn btn-secondary back_vcd" data-dismiss="modal">Back</button>');
+                } else {
+                    $('#back-button-container').html('');
+                }
+            });
+
+            $(document).on('click', '.accept-btn, .reject-btn', function() {
+                var classId = $(this).data('class-id');
+                var studentId = $(this).data('student-id');
+                var status = $(this).data('status');
+
+                $.ajax({
+                    url: 'status_update.php',
+                    type: 'POST',
+                    data: {
+                        class_id: classId,
+                        student_id: studentId,
+                        status: status
+                    },
+                    success: function(response) {
+                        if (response == 'success') {
+                            alert('Student status updated.');
+                            location.reload();
+                        } else {
+                            alert('Failed to update status.');
+                        }
+                    } 
+                });
+            });
+
+            // Saving new course
+            $('#course-frm').submit(function(e) {
+                e.preventDefault();
+                $('#course-frm [name="save"]').attr('disabled', true).html('Saving...');
+                $('#msg').html('');
+
+                $.ajax({
+                    url: './save_course.php',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    error: function(err) {
+                        console.log(err);
+                        alert('An error occurred');
+                        $('#course-frm [name="save"]').removeAttr('disabled').html('Save');
+                    },
+                    success: function(resp) {
+                        if (typeof resp != undefined) {
+                            resp = JSON.parse(resp);
+                            if (resp.status == 1) {
+                                alert('Data successfully saved');
+                                location.reload();
+                            } else {
+                                $('#msg').html('<div class="alert alert-danger">' + resp.msg + '</div>');
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Handle Classes button click
+            $('.classes').click(function() {
+                var course_id = $(this).attr('data-id');
+                var course_name = $(this).attr('data-name');
+
+                // Show the Classes tab and set the course name
+                $('#classes-tab-link').show().click();
+                $('#classes-tab-link').text(course_name);
+
+                // Fetch and display classes associated with the course
+                $.ajax({
+                    url: 'get_classes.php',
+                    method: 'POST',
+                    data: { course_id: course_id },
+                    success: function(response) {
+                        $('#class-container').html(response);
+                        updateMeatballMenu();
                     }
                 });
 
-                $(document).on('click', '.accept-btn, .reject-btn', function() {
-                    var classId = $(this).data('class-id');
-                    var studentId = $(this).data('student-id');
-                    var status = $(this).data('status');
+                // Set the hidden course_id field in the add class form
+                $('#manage_class input[name="course_id"]').val(course_id);
+            });
 
-                    $.ajax({
-                        url: 'status_update.php',
-                        type: 'POST',
-                        data: {
-                            class_id: classId,
-                            student_id: studentId,
-                            status: status
-                        },
-                        success: function(response) {
-                            if (response == 'success') {
-                                alert('Student status updated.');
-                                location.reload(); // Refresh the page to see the updated status
-                            } else {
-                                alert('Failed to update status.');
-                            }
-                        } 
-                    });
-                });
-
-
-                // Saving new course
-                $('#course-frm').submit(function(e) {
-                    e.preventDefault();
-                    $('#course-frm [name="save"]').attr('disabled', true).html('Saving...');
-                    $('#msg').html('');
-
-                    $.ajax({
-                        url: './save_course.php',
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        error: function(err) {
-                            console.log(err);
-                            alert('An error occurred');
-                            $('#course-frm [name="save"]').removeAttr('disabled').html('Save');
-                        },
-                        success: function(resp) {
-                            if (typeof resp != undefined) {
-                                resp = JSON.parse(resp);
-                                if (resp.status == 1) {
-                                    alert('Data successfully saved');
+            // AJAX form submission for adding a class
+            $('#class-frm').submit(function(e) {
+                e.preventDefault();
+                
+                $.ajax({
+                    url: 'save_class.php',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 1) {
+                            alert(response.msg);
+                            
+                            var course_id = $('input[name="course_id"]').val();
+                            // Fetch and display the updated classes
+                            $.ajax({
+                                url: 'get_classes.php',
+                                method: 'POST',
+                                data: { course_id: course_id },
+                                success: function(response) {
+                                    $('#class-container').html(response);
+                                    $('#manage_class').modal('hide');
+                                    updateMeatballMenu();
                                     location.reload();
-                                } else {
-                                    $('#msg').html('<div class="alert alert-danger">' + resp.msg + '</div>');
                                 }
-                            }
+                            });
+                        } else {
+                            alert(response.msg);
                         }
-                    });
-                });
-
-                // Handle Classes button click
-                $('.classes').click(function() {
-                    var course_id = $(this).attr('data-id');
-                    var course_name = $(this).attr('data-name');
-
-                    // Show the Classes tab and set the course name
-                    $('#classes-tab-link').show().click();
-                    $('#classes-tab-link').text(course_name);
-
-                    // Fetch and display classes associated with the course
-                    $.ajax({
-                        url: 'get_classes.php',
-                        method: 'POST',
-                        data: { course_id: course_id },
-                        success: function(response) {
-                            $('#class-container').html(response);
-                        }
-                    });
-
-                    // Set the hidden course_id field in the add class form
-                    $('#manage_class input[name="course_id"]').val(course_id);
-                });
-
-                // AJAX form submission for adding a class
-                $('#class-frm').submit(function(e) {
-                    e.preventDefault();
-                    
-                    $.ajax({
-                        url: 'save_class.php',
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        dataType: 'json', // Expect JSON response from the server
-                        success: function(response) {
-                            if (response.status === 1) {
-                                alert(response.msg); // Show success message
-                                
-                                var course_id = $('input[name="course_id"]').val();
-                                // Fetch and display the updated classes
-                                $.ajax({
-                                    url: 'get_classes.php',
-                                    method: 'POST',
-                                    data: { course_id: course_id },
-                                    success: function(response) {
-                                        $('#class-container').html(response);
-                                        $('#manage_class').modal('hide');
-                                        location.reload();
-                                    }
-                                });
-                            } else {
-                                alert(response.msg); // Show error message
-                            }
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.log("Request failed: " + textStatus + ", " + errorThrown);
-                            alert('An error occurred while saving the course.');
-                        }
-                    });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("Request failed: " + textStatus + ", " + errorThrown);
+                        alert('An error occurred while saving the class.');
+                    }
                 });
             });
-            
-            // wip: Show the class container after editting or deleting classes
-            /* if (sessionStorage.getItem('classesTabVisible') === true) {
-                $('#classes').click();
-                sessionStorage.removeItem('classesTabVisible');
-            } */
 
-            // For Meatball Menu
             function initializeMeatballMenu() {
-                console.log("Meatball menu initialized");
-                const meatballMenuBtns = document.querySelectorAll('.meatball-menu-btn');
-                
-                meatballMenuBtns.forEach(function(meatballMenuBtn) {
-                    meatballMenuBtn.addEventListener('click', function(event) {
-                        // Close any open menus first
-                        document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
-                            if (container !== meatballMenuBtn.parentElement) {
-                                container.classList.remove('show');
-                            }
-                        });
+            console.log("Meatball menu initialized");
 
-                        // Toggle the clicked menu
-                        const meatballMenuContainer = meatballMenuBtn.parentElement;
-                        meatballMenuContainer.classList.toggle('show');
+            // Ensure the click event is bound to dynamically loaded elements
+            $(document).on('click', '.meatball-menu-btn', function(event) {
+                event.stopPropagation();
+                $('.meatball-menu-container').not($(this).parent()).removeClass('show');
+                $(this).parent().toggleClass('show');
+            });
 
-                        // Stop the event from bubbling up to the document
-                        event.stopPropagation();
-                    });
-                });
+            // Close the menu if clicked outside
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.meatball-menu-container').length) {
+                    $('.meatball-menu-container').removeClass('show');
+                }
+            });
+        }
 
-                // Close the menu if clicked outside
-                document.addEventListener('click', function(event) {
-                    document.querySelectorAll('.meatball-menu-container').forEach(function(container) {
-                        if (!container.contains(event.target)) {
-                            container.classList.remove('show');
-                        }
-                    });
+        function updateMeatballMenu() {
+            // Remove any existing open menus
+            $('.meatball-menu-container').removeClass('show');
+        }
+
+            // Check if the URL contains `show_modal=true`
+            const urlParams = new URLSearchParams(window.location.search);
+            const showModal = urlParams.get('show_modal');
+            const classId = urlParams.get('class_id');
+
+            // If `show_modal` is true, open the class details modal
+            if (showModal === 'true' && classId) {
+                // Show the modal
+                $('#class_details').modal('show');
+
+                // Fetch class details dynamically
+                fetchClassDetails(classId);
+            }
+
+            function fetchClassDetails(classId) {
+                $.ajax({
+                    url: 'get_class_details.php',
+                    type: 'GET',
+                    data: { class_id: classId },
+                    success: function (response) {
+                        // Load the response into the modal body
+                        $('#classDetailsBody').html(response);
+                    },
+                    error: function () {
+                        $('#classDetailsBody').html('<p>Error loading class details.</p>');
+                    }
                 });
             }
-            
-            document.addEventListener('click', function() {
-                initializeMeatballMenu();
+
+            // Ensure meatball menu is initialized after any dynamic content changes
+            $(document).ajaxComplete(function() {
+                updateMeatballMenu();
             });
+        });
         </script>
     </body>
 </html>
