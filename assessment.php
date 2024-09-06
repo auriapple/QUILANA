@@ -94,12 +94,11 @@
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
-                    SELECT a.*, c.course_name, cl.subject 
+                    SELECT a.*, c.course_name
                     FROM assessment a 
-                    JOIN class cl ON a.class_id = cl.class_id 
-                    JOIN course c ON cl.course_id = c.course_id 
-                    WHERE a.faculty_id = '".$_SESSION['login_id']."' 
-                    ORDER BY c.course_name, cl.subject, a.assessment_name ASC
+                    JOIN course c ON a.course_id = c.course_id 
+                    WHERE a.faculty_id = '1' 
+                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
                 ");
                 
                 $current_course = '';
