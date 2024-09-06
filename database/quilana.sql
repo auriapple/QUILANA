@@ -1,9 +1,4 @@
 -- Create tables that do not have foreign key dependencies
-CREATE TABLE code (
-    code_id INT AUTO_INCREMENT PRIMARY KEY,
-    generated_code VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE faculty (
     faculty_id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(150) NOT NULL,
@@ -13,7 +8,7 @@ CREATE TABLE faculty (
     username VARCHAR(150) NOT NULL,
     password VARCHAR(255) NOT NULL, 
     user_type TINYINT(1) DEFAULT 2 NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE student (
@@ -25,12 +20,11 @@ CREATE TABLE student (
     username VARCHAR(150) NOT NULL,
     password VARCHAR(255) NOT NULL, 
     user_type TINYINT(1) DEFAULT 3 NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE course (
     course_id INT AUTO_INCREMENT PRIMARY KEY,
-    class_id INT,
     course_name VARCHAR(150) NOT NULL,
     faculty_id INT NOT NULL,
     FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id)
@@ -38,32 +32,33 @@ CREATE TABLE course (
 
 CREATE TABLE class (
     class_id INT AUTO_INCREMENT PRIMARY KEY,
-    code_id INT NULL,
+    code VARCHAR(25),
     faculty_id INT NOT NULL,
     course_id INT NOT NULL,
     subject VARCHAR(100) NOT NULL,
     class_name VARCHAR(100) NOT NULL,
-    student_id INT,
-    assessment_id INT,
     year TINYINT NOT NULL,
     section VARCHAR(2) NOT NULL,
     date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    FOREIGN KEY (code_id) REFERENCES code(code_id),
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id),
     FOREIGN KEY (course_id) REFERENCES course(course_id)
 );
 
 CREATE TABLE assessment (
     assessment_id INT AUTO_INCREMENT PRIMARY KEY,
+    assessment_type INT NOT NULL,
     assessment_mode TINYINT(1) NOT NULL,
     assessment_name VARCHAR(150) NOT NULL,
     course_id INT NOT NULL,
+    class_id INT NOT NULL,
     topic VARCHAR(200) NOT NULL,
+    time_limit INT,
     faculty_id INT NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES course(course_id),
-    FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id)
+    FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id),
+    FOREIGN KEY (class_id) REFERENCES class(class_id)
 );
 
 CREATE TABLE administer_assessment (
@@ -71,16 +66,14 @@ CREATE TABLE administer_assessment (
     assessment_id INT NOT NULL,
     course_id INT NOT NULL,
     class_id INT NOT NULL,
-    timelimit INT NOT NULL,
     date_administered DATE NOT NULL DEFAULT CURRENT_DATE,
     FOREIGN KEY (assessment_id) REFERENCES assessment(assessment_id),
     FOREIGN KEY (course_id) REFERENCES course(course_id),
     FOREIGN KEY (class_id) REFERENCES class(class_id)
 );
 
-
 CREATE TABLE student_enrollment (
-    studentEnrollment_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
     class_id INT NOT NULL,
     student_id INT NOT NULL,
     status TINYINT(1) NOT NULL,
@@ -92,7 +85,7 @@ CREATE TABLE student_submission (
     submission_id INT AUTO_INCREMENT PRIMARY KEY,
     assessment_id INT NOT NULL,
     student_id INT NOT NULL,
-    student_score INT(11) NOT NULL,
+    student_score INT NOT NULL,
     status TINYINT(1) NOT NULL,
     date_taken DATETIME NOT NULL,
     FOREIGN KEY (assessment_id) REFERENCES assessment(assessment_id),
@@ -105,8 +98,9 @@ CREATE TABLE questions (
     assessment_id INT NOT NULL,
     order_by INT NOT NULL,
     ques_type TINYINT(1) NOT NULL,
-    total_points INT(3) NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    total_points INT NOT NULL,
+    time_limit INT,
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (assessment_id) REFERENCES assessment(assessment_id)
 );
 
@@ -133,9 +127,11 @@ CREATE TABLE student_answer (
     question_id INT NOT NULL,
     option_id INT,
     is_right TINYINT(1) NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (submission_id) REFERENCES student_submission(submission_id),
-    FOREIGN KEY (question_id) REFERENCES questions(question_id)
+    FOREIGN KEY (question_id) REFERENCES questions(question_id),
+    FOREIGN KEY (option_id) REFERENCES question_options(option_id),
+    FOREIGN KEY (identification_id) REFERENCES question_identifications(identification_id)
 );
 
 CREATE TABLE student_results (
@@ -143,11 +139,11 @@ CREATE TABLE student_results (
     assessment_id INT NOT NULL,
     student_id INT NOT NULL,
     class_id INT NOT NULL,
-    items INT(3) NOT NULL,
-    score INT(3) NOT NULL,
+    items INT NOT NULL,
+    score INT NOT NULL,
     remarks TINYINT(1),
-    rank INT(3),
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    rank INT,
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (assessment_id) REFERENCES assessment(assessment_id),
     FOREIGN KEY (student_id) REFERENCES student(student_id),
     FOREIGN KEY (class_id) REFERENCES class(class_id)
@@ -158,7 +154,7 @@ CREATE TABLE flashcard (
     term VARCHAR(255) NOT NULL,
     definition VARCHAR(255) NOT NULL,
     student_id INT NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES student(student_id)
 );
 
@@ -167,9 +163,8 @@ CREATE TABLE rw_questions (
     question TEXT NOT NULL,
     order_by INT NOT NULL,
     question_type TINYINT(1) NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE rw_question_opt (
     rw_option_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -188,12 +183,11 @@ CREATE TABLE rw_question_identifications (
 
 CREATE TABLE rw_reviewer (
     reviewer_id INT AUTO_INCREMENT PRIMARY KEY,
-    sharedcode_int INT,
     student_id INT,
     topic VARCHAR(255) NOT NULL,
     reviewer_type TINYINT(1) NOT NULL,
     rw_question_id INT NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (rw_question_id) REFERENCES rw_questions(rw_question_id)
 );
 
@@ -213,14 +207,15 @@ CREATE TABLE get_shared_code (
     is_valid TINYINT(1) NOT NULL,
     student_id INT NOT NULL,
     date_entered DATETIME NOT NULL,
-    FOREIGN KEY (sharedcode_id) REFERENCES shared_code(sharedcode_id)
+    FOREIGN KEY (sharedcode_id) REFERENCES shared_code(sharedcode_id),
+    FOREIGN KEY (student_id) REFERENCES student(student_id)
 );
 
 CREATE TABLE rw_student_submission (
     rw_submission_id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     reviewer_id INT NOT NULL,
-    student_score INT(11) NOT NULL,
+    student_score INT NOT NULL,
     status TINYINT(1) NOT NULL,
     date_taken DATETIME NOT NULL,
     FOREIGN KEY (student_id) REFERENCES student(student_id),
@@ -234,7 +229,7 @@ CREATE TABLE rw_answer (
     rw_question_id INT NOT NULL,
     rw_option_id INT,
     is_right TINYINT(1) NOT NULL,
-    date_updated DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    date_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (rw_submission_id) REFERENCES rw_student_submission(rw_submission_id),
     FOREIGN KEY (rw_question_id) REFERENCES rw_questions(rw_question_id),
     FOREIGN KEY (rw_option_id) REFERENCES rw_question_opt(rw_option_id)
