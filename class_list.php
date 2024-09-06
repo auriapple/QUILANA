@@ -230,7 +230,7 @@
                         <div class="modal-body">
                             <div id="msg"></div>
                             <div class="form-group">
-                                <label>Class Name</label>
+                                <label>Section</label>
                                 <input type="hidden" name="class_id" id="class_id"/>
                                 <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
                                 <input type="text" name="class_name" required="required" class="form-control" value=""/>
