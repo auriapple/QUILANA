@@ -144,9 +144,9 @@ if (isset($_GET['class_id'])) {
                             <?php echo '</td>';
                         } else if (htmlspecialchars($student['status']) == 1){
                             echo '<td> Enrolled </td>';
-                            echo '<td>' ?> . <div>
+                            echo '<td>' ?><div class="btn-container">
                             <button class="btn btn-primary btn-sm" data-class-id="<?php $class_id ?>"  type="button">Scores</button>
-                            <button class="btn btn-primary btn-sm reject-btn" data-class-id="<?php $class_id ?>"  type="button">Remove</button> . 
+                            <button class="btn btn-primary btn-sm reject-btn" data-class-id="<?php $class_id ?>"  type="button">Remove</button>
                             </div> <?php '</td>';
                         };
                     echo '</tr>';
