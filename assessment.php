@@ -96,9 +96,9 @@
                 $qry = $conn->query("
                     SELECT a.*, c.course_name
                     FROM assessment a 
-                    JOIN course c ON a.course_id = c.course_id 
+                    JOIN course c ON a.class_id = c.class_id 
                     WHERE a.faculty_id = '1' 
-                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
+                    ORDER BY c.course_name, c.subject, a.assessment_name ASC
                 ");
                 
                 $current_course = '';
