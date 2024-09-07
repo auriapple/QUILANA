@@ -34,7 +34,7 @@
                     <div class="form-group">
                         <label for="password">PASSWORD</label>
                         <input type="password" id="password" name="password" required>
-                        <a class="fp">Forgot Password?</a>
+                        <a href=# class="fp">Forgot Password?</a>
                     </div>
                     
                     <button type="submit" id="signInButton" class="main-button">Sign in</button>

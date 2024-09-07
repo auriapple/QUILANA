@@ -1,7 +1,7 @@
 			<nav class = "navbar navbar-header navbar-light bg-primary">
 			<div class = "container-fluid">
 				<div class = "navbar-header">
-					<p class = "navbar-text pull-right"><h3 style="color:white">Quilana</h3></p>
+					<p class = "navbar-text pull-right"><h3 style="color:white">QUILANA</h3></p>
 				</div>
 				<div class = "nav navbar-nav navbar-right">
 					<a href="logout.php" style="color:white"><?php echo $firstname ?> <i class="fa fa-power-off"></i></a>
@@ -38,7 +38,7 @@
 				</a>
 			</div>
 			<div id="sidebar-field">
-				<a href="student_quiz_list.php" class="sidebar-item text-dark">
+				<a href="results.php" class="sidebar-item text-dark">
 						<div class="sidebar-icon"><i class="fa fa-list"> </i></div> Results
 				</a>
 			</div>
