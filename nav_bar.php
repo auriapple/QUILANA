@@ -34,12 +34,12 @@
 			<?php else: ?>
 			<div id="sidebar-field">
 				<a href="enroll.php" class="sidebar-item text-dark">
-						<div class="sidebar-icon"><i class="fa fa-sign-in"></i></div> Classes
+						<div class="sidebar-icon"><i class="fa fa-book"></i></div> Classes
 				</a>
 			</div>
 			<div id="sidebar-field">
 				<a href="results.php" class="sidebar-item text-dark">
-						<div class="sidebar-icon"><i class="fa fa-list"> </i></div> Results
+						<div class="sidebar-icon"><i class="fa fa-graduation-cap"> </i></div> Results
 				</a>
 			</div>
 
