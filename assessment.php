@@ -94,12 +94,11 @@
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
-                    SELECT a.*, c.course_name, cl.subject 
+                    SELECT a.*, c.course_name
                     FROM assessment a 
-                    JOIN class cl ON a.class_id = cl.class_id 
-                    JOIN course c ON cl.course_id = c.course_id 
-                    WHERE a.faculty_id = '".$_SESSION['login_id']."' 
-                    ORDER BY c.course_name, cl.subject, a.assessment_name ASC
+                    JOIN course c ON a.course_id = c.course_id 
+                    WHERE a.faculty_id = '1' 
+                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
                 ");
                 
                 $current_course = '';
@@ -207,7 +206,7 @@
                                     ?>
                                 </select>
                                 <label>Select Course Subject</label>
-                                <select name="class_id" id="class_id" required="required" class="form-control">
+                                <select name="subject" id="subject" required="required" class="form-control">
                                     <option value="">Select Subject</option>
                                 </select>
                                 <label>Topic</label>
@@ -309,7 +308,7 @@
                                     ?>
                                 </select>
                                 <label>Select Course Subject</label>
-                                <select name="class_id" id="edit_class_id" required="required" class="form-control">
+                                <select name="subject" id="edit_subject" required="required" class="form-control">
                                     <option value="">Select Subject</option>
                                 </select>
                                 <label>Topic</label>
@@ -373,11 +372,11 @@
                         method: 'POST',
                         data: { course_id: course_id },
                         success: function(response) {
-                            $('#class_id').html(response); //  subjects dropdown
+                            $('#subject').html(response); //  subjects dropdown
                         }
                     });
                 } else {
-                    $('#class_id').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
+                    $('#subject').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
                 }
             });
 
@@ -518,6 +517,7 @@
                         $('#edit_assessment_mode').val(data.assessment_mode);
                         $('#edit_course_id').val(data.course_id);
                         $('#edit_topic').val(data.topic);
+                        $('#edit_subject').val(data.subject);
                         
                         // Populate subjects dropdown
                         $.ajax({
@@ -525,8 +525,8 @@
                             method: 'POST',
                             data: { course_id: data.course_id },
                             success: function(response) {
-                                $('#edit_class_id').html(response);
-                                $('#edit_class_id').val(data.class_id); // Set the selected subject
+                                $('#edit_subject').html(response);
+                                $('#edit_subject').val(data.subject); // Set the selected subject
                             }
                         });
 

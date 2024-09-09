@@ -72,10 +72,9 @@
         <?php
         if (isset($_GET['assessment_id'])) {
             $assessment_id = intval($_GET['assessment_id']);
-            $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, cl.subject, a.time_limit 
+            $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit 
             FROM assessment a
-            JOIN class cl ON a.class_id = cl.class_id
-            JOIN course c ON cl.course_id = c.course_id
+            JOIN course c ON a.course_id = c.course_id
             WHERE a.assessment_id = ?";
 
             if ($stmt = $conn->prepare($query)) {
