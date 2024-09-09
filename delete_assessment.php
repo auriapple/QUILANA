@@ -22,29 +22,32 @@ if (isset($_POST['assessment_id'])) {
         }
         $questions_stmt->close();
 
-        // Delete questions
-        $delete_questions_query = "DELETE FROM questions WHERE assessment_id = ?";
-        $delete_questions_stmt = $conn->prepare($delete_questions_query);
-        $delete_questions_stmt->bind_param("i", $assessment_id);
-        $delete_questions_stmt->execute();
-        $delete_questions_stmt->close();
+        // Only attempt to delete options and identifications if there are questions
+        if (!empty($question_ids)) {
+            // 2. Delete associated question options
+            $delete_options_query = "DELETE FROM question_options WHERE question_id IN (" . implode(',', array_fill(0, count($question_ids), '?')) . ")";
+            $delete_options_stmt = $conn->prepare($delete_options_query);
+            $types = str_repeat('i', count($question_ids));
+            $delete_options_stmt->bind_param($types, ...$question_ids);
+            $delete_options_stmt->execute();
+            $delete_options_stmt->close();
 
-        // 2. Delete associated question options
-        $delete_options_query = "DELETE FROM question_options WHERE question_id IN (" . implode(',', array_fill(0, count($question_ids), '?')) . ")";
-        $delete_options_stmt = $conn->prepare($delete_options_query);
-        $types = str_repeat('i', count($question_ids));
-        $delete_options_stmt->bind_param($types, ...$question_ids);
-        $delete_options_stmt->execute();
-        $delete_options_stmt->close();
+            // 3. Delete associated question identifications
+            $delete_identifications_query = "DELETE FROM question_identifications WHERE question_id IN (" . implode(',', array_fill(0, count($question_ids), '?')) . ")";
+            $delete_identifications_stmt = $conn->prepare($delete_identifications_query);
+            $delete_identifications_stmt->bind_param($types, ...$question_ids);
+            $delete_identifications_stmt->execute();
+            $delete_identifications_stmt->close();
 
-        // 3. Delete associated question identifications
-        $delete_identifications_query = "DELETE FROM question_identifications WHERE question_id IN (" . implode(',', array_fill(0, count($question_ids), '?')) . ")";
-        $delete_identifications_stmt = $conn->prepare($delete_identifications_query);
-        $delete_identifications_stmt->bind_param($types, ...$question_ids);
-        $delete_identifications_stmt->execute();
-        $delete_identifications_stmt->close();
+            // 4. delete the questions themselves
+            $delete_questions_query = "DELETE FROM questions WHERE question_id IN (" . implode(',', array_fill(0, count($question_ids), '?')) . ")";
+            $delete_questions_stmt = $conn->prepare($delete_questions_query);
+            $delete_questions_stmt->bind_param($types, ...$question_ids);
+            $delete_questions_stmt->execute();
+            $delete_questions_stmt->close();
+        }
 
-        // 4. Delete the assessment itself
+        // 5. Delete the assessment itself (always executed regardless of the presence of questions)
         $delete_assessment_query = "DELETE FROM assessment WHERE assessment_id = ?";
         $delete_assessment_stmt = $conn->prepare($delete_assessment_query);
         $delete_assessment_stmt->bind_param("i", $assessment_id);
@@ -63,4 +66,3 @@ if (isset($_POST['assessment_id'])) {
 
     $conn->close();
 }
-?>

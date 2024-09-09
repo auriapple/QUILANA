@@ -54,7 +54,14 @@
         </div>
 
         <div id="assessments-tab" class="tab-content">
-            <div id="course-container"></div>
+            <div id="course-container">
+                <?php
+                if (isset($_GET['class_id'])) {
+                    $class_id = $_GET['class_id'];
+                    include('load_assessment.php');
+                }
+                ?>
+            </div>
         </div>
 
         <!-- Modal for entering class code -->

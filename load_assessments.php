@@ -2,11 +2,10 @@
 include('db_connect.php');
 
 if (isset($_POST['class_id'])) {
-    $class_id = $conn->real_escape_string($_POST['class_id']); // Sanitize the input
+    $class_id = $conn->real_escape_string($_POST['class_id']);
 
-    // Join assessments with administer_assessment to get the duration
     $assessments_query = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, aa.timelimit, a.topic
+        SELECT a.assessment_id, a.assessment_name, a.time_limit, a.topic
         FROM assessment a
         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
         WHERE aa.class_id = '$class_id'
@@ -19,9 +18,9 @@ if (isset($_POST['class_id'])) {
             echo '<div class="course-card-body">';
             echo '<div class="course-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
             echo '<div class="course-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
-            echo '<div class="course-card-duration">Duration: ' . htmlspecialchars($row['timelimit']) . ' minutes</div>'; // Assuming duration is in minutes
+            echo '<div class="course-card-duration">Duration: ' . htmlspecialchars($row['time_limit']) . ' minutes</div>';
             echo '<div class="course-actions">';
-            echo '<button class="btn btn-primary btn-sm">Take Assessment</button>';
+            echo '<a href="quiz.php?assessment_id=' . htmlspecialchars($row['assessment_id']) . '" class="btn btn-primary btn-sm">Take Assessment</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';

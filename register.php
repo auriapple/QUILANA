@@ -88,19 +88,22 @@ if (isset($_POST['submit'])) {
     <title>Register | Quilana</title>
 </head>
 <body>
-    <div id="login-container">
+    <div id="container">
         <div id="left-section">
             <div class="logo">QUILANA</div>
             <div class="illustration"></div>
         </div>
         <div id="right-section">
-            <div class="sign-in-form">
-                <h2>REGISTER</h2>
-                <form method="post" action="register.php" id="registration-form">
+            <a href="login.php" class="return-button">
+                <div class="return"></div>
+            </a>
+            <div class="form">
+                <h2>SIGN UP</h2>
+                <form method="post" action="register.php" id="signup-form">
                     <div class="form-group" id="user_type_container">
-                        <label for="user_type">Register as:</label>
+                        <label for="user_type">REGISTER AS:</label>
                         <select name="user_type" id="user_type" class="form-control" required>
-                            <option value="">Select User Type</option>
+                            <option value="" disabled selected>Select User Type</option>
                             <option value="2">Faculty</option>
                             <option value="3">Student</option>
                         </select>
@@ -141,11 +144,11 @@ if (isset($_POST['submit'])) {
                             <label for="confirm_password">CONFIRM PASSWORD</label>
                             <input type="password" name="confirm_password" id="confirm_password" class="form-control" required />
                         </div>
-                        <button type="submit" class="btn-sign-in" name="submit">Register</button>
+                        <button type="submit" id="signUpButton" class="main-button" name="submit">Register</button>
                     </div>
 
                     <div class="form-group text-center">
-                        <span class="text-muted">Already have an account? </span> <a href="login.php">Login Here</a>
+                        <span class="text-muted">Already have an account? </span> <a href="login.php">Sign In Here</a>
                     </div>
                 </form>
             </div>
@@ -178,4 +181,3 @@ if (isset($_POST['submit'])) {
     </script>
 </body>
 </html>
-
