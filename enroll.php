@@ -5,22 +5,19 @@
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
-    <link rel="stylesheet" href="meatballMenuTest/meatball.css">
 </head>
 <body>
     <?php include('nav_bar.php') ?>
-
     <div class="container-fluid admin">
         <div class="add-course-container">
-            <button class="btn btn-primary btn-sm join-btn" id="join_class"><i class="fa fa-plus"></i>Join Class</button>
-            <div class="search-bar">
-                <form action="#" method="GET">
-                    <input type="text" name="query" placeholder="Search" required>
-                    <button type="submit">Search</button>
-                </form>
-            </div>
+            <button class="secondary-button" id="joinClass">Join Class</button>
+            <form class="search-bar" action="#" method="GET">
+                <input type="text" name="query" placeholder="Search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
         </div>
 
+        <!-- Tabs -->
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-link active" data-tab="classes-tab">Classes</li>
@@ -28,10 +25,13 @@
             </ul>
         </div>
 
+        <!-- Classes Tab -->
         <div id="classes-tab" class="tab-content active">
             <div class="course-container">
                 <?php
                 $student_id = $_SESSION['login_id'];
+
+                // Fetch student's enrolled classes
                 $enrolled_classes_query = $conn->query("SELECT c.class_id, c.subject, f.firstname, f.lastname 
                                                         FROM student_enrollment e
                                                         JOIN class c ON e.class_id = c.class_id
@@ -40,21 +40,24 @@
 
                 while ($row = $enrolled_classes_query->fetch_assoc()) {
                 ?>
+
+                <!-- Display class details -->
                 <div class="course-card">
-                    <div class="course-card-body">
-                        <div class="course-card-title"><?php echo $row['subject'] ?></div>
-                        <div class="course-card-text">Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
-                        <div class="course-actions">
-                            <button class="btn btn-primary btn-sm view_course_details" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
-                        </div>
+                    <div class="course-card-title"><?php echo $row['subject'] ?></div>
+                    <div class="course-card-text">Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
+                    <div class="course-actions">
+                        <button id="viewClassDetails" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
                     </div>
                 </div>
                 <?php } ?>
             </div>
         </div>
-
+        
+        <!-- Assessments Tab -->
         <div id="assessments-tab" class="tab-content">
             <div id="course-container">
+
+                <!-- If a class is selected, assessments are loaded here -->
                 <?php
                 if (isset($_GET['class_id'])) {
                     $class_id = $_GET['class_id'];
@@ -64,7 +67,7 @@
             </div>
         </div>
 
-        <!-- Modal for entering class code -->
+        <!-- Modal for entering class code to join a class-->
         <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
                 <div class="modal-content">
@@ -72,6 +75,8 @@
                         <h4 class="modal-title" id="myModalLabel">Join Class</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
+
+                    <!-- Form to submit the class code -->
                     <form id='code-frm' action="" method="POST">
                         <div class="modal-body">
                             <div id="msg"></div>
@@ -90,6 +95,7 @@
 
     <script>
         $(document).ready(function() {
+            // Button Visibility
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
         
@@ -99,7 +105,7 @@
                     $('#join_class').show();
                 }
             }
-
+            // Tab Functionality
             $('.tab-link').click(function() {
                 var tab_id = $(this).attr('data-tab');
                 $('.tab-link').removeClass('active');
@@ -112,19 +118,21 @@
                     $('#class-name-tab').hide();
                     $('#assessments-tab').removeClass('active').empty(); // Optionally empty the content
                 }
-
                 updateButtons();
             });
 
+            // Initialize button visibility
             updateButtons();
 
-            $('#join_class').click(function() {
+            // Join Class
+            $('#joinClass').click(function() {
                 $('#msg').html('');
                 $('#manage_class #code-frm').get(0).reset();
                 $('#manage_class').modal('show');
             });
 
-            $('.view_course_details').click(function() {
+            // View Class Details
+            $('#viewClassDetails').click(function() {
                 var class_id = $(this).data('id');
                 var class_name = $(this).closest('.course-card').find('.course-card-title').text();
 
@@ -146,10 +154,10 @@
                         $('#assessments-tab').html(response);
                     }
                 });
-
                 updateButtons();
             });
 
+            // Handles code submission
             $('#code-frm').submit(function(event) {
                 event.preventDefault();
 
@@ -177,5 +185,4 @@
         });
     </script>
 </body>
-
 </html>

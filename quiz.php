@@ -27,197 +27,6 @@ $time_limit = $assessment['time_limit'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
-    <style>
-        /* Popup Styles */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            display: none;
-        }
-        .popup-content {
-            background: #fff;
-            padding-left: 45px;
-            padding-right:45px;
-            padding-top: 60px;
-            border-radius: 25px;
-            width: 500px;
-            height: 300px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-        }
-        .popup-title {
-            font-weight: bold;
-            color: #1E1A43;
-        }
-        .popup-message {
-            margin: 10px 0;
-            font-size: 14px;
-            color: #4a4a4a;
-        }
-        /* Popup Buttons */
-        .popup-buttons button {
-            background-image: linear-gradient(to right, #8794F2, #6E72C1);
-            background-color: #4A4CA6;
-            margin-top: 10px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 12px 60px;
-            font-size: 14px;
-            font-weight: bold;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .popup-buttons-confirm, 
-        .popup-buttons-cancel {
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-        .popup-buttons-confirm:hover,
-        .popup-buttons-cancel:hover,
-        .popup-buttons-results:hover {
-            background-color: #4A4CA6;
-            background-image: none;
-            cursor: pointer;
-            box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.25);
-        }
-        .popup-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #6a6a6a;
-        }
-
-        /* Timer Style */
-        .timer {
-            font-size: 1.0em;
-            color: red;
-            font-weight: bold;
-        }
-
-        /* Question Styles */
-        .question {
-            margin-bottom: 10px;
-            color: #1E1A43;
-        }
-        .question p {
-            margin: 0px;
-        }
-
-        /* Options and Answer Boxes Styles */
-        .form-check {
-            margin-top: 2px;
-            margin-bottom: 2px;
-            padding-left: 35px;
-            color: #8F8F9D;
-        }
-        .form-group {
-            margin-top: 2px;
-            margin-bottom: 2px;
-            padding-left: 15px;
-        }
-        .form-group input[type="text"] {
-            color: rgba(143, 143, 157, 0.75);
-            border-color: #8F8F9D;
-        }
-        .form-group input[type="text"]:focus {
-            color: rgba(143, 143, 157, 0.75);
-            border-color: #4A4CA6;
-            box-shadow: 0 0 5px rgba(74, 76, 166, 0.5);
-            outline: none;
-        }
-        .form-check input[type="radio"],
-        .form-check input[type="checkbox"] {
-            accent-color: #4A4CA6;
-        }
-        /* Style for selected options or typed answers */
-        .form-check input:checked + label,
-        .form-check input:focus + label,
-        .form-group input[type="text"]:valid {
-            color: #787878;
-        }
-
-        /* Button and Timer Container */
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .header-container p {
-            margin: 0 20px 0 0;
-        }
-
-        /* Tabs Container */
-        .tabs-container {
-            margin-bottom: 20px;
-        }
-        .tabs {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            border-bottom: 3px solid #ddd;
-        }
-        .tabs .tab-link {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            font-weight: bold;
-        }
-        .tabs .tab-link.active {
-            border-bottom: 3px solid #5a5ada;
-            color: #5a5ada;
-        }
-
-        /* Questions Container */
-        .questions-container {
-            background-color: #FFFFFF;
-            border: 1px solid #F8F9FA;
-            border-radius: 8px;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
-            overflow: auto;
-            width: calc(100% - 20px);
-            height: calc(100vh - 250px);
-            margin: 10px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Submit Button */
-        .submit {
-            background-image: linear-gradient(to right, #8794F2, #6E72C1);
-            background-color: #4A4CA6;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 45px;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: none;
-            z-index: 2;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .submit:hover {
-            background-color: #4A4CA6;
-            background-image: none;
-            cursor: pointer;
-            box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.25);
-        }
-    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -228,8 +37,8 @@ $time_limit = $assessment['time_limit'];
             <h2 class="popup-title">Are you sure you want to submit your answers?</h2>
             <p class="popup-message">THIS ACTION CANNOT BE UNDONE</p>
             <div class="popup-buttons">
-                <button class="popup-buttons-cancel" onclick="closePopup('confirmation-popup')">Cancel</button>
-                <button class="popup-buttons-confirm" onclick="submitForm()">Confirm</button>
+                <button id="cancel" class="secondary-button" onclick="closePopup('confirmation-popup')">Cancel</button>
+                <button id="confirm" class="secondary-button" onclick="submitForm()">Confirm</button>
             </div>
         </div>
     </div>
@@ -240,7 +49,7 @@ $time_limit = $assessment['time_limit'];
             <button class="popup-close" onclick="closeSuccessPopup('success-popup')">&times;</button>
             <h2 class="popup-title">Your answers have been submitted and recorded successfully!</h2>
             <div class="popup-buttons">
-                <button class="popup-buttons-result" onclick="viewResult()">View Result</button>
+                <button id="result" class="secondary-button" onclick="viewResult()">View Result</button>
             </div>
         </div>
     </div>
@@ -253,15 +62,16 @@ $time_limit = $assessment['time_limit'];
             </ul>
         </div>
 
-        <!-- Questions and options -->
+        <!-- Questions Container -->
         <div class="questions-container">
             <form id="quiz-form" action="submit_quiz.php" method="POST">
                 <!-- Header with submit button and timer -->
                 <div class="header-container">
                     <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
-                    <button type="button" onclick="showPopup('confirmation-popup')" class="btn btn-primary btn-sm submit">Submit</button>
+                    <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
                 </div>
                 <?php
+                // Initialize question counter to 1
                 $question_number = 1;
                 while ($question = $questions_query->fetch_assoc()) {
                     echo "<div class='question'>";
@@ -270,7 +80,8 @@ $time_limit = $assessment['time_limit'];
                     // Handle input types based on question type
                     $question_type = $question['ques_type'];
 
-                    if ($question_type == 1) { // Single choice (radio buttons)
+                    // Single choice (radio buttons)
+                    if ($question_type == 1) {
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
                             echo "<div class='form-check'>";
@@ -278,7 +89,8 @@ $time_limit = $assessment['time_limit'];
                             echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                             echo "</div>";
                         }
-                    } elseif ($question_type == 2) { // Multiple choice (checkboxes)
+                    // Multiple choice (checkboxes)
+                    } elseif ($question_type == 2) {
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
                             echo "<div class='form-check'>";
@@ -286,7 +98,8 @@ $time_limit = $assessment['time_limit'];
                             echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                             echo "</div>";
                         }
-                    } elseif ($question_type == 3) { // True/False (radio buttons)
+                    // True/False (radio buttons)
+                    } elseif ($question_type == 3) {
                         echo "<div class='form-check'>";
                         echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
                         echo "<label class='form-check-label'>True</label>";
@@ -295,12 +108,12 @@ $time_limit = $assessment['time_limit'];
                         echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
                         echo "<label class='form-check-label'>False</label>";
                         echo "</div>";
-                    } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification (text input)
-                        echo "<div class='form-group'>";
-                        echo "<input type='text' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
+                    // Fill in the blank and identification (text input)
+                    } elseif ($question_type == 4 || $question_type == 5) {
+                        echo "<div class='form-check-group'>";
+                        echo "<input type='text' id='' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                         echo "</div>";
                     }
-
                     echo "</div>";
                     $question_number++;
                 }
@@ -375,7 +188,7 @@ $time_limit = $assessment['time_limit'];
         }
 
         function viewResult() {
-            // Redirect to result page or handle result viewing
+            // Redirect to results page
             window.location.href = 'results.php';
         }
     </script>
