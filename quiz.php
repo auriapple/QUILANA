@@ -2,23 +2,38 @@
 include('db_connect.php');
 include('auth.php');
 
+// Check if assessment_id is set in URL
 if (!isset($_GET['assessment_id'])) {
     header('location: quiz.php');
     exit();
 }
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+$student_id = $_SESSION['login_id'];
 
-// Fetch assessment details
-$assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
-$assessment = $assessment_query->fetch_assoc();
+// Check if the student has already submitted this assessment (status 1 or 2)
+$submission_check_query = $conn->query("SELECT * FROM student_submission 
+                                        WHERE assessment_id = '$assessment_id' 
+                                        AND student_id = '$student_id' 
+                                        AND status IN (1, 2)");
 
-// Fetch questions related to the assessment
-$questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
+if ($submission_check_query->num_rows > 0) {
+    // The student has already taken the assessment, display a message
+    $message = "You have already taken this assessment. You cannot take it again.";
+} else {
+    // Fetch assessment details
+    $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
+    $assessment = $assessment_query->fetch_assoc();
 
-// Get the time limit for the quiz
-$time_limit = $assessment['time_limit'];
+    // Fetch questions related to the assessment
+    $questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
+
+    // Get the time limit for the quiz
+    $time_limit = $assessment['time_limit'];
+}
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -246,69 +261,75 @@ $time_limit = $assessment['time_limit'];
     </div>
 
     <div class="container-fluid admin">
-        <!-- Tab for assessment -->
-        <div class="tabs-container">
-            <ul class="tabs">
-                <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
-            </ul>
-        </div>
+        <?php if (isset($message)): ?>
+            <div class="alert alert-danger">
+                <strong><?php echo $message; ?></strong>
+            </div>
+            <a href="results.php?assessment_id=<?php echo $assessment_id; ?>" class="btn btn-primary">View Results</a>
+        <?php else: ?>
+            <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
+            <div class="tabs-container">
+                <ul class="tabs">
+                    <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
+                </ul>
+            </div>
 
-        <!-- Questions and options -->
-        <div class="questions-container">
-            <form id="quiz-form" action="submit_quiz.php" method="POST">
-                <!-- Header with submit button and timer -->
-                <div class="header-container">
-                    <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
-                    <button type="button" onclick="showPopup('confirmation-popup')" class="btn btn-primary btn-sm submit">Submit</button>
-                </div>
-                <?php
-                $question_number = 1;
-                while ($question = $questions_query->fetch_assoc()) {
-                    echo "<div class='question'>";
-                    echo "<p><strong>$question_number. " . htmlspecialchars($question['question']) . "</strong></p>";
+            <div class="questions-container">
+                <form id="quiz-form" action="submit_quiz.php" method="POST">
+                    <!-- Timer and Submit Button -->
+                    <div class="header-container">
+                        <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
+                        <button type="button" onclick="showPopup('confirmation-popup')" class="btn btn-primary btn-sm submit">Submit</button>
+                    </div>
+                    <?php
+                    $question_number = 1;
+                    while ($question = $questions_query->fetch_assoc()) {
+                        echo "<div class='question'>";
+                        echo "<p><strong>$question_number. " . htmlspecialchars($question['question']) . "</strong></p>";
+                        
+                        // Handle input types based on question type
+                        $question_type = $question['ques_type'];
 
-                    // Handle input types based on question type
-                    $question_type = $question['ques_type'];
-
-                    if ($question_type == 1) { // Single choice (radio buttons)
-                        $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
-                        while ($choice = $choices_query->fetch_assoc()) {
+                        if ($question_type == 1) { // Single choice (radio buttons)
+                            $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
+                            while ($choice = $choices_query->fetch_assoc()) {
+                                echo "<div class='form-check'>";
+                                echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
+                                echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "</div>";
+                            }
+                        } elseif ($question_type == 2) { // Multiple choice (checkboxes)
+                            $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
+                            while ($choice = $choices_query->fetch_assoc()) {
+                                echo "<div class='form-check'>";
+                                echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
+                                echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "</div>";
+                            }
+                        } elseif ($question_type == 3) { // True/False (radio buttons)
                             echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . $choice['option_id'] . "' required>";
-                            echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
+                            echo "<label class='form-check-label'>True</label>";
+                            echo "</div>";
+                            echo "<div class='form-check'>";
+                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
+                            echo "<label class='form-check-label'>False</label>";
+                            echo "</div>";
+                        } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification (text input)
+                            echo "<div class='form-group'>";
+                            echo "<input type='text' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                             echo "</div>";
                         }
-                    } elseif ($question_type == 2) { // Multiple choice (checkboxes)
-                        $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
-                        while ($choice = $choices_query->fetch_assoc()) {
-                            echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . $choice['option_id'] . "'>";
-                            echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
-                            echo "</div>";
-                        }
-                    } elseif ($question_type == 3) { // True/False (radio buttons)
-                        echo "<div class='form-check'>";
-                        echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
-                        echo "<label class='form-check-label'>True</label>";
+
                         echo "</div>";
-                        echo "<div class='form-check'>";
-                        echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
-                        echo "<label class='form-check-label'>False</label>";
-                        echo "</div>";
-                    } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification (text input)
-                        echo "<div class='form-group'>";
-                        echo "<input type='text' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
-                        echo "</div>";
+                        $question_number++;
                     }
-
-                    echo "</div>";
-                    $question_number++;
-                }
-                ?>
-                <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
-                <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
-            </form>
-        </div>
+                    ?>
+                    <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
+                    <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
+                </form>
+            </div>
+        <?php endif; ?>
     </div>
 
     <script>
@@ -378,6 +399,27 @@ $time_limit = $assessment['time_limit'];
             // Redirect to result page or handle result viewing
             window.location.href = 'results.php';
         }
+        window.onload = function () {
+        var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
+            display = document.querySelector('#timer');
+        
+        // Fetch the submitted status from the server
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'check_submission.php?assessment_id=<?php echo $assessment_id; ?>', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                if (xhr.responseText === 'submitted') {
+                    window.location.href = 'results.php?assessment_id=<?php echo $assessment_id; ?>';
+                } else {
+                    startTimer(timeLimit, display);
+                }
+            } else {
+                alert('An error occurred while checking submission status.');
+            }
+        };
+        xhr.send();
+    };
+
     </script>
 </body>
 </html>
