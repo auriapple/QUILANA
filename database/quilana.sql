@@ -103,6 +103,21 @@ CREATE TABLE questions (
     FOREIGN KEY (assessment_id) REFERENCES assessment(assessment_id)
 );
 
+CREATE TABLE question_options (
+    option_id INT AUTO_INCREMENT PRIMARY KEY,
+    option_txt TEXT NOT NULL,
+    is_right TINYINT(1) NOT NULL,
+    question_id INT NOT NULL,
+    FOREIGN KEY (question_id) REFERENCES questions(question_id)
+);
+
+CREATE TABLE question_identifications (
+    identification_id INT AUTO_INCREMENT PRIMARY KEY,
+    identification_answer TEXT NOT NULL,
+    question_id INT NOT NULL,
+    FOREIGN KEY (question_id) REFERENCES questions(question_id)
+);
+
 CREATE TABLE student_answer (
     answer_id INT AUTO_INCREMENT PRIMARY KEY,
     answer_text TEXT NOT NULL,
@@ -158,6 +173,13 @@ CREATE TABLE rw_question_opt (
     FOREIGN KEY (rw_question_id) REFERENCES rw_questions(rw_question_id)
 );
 
+CREATE TABLE rw_question_identifications (
+    rw_identification_id INT AUTO_INCREMENT PRIMARY KEY,
+    rw_question_id INT NOT NULL,
+    identification_answer TEXT NOT NULL,
+    FOREIGN KEY (rw_question_id) REFERENCES rw_questions(rw_question_id)
+);
+
 CREATE TABLE rw_reviewer (
     reviewer_id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT,
@@ -168,6 +190,15 @@ CREATE TABLE rw_reviewer (
     FOREIGN KEY (rw_question_id) REFERENCES rw_questions(rw_question_id)
 );
 
+CREATE TABLE shared_code (
+    sharedcode_id INT AUTO_INCREMENT PRIMARY KEY,
+    flashcard_id INT NOT NULL,
+    generated_code VARCHAR(255) NOT NULL,
+    reviewer_id INT NOT NULL,
+    date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reviewer_id) REFERENCES rw_reviewer(reviewer_id),
+    FOREIGN KEY (flashcard_id) REFERENCES flashcard(flashcard_id)
+);
 
 CREATE TABLE get_shared_code (
     getcode_id INT AUTO_INCREMENT PRIMARY KEY,
