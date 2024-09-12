@@ -19,33 +19,36 @@ if (!isset($_SESSION['login_user_type'])) {
     </head>
     <body>
         <?php include 'nav_bar.php'; ?>
-        <div class="container-flud admin" style="flex-shrink: 1;">
+        <div class="container-flud admin dashboard-container">
             <div class="dashboard-summary">
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards"> 
-                    <div class="course-card">
+                    <div class="card" style="background-color: #ffe2e5;">
                         <img class="icons" src="image/DashboardCoursesIcon.png" alt="Courses Icon">
                         <?php
-                        // Output for the total courses and classes (No Design)
                         $result = $conn->query("SELECT COUNT(*) as totalCourses FROM course 
                                                 WHERE faculty_id = '".$_SESSION['login_id']."'");
                         $resTotalCourses = $result->fetch_assoc();
                         $totalCourses = $resTotalCourses['totalCourses'];
-                        echo "<h3>" .$totalCourses. "</h3>";
-                        echo "Total Number of Courses: ";
                         ?>
+                        <div class="card-data">
+                            <h3> <?php echo $totalCourses ?> </h3>
+                            <label> Number of Courses: </label> 
+                        </div>
                     </div>
-                    <div class="class-card"> 
+                    <div class="card"> 
                         <img class="icons" src="image/DashboardClassesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses FROM class
                                                 WHERE faculty_id = '".$_SESSION['login_id']."'");
                         $resTotalClasses = $result->fetch_assoc();
                         $totalClasses = $resTotalClasses['totalClasses'];
-                        echo "<h3>" .$totalClasses. "</h3>";
-                        echo "Total Number of Classes: ";
                         ?>
+                        <div class="card-data">
+                            <h3> <?php echo $totalClasses ?> </h3>
+                            <label> Number of Classes: </label> 
+                        </div>
                     </div>
                 </div>
             </div>

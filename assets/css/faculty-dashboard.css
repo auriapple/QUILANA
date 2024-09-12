@@ -1,18 +1,23 @@
 /* width */
 ::-webkit-scrollbar {
     width: 10px;
-
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    background-clip: padding-box;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 10px;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    background-clip: padding-box;
 }
 
 /* Handle on hover */
@@ -20,19 +25,28 @@
     background: #aaa;
 }
 
+body {
+    max-height: 100vh;
+}
+
+.dashboard-container {
+    display: grid; 
+    gap: 5px;
+}
+
 .dashboard-summary,
 .dashboard-requests {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-    width: 700px;
-    height: 300px;
+    width: 60%;
+    height: fit-content;
     flex-shrink: 1;
     border-radius: 20px;
-    border: 1px solid #fadeff;
+    border: 1px solid #dadada;
+    box-sizing: border-box;
     margin: 10px;
     padding: 25px;
-    background: var(--sds-color-background-default-default);
     box-shadow: 0px 4px 20px 0px rgba(238, 238, 238, 0.50);
 }
 
@@ -45,43 +59,47 @@
 
 .dashboard-summary h2 {
     font-size: 16px;
+    font-weight: 500;
     color: #8f8f9d;
 }
 
 .dashboard-summary .cards {
     height: 100%;
     width: 100%;
-    display: flex;
-    justify-content: space-evenly;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
+    box-sizing: border-box;
 }
 
-.cards .class-card,
-.cards .course-card {
-    display: grid;
-    grid-template-rows: 50% 30% 20%;
-    width: calc(50% - 10px);
-    height: 100%;
-    flex-grow: 1;
-    flex-shrink: 1;
+.cards .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: auto;
+    height: auto;
+    padding: 20px;
     border-radius: 16px;
     border: none;
     padding: 20px;
-    background-color: #ffe2e5;
+    background-color: #fadeff;
 }
 
-.cards .class-card {
-    background-color: #fadeff;
+.class-card .card-data,
+.course-card .card-data {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 }
 
 .cards .icons {
     width: 40px;
     height: 40px;
+    margin-bottom: 20px;
 }
 
 .cards .h3 {
     font-size: 20px;
-    font-weight: 600;
     width: 40px;
     color: #151d48;
 }
@@ -89,8 +107,12 @@
 .dashboard-requests {
     justify-content: flex-start;
     align-content: space-between;
-    max-height: 300px;
+    height: 50vh;
     overflow-y: scroll;
+}
+
+.dashboard-requests::-webkit-scrollbar {
+    display: none;
 }
 
 .dashboard-requests .class-header {
@@ -108,7 +130,7 @@
 
 .class-header .line {
     flex: 1;
-    border-bottom: 1.5px solid gray;
+    border-bottom: 1.5px solid #8f8f9d7e;
 }
 
 .student-list {
@@ -123,17 +145,16 @@
     align-items: center;
     width: 100%;
     border-radius: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid rgb(228, 228, 228);
     box-sizing: border-box;
     height: fit-content;
-    padding: 10px 15px;
+    padding: 5px 15px;
 }
 
 .student-item .btns {
     display: flex;
     height: fit-content;
     gap: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .btns .accept,
