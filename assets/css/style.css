@@ -1,3 +1,236 @@
+/* Landing/Sign In/Sign Up Pages Styles */
+/* Main Buttons */
+.main-button {
+    background-image: linear-gradient(to right, #6E72C1, #4A4CA6);
+    background-color: #4A4CA6;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: none;
+    z-index: 2;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.main-button:hover {
+    background-color: #4A4CA6;
+    background-image: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.25);
+}
+/* END */
+
+/* Landing Page - welcome.php */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    background-image: url('http://localhost/QUILANA/image/HomePage.png');
+    background-size: 1200px 800px;
+    background-position: right center;
+    background-repeat: no-repeat;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-page h1 {
+    position: absolute;
+    font-size: 60px;
+    font-weight: bold;
+    background: linear-gradient(#1E1A43, #4A4CA6);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    top: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+.footer {
+    text-align:left;
+    margin-top: 75px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1E1A43;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.footer .links span {
+    margin: 0 15px;
+    text-decoration: none;
+}
+
+.footer span:hover {
+    cursor: pointer;
+    color:#4A4CA6;
+    text-decoration: underline;
+}
+
+/* Get Started Button */
+#getStartedButton {
+    margin-right: 300px;
+    margin-top: 600px;
+}
+/* END */
+
+/* Sign In/Sign Up/Register Page Base Styles */
+/* Container for Left and Right Sections */
+#container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-image: linear-gradient(#1E1A43, #4A4CA6);
+}
+
+/* Left Section */
+#left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 35px;
+}
+
+/* Logo */
+.logo {
+    color: white;
+    font-size: 90px;
+    font-weight: bold;
+    margin-top: 50px;
+}
+
+/* Illustration in Left Section */
+.illustration {
+    width: 100%;
+    height: 100%;
+    max-width: 600px;
+    background-image: url('http://localhost/QUILANA/image/User.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Right Section */
+#right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 55px 0 0 55px;
+    padding: 35px;
+    position: relative;
+    overflow: visible;
+}
+
+.return{
+    background-image: url('http://localhost/QUILANA/image/Return.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    width:40px;
+    height:40px;
+    position:absolute;
+    top:20px;
+    left:20px;
+    cursor: pointer;
+}
+
+/* Sign In and Sign Up Form Styles */
+.form {
+    width: 100%;
+    max-width: 400px;
+    color: #1E1A43;
+}
+
+.form h2 {
+    font-size: 40px;
+    font-weight: bold;
+    text-align:center;
+}
+
+/* Form Group and Control */
+.form-group label {
+    display: block;
+    font-size: medium;
+    font-weight: lighter;
+}
+
+.form-group.row {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 0rem;
+    margin-right: 0rem;
+}
+
+.col-half {
+    width: 48%;
+    box-sizing: border-box;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.form-group.text-center {
+    margin-top: 10px;
+    color: #737791;
+}
+
+.fp{
+    display: block;
+    text-align: right;
+    font-size: smaller;
+}
+
+/* Select and Input Fields */
+/* Default State */
+.form input[type="text"],
+.form input[type="email"],
+.form input[type="password"],
+.form select{
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    padding: 4px;
+    border: 1px solid rgb(115, 119, 145, 0.75);
+}
+
+/* Hover State */
+.form input[type="text"]:hover,
+.form input[type="email"]:hover,
+.form input[type="password"]:hover,
+.form select:hover {
+    border-color: #4A4CA6;
+    box-shadow: 0 0 rgba(74, 76, 166, 0.5);
+}
+
+/* Selected State */
+.form input[type="text"]:focus,
+.form input[type="email"]:focus,
+.form input[type="password"]:focus,
+.form select:focus {
+    border-color: #4A4CA6;
+    box-shadow: 0 0 5px rgba(74, 76, 166, 0.5);
+    outline: none;
+}
+
+/* Buttons */
+#signInButton, #signUpButton {
+    width: 100%;
+    margin-top:10px;
+}
+/* END */
+
 div#sidebar {
     width: 250px;
     height: 100%;
@@ -64,220 +297,6 @@ div#main{
 }
 button.btn-rounded{
 	border-radius: 50% !important;
-}
-
-/* Base Styles */
-
-/* Container for Login Section */
-#login-container {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-}
-
-/* Left Section of Login */
-#left-section {
-    flex: 1;
-    background-image: linear-gradient(#1E1A43, #4A4CA6);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding: 2rem;
-    overflow: hidden;
-    position: relative;
-}
-#left-section::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -25%;
-    width: 45%;
-    height: 200%;
-    background-color: white;
-    border-radius: 50%;
-    transform: rotate(-10deg);
-}
-
-/* Heading in Left Section */
-#left-section h1 {
-    color: white;
-    font-size: 70px;
-    font-weight: bold;
-    margin-top: 100px;
-    margin-left: 140px;
-    padding: 0;
-}
-
-/* Right Section of Login */
-#right-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    border-radius: 3rem 0 0 3rem;
-    position: relative;
-    margin-left: -3rem;
-    box-sizing: border-box;
-}
-
-/* Logo */
-.logo {
-    color: white;
-    font-size: 70px;
-    font-weight: bold;
-    margin-left: 190px;
-    padding: 0;
-    position: absolute;
-    top: 15%;
-    left: 22%;
-    transform: translateX(-50%);
-    z-index: 2;
-}
-
-/* Illustration in Left Section */
-.illustration {
-    width: 100%;
-    height: 100%;
-    max-width: 600px;
-    max-height: 700px;
-    margin-left: 10px;
-    background-image: url('http://localhost/QUILANA/image/User.png');
-    background-size: 500px 680px;
-    background-repeat: no-repeat;
-    background-position: center;
-    top: 5%;
-    position: relative;
-    z-index: 1;
-}
-
-/* Sign In Form */
-.sign-in-form {
-    width: 100%;
-    max-width: 400px;
-    margin: 4rem 0;
-    box-sizing: border-box;
-    background-color: white;
-    border-radius: 8px;
-}
-
-.sign-in-form h2 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-left: 8rem;
-    margin-bottom: 1rem;
-    color: black;
-}
-
-/* Form Group Styles */
-.form-group {
-    margin-bottom: 0.5rem;
-}
-
-.form-group.text-center {
-    margin-top: 1rem;
-}
-
-.form-group label {
-    display: block;
-    font-size: medium;
-    font-weight: lighter;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Row Form Group */
-.form-group.row {
-    display: flex;
-    justify-content: space-between;
-    margin-left: 0rem;
-    margin-right: 0rem;
-}
-
-.col-half {
-    width: 48%;
-    box-sizing: border-box;
-}
-
-/* Form Control */
-.form-control {
-    width: 100%;
-    padding: 0.5rem;
-    box-sizing: border-box;
-}
-
-/* Sign In Button */
-.btn-sign-in {
-    width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.75rem;
-    background-color: #4A4CA6;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Landing Page */
-.landing-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    padding: 0;
-    height: 100vh;
-    width: 100vw;
-    background-image: url('http://localhost/QUILANA/image/HomePage.png');
-    background-size: 1200px 800px;
-    background-position: right center;
-    background-repeat: no-repeat;
-    position: relative;
-    z-index: 1;
-}
-
-.landing-page h1 {
-    position: absolute;
-    font-size: 60px;
-    font-weight: bold;
-    background: linear-gradient(#1E1A43, #4A4CA6);
-    -webkit-text-fill-color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-    top: 20px;
-    left: 20px;
-    margin: 0;
-    z-index: 2;
-}
-
-/* Custom Button */
-.custom-button {
-    background-color: #4A4CA6;
-    color: white;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 5px;
-    font-size: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 300px;
-    margin-bottom: 100px;
-    z-index: 2;
-}
-
-.custom-button:hover {
-    background-color: #1E1A43;
-}
-
-/* Get Started Button */
-#getStartedButton {
-    margin-top: 550px;
-    z-index: 2;
 }
 
 /* Tabs Container */

@@ -1,0 +1,157 @@
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+.dashboard-summary,
+.dashboard-requests {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    width: 700px;
+    height: 300px;
+    flex-shrink: 1;
+    border-radius: 20px;
+    border: 1px solid #fadeff;
+    margin: 10px;
+    padding: 25px;
+    background: var(--sds-color-background-default-default);
+    box-shadow: 0px 4px 20px 0px rgba(238, 238, 238, 0.50);
+}
+
+.dashboard-requests h1,
+.dashboard-summary h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e1a43;
+}
+
+.dashboard-summary h2 {
+    font-size: 16px;
+    color: #8f8f9d;
+}
+
+.dashboard-summary .cards {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+
+.cards .class-card,
+.cards .course-card {
+    display: grid;
+    grid-template-rows: 50% 30% 20%;
+    width: calc(50% - 10px);
+    height: 100%;
+    flex-grow: 1;
+    flex-shrink: 1;
+    border-radius: 16px;
+    border: none;
+    padding: 20px;
+    background-color: #ffe2e5;
+}
+
+.cards .class-card {
+    background-color: #fadeff;
+}
+
+.cards .icons {
+    width: 40px;
+    height: 40px;
+}
+
+.cards .h3 {
+    font-size: 20px;
+    font-weight: 600;
+    width: 40px;
+    color: #151d48;
+}
+
+.dashboard-requests {
+    justify-content: flex-start;
+    align-content: space-between;
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.dashboard-requests .class-header {
+    display: flex;
+    align-items: center;
+    margin: 10px 0px;
+    gap: 10px;
+}
+
+.class-header span {
+    font-size: 16px;
+    color: #8f8f9d;
+    text-align: left;
+}
+
+.class-header .line {
+    flex: 1;
+    border-bottom: 1.5px solid gray;
+}
+
+.student-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.student-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    height: fit-content;
+    padding: 10px 15px;
+}
+
+.student-item .btns {
+    display: flex;
+    height: fit-content;
+    gap: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.btns .accept,
+.btns .reject {
+    width: 80px;
+    height: fit-content;
+    border-radius: 5px;
+    border: none;
+    background-color: #87ffb0;
+    height: 30px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2f8113;
+    text-align: center;
+}
+
+.accept :hover,
+.btns .reject {
+    background-color: #ff8585;
+    color: #de1616;
+}

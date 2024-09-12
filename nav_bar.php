@@ -1,7 +1,7 @@
 			<nav class = "navbar navbar-header navbar-light bg-primary">
 			<div class = "container-fluid">
 				<div class = "navbar-header">
-					<p class = "navbar-text pull-right"><h3 style="color:white">Quilana</h3></p>
+					<p class = "navbar-text pull-right"><h3 style="color:white">QUILANA</h3></p>
 				</div>
 				<div class = "nav navbar-nav navbar-right">
 					<a href="logout.php" style="color:white"><?php echo $firstname ?> <i class="fa fa-power-off"></i></a>
@@ -10,7 +10,7 @@
 		</nav>
 		<style>
             .bg-primary{
-                background-color: #1E1A43!important;
+                background-image: linear-gradient(to right, #1E1A43, #4A4CA6);
             }
         </style>
 		<div id="sidebar" class="bg-light">
@@ -34,12 +34,12 @@
 			<?php else: ?>
 			<div id="sidebar-field">
 				<a href="enroll.php" class="sidebar-item text-dark">
-						<div class="sidebar-icon"><i class="fa fa-sign-in"></i></div> Classes
+						<div class="sidebar-icon"><i class="fa fa-book"></i></div> Classes
 				</a>
 			</div>
 			<div id="sidebar-field">
-				<a href="student_quiz_list.php" class="sidebar-item text-dark">
-						<div class="sidebar-icon"><i class="fa fa-list"> </i></div> Results
+				<a href="results.php" class="sidebar-item text-dark">
+						<div class="sidebar-icon"><i class="fa fa-graduation-cap"> </i></div> Results
 				</a>
 			</div>
 

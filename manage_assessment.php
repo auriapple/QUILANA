@@ -72,10 +72,9 @@
         <?php
         if (isset($_GET['assessment_id'])) {
             $assessment_id = intval($_GET['assessment_id']);
-            $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, cl.subject, a.time_limit 
+            $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit 
             FROM assessment a
-            JOIN class cl ON a.class_id = cl.class_id
-            JOIN course c ON cl.course_id = c.course_id
+            JOIN course c ON a.course_id = c.course_id
             WHERE a.assessment_id = ?";
 
             if ($stmt = $conn->prepare($query)) {
@@ -352,7 +351,7 @@
             var newOption = `
                 <div class="option-group d-flex align-items-center mb-2">
                     <textarea rows="2" name="question_opt[]" id="${type}_option_${optionCount}" class="form-control flex-grow-1 mr-2" required></textarea>
-                    <label><input type="${type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${optionCount - 1}" required></label>
+                    <label><input type="${type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${optionCount - 1}" ${type === 'multiple_choice' ? 'required' : ''}></label>
                     <button type="button" class="btn btn-sm btn-danger ml-2 remove-option">Remove</button>
                 </div>
             `;
@@ -401,13 +400,23 @@
             // Additional validation for specific question types
             switch(questionType) {
                 case 'multiple_choice':
+                    if ($('#' + questionType + '_options .option-group').length < 2) {
+                        $('#msg').html('<div class="alert alert-danger">Please add at least two options.</div>');
+                        return;
+                    }
+                    if ($('#' + questionType + '_options input[name="is_right"]:checked').length === 0) {
+                        $('#msg').html('<div class="alert alert-danger">Please select the correct answer.</div>');
+                        return;
+                    }
+                    break;
                 case 'checkbox':
                     if ($('#' + questionType + '_options .option-group').length < 2) {
                         $('#msg').html('<div class="alert alert-danger">Please add at least two options.</div>');
                         return;
                     }
-                    if ($('#' + questionType + '_options input[type="' + (questionType === 'multiple_choice' ? 'radio' : 'checkbox') + '"]:checked').length === 0) {
-                        $('#msg').html('<div class="alert alert-danger">Please select the correct answer(s).</div>');
+                    // Check if at least one checkbox is selected
+                    if ($('#' + questionType + '_options input[name="is_right[]"]:checked').length === 0) {
+                        $('#msg').html('<div class="alert alert-danger">Please select at least one correct answer.</div>');
                         return;
                     }
                     break;
@@ -418,7 +427,7 @@
                     }
                     break;
             }
-            
+    
             // Add time limit validation for Quiz Bee and Speed Mode
             var mode = '<?php echo $assessment_mode_code; ?>';
             if ((mode == '2' || mode == '3') && !$('#time_limit').val()) {
