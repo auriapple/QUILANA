@@ -94,12 +94,11 @@
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
-                    SELECT a.*, c.course_name, cl.subject 
+                    SELECT a.*, c.course_name
                     FROM assessment a 
-                    JOIN class cl ON a.class_id = cl.class_id 
-                    JOIN course c ON cl.course_id = c.course_id 
-                    WHERE a.faculty_id = '".$_SESSION['login_id']."' 
-                    ORDER BY c.course_name, cl.subject, a.assessment_name ASC
+                    JOIN course c ON a.course_id = c.course_id 
+                    WHERE a.faculty_id = '".$_SESSION['login_id']."'
+                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
                 ");
                 
                 $current_course = '';
@@ -207,7 +206,7 @@
                                     ?>
                                 </select>
                                 <label>Select Course Subject</label>
-                                <select name="class_id" id="class_id" required="required" class="form-control">
+                                <select name="subject" id="subject" required="required" class="form-control">
                                     <option value="">Select Subject</option>
                                 </select>
                                 <label>Topic</label>
@@ -309,7 +308,7 @@
                                     ?>
                                 </select>
                                 <label>Select Course Subject</label>
-                                <select name="class_id" id="edit_class_id" required="required" class="form-control">
+                                <select name="subject" id="edit_subject" required="required" class="form-control">
                                     <option value="">Select Subject</option>
                                 </select>
                                 <label>Topic</label>
@@ -373,11 +372,11 @@
                         method: 'POST',
                         data: { course_id: course_id },
                         success: function(response) {
-                            $('#class_id').html(response); //  subjects dropdown
+                            $('#subject').html(response); //  subjects dropdown
                         }
                     });
                 } else {
-                    $('#class_id').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
+                    $('#subject').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
                 }
             });
 
@@ -398,64 +397,82 @@
                 });
             });
 
+            var previousClassId = null; // Variable to keep track of the previously selected class
 
-                // Show modal when "Administer Assessment" is clicked
-                $(document).on('click', '.administer', function() {
-                    var assessmentId = $(this).data('id');      // Get the assessment ID
-                    var courseId = $(this).data('course-id');   // Get the course ID
-                    var courseName = $(this).data('course-name'); // Get the course name
-                    var subjectName = $(this).data('subject');  // Get the subject name
-                    var mode = $(this).data('mode');            // Get the assessment mode
+            // Show modal when "Administer Assessment" is clicked
+            $(document).on('click', '.administer', function() {
+                var assessmentId = $(this).data('id');      // Get the assessment ID
+                var courseId = $(this).data('course-id');   // Get the course ID
+                var courseName = $(this).data('course-name'); // Get the course name
+                var subjectName = $(this).data('subject');  // Get the subject name
+                var mode = $(this).data('mode');            // Get the assessment mode
 
-                    // Check if the assessment has questions
-                    $.ajax({
-                        url: 'check_questions.php', // PHP file to check questions
-                        method: 'POST',
-                        data: { assessment_id: assessmentId },
-                        success: function(response) {
-                            if (response.trim() === 'no_questions') {
-                                alert('Cannot administer this assessment. No questions have been added yet.');
+                // Check if the assessment has questions
+                $.ajax({
+                    url: 'check_questions.php', // PHP file to check questions
+                    method: 'POST',
+                    data: { assessment_id: assessmentId },
+                    success: function(response) {
+                        if (response.trim() === 'no_questions') {
+                            alert('Cannot administer this assessment. No questions have been added yet.');
+                        } else {
+                            // Set the hidden fields
+                            $('#assessment_id_hidden').val(assessmentId);
+                            $('#course_id_hidden').val(courseId);
+
+                            // Set other fields
+                            $('#administer_course').val(courseName); // Display course name
+                            $('#administer_subject').val(subjectName);
+                            $('#administer_mode').val(mode);
+
+                            // Load classes based on selected course and subject
+                            if (courseId && subjectName) {
+                                $.ajax({
+                                    url: 'administer_class.php',
+                                    method: 'POST',
+                                    data: { course_id: courseId, subject: subjectName },
+                                    success: function(response) {
+                                        $('#administer_class_id').html(response); // Populate classes dropdown
+
+                                        // Reset previous class id
+                                        previousClassId = null;
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error('AJAX Error:', status, error);
+                                    }
+                                });
                             } else {
-                                // Set the hidden fields
-                                $('#assessment_id_hidden').val(assessmentId);
-                                $('#course_id_hidden').val(courseId);
-
-                                // Set other fields
-                                $('#administer_course').val(courseName); // Display course name
-                                $('#administer_subject').val(subjectName);
-                                $('#administer_mode').val(mode);
-
-                                // Load classes based on selected course and subject
-                                if (courseId && subjectName) {
-                                    $.ajax({
-                                        url: 'administer_class.php',
-                                        method: 'POST',
-                                        data: { course_id: courseId, subject: subjectName },
-                                        success: function(response) {
-                                            $('#administer_class_id').html(response); // Populate classes dropdown
-                                        },
-                                        error: function(xhr, status, error) {
-                                            console.error('AJAX Error:', status, error);
-                                        }
-                                    });
-                                } else {
-                                    $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
-                                }
-
-
-                                // Show the modal
-                                $('#administer_assessment_modal').modal('show');
+                                $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
+                                previousClassId = null;
                             }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('AJAX Error:', status, error);
-                        }
-                    });
-                });
 
+                            // Show the modal
+                            $('#administer_assessment_modal').modal('show');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', status, error);
+                    }
+                });
             });
+
+            // Handle changes in the class dropdown
+            $(document).on('change', '#administer_class_id', function() {
+                var selectedClassId = $(this).val();
+
+                // Enable or disable the administer button based on class selection
+                if (selectedClassId !== previousClassId) {
+                    $('#administer_btn').prop('disabled', false).text('Administer');
+                } else {
+                    $('#administer_btn').prop('disabled', true).text('Already Administered');
+                }
+
+                // Update the previous class id
+                previousClassId = selectedClassId;
+            });
+
             // Handle administer form submission
-            $('#administer-assessment-frm').submit(function (e) {
+            $('#administer-assessment-frm').submit(function(e) {
                 e.preventDefault();
                 var formData = $(this).serialize();
 
@@ -464,7 +481,7 @@
                     method: 'POST',
                     data: formData,
                     dataType: 'json', // Expect JSON response
-                    success: function (response) {
+                    success: function(response) {
                         if (response.status === 'success') {
                             $('#msg1').html('<div class="alert alert-success">' + response.message + '</div>');
                             $('#administer_btn').prop('disabled', true).text('Administered'); // Disable the button
@@ -473,16 +490,17 @@
                             $('#msg1').html('<div class="alert alert-danger">' + response.message + '</div>');
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         $('#msg1').html('<div class="alert alert-danger">Failed to administer. Please try again.</div>');
                     }
                 });
 
-                $('#administer_assessment_modal').on('hide.bs.modal', function () {
+                $('#administer_assessment_modal').on('hide.bs.modal', function() {
                     $('#msg1').empty();
                 });
             });
 
+        
             // Toggle the meatball menu visibility when the button is clicked
             $(document).on('click', '.meatball-menu-btn', function(e) {
                 e.stopPropagation(); // Prevent click from bubbling up
@@ -600,7 +618,7 @@
                     }
                 });
             });
-
+        });
             </script>
         </div>
     </div>

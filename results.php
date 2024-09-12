@@ -48,49 +48,59 @@
         </div>
 
         <!-- Quizzes Tab -->
-        <div id="quizzes-tab" class="tab-content active">
-            <div class="assessments-container">
-                <?php
-                $student_id = $_SESSION['login_id'];
+<div id="quizzes-tab" class="tab-content active">
+    <div class="assessments-container">
+        <?php
+        $student_id = $_SESSION['login_id'];
 
-                // Fetch student's enrolled classes
-                $classes_query = $conn->query("SELECT c.class_id, c.subject 
-                                                FROM class c 
-                                                JOIN student_enrollment s ON c.class_id = s.class_id 
-                                                WHERE s.student_id = '$student_id' AND s.status='1'");
+        // Fetch student's enrolled classes
+        $classes_query = $conn->query("SELECT c.class_id, c.subject 
+                                        FROM class c 
+                                        JOIN student_enrollment s ON c.class_id = s.class_id 
+                                        WHERE s.student_id = '$student_id' AND s.status='1'");
 
-                if ($classes_query->num_rows > 0) {
-                    while ($class = $classes_query->fetch_assoc()) {
-                        echo '<div class="class-separator">';
-                        echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
-                        echo '<hr class="separator-line">';
-                        echo '</div>';
+        if ($classes_query->num_rows > 0) {
+            while ($class = $classes_query->fetch_assoc()) {
+                echo '<div class="class-separator">';
+                echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
+                echo '<hr class="separator-line">';
+                echo '</div>';
 
-                        // Fetch quizzes for each class
-                        $quizzes_query = $conn->query("SELECT a.assessment_id, a.assessment_name, a.topic 
-                                                        FROM assessment a 
-                                                        WHERE a.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1");
+                // Fetch quizzes for each class
+                $quizzes_query = $conn->query("
+                    SELECT a.assessment_id, a.assessment_name, a.topic 
+                    FROM assessment a
+                    JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
+                    WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1
+                ");
 
-                        if ($quizzes_query->num_rows > 0) {
-                            echo '<div class="quizzes-container">';
-                            while ($row = $quizzes_query->fetch_assoc()) {
-                                echo '<div class="assessment-card">';
-                                echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
-                                echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
-                                echo '<button id="viewResult" class="main-button" data-id="' . $row['assessment_id'] . '" type="button">View Result</button>';
-                                echo '</div>';
-                            }
+                if ($quizzes_query->num_rows > 0) {
+                    while ($row = $quizzes_query->fetch_assoc()) {
+                        // Check if the student has taken the assessment
+                        $results_query = $conn->query("
+                            SELECT 1 
+                            FROM student_results 
+                            WHERE student_id = '$student_id' AND assessment_id = '" . $row['assessment_id'] . "'
+                        ");
+
+                        if ($results_query->num_rows > 0) {
+                            echo '<div class="assessment-card">';
+                            echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
+                            echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
+                            echo '<button class="view_assessment_details" data-id="' . $row['assessment_id'] . '" type="button">View Result</button>';
                             echo '</div>';
-                        } else {
-                            echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         }
                     }
                 } else {
-                    echo '<div class="no-assessments">No quizzes yet</div>';
+                    echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                 }
-                ?>
-            </div>
-        </div>
+            }
+        } else {
+            echo '<div class="no-assessments">No quizzes yet</div>';
+        }
+        ?>
+    </div>
+</div>
 
         <!-- Exams Tab -->
         <div id="exams-tab" class="tab-content">
@@ -102,40 +112,63 @@
                                                 JOIN student_enrollment s ON c.class_id = s.class_id 
                                                 WHERE s.student_id = '$student_id'");
 
-                if ($classes_query->num_rows > 0) {
-                    while ($class = $classes_query->fetch_assoc()) {
-                        echo '<div class="class-separator">';
-                        echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
-                        echo '<hr class="separator-line">';
+        if ($classes_query->num_rows > 0) {
+            while ($class = $classes_query->fetch_assoc()) {
+                echo '<div class="class-separator">';
+                echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
+                echo '<hr class="separator-line">';
+                echo '</div>';
+
+                // Fetch exams for each class
+                $exams_query = $conn->query("
+                    SELECT a.assessment_id, a.assessment_name, a.topic 
+                    FROM assessment a
+                    JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
+                    WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 2
+                ");
+
+                /*if ($exams_query->num_rows > 0) {
+                    echo '<div class="exams-container">';
+                    while ($row = $exams_query->fetch_assoc()) {
+                        echo '<div class="assessment-card">';
+                        echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
+                        echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
+                        echo '<button id="viewResult" class="main-button" data-id="' . $row['assessment_id'] . '" type="button">View Result</button>';
                         echo '</div>';
+                    }
+                    echo '</div>';
+                    } else {
+                        echo '<div class="no-assessments">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>'; */
+                if ($exams_query->num_rows > 0) {
+                    while ($row = $exams_query->fetch_assoc()) {
+                        // Check if the student has taken the exam
+                        $results_query = $conn->query("
+                            SELECT 1 
+                            FROM student_results 
+                            WHERE student_id = '$student_id' AND assessment_id = '" . $row['assessment_id'] . "'
+                        ");
 
-                        // Fetch exams for each class
-                        $exams_query = $conn->query("SELECT a.assessment_id, a.assessment_name, a.topic 
-                                                    FROM assessment a 
-                                                    WHERE a.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 2");
-
-                        if ($exams_query->num_rows > 0) {
-                            echo '<div class="exams-container">';
-                            while ($row = $exams_query->fetch_assoc()) {
-                                echo '<div class="assessment-card">';
-                                echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
-                                echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
-                                echo '<button id="viewResult" class="main-button" data-id="' . $row['assessment_id'] . '" type="button">View Result</button>';
-                                echo '</div>';
-                            }
+                        if ($results_query->num_rows > 0) {
+                            echo '<div class="assessment-card">';
+                            echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
+                            echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
+                            echo '<button class="view_assessment_details" data-id="' . $row['assessment_id'] . '" type="button">View Result</button>';
                             echo '</div>';
-                        } else {
-                            echo '<div class="no-assessments">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         }
                     }
                 } else {
-                    echo '<div class="no-assessments">No exams yet</div>';
+                    echo '<div class="no-assessments">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                 }
-                ?>
-            </div>
-        </div>
+            }
+        } else {
+            echo '<div class="no-assessments">No exams yet</div>';
+        }
+        ?>
+    </div>
+</div>
 
-    <script>
+
+        <script>
         $(document).ready(function() {
             // Assessments tab functionality
             $('.tab-link').click(function() {
@@ -155,47 +188,64 @@
                 return year + '-' + month + '-' + day;
             }
 
-            // View assessment results
+            /* View assessment results
             $('#viewResult').click(function() {
+                var assessment_id = $(this).data('id'); */
+            $(document).on('click', '.view_assessment_details', function() {
                 var assessment_id = $(this).data('id');
 
                 $.ajax({
                     type: 'GET',
                     url: 'load_results.php',
                     data: { assessment_id: assessment_id },
-                    success: function(response) {
-                        var result = JSON.parse(response);
-
-                        // Populate popup with data
+                    dataType: 'json', // Expect JSON response
+                    success: function(result) {
+                    if (result.title && result.topic) {
                         $('#assessment-title').text(result.title);
                         $('#assessment-topic').text(result.topic);
-                            
+                        
                         // Clear previous details
                         $('#assessment-details tbody').empty();
-
-                        // Add new details to table
-                        result.details.forEach(function(item) {
+                        
+                        if (Array.isArray(result.details) && result.details.length > 0) {
+                            // Add new details to table
+                            result.details.forEach(function(item) {
+                                $('#assessment-details tbody').append(
+                                    '<tr>' +
+                                    '<td>' + formatDate(item.date) + '</td>' +
+                                    '<td>' + item.score + '</td>' +
+                                    '<td>' + item.total_score + '</td>' +
+                                    '<td>' + item.remarks + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                        } else {
+                            // Show message if no results found
                             $('#assessment-details tbody').append(
                                 '<tr>' +
-                                '<td>' + formatDate(item.date) + '</td>' +
-                                '<td>' + item.score + '</td>' +
-                                '<td>' + item.total_score + '</td>' +
-                                '<td>' + item.remarks + '</td>' +
+                                '<td colspan="4" style="text-align: center;">No results found for this assessment</td>' +
                                 '</tr>'
                             );
-                        });
+                        }
+                        
                         // Show the popup
                         $('#assessment-popup').show();
-                    },
-                    error: function() {
-                        alert('Failed to load assessment results.');
+                    } else {
+                        alert('Assessment details not found.');
                     }
+                }
+
                 });
             });
 
-            // Close the popup
+            /* Close the popup
             $('#modal-close').click(function() {
-                $('#assessment-popup').hide();
+                $('#assessment-popup').hide(); */
+            // Close the popup when clicking outside of it
+            $(document).on('click', function(e) {
+                if ($(e.target).is('.modal')) {
+                    $('#assessment-popup').hide();
+                }
             });
         });
     </script>

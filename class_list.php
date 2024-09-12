@@ -408,19 +408,31 @@
                     $('#manage_delete_class').modal('show');
                 });
 
-            $(document).on('click', '.get_code', function() {
-                var classId = $(this).data('class-id');
-                var className = $(this).data('class-name');
-                var subject = $(this).data('subject');
-                var code = $(this).data('code');
+                $(document).on('click', '.get_code', function() {
+                    var classId = $(this).data('class-id');
+                    var className = $(this).data('class-name');
+                    var subject = $(this).data('subject');
 
-                $('#msg').html('');
-                $('#manage_get_code .modal-title').html('Join Code');
-                $('#manage_get_code #modal_class_name').text(className);
-                $('#manage_get_code #modal_subject').text(subject);
-                $('#modal_code').text(code);
-                $('#manage_get_code').modal('show');
-            });
+                    $('#msg').html('');
+                    $('#manage_get_code .modal-title').html('Join Code');
+                    $('#manage_get_code #modal_class_name').text(className);
+                    $('#manage_get_code #modal_subject').text(subject);
+
+                    // Fetch the code dynamically using AJAX
+                    $.ajax({
+                        url: 'generated_code.php',
+                        type: 'POST',
+                        data: { classId: classId }, 
+                        success: function(response) {
+                            $('#modal_code').text(response);
+                            $('#manage_get_code').modal('show');
+                        },
+                        error: function(xhr, status, error) {
+                            $('#modal_code').text('Error fetching code. Please try again.');
+                            console.error('Error:', error);
+                        }
+                    });
+                });
 
             // Handle Edit Form (Course)
             $('#edit-course-frm').submit(function(event) {

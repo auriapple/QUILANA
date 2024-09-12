@@ -7,7 +7,7 @@ if (isset($_POST['assessment_id'])) {
     $assessment_type = $_POST['assessment_type'];
     $assessment_mode = $_POST['assessment_mode'];
     $course_id = $_POST['course_id'];
-    $class_id = $_POST['class_id'];
+    $subject = $_POST['subject'];
     $topic = $_POST['topic'];
 
     $update = $conn->query("UPDATE assessment 
@@ -15,7 +15,7 @@ if (isset($_POST['assessment_id'])) {
                                 assessment_type = '$assessment_type', 
                                 assessment_mode = '$assessment_mode', 
                                 course_id = '$course_id', 
-                                class_id = '$class_id', 
+                                subject = '$subject', 
                                 topic = '$topic' 
                             WHERE assessment_id = '$assessment_id'");
 
