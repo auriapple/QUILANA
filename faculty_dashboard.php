@@ -16,6 +16,9 @@ if (!isset($_SESSION['login_user_type'])) {
         <?php include('header.php') ?>
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
+        <link rel="stylesheet" href="assets/css/calendar.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+        <script src="assets/js/calendar.js" defer></script>
     </head>
     <body>
         <?php include 'nav_bar.php'; ?>
@@ -34,7 +37,7 @@ if (!isset($_SESSION['login_user_type'])) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalCourses ?> </h3>
-                            <label> Number of Courses: </label> 
+                            <label>Total Number of Courses</label> 
                         </div>
                     </div>
                     <div class="card"> 
@@ -47,7 +50,7 @@ if (!isset($_SESSION['login_user_type'])) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalClasses ?> </h3>
-                            <label> Number of Classes: </label> 
+                            <label>Total Number of Classes</label> 
                         </div>
                     </div>
                 </div>
@@ -94,7 +97,7 @@ if (!isset($_SESSION['login_user_type'])) {
                      // Student Items 
                      ?>
                      <div class="student-item">
-                         <?php echo $student_name ?>
+                        <label> <?php echo $student_name ?> </label>
                         <div class="btns">
                             <button class="btn btn-primary btn-sm accept-btn accept" 
                                 data-class-id="<?php echo $class_id ?>" 
@@ -115,6 +118,29 @@ if (!isset($_SESSION['login_user_type'])) {
                     echo "</div>"; // Close the last student-list div
                 }
                 ?>
+            </div>
+            <div class="dashboard-calendar">
+                <div class="wrapper">
+                    <header>
+                        <p class="current-date"></p>
+                        <div class="icons">
+                        <span id="prev" class="material-symbols-rounded">chevron_left</span>
+                        <span id="next" class="material-symbols-rounded">chevron_right</span>
+                        </div>
+                    </header>
+                    <div class="calendar">
+                        <ul class="weeks">
+                        <li>Sun</li>
+                        <li>Mon</li>
+                        <li>Tue</li>
+                        <li>Wed</li>
+                        <li>Thu</li>
+                        <li>Fri</li>
+                        <li>Sat</li>
+                        </ul>
+                        <ul class="days"></ul>
+                    </div>
+                </div>
             </div>
         </div>
         <script>
