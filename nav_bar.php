@@ -13,8 +13,8 @@
                 background-image: linear-gradient(to right, #1E1A43, #4A4CA6);
             }
         </style>
+		<div id="sidebar" class="bg-light">
 		<?php if($_SESSION['login_user_type'] != 3): ?>
-			<div id="sidebar" class="bg-light">
 			<div id="sidebar-field">
 				<a href="faculty_dashboard.php" class="sidebar-item text-dark">
 						<div class="sidebar-icon"><i class="fa fa-home"> </i></div>  Dashboard
@@ -33,6 +33,11 @@
 
 			<?php else: ?>
 			<div id="sidebar" class="bg-light">
+			<div id="sidebar-field">
+				<a href="home.php" class="sidebar-item text-dark">
+						<div class="sidebar-icon"><i class="fa fa-home"> </i></div>  Dashboard
+				</a>
+			</div>
 			<div id="sidebar-field">
 				<a href="home.php" class="sidebar-item text-dark">
 						<div class="sidebar-icon"><i class="fa fa-home"> </i></div>  Dashboard
