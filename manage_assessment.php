@@ -1,16 +1,82 @@
+<?php
+include('header.php');
+include('auth.php');
+include('db_connect.php');
+
+if (!isset($_GET['assessment_id'])) {
+    echo "<p>Assessment ID not provided.</p>";
+    exit();
+}
+
+$assessment_id = intval($_GET['assessment_id']);
+
+// Fetch assessment details
+$query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit 
+          FROM assessment a
+          JOIN course c ON a.course_id = c.course_id
+          WHERE a.assessment_id = ?";
+
+if ($stmt = $conn->prepare($query)) {
+    $stmt->bind_param("i", $assessment_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $assessment_name = htmlspecialchars($row['assessment_name']);
+        $assessment_type_code = htmlspecialchars($row['assessment_type']);
+        $assessment_mode_code = htmlspecialchars($row['assessment_mode']);
+        $course_name = htmlspecialchars($row['course_name']);
+        $subject_name = htmlspecialchars($row['subject']);
+        $assessment_time_limit = $row['time_limit'];
+
+        $assessment_type = ($assessment_type_code == 1) ? 'Quiz' : 'Exam';
+
+        switch ($assessment_mode_code) {
+            case 1:
+                $assessment_mode = 'Normal Mode';
+                break;
+            case 2:
+                $assessment_mode = 'Quiz Bee Mode';
+                break;
+            case 3:
+                $assessment_mode = 'Speed Mode';
+                break;
+            default:
+                $assessment_mode = 'Unknown Mode';
+                break;
+        }
+    } else {
+        echo "<p>No assessment found with the provided ID.</p>";
+        exit();
+    }
+
+    $stmt->close();
+} else {
+    echo "<p>Error preparing the SQL query.</p>";
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <?php include('header.php'); ?>
-    <?php include('auth.php'); ?>
-    <?php include('db_connect.php'); ?>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
     <title>Manage Assessment | Quilana</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            overflow: hidden;
+        }
         .assessment-details {
-            margin-top: -15px;
-            margin-left: 50px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         .assessment-details h2 {
             font-size: 1.5em;
@@ -19,43 +85,40 @@
             margin-bottom: 10px;
         }
         .assessment-details p {
-            margin-bottom: -0.5px;
+            margin-bottom: 0.5px;
             font-size: 1em;
             color: #666;
         }
         .card-full-width {
             width: 100%;
-            margin-left: 20px;
-            margin-top: -28px;
+            margin-bottom: 20px;
         }
-        .card-body{
-            margin-top: -16px;
-            height: 355px;
-        }
-        .list-group-item{
-            margin-top: 15px;
-        }
-        .question-type-options {
-            display: none;
-        }
-        .scrollable-list {
-            max-height: 310px; 
+        .card-body {
+            max-height: 280px;
             overflow-y: auto;
-        }        
-        body {
-            overflow: hidden;
+        }
+        .list-group-item {
+            margin-top: 10px;
+            border-left: 4px solid #4A4CA6;
         }
         .back-arrow {
-            position: absolute;
-            font-size: 30px; 
-            top: 70px;
-            font-weight: bold;
+            font-size: 24px; 
+            margin-bottom: 15px;
         }
         .back-arrow a {
             color: #4A4CA6; 
+            text-decoration: none;
         }
         .back-arrow a:hover {
             color: #0056b3; 
+        }
+        .btn-primary {
+            background-color: #4A4CA6;
+            border-color: #4A4CA6;
+        }
+        .btn-primary:hover {
+            background-color: #3a3b8c;
+            border-color: #3a3b8c;
         }
     </style>
 </head>
@@ -65,88 +128,28 @@
     <div class="container-fluid admin">
         <div class="back-arrow">
             <a href="assessment.php"> 
-                <i class="fa fa-arrow-circle-left"></i>
+                <i class="fa fa-arrow-left"></i> 
             </a>
         </div>
 
-        <?php
-        if (isset($_GET['assessment_id'])) {
-            $assessment_id = intval($_GET['assessment_id']);
-            $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit 
-            FROM assessment a
-            JOIN course c ON a.course_id = c.course_id
-            WHERE a.assessment_id = ?";
-
-            if ($stmt = $conn->prepare($query)) {
-                $stmt->bind_param("i", $assessment_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
-                    $assessment_name = htmlspecialchars($row['assessment_name']);
-                    $assessment_type_code = htmlspecialchars($row['assessment_type']);
-                    $assessment_mode_code = htmlspecialchars($row['assessment_mode']);
-                    $course_name = htmlspecialchars($row['course_name']);
-                    $subject_name = htmlspecialchars($row['subject']);
-                    $assessment_time_limit = $row['time_limit'];
-
-                    $assessment_type = ($assessment_type_code == 1) ? 'Quiz' : 'Exam';
-
-                    switch ($assessment_mode_code) {
-                        case 1:
-                            $assessment_mode = 'Normal Mode';
-                            break;
-                        case 2:
-                            $assessment_mode = 'Quiz Bee Mode';
-                            break;
-                        case 3:
-                            $assessment_mode = 'Speed Mode';
-                            break;
-                        default:
-                            $assessment_mode = 'Unknown Mode';
-                            break;
-                    }
-                } else {
-                    echo "<p>No assessment found with the provided ID.</p>";
-                }
-
-                $stmt->close();
-            } else {
-                echo "<p>Error preparing the SQL query.</p>";
-            }
-        } else {
-            echo "<p>Assessment ID not provided.</p>";
-        }
-        ?>
-
         <div class="assessment-details">
-            <h2><?php echo $assessment_name;?></h2>
-            <?php if (isset($assessment_name)): ?>
-                <p><strong>Assessment Type:</strong> <?php echo $assessment_type; ?></p>
-                <p><strong>Assessment Mode:</strong> <?php echo $assessment_mode; ?></p>
-                <p><strong>Course:</strong> <?php echo $course_name; ?></p>
-                <p><strong>Subject:</strong> <?php echo $subject_name; ?></p>
-                <?php if ($assessment_mode_code == 1): // Normal Mode ?>
-                    <p><strong>Time Limit:</strong> 
-                        <span id="current-time-limit"><?php echo isset($assessment_time_limit) && $assessment_time_limit > 0 ? $assessment_time_limit : 'Not set'; ?></span> minutes
-                    </p>
-                <?php endif; ?>
+            <h2><?php echo $assessment_name; ?></h2>
+            <p><strong>Assessment Mode:</strong> <?php echo $assessment_mode; ?></p>
+            <p><strong>Course and Subject:</strong> <?php echo $course_name; ?> - <?php echo $subject_name; ?></p>
+            <?php if ($assessment_mode_code == 1): ?>
+                <p><strong>Time Limit:</strong> 
+                    <span id="current-time-limit"><?php echo isset($assessment_time_limit) && $assessment_time_limit > 0 ? $assessment_time_limit : 'Not set'; ?></span> minutes
+                </p>
             <?php endif; ?>
-                    <br>
-            <div class="d-flex justify-content-start">
+            <div class="mt-3">
                 <?php if ($assessment_mode_code == 1): ?>
-                    <button class="btn btn-secondary btn-sm" id="edit_time_limit_btn" style="margin-right: 15px;">Edit Time Limit</button>
+                    <button class="btn btn-secondary me-2" id="edit_time_limit_btn">Edit Time Limit</button>
                 <?php endif; ?>
-                
-                <button class="btn btn-primary btn-sm" id="add_question_btn">
+                <button class="btn btn-primary" id="add_question_btn">
                     <i class="fa fa-plus"></i> Add Question
                 </button>
             </div>
         </div>
-
-        <br>
-        <br>
 
         <?php
         $questions_query = "SELECT * FROM questions WHERE assessment_id = ? ORDER BY order_by ASC";
@@ -159,7 +162,7 @@
                 echo '<div class="card card-full-width">';
                 echo '<div class="card-header">Questions</div>';
                 echo '<div class="card-body">';
-                echo '<ul class="list-group scrollable-list">';
+                echo '<ul class="list-group">';
                 
                 while ($row = $questions_result->fetch_assoc()) {
                     echo '<li class="list-group-item">';
@@ -169,8 +172,8 @@
                         echo '<p><strong>Time Limit:</strong> ' . htmlspecialchars($row['time_limit']) . ' seconds</p>';
                     }
                     echo '<div class="float-right">';
-                    echo '<button class="btn btn-sm btn-outline-primary edit_question" data-id="' . htmlspecialchars($row['question_id']) . '" type="button"><i class="fa fa-edit"></i></button>';
-                    echo '<button class="btn btn-sm btn-outline-danger remove_question" data-id="' . htmlspecialchars($row['question_id']) . '" type="button"><i class="fa fa-trash"></i></button>';
+                    echo '<button class="btn btn-sm btn-outline-primary edit_question me-2" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-edit"></i></button>';
+                    echo '<button class="btn btn-sm btn-outline-danger remove_question" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-trash"></i></button>';
                     echo '</div>';
                     echo '</li>';
                 }
@@ -179,12 +182,12 @@
                 echo '</div>';
                 echo '</div>';
             } else {
-                echo '<p>No questions found for this assessment.</p>';
+                echo '<p class="alert alert-info">No questions found for this assessment. Start by adding some questions!</p>';
             }
 
             $stmt->close();
         } else {
-            echo '<p>Error preparing the SQL query for questions.</p>';
+            echo '<p class="alert alert-danger">Error preparing the SQL query for questions.</p>';
         }
         ?>
     </div>
@@ -570,45 +573,62 @@
             });
         });
 
-        // Function to populate the question form
         function populateQuestionForm(data) {
-            $('#question-frm')[0].reset();
-            $('#question_type').val(data.question_type).trigger('change');
-            $('input[name="id"]').val(data.question_id);
-            $('#question').val(data.question);
-            $('#points').val(data.total_points);
+        console.log('Question Data:', data); // Log the entire data object
+        
+        $('#question-frm')[0].reset();
+        $('#question_type').val(data.question_type).trigger('change');
+        $('input[name="id"]').val(data.question_id);
+        $('#question').val(data.question);
+        $('#points').val(data.total_points);
 
-            // Add time limit handling
-            if (data.time_limit) {
-                $('#time_limit').val(data.time_limit);
-            }
-
-            switch(data.question_type) {
-                case 'multiple_choice':
-                case 'checkbox':
-                    $('#' + data.question_type + '_options .form-group').empty();
+        switch(data.question_type) {
+            case 'multiple_choice':
+            case 'checkbox':
+                $('#' + data.question_type + '_options .form-group').empty();
+                if (Array.isArray(data.options)) {
                     data.options.forEach(function(option, index) {
-                        var newOption = `
-                            <div class="option-group d-flex align-items-center mb-2">
-                                <textarea rows="2" name="question_opt[]" class="form-control flex-grow-1 mr-2" required>${option.option_txt}</textarea>
-                                <label><input type="${data.question_type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${data.question_type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${index}" ${option.is_right ? 'checked' : ''} required></label>
-                                <button type="button" class="btn btn-sm btn-danger ml-2 remove-option">Remove</button>
-                            </div>
-                        `;
-                        $('#' + data.question_type + '_options .form-group').append(newOption);
+                        if (option.option_txt !== undefined) { 
+                            var newOption = `
+                                <div class="option-group d-flex align-items-center mb-2">
+                                    <textarea rows="2" name="question_opt[]" class="form-control flex-grow-1 mr-2" required>${option.option_txt}</textarea>
+                                    <label><input type="${data.question_type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${data.question_type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${index}" ${option.is_right ? 'checked' : ''} required></label>
+                                    <button type="button" class="btn btn-sm btn-danger ml-2 remove-option">Remove</button>
+                                </div>
+                            `;
+                            $('#' + data.question_type + '_options .form-group').append(newOption);
+                        } else {
+                            console.warn('Option is missing option_txt:', option);
+                        }
                     });
-                    break;
-                case 'true_false':
+                } else {
+                    console.warn('Options is not an array:', data.options);
+                }
+                break;
+            case 'true_false':
+                if (Array.isArray(data.options) && data.options[0] && data.options[0].option_txt !== undefined) {
                     $(`input[name="tf_answer"][value="${data.options[0].option_txt}"]`).prop('checked', true);
-                    break;
-                case 'identification':
-                    $('#identification_answer').val(data.options[0].option_txt);
-                    break;
-                case 'fill_blank':
-                    $('#fill_blank_answer').val(data.options[0].option_txt);
-                    break;
-            }
+                } else {
+                    console.warn('Options is not valid for true_false:', data.options);
+                }
+                break;
+            case 'identification':
+                if (data.answer !== undefined) {
+                    $('#identification_answer').val(data.answer);
+                } else {
+                    console.warn('Answer is not defined for identification:', data.answer);
+                }
+                break;
+            case 'fill_blank':
+                if (data.answer !== undefined) {
+                    $('#fill_blank_answer').val(data.answer);
+                } else {
+                    console.warn('Answer is not defined for fill_blank:', data.answer);
+                }
+                break;
         }
+    }
+
 
         // Function to handle assessment mode change
         function handleAssessmentModeChange() {
