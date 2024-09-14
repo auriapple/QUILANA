@@ -10,7 +10,7 @@
     <?php include('nav_bar.php') ?>
     <div class="container-fluid admin">
         <!-- Header Container -->
-        <div class="header-container">
+        <div class="search-container">
             <form class="search-bar" action="#" method="GET">
                 <input type="text" name="query" placeholder="Search" required>
                 <button type="submit"><i class="fa fa-search"></i></button>
@@ -62,7 +62,7 @@
 
             if ($classes_query->num_rows > 0) {
                 while ($class = $classes_query->fetch_assoc()) {
-                    echo '<div class="class-separator">';
+                    echo '<div class="subject-separator">';
                     echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
                     echo '<hr class="separator-line">';
                     echo '</div>';
@@ -96,7 +96,7 @@
                                 $has_results = true;
                                 echo '<div class="assessment-card">';
                                 echo '<div class="assessment-card-title">' . htmlspecialchars($quiz['assessment_name']) . '</div>';
-                                echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
+                                echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
                                 echo '<button id="viewResult_' . $quiz['assessment_id'] . '" class="main-button" data-id="' . $quiz['assessment_id'] . '" type="button">View Result</button>';
                                 echo '</div>';
                             }
@@ -132,7 +132,7 @@
 
             if ($classes_query->num_rows > 0) {
                 while ($class = $classes_query->fetch_assoc()) {
-                    echo '<div class="class-separator">';
+                    echo '<div class="subject-separator">';
                     echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
                     echo '<hr class="separator-line">';
                     echo '</div>';
@@ -165,7 +165,7 @@
                                 $has_results = true;
                                 echo '<div class="assessment-card">';
                                 echo '<div class="assessment-card-title">' . htmlspecialchars($exam['assessment_name']) . '</div>';
-                                echo '<div class="assessment-card-text">Topic: ' . htmlspecialchars($exam['topic']) . '</div>';
+                                echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($exam['topic']) . '</div>';
                                 echo '<button id="viewResult_' . $exam['assessment_id'] . '" class="main-button" data-id="' . $exam['assessment_id'] . '" type="button">View Result</button>';
                                 echo '</div>';
                             }

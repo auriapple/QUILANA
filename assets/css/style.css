@@ -1,3 +1,8 @@
+/* BODY */
+body {
+    overflow: hidden;
+}
+
 /* BUTTONS */
 /* Main Buttons */
 .main-button {
@@ -37,6 +42,163 @@
     background-image: none;
     cursor: pointer;
     box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.25);
+}
+.secondary-button:active {
+    outline: none;
+    transform: scale(1.02);
+    transition: transform 0.1s ease;
+}
+/* Tertiary Buttons */
+.tertiary-button {
+    background-color: transparent;    
+    color: #4A4CA6;
+    border: 2px solid #4A4CA6;
+    border-radius: 5px;
+    font-weight: bold;
+    z-index: 2;
+    transition: color 0.3 ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+.tertiary-button:hover {
+    background-color: #4A4CA6;
+    border: 2px solid #4A4CA6;
+    cursor: pointer;
+    color: #FFFFFF;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.25);
+    text-decoration: none;
+}
+.tertiary-button:active {
+    outline: none;
+    transform: scale(1.02);
+    transition: transform 0.1s ease;
+}
+/* END */
+
+/* HEADER STYLE */
+/* Search Bar Style */
+.search-bar {
+    display: flex;
+    align-items: center;
+    border: 1px solid #3B276E;
+    border-radius: 10px;
+    margin-left: 15px;
+    color:rgb(115, 119, 145, 0.75);
+    width: 295px;
+    padding: 0 10px 0 10px;
+}
+.search-bar:hover {
+    box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
+}
+.search-bar input[type="text"] {
+    padding: 5px;
+    font-size: 14px;
+    background-color: none;
+    border: none;
+    margin: 4px;
+    float: left;
+    width: 85%;
+}
+.search-bar input:focus {
+    outline: none;
+}
+.search-bar button {
+    background: none;
+    color:rgb(115, 119, 145, 0.75);
+    float: left;
+    width: 15%;
+    cursor: pointer;
+    border: none;
+}
+.search-bar button:active,
+.search-bar button:hover {
+    background: none;
+    color:#4A4CA6;
+    float: left;
+    width: 15%;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+/* END */
+
+/* TABS STYLE */
+.tabs-container {
+    margin-bottom: 20px;
+}
+.tabs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    border-bottom: 2px solid #CDCDCD;
+}
+.tabs .tab-link {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.3s;
+}
+.tabs .tab-link.active {
+    border-bottom: 2px solid #4A4CA6;
+    color: #4A4CA6;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+/* END */
+
+/* POPUP STYLES */
+/* Popup Styles */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    display: none;
+}
+.popup-content {
+    background: #FFFFFF;
+    padding-left: 45px;
+    padding-right:45px;
+    padding-top: 60px;
+    border-radius: 25px;
+    width: 500px;
+    height: 300px;
+    text-align: center;
+    position: relative;
+    z-index: 1001 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+.popup-title {
+    font-weight: bold;
+    color: #1E1A43;
+}
+.popup-message {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #4a4a4a;
+}
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6a6a6a;
+}
+.popup-close:focus{
+    outline: none;
 }
 /* END */
 
@@ -312,109 +474,89 @@ button.btn-rounded{
 }
 /* END */
 
-/* CLASSES AND RESULTS - STUDENT */
-/* Join Class Button */
-#joinClass { 
-    padding: 10px;
-    font-size: 16px;
-    width: 180px;
-    height: 40px;
-    outline: none;
-}
-
-/* Search Bar Style */
-.search-bar {
-    display: flex;
-    align-items: center;
-    border: 1px solid #3B276E;
-    border-radius: 10px;
-    margin-left: 15px;
-    color:rgb(115, 119, 145, 0.75);
-    width: 295px;
-    padding: 0 10px 0 10px;
-}
-.search-bar:hover {
-    border: 2px solid #4A4CA6;
-}
-.search-bar:focus {
-    box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
-}
-.search-bar input[type="text"] {
-    padding: 5px;
-    font-size: 14px;
-    background-color: none;
-    border: none;
-    margin: 4px;
-    float: left;
-    width: 80%;
-}
-.search-bar input[type="text"]:focus {
-    outline: none;
-}
-.search-bar button {
-    background: none;
-    color:rgb(115, 119, 145, 0.75);
-    float: left;
-    width: 20%;
-    cursor: pointer;
-    border: none;
-}
-.search-bar button:active,
-.search-bar button:focus {
-    background: none;
-    color:#4A4CA6;
-    float: left;
-    width: 20%;
-    cursor: pointer;
-    border: none;
-    outline: none;
-}
-
-/* Tabs Styles */
-.tabs-container {
-    margin-bottom: 20px;
-}
-.tabs {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    border-bottom: 2px solid #CDCDCD;
-}
-.tabs .tab-link {
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: bold;
-    border-bottom: 2px solid transparent;
-    transition: border-bottom 0.3s;
-}
-.tabs .tab-link.active {
-    border-bottom: 2px solid #4A4CA6;
-    color: #4A4CA6;
-}
-.tab-content {
-    display: none;
-}
-.tab-content.active {
-    display: block;
-}
-
-/* Course and Assessment Container Styles */
-.add-course-container {
+/* HEADERS */
+/* Header Containers */
+.add-course-container,
+.search-container,
+.add-assessment-container,
+.join-class-container {
     display: flex;
     align-items: center;
     justify-content: right;
     margin-bottom: 20px;
 }
-.course-container, 
+
+/* Header Buttons */
+#joinClass,
+#addCourse,
+#addAssessment,
+#addClass { 
+    padding: auto 10px;
+    font-size: 14px;
+    width: 180px;
+    height: 40px;
+    outline: none;
+}
+
+/* CLASSES AND RESULTS - STUDENT */
+/* JOIN CLASS POPUP */
+#join-modal-content {
+    width: 450px;
+    height: 350px;
+    margin: 10% auto;
+    align-items: center;
+    z-index: 1005;
+}
+#join-class-title {
+    margin-bottom: 20px;
+    font-size: 36px;
+}
+/* Class Code Input Field */
+/* Default State */
+.code {
+    width: 100%;
+    height: 45px;
+    border-radius: 10px;
+    padding: 8px;
+    border: 1px solid #3b276e
+}
+/* Hover State */
+.code:hover {
+    border: 2px solid #4A4CA6;
+}
+/* Selected State */
+.code:focus {
+    border-color: #4A4CA6;
+    box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
+    outline: none;
+}
+/* Join Class Button */
+#join {
+    margin-top: 20px;
+    padding: auto 45px;
+    font-size: 20px;
+    outline: none;
+    width: 200px;
+    height: 45px;
+    margin-bottom: 50px;
+}
+
+/* CONTAINERS AND CARDS STYLES */
+/* Containers */
+.course-container,
+.class-container, 
 .quizzes-container,
-.exams-container {
+.exams-container,
+.assessment-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: start;
 }
+
+/* Cards */
 .course-card,
+.class-card,
 .assessment-card {
     width: 330px;
     height: 208px;
@@ -427,35 +569,52 @@ button.btn-rounded{
     box-sizing: border-box;
     position: relative;
 }
+
+/* Content */
 .course-card-title,
+.class-card-title,
 .assessment-card-title {
     color: #1E1A43;
     font-size: 20px;
     font-weight: bold;
 }
+.class-card-text,
 .course-card-text,
 .course-card-topic,
-.assessment-card-text {
+.assessment-card-topic {
     font-size: 16px;
     color: #8F8F9D;
     margin: 10px 0 0 0;
 }
-.course-card-duration {
+.assessment-card-duration {
     font-size: 16px;
     color: #8F8F9D;
     margin-top: 0;
 }
+
+/* Card Actions */
+.course-actions,
+.assessment-actions {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 30px;
+    /*width: calc(100% - 40px);*/
+    width: 100%;
+}
+
+/* Buttons */
 [id^=viewResult_],
-[id^=viewClassDetails_] {
+[id^=viewClassDetails_],
+#viewClassDetails {
     width: calc(100% - 40px);
     border-radius: 5px;
     padding: 12px 30px;
     font-size: 14px;
     position: absolute;
     bottom: 40px;
-    outline: none;
+    outline: none !important; 
 }
-#takeAssessment,
 [id^=takeAssessment_] {
     width: calc(100% - 40px);
     border-radius: 5px;
@@ -466,9 +625,42 @@ button.btn-rounded{
     outline: none;
     text-align: center;
 }
+#administer,
+#manage,
+#viewClasses,
+#viewCourseDetails {
+    outline: none;
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 12px 15px;
+    width: 135px;
+}
+/* END */
+
+/* POPUPS */
+/* Popup Buttons */
+/* Buttons */
+#confirm,
+#cancel {
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 12px 60px;
+    font-size: 14px;
+    outline: none;
+}
+#result,
+#submit-answers,
+#error {
+    margin-top: 10px;
+    padding: 12px 60px;
+    font-size: 14px;
+    outline: none;
+}
+/* END */
 
 /* CLASSES - STUDENT*/
-/* Assessment Styles) */
+/* Assessment Styles */
 /* Timer and Submit Button Container */
 .header-container {
     display: flex;
@@ -499,7 +691,7 @@ button.btn-rounded{
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
     overflow: auto;
     width: 100%;
-    height: calc(100vh - 200px);
+    height: 75vh;
     margin: 10px;
     padding: 20px;
     box-sizing: border-box;
@@ -552,80 +744,11 @@ button.btn-rounded{
 .form-check-group input:valid {
     color: #787878;
 }
-
-/* Popup Styles */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    display: none;
-}
-.popup-content {
-    background: #FFFFFF;
-    padding-left: 45px;
-    padding-right:45px;
-    padding-top: 60px;
-    border-radius: 25px;
-    width: 500px;
-    height: 300px;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-}
-.popup-title {
-    font-weight: bold;
-    color: #1E1A43;
-}
-.popup-message {
-    margin: 10px 0;
-    font-size: 14px;
-    color: #4a4a4a;
-}
-.popup-close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #6a6a6a;
-}
-.popup-close:focus{
-    outline: none;
-}
-
-/* Buttons */
-#confirm,
-#cancel {
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 12px 60px;
-    font-size: 14px;
-    outline: none;
-}
-#result,
-#submit-answers,
-#error {
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 12px 60px;
-    font-size: 14px;
-    outline: none;
-}
 /* END */
 
-/* RESULTS - STUDENT */
+/* RESULTS - STUDENT AND ASSESSMENTS - FACULTY */
 /* Class Name, Separator, and Label */
-.class-separator {
+.subject-separator {
     display: flex;
     align-items: center;
     margin: 20px 0;
@@ -651,6 +774,7 @@ button.btn-rounded{
     width: 100%;
 }
 
+/* RESULTS - STUDENT */
 /* Popup Styles */
 #modal-content {
     width: 600px;
@@ -689,21 +813,25 @@ thead th {
 }
 /* END */
 
-.add-btn {
-    padding: 5px 10px;
-    font-size: 14px;
-    border: none;
-    background-color: #4A4CA6;
-    color: white;
-    border-radius: 4px;
-    margin-left: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+/* ASSESSMENTS - FACULTY */
+/* Course */
+.course-section {
+    margin-bottom: 30px;
+}
+.course-section h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    color: #1E1A43;
 }
 
-.add-btn:hover {
-    background-color: #1E1A43;
+.scrollable-content {
+    max-height: 73vh; 
+    overflow-y: auto;
+    padding-right: 15px; 
 }
+/* END */
 
 /* Media Queries for Responsiveness */
 

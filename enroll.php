@@ -10,7 +10,7 @@
     <?php include('nav_bar.php') ?>
     <div class="container-fluid admin">
         <!-- Header Container -->
-        <div class="header-container">
+        <div class="join-class-container">
             <button class="secondary-button" id="joinClass">Join Class</button>
             <form class="search-bar" action="#" method="GET">
                 <input type="text" name="query" placeholder="Search" required>
@@ -28,7 +28,7 @@
 
         <!-- Classes Tab -->
         <div id="classes-tab" class="tab-content active">
-            <div class="course-container">
+            <div class="class-container">
                 <?php
                 $student_id = $_SESSION['login_id'];
 
@@ -43,10 +43,10 @@
                 ?>
 
                 <!-- Display class details -->
-                <div class="course-card">
-                    <div class="course-card-title"><?php echo $row['subject'] ?></div>
-                    <div class="course-card-text">Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
-                    <div class="course-actions">
+                <div class="class-card">
+                    <div class="class-card-title"><?php echo $row['subject'] ?></div>
+                    <div class="class-card-text">Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
+                    <div class="class-actions">
                         <button id="viewClassDetails_<?php echo $row['class_id']; ?>" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
         
         <!-- Assessments Tab -->
         <div id="assessments-tab" class="tab-content">
-            <div id="course-container">
+            <div id="class-container">
 
                 <!-- If a class is selected, assessments are loaded here -->
                 <?php
@@ -69,27 +69,23 @@
         </div>
 
         <!-- Modal for entering class code to join a class-->
-        <div class="modal fade" id="manage_class" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Join Class</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
+        <div id="join-class-popup" class="popup-overlay">
+            <div id="join-modal-content" class="popup-content">
+                <span id="modal-close" class="popup-close">&times;</span>
+                <h2 id="join-class-title" class="popup-title">Join Class</h2>
 
-                    <!-- Form to submit the class code -->
-                    <form id='code-frm' action="" method="POST">
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <input type="text" name="get_code" required="required" class="form-control" placeholder="Class Code" />
-                            </div>
+                <!-- Form to submit the class code -->
+                <form id='code-frm' action="" method="POST">
+                    <div class="modal-body">
+                        <div id="msg"></div>
+                        <div class="class-code">
+                            <input type="text" name="get_code" required="required" class="code" placeholder="Class Code" />
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" name="join_by_code"><span class="glyphicon glyphicon-save"></span>Join</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="join-button">
+                        <button id="join" type="submit" class="secondary-button" name="join_by_code">Join</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -106,7 +102,7 @@
                     $('#join_class').show();
                 }
             }
-            
+
             // Tab Functionality
             $('.tab-link').click(function() {
                 var tab_id = $(this).attr('data-tab');
@@ -126,37 +122,15 @@
             // Initialize button visibility
             updateButtons();
 
-            // Join Class
             $('#joinClass').click(function() {
                 $('#msg').html('');
-                $('#manage_class #code-frm').get(0).reset();
-                $('#manage_class').modal('show');
+                $('#join-class-popup #code-frm').get(0).reset();
+                $('#join-class-popup').show();
             });
 
-            // View Class Details
-            $('[id^=viewClassDetails_]').click(function() {
-                var class_id = $(this).data('id');
-                var class_name = $(this).closest('.course-card').find('.course-card-title').text();
-
-                // Change the tab title to the class name
-                $('#class-name-tab').text(class_name).show();
-
-                // Switch to the new tab
-                $('.tab-link').removeClass('active');
-                $('.tab-content').removeClass('active');
-                $('#class-name-tab').addClass('active');
-                $('#assessments-tab').addClass('active');
-
-                // Load the assessments for the selected class
-                $.ajax({
-                    type: 'POST',
-                    url: 'load_assessments.php',
-                    data: { class_id: class_id },
-                    success: function(response) {
-                        $('#assessments-tab').html(response);
-                    }
-                });
-                updateButtons();
+            // Close the popup
+            $('#modal-close').click(function() {
+                $('#join-class-popup').hide(); 
             });
 
             // Handles code submission
@@ -183,6 +157,32 @@
                         alert('An error occurred while saving the course.');
                     }
                 });
+            });
+
+            // View Class Details
+            $('[id^=viewClassDetails_]').click(function() {
+                var class_id = $(this).data('id');
+                var class_name = $(this).closest('.class-card').find('.class-card-title').text();
+
+                // Change the tab title to the class name
+                $('#class-name-tab').text(class_name).show();
+
+                // Switch to the new tab
+                $('.tab-link').removeClass('active');
+                $('.tab-content').removeClass('active');
+                $('#class-name-tab').addClass('active');
+                $('#assessments-tab').addClass('active');
+
+                // Load the assessments for the selected class
+                $.ajax({
+                    type: 'POST',
+                    url: 'load_assessments.php',
+                    data: { class_id: class_id },
+                    success: function(response) {
+                        $('#assessments-tab').html(response);
+                    }
+                });
+                updateButtons();
             });
         });
     </script>

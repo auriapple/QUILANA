@@ -37,7 +37,7 @@ if (isset($_POST['class_id'])) {
     if ($total_assessments == $taken_assessments) {
         echo '<p class="no-assessments">No assessments available for this class.</p>';
     } else {
-        echo '<div class="course-container">';
+        echo '<div class="assessment-container">';
         // Display assessment details
         while ($row = $total_assessments_query->fetch_assoc()) {
             // Check if the student has already taken the assessment
@@ -49,13 +49,13 @@ if (isset($_POST['class_id'])) {
 
             // Show assessments that aren't taken yet
             if ($assessment_query->num_rows == 0) {
-                echo '<div class="course-card">';
-                echo '<div class="course-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
-                echo '<div class="course-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
-                echo '<div class="course-card-duration">Duration: ' . htmlspecialchars($row['time_limit']) . ' minutes</div>';
-                echo '<div class="course-actions">';
+                echo '<div class="assessment-card">';
+                echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
+                echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
+                echo '<div class="assessment-card-duration">Duration: ' . htmlspecialchars($row['time_limit']) . ' minutes</div>';
+                echo '<div class="assessments-actions">';
                 echo '<a href="quiz.php?assessment_id=' . htmlspecialchars($row['assessment_id']) . '" class="take-assessment-link">';
-                echo '<button id="takeAssessment_' . $row['assessment_id'] . '" . class="main-button">Take Assessment</button>';
+                echo '<button id="takeAssessment_' . $row['assessment_id'] . '" class="main-button">Take Assessment</button>';
                 echo '</a>';
                 echo '</div>';
                 echo '</div>';

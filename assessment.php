@@ -9,88 +9,28 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <style>
-        .course-section {
-            margin-bottom: 30px;
-        }
-
-        .course-section h2 {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .subject-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .subject-header span {
-            font-size: 1.1rem;
-            font-weight: lighter;
-            color: gray;
-            margin-right: 10px;
-        }
-
-        .subject-header .line {
-            flex: 1;
-            border-bottom: 1.5px solid gray;
-        }
-
-        .course-cards-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        /* Course Actions */
-        .assessment-actions {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .assessment-actions .btn {
-            font-size: 14px;
-            padding: 5px 15px;
-           
-        }
-
-        .scrollable-content {
-            max-height: 85vh; 
-            overflow-y: auto;
-            padding-right: 15px; 
-        }
-
-        body {
-            overflow: hidden;
-        }
-    </style>
 </head>
 <body>
     <?php include('nav_bar.php'); ?>
 
-    <div class="container-fluid admin">
+    <div class="container-fluid admin"> 
+        <!-- Header Container -->
+        <div class="add-assessment-container">
+            <button class="secondary-button" id="addAssessment">Add Assessment</button>
+            <form class="search-bar" action="#" method="GET">
+                <input type="text" name="query" placeholder="Search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="tabs-container">
+            <ul class="tabs">
+                <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
+                <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
+            </ul>
+        </div>    
+
         <div class="scrollable-content">
-            <div class="add-course-container">
-                <button class="btn btn-primary btn-sm add-btn" id="add_assessment"><i class="fa fa-plus"></i> Add Assessment</button>
-                <div class="search-bar">
-                    <form id="search-form" method="GET">
-                        <input type="text" name="query" placeholder="Search Course" required>
-                        <button type="submit">Search</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="tabs-container">
-                <ul class="tabs">
-                    <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
-                    <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
-                </ul>
-            </div>
-
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
@@ -123,17 +63,17 @@
 
                 <?php if ($subject_name !== $current_subject) { ?>
                     <?php if ($current_subject !== '') { ?></div><?php } ?>
-                    <div class="subject-header">
-                        <span><?php echo $subject_name; ?></span>
-                        <div class="line"></div>
+                    <div class="subject-separator">
+                        <span class="subject-name"><?php echo $subject_name; ?></span>
+                        <hr class="separator-line">
                     </div>
-                    <div class="course-cards-container">
+                    <div class="assessment-container">
                 <?php 
                     $current_subject = $subject_name;
                 } ?>
 
-                <div class="course-card">
-                    <div class="course-card-body">
+                <div class="assessment-card">
+                    <div class="assessment-card-body">
                         <div class="meatball-menu-container">
                             <button class="meatball-menu-btn">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -143,12 +83,11 @@
                                 <a href="#" class="delete_assessment" data-id="<?php echo $assessment_id ?>">Delete</a>
                             </div>
                         </div>
-                        <div class="course-card-title"><?php echo $assessment_name; ?></div>
-                        <div class="course-card-text"><br>Topic: <br><?php echo $topic; ?></div>
-                        <div class="course-actions">
-                            <a class="btn btn-sm btn-outline-primary view_assessment_details" 
-                            href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
-                            <button class="btn btn-primary btn-sm administer" 
+                        <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
+                        <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
+                        <div class="assessment-actions">
+                            <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
+                            <button id="administer" class="main-button" 
                                 data-course-id="<?php echo $row['course_id']; ?>" 
                                 data-course-name="<?php echo $row['course_name']; ?>" 
                                 data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
@@ -162,11 +101,8 @@
                 </div> <!-- Close the last subject card container -->
                 </div> <!-- Close the last course section -->
             </div>
-
-
-            <div id="details-tab" class="tab-content">
-                
-            </div>
+            <div id="details-tab" class="tab-content">     
+        </div>
 
         <!-- Modal for managing assessments -->
         <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
@@ -348,7 +284,7 @@
             <script>
           $(document).ready(function() {
             // Show modal when "Add Assessment" is clicked
-            $('#add_assessment').click(function() {
+            $('#addAssessment').click(function() {
                 $('#manage_assessment').modal('show');
             });
             
@@ -400,7 +336,7 @@
             var previousClassId = null; // Variable to keep track of the previously selected class
 
             // Show modal when "Administer Assessment" is clicked
-            $(document).on('click', '.administer', function() {
+            $(document).on('click', '#administer', function() {
                 var assessmentId = $(this).data('id');      // Get the assessment ID
                 var courseId = $(this).data('course-id');   // Get the course ID
                 var courseName = $(this).data('course-name'); // Get the course name
