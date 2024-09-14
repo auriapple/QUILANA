@@ -445,8 +445,8 @@ button.btn-rounded{
     color: #8F8F9D;
     margin-top: 0;
 }
-#viewResult,
-#viewClassDetails {
+[id^=viewResult_],
+[id^=viewClassDetails_] {
     width: calc(100% - 40px);
     border-radius: 5px;
     padding: 12px 30px;
@@ -455,7 +455,8 @@ button.btn-rounded{
     bottom: 40px;
     outline: none;
 }
-#takeAssessment {
+#takeAssessment,
+[id^=takeAssessment_] {
     width: calc(100% - 40px);
     border-radius: 5px;
     padding: 12px 30px;
@@ -610,7 +611,9 @@ button.btn-rounded{
     font-size: 14px;
     outline: none;
 }
-#result {
+#result,
+#submit-answers,
+#error {
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;

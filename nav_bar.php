@@ -18,7 +18,7 @@
 <div id="sidebar" class="bg-light">
 	<?php if($_SESSION['login_user_type'] != 3): ?>
 		<div id="sidebar-field">
-			<a href="home.php" class="sidebar-item text-dark">
+			<a href="faculty_dashboard.php" class="sidebar-item text-dark">
 				<div class="sidebar-icon"><i class="fa fa-home"> </i></div>  Dashboard
 			</a>
 		</div>
@@ -35,8 +35,7 @@
 
 	<?php else: ?>
 		<div id="sidebar-field">
-			<!--student_dashboard.php-->
-			<a href="home.php" class="sidebar-item text-dark">
+			<a href="student_dashboard.php" class="sidebar-item text-dark">
 				<div class="sidebar-icon"><i class="fa fa-home"> </i></div>  Dashboard
 			</a>
 		</div>

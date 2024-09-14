@@ -9,7 +9,8 @@
 <body>
     <?php include('nav_bar.php') ?>
     <div class="container-fluid admin">
-        <div class="add-course-container">
+        <!-- Header Container -->
+        <div class="header-container">
             <button class="secondary-button" id="joinClass">Join Class</button>
             <form class="search-bar" action="#" method="GET">
                 <input type="text" name="query" placeholder="Search" required>
@@ -46,7 +47,7 @@
                     <div class="course-card-title"><?php echo $row['subject'] ?></div>
                     <div class="course-card-text">Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
                     <div class="course-actions">
-                        <button id="viewClassDetails" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
+                        <button id="viewClassDetails_<?php echo $row['class_id']; ?>" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
                     </div>
                 </div>
                 <?php } ?>
@@ -105,6 +106,7 @@
                     $('#join_class').show();
                 }
             }
+            
             // Tab Functionality
             $('.tab-link').click(function() {
                 var tab_id = $(this).attr('data-tab');
@@ -132,7 +134,7 @@
             });
 
             // View Class Details
-            $('#viewClassDetails').click(function() {
+            $('[id^=viewClassDetails_]').click(function() {
                 var class_id = $(this).data('id');
                 var class_name = $(this).closest('.course-card').find('.course-card-title').text();
 

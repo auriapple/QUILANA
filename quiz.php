@@ -1,3 +1,4 @@
+
 <?php
 include('db_connect.php');
 include('auth.php');
@@ -9,31 +10,17 @@ if (!isset($_GET['assessment_id'])) {
 }
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
-$student_id = $_SESSION['login_id'];
 
-// Check if the student has already submitted this assessment (status 1 or 2)
-$submission_check_query = $conn->query("SELECT * FROM student_submission 
-                                        WHERE assessment_id = '$assessment_id' 
-                                        AND student_id = '$student_id' 
-                                        AND status IN (1, 2)");
+// Fetch assessment details
+$assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
+$assessment = $assessment_query->fetch_assoc();
 
-if ($submission_check_query->num_rows > 0) {
-    // The student has already taken the assessment, display a message
-    $message = "You have already taken this assessment. You cannot take it again.";
-} else {
-    // Fetch assessment details
-    $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
-    $assessment = $assessment_query->fetch_assoc();
+// Fetch questions related to the assessment
+$questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
 
-    // Fetch questions related to the assessment
-    $questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
-
-    // Get the time limit for the quiz
-    $time_limit = $assessment['time_limit'];
-}
+// Get the time limit for the assessment
+$time_limit = $assessment['time_limit'];
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -46,14 +33,14 @@ if ($submission_check_query->num_rows > 0) {
 <body>
     <?php include('nav_bar.php') ?>
     <!-- Confirmation Popup -->
-    <div id="confirmation-popup" class="popup-overlay">
+    <div id="confirmation-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
             <button class="popup-close" onclick="closePopup('confirmation-popup')">&times;</button>
             <h2 class="popup-title">Are you sure you want to submit your answers?</h2>
             <p class="popup-message">THIS ACTION CANNOT BE UNDONE</p>
             <div class="popup-buttons">
                 <button id="cancel" class="secondary-button" onclick="closePopup('confirmation-popup')">Cancel</button>
-                <button id="confirm" class="secondary-button" onclick="submitForm()">Confirm</button>
+                <button id="confirm" class="secondary-button" onclick="handleSubmit()">Confirm</button>
             </div>
         </div>
     </div>
@@ -69,13 +56,32 @@ if ($submission_check_query->num_rows > 0) {
         </div>
     </div>
 
-    <div class="container-fluid admin">
-        <?php if (isset($message)): ?>
-            <div class="alert alert-danger">
-                <strong><?php echo $message; ?></strong>
+    <!-- Timer Run Out Popup -->
+    <div id="timer-runout-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2 class="popup-title">The timer ran out! You must submit your answers now!</p>
+            <button id="submit-answers" class="secondary-button" onclick="handleSubmit()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div id="error-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2 class="popup-title">An error occurred while submitting the form. Please try again.</h2>
+            <div class="popup-buttons">
+                <button id="error" class="secondary-button" onclick="closeErrorPopup('error-popup')">Try Again</button>
             </div>
-            <a href="results.php?assessment_id=<?php echo $assessment_id; ?>" class="btn btn-primary">View Results</a>
-        <?php else: ?>
+        </div>
+    </div>
+
+    <div class="container-fluid admin">
+        <form id="quiz-form" action="submit_quiz.php" method="POST">
+            <!-- Header with submit button and timer -->
+                <div class="header-container">
+                    <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
+                    <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
+                </div>
+
             <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
             <div class="tabs-container">
                 <ul class="tabs">
@@ -83,14 +89,8 @@ if ($submission_check_query->num_rows > 0) {
                 </ul>
             </div>
 
-        <!-- Questions Container -->
-        <div class="questions-container">
-            <form id="quiz-form" action="submit_quiz.php" method="POST">
-                <!-- Header with submit button and timer -->
-                <div class="header-container">
-                    <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
-                    <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
-                </div>
+            <!-- Questions Container -->
+            <div class="questions-container">
                 <?php
                 // Initialize question counter to 1
                 $question_number = 1;
@@ -131,7 +131,7 @@ if ($submission_check_query->num_rows > 0) {
                         echo "</div>";
                     // Fill in the blank and identification (text input)
                     } elseif ($question_type == 4 || $question_type == 5) {
-                        echo "<div class='form-group'>";
+                        echo "<div class='form-check-group'>";
                         echo "<input type='text' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                         echo "</div>";
                     }
@@ -141,56 +141,94 @@ if ($submission_check_query->num_rows > 0) {
                 ?>
                 <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
                 <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
-            </form>
-        </div>
-    <?php endif; ?>
+            </div>
+        </form>
     </div>
 
     <script>
+        var timerInterval;
+        var timerExpired = false; // Flag to track if timer has expired
+
         // Timer functionality
         function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
-            setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
 
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+            // Get stored end time
+            var storedEndTime = localStorage.getItem('endTime');
+            if (storedEndTime) {
+                var now = Date.now();
+                timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
+            } else {
+                var endTime = Date.now() + (timer * 1000);
+                localStorage.setItem('endTime', endTime);
+            }
 
-                display.textContent = minutes + ":" + seconds;
+            updateDisplay(timer, display); // Initialize display immediately
 
-                if (--timer < 0) {
-                    timer = 0;
-                    document.getElementById('quiz-form').submit(); // Submit the form when the time is up
+            timerInterval = setInterval(function () {
+                var now = Date.now();
+                var remainingTime = Math.max(0, Math.floor((localStorage.getItem('endTime') - now) / 1000));
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerExpired = true; // Set flag to true when timer runs out
+                    showPopup('timer-runout-popup');
+                    localStorage.removeItem('endTime');
+                } else {
+                    updateDisplay(remainingTime, display);
+                    localStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
                 }
             }, 1000);
         }
+
+        // Function to update display
+        function updateDisplay(remainingTime, display) {
+            var minutes = Math.floor(remainingTime / 60);
+            var seconds = remainingTime % 60;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.textContent = minutes + ":" + seconds;
+        }
+
+        // When the window loads
         window.onload = function () {
             var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
                 display = document.querySelector('#timer');
+
             startTimer(timeLimit, display);
         };
 
-        /* Handles Popups */
+        // Handles Popups
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
         }
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
-        } 
+        }
         function closeSuccessPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
-            window.location.href = 'enroll.php';
+            window.location.href = 'enroll.php#assessments-tab';
+        }
+        function closeErrorPopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+            handleSubmit();
+        }
+
+        function handleSubmit() {
+            if (timerExpired) {
+                closePopup('timer-runout-popup');
+                submitForm();
+            } else {
+                closePopup('confirmation-popup');
+                submitForm();
+            }
         }
 
         /* Handles Form Submission */
         function submitForm() {
             // Create a new FormData object from the form
             var formData = new FormData(document.getElementById('quiz-form'));
-            
-            // Close the confirmation popup
-            closePopup('confirmation-popup');
-            
+
             // Create an XMLHttpRequest object
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'submit_quiz.php', true);
@@ -198,41 +236,20 @@ if ($submission_check_query->num_rows > 0) {
             // Set up a handler for when the request completes
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    // Show the success popup
+                    localStorage.removeItem('endTime');
+                    localStorage.removeItem('remainingTime');
+                    clearInterval(timerInterval);
                     showPopup('success-popup');
                 } else {
-                    alert('An error occurred while submitting the form.');
+                    showPopup('error-popup');
                 }
             };
-
-            // Send the form data
-            xhr.send(formData);
+            xhr.send(formData); // Send the form data
         }
 
         function viewResult() {
-            // Redirect to results page
-            window.location.href = 'results.php';
+            window.location.href = 'results.php'; // Redirect to results page
         }
-        window.onload = function () {
-        var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
-            display = document.querySelector('#timer');
-        
-        // Fetch the submitted status from the server
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'check_submission.php?assessment_id=<?php echo $assessment_id; ?>', true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                if (xhr.responseText === 'submitted') {
-                    window.location.href = 'results.php?assessment_id=<?php echo $assessment_id; ?>';
-                } else {
-                    startTimer(timeLimit, display);
-                }
-            } else {
-                alert('An error occurred while checking submission status.');
-            }
-        };
-        xhr.send();
-    };
     </script>
 </body>
 </html>
