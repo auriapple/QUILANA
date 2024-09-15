@@ -6,6 +6,7 @@
     <?php include('db_connect.php'); ?>
     <title>Assessments | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <!-- <link rel="stylesheet" href="assets/css/figma-design.css"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -75,6 +76,7 @@
     <div class="container-fluid admin">
         <div class="scrollable-content">
             <div class="add-course-container">
+                <button class="btn btn-primary btn-sm administer-tab-btn" data-id="1" type="button"> Administer Tab</button>
                 <button class="btn btn-primary btn-sm add-btn" id="add_assessment"><i class="fa fa-plus"></i> Add Assessment</button>
                 <div class="search-bar">
                     <form id="search-form" method="GET">
@@ -88,6 +90,7 @@
                 <ul class="tabs">
                     <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
                     <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
+                    <li class="tab-link" id="administer-tab-link" style="display: none;" data-tab="administer-tab">Administer</li>
                 </ul>
             </div>
 
@@ -132,7 +135,7 @@
                     $current_subject = $subject_name;
                 } ?>
 
-                <div class="course-card">
+                <div class="course-card figma-course-card">
                     <div class="course-card-body">
                         <div class="meatball-menu-container">
                             <button class="meatball-menu-btn">
@@ -166,6 +169,12 @@
 
             <div id="details-tab" class="tab-content">
                 
+            </div>
+
+            <div id="administer-tab" class="tab-content" style="outline: 1px solid;">
+                <div class="course-container" id="administer-container" style="outline: 1px solid;">
+                    <h1>Test</h1>
+                </div>
             </div>
 
         <!-- Modal for managing assessments -->
@@ -347,6 +356,47 @@
 
             <script>
           $(document).ready(function() {
+            // Hide Administer tab link initially
+            $('#administer-tab-link').hide();
+
+            // Handle tab click for assessments tab
+            $('.tab-link').click(function() {
+                var tabId = $(this).data('tab');
+
+                if (tabId === 'assessment-tab') {
+                    $('#administer-tab-link').hide(); // Hide the Administer tab when Assessment tab is clicked
+                }
+
+                $('.tab-link').removeClass('active');
+                $(this).addClass('active');
+                $('.tab-content').removeClass('active');
+                $('#' + tabId).addClass('active');
+            });
+
+            // Handle Adminsiter (Pop-up) button click
+            $('.administer-tab-btn').click(function() {
+                var administer_id = $(this).attr('data-id');
+                var assessment_name = 'test';
+
+                // Show the Administer tab and set the assessment name
+                $('#administer-tab-link').show().click();
+                $('#administer-tab-link').text(assessment_name);
+
+                $.ajax({
+                    url: 'administer_tab.php',
+                    method: 'POST',
+                    data: { administer_id: administer_id },
+                    success: function(response) {
+                        console.log("Response from PHP:", response); // Log response
+                        $('#administer-container').html(response);
+                    }, error: function(xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Status: " + status);
+                        console.error("Response: " + xhr.responseText);
+                    }
+                });
+            });
+
             // Show modal when "Add Assessment" is clicked
             $('#add_assessment').click(function() {
                 $('#manage_assessment').modal('show');
@@ -489,6 +539,7 @@
                         } else {
                             $('#msg1').html('<div class="alert alert-danger">' + response.message + '</div>');
                         }
+
                     },
                     error: function(xhr, status, error) {
                         $('#msg1').html('<div class="alert alert-danger">Failed to administer. Please try again.</div>');

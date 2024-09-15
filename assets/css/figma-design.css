@@ -7,7 +7,6 @@ body {
 }
 
 .figma-container-fluid {
-    border: 1px solid;
     width: 100vw;
     right: 0px;
 }
@@ -33,10 +32,10 @@ body {
 
 .figma-course-container {
     gap: 20px;
-    border: 1px solid;
 }
 
-.figma-course-container .figma-course-card {
+.figma-course-container .figma-course-card,
+.figma-course-card {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -69,7 +68,6 @@ body {
 .figma-course-actions {
     width: 100%;
     justify-content: space-between;
-    border: 1px solid;
 }
 
 .figma-button2 {
