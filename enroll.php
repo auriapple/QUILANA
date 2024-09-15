@@ -8,7 +8,7 @@
 </head>
 <body>
     <?php include('nav_bar.php') ?>
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <!-- Header Container -->
         <div class="join-class-container">
             <button class="secondary-button" id="joinClass">Join Class</button>

@@ -483,7 +483,9 @@ button.btn-rounded{
     display: flex;
     align-items: center;
     justify-content: right;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    margin-top: 30px;
+    margin-right: 20px;
 }
 
 /* Header Buttons */

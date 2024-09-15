@@ -74,7 +74,7 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <form id="quiz-form" action="submit_quiz.php" method="POST">
             <!-- Header with submit button and timer -->
                 <div class="header-container">

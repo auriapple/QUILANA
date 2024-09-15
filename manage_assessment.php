@@ -77,6 +77,7 @@ if ($stmt = $conn->prepare($query)) {
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            margin-right: 26px;
         }
         .assessment-details h2 {
             font-size: 1.5em;
@@ -90,11 +91,11 @@ if ($stmt = $conn->prepare($query)) {
             color: #666;
         }
         .card-full-width {
-            width: 100%;
+            width: 98%;
             margin-bottom: 20px;
         }
         .card-body {
-            max-height: 280px;
+            max-height: 290px;
             overflow-y: auto;
         }
         .list-group-item {
@@ -103,6 +104,7 @@ if ($stmt = $conn->prepare($query)) {
         }
         .back-arrow {
             font-size: 24px; 
+            margin-top: 10px;
             margin-bottom: 15px;
         }
         .back-arrow a {
@@ -125,7 +127,7 @@ if ($stmt = $conn->prepare($query)) {
 <body>
     <?php include('nav_bar.php'); ?>
 
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <div class="back-arrow">
             <a href="assessment.php"> 
                 <i class="fa fa-arrow-left"></i> 
@@ -182,12 +184,12 @@ if ($stmt = $conn->prepare($query)) {
                 echo '</div>';
                 echo '</div>';
             } else {
-                echo '<p class="alert alert-info">No questions found for this assessment. Start by adding some questions!</p>';
+                echo '<p class="alert alert-info" style="margin-right: 20px;">No questions found for this assessment. Start by adding some questions!</p>';
             }
 
             $stmt->close();
         } else {
-            echo '<p class="alert alert-danger">Error preparing the SQL query for questions.</p>';
+            echo '<p class="alert alert-danger" style="margin-right: 20px;">Error preparing the SQL query for questions.</p>';
         }
         ?>
     </div>

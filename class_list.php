@@ -6,13 +6,12 @@
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
-    <link rel="stylesheet" href="assets/css/figma-design.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
 <body>
     <?php include('nav_bar.php') ?>
 
-    <div class="container-fluid admin">
+<div class="content-wrapper">
         <!-- Header Container -->
         <div class="add-course-container">
             <button class="secondary-button" id="addCourse">Add Course</button>
@@ -25,13 +24,13 @@
 
         <div class="tabs-container">
             <ul class="tabs">
-                <li class="tab-link figma-tab-link active" data-tab="courses-tab">Courses</li>
-                <li class="tab-link figma-tab-link" id="classes-tab-link" style="display: none;" data-tab="classes-tab">Classes</li>
+                <li class="tab-link active" data-tab="courses-tab">Courses</li>
+                <li class="tab-link" id="classes-tab-link" style="display: none;" data-tab="classes-tab">Classes</li>
             </ul>
         </div>
 
         <div id="courses-tab" class="tab-content active">
-            <div class="course-container figma-course-container">
+            <div class="course-container">
                 <?php
                 $qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."' ORDER BY course_name ASC");
                 if ($qry->num_rows > 0) {
@@ -41,8 +40,8 @@
                         $classCountRow = $result->fetch_assoc();
                         $classCount = $classCountRow['classCount'];
                 ?>
-                <div class="course-card figma-course-card">
-                    <div class="course-card-body figma-course-card-body">
+                <div class="course-card">
+                    <div class="course-card-body">
                         <div class="meatball-menu-container">
                         <button class="meatball-menu-btn">
                             <i class="fas fa-ellipsis-v"></i>
@@ -52,17 +51,11 @@
                                 <a href="#" class="delete_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
                             </div>
                         </div>
-                        <div class="course-card-title figma-course-card-title"><?php echo $row['course_name'] ?></div>
+                        <div class="course-card-title"><?php echo $row['course_name'] ?></div>
                         <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
-<<<<<<< HEAD
-                        <div class="course-actions figma-course-actions">
-                            <button class="btn btn-outline-primary btn-sm classes figma-button2" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
-                            <button class="btn btn-primary btn-sm view_course_details figma-button2" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
-=======
                         <div class="course-actions">
                             <button id="viewClasses" class="tertiary-button" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
                             <button id="viewCourseDetails" class="main-button" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
->>>>>>> kath
                         </div>
                     </div>
                 </div>
@@ -297,7 +290,8 @@
                     </div>
                 </div>
             </div>
-        </div>
+        
+</div>
 
 
         <script>

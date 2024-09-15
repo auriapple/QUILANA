@@ -8,7 +8,7 @@
 </head>
 <body>
     <?php include('nav_bar.php') ?>
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <!-- Header Container -->
         <div class="search-container">
             <form class="search-bar" action="#" method="GET">

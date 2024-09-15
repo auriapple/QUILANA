@@ -22,7 +22,7 @@ if (!isset($_SESSION['login_user_type'])) {
     </head>
     <body>
         <?php include 'nav_bar.php'; ?>
-        <div class="container-flud admin dashboard-container">
+        <div class="content-wrapper dashboard-container">
             <div class="dashboard-summary">
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
