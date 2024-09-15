@@ -66,89 +66,93 @@ if ($assessment_mode == 1) { // Normal Mode
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Assessment | Quilana</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         .back-arrow {
-            position: absolute;
-            font-size: 30px;
-            top: 90px;
-            font-weight: bold;
+            font-size: 24px; 
+            margin-top: 10px;
+            margin-bottom: 15px;
         }
-
         .back-arrow a {
-            color: #4A4CA6;
+            color: #4A4CA6; 
+            text-decoration: none;
         }
-
         .back-arrow a:hover {
-            color: #0056b3;
+            color: #0056b3; 
         }
-
         .assessment-details {
-            margin-top: -15px;
-            margin-left: 50px;
-        }
-
-        .assessment-details h2 {
-            font-weight: bold;
-        }
-
-        .assessment-details p {
-            margin-bottom: 0.5em;
-            font-size: 1em;
-            color: #666;
-        }
-
-        .questions-container {
-            max-height: 470px;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 20px;
-            background-color: #f9f9f9;
-        }
-
-        .question {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
             background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            margin-right: 35px;
+            margin-left: 13px;
         }
-
-        .question-number {
+        .assessment-details h2 {
+            font-size: 1.5em;
             font-weight: bold;
+            color: #4A4CA6;
             margin-bottom: 10px;
         }
-
+        .assessment-details p {
+            margin-bottom: 0.5px;
+            font-size: 16px;
+            color: #555;
+        }
+        .questions-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-height: 410px;
+            overflow-y: auto;
+        }
+        .question {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-left: 4px solid #4A4CA6;
+            background-color: #f9f9f9;
+        }
+        .question-number {
+            font-weight: bold;
+            color: #4A4CA6;
+            margin-bottom: 10px;
+        }
         .option {
             margin-left: 20px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
-
+        .option label {
+            display: flex;
+            align-items: center;
+        }
         .option input[type="radio"],
         .option input[type="checkbox"] {
             margin-right: 10px;
         }
-
         .time-limit {
             margin-top: 10px;
             font-style: italic;
-            color: #333;
+            color: #666;
         }
-
-        body {
-            overflow: hidden;
+        .checked {
+            background-color: #e6e6fa;
+            padding: 5px;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <?php include('nav_bar.php'); ?>
 
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <div class="back-arrow">
             <a href="class_list.php?class_id=<?php echo htmlspecialchars($_GET['class_id']); ?>&show_modal=true">
-                <i class="fa fa-arrow-circle-left"></i>
+                <i class="fa fa-arrow-left"></i>
             </a>
         </div>
 
@@ -157,7 +161,6 @@ if ($assessment_mode == 1) { // Normal Mode
             <p><strong>Topic:</strong> <?php echo htmlspecialchars($assessment_details[0]['topic']); ?></p>
 
             <?php
-            // Display time limit based on assessment mode
             switch ($assessment_mode) {
                 case 1:
                     echo '<p><strong>Overall Time Limit:</strong> ' . htmlspecialchars($overall_time_limit_minutes) . ' minutes (Normal Mode)</p>';
@@ -173,7 +176,9 @@ if ($assessment_mode == 1) { // Normal Mode
                     break;
             }
             ?>
+        </div>
 
+        <div style="padding-right: 50px;">
             <div class="questions-container">
                 <?php
                 $current_question = null;
@@ -188,7 +193,6 @@ if ($assessment_mode == 1) { // Normal Mode
                         echo '<div class="question-number">Question ' . $question_number . ':</div>';
                         echo '<p>' . htmlspecialchars($current_question) . '</p>';
                         
-                        // Display time limit for each question only for Quiz Bee and Speed Mode
                         if ($assessment_mode == 2 || $assessment_mode == 3) {
                             $question_time_limit = isset($detail['question_time_limit']) ? htmlspecialchars($detail['question_time_limit']) : 'Not specified';
                             echo '<div class="time-limit">Time Limit: ' . $question_time_limit . ' seconds</div>';
@@ -203,10 +207,10 @@ if ($assessment_mode == 1) { // Normal Mode
                         case 3:  // True/False
                             $input_type = $detail['ques_type'] == 2 ? 'checkbox' : 'radio';
                             $checked_attr = $detail['is_right'] ? 'checked' : '';
-                            $shaded_class = $detail['is_right'] ? 'checked' : '';
+                            $checked_class = $detail['is_right'] ? 'checked' : '';
                             echo '<div class="option">';
-                            echo '<label>';
-                            echo '<span class="' . $shaded_class . '"><input type="' . $input_type . '" disabled ' . $checked_attr . '></span>';
+                            echo '<label class="' . $checked_class . '">';
+                            echo '<input type="' . $input_type . '" disabled ' . $checked_attr . '>';
                             echo htmlspecialchars($detail['option_txt']);
                             echo '</label>';
                             echo '</div>';

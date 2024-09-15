@@ -1,57 +1,64 @@
 <?php
 include('db_connect.php');
-include('auth.php'); // Assuming this script handles authentication and sets the student_id
+include('auth.php');
 
 header('Content-Type: application/json');
 
-// Check if assessment_id is provided
-if (isset($_GET['assessment_id'])) {
-    $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
-    $student_id = $_SESSION['login_id'];
-    
-    // Fetch assessment details
-    $assessment_query = $conn->query("SELECT assessment_name, topic FROM assessment WHERE assessment_id = '$assessment_id'");
-    $assessment_data = $assessment_query->fetch_assoc();
+// Function to fetch assessment details
+function getAssessmentDetails($conn, $assessment_id) {
+    $stmt = $conn->prepare("SELECT assessment_name, topic FROM assessment WHERE assessment_id = ?");
+    $stmt->bind_param("i", $assessment_id);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
 
+// Function to fetch student results
+function getStudentResults($conn, $assessment_id, $student_id) {
+    $stmt = $conn->prepare("SELECT date_updated, score, total_score, remarks 
+                            FROM student_results 
+                            WHERE assessment_id = ? AND student_id = ?");
+    $stmt->bind_param("ii", $assessment_id, $student_id);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+if (isset($_GET['assessment_id']) && filter_var($_GET['assessment_id'], FILTER_VALIDATE_INT)) {
+    $assessment_id = $_GET['assessment_id'];
+    $student_id = $_SESSION['login_id'];
+
+    // Fetch assessment details
+    $assessment_data = getAssessmentDetails($conn, $assessment_id);
     if (!$assessment_data) {
-        echo json_encode(array('error' => 'Assessment not found'));
+        echo json_encode(['error' => 'Assessment not found']);
         exit();
     }
 
-    // Fetch results specifically for this student and assessment
-    $results_query = $conn->query("SELECT date_updated, score, items, remarks 
-                                   FROM student_results 
-                                   WHERE assessment_id = '$assessment_id' 
-                                   AND student_id = '$student_id'");
-
-    $details = array();
+    // Fetch student results
+    $results_query = getStudentResults($conn, $assessment_id, $student_id);
+    $details = [];
     while ($row = $results_query->fetch_assoc()) {
-        $details[] = array(
+        $details[] = [
             'date' => $row['date_updated'],
             'score' => $row['score'],
-            'total_score' => $row['items'],
-            'remarks' => $row['remarks'] == 1 ? 'Passed' : 'Failed'
-        );
+            'total_score' => $row['total_score'],
+            'remarks' => $row['remarks']
+        ];
     }
 
-    // If no results found, handle it
+    // Handle empty results
     if (empty($details)) {
-        echo json_encode(array('error' => 'No results found for this assessment and student'));
+        echo json_encode(['error' => 'No results found for this assessment and student']);
     } else {
         // Prepare the response
-        $response = array(
+        $response = [
             'title' => $assessment_data['assessment_name'],
             'topic' => $assessment_data['topic'],
             'details' => $details
-        );
-
-        // Return JSON response
+        ];
         echo json_encode($response);
     }
 } else {
-    // Return error if no assessment_id provided
-    echo json_encode(array('error' => 'No assessment ID provided'));
+    echo json_encode(['error' => 'Invalid or missing assessment ID']);
 }
-
 $conn->close();
 ?>

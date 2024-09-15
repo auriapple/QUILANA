@@ -73,7 +73,7 @@
                             if (userType == '2') {
                                 location.replace('faculty_dashboard.php');
                             } else {
-                                location.replace('home.php');
+                                location.replace('student_dashboard.php');
                             }
                         } else {
                             alert("Incorrect username or password.");
