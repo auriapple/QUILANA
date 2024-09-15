@@ -39,11 +39,6 @@
 				</a>
 			</div>
 			<div id="sidebar-field">
-				<a href="home.php" class="sidebar-item text-dark">
-						<div class="sidebar-icon"><i class="fa fa-home"> </i></div>  Dashboard
-				</a>
-			</div>
-			<div id="sidebar-field">
 				<a href="enroll.php" class="sidebar-item text-dark">
 						<div class="sidebar-icon"><i class="fa fa-book"></i></div> Classes
 				</a>
