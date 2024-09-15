@@ -599,8 +599,8 @@ button.btn-rounded{
     justify-content: space-between;
     position: absolute;
     bottom: 30px;
-    /*width: calc(100% - 40px);*/
-    width: 100%;
+    width: calc(100% - 40px);
+    /*width: 100%;*/
 }
 
 /* Buttons */

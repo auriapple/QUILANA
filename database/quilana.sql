@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 04, 2024 at 08:14 AM
+-- Generation Time: Sep 16, 2024 at 01:58 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -41,7 +41,8 @@ CREATE TABLE `administer_assessment` (
 --
 
 INSERT INTO `administer_assessment` (`administer_id`, `assessment_id`, `course_id`, `class_id`, `timelimit`, `date_administered`) VALUES
-(1, 1, 5, 19, 10, '2024-09-02');
+(85, 1, 5, 20, 0, '2024-09-16'),
+(86, 2, 5, 20, 0, '2024-09-16');
 
 -- --------------------------------------------------------
 
@@ -51,10 +52,13 @@ INSERT INTO `administer_assessment` (`administer_id`, `assessment_id`, `course_i
 
 CREATE TABLE `assessment` (
   `assessment_id` int(11) NOT NULL,
+  `assessment_type` int(11) NOT NULL,
   `assessment_mode` tinyint(1) NOT NULL,
   `assessment_name` varchar(150) NOT NULL,
   `course_id` int(11) NOT NULL,
+  `subject` varchar(200) NOT NULL,
   `topic` varchar(200) NOT NULL,
+  `time_limit` int(11) DEFAULT NULL,
   `faculty_id` int(11) NOT NULL,
   `date_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -63,8 +67,12 @@ CREATE TABLE `assessment` (
 -- Dumping data for table `assessment`
 --
 
-INSERT INTO `assessment` (`assessment_id`, `assessment_mode`, `assessment_name`, `course_id`, `topic`, `faculty_id`, `date_updated`) VALUES
-(1, 1, 'assessment test', 5, 'topic test', 1, '2024-09-02 16:59:28');
+INSERT INTO `assessment` (`assessment_id`, `assessment_type`, `assessment_mode`, `assessment_name`, `course_id`, `subject`, `topic`, `time_limit`, `faculty_id`, `date_updated`) VALUES
+(1, 0, 1, 'assessment test', 5, 'Engineering Subject', 'topic test', NULL, 1, '2024-09-06 19:49:56'),
+(2, 1, 1, 'assessment test 1', 5, 'Engineering Subject', 'test', 10, 1, '2024-09-14 16:42:33'),
+(3, 1, 1, 'assessment test 2', 5, 'Engineering Subject', 'test', NULL, 1, '2024-09-09 09:58:02'),
+(4, 1, 1, 'Quiz# 1', 5, 'Engineering Subject', 'test', NULL, 1, '2024-09-09 09:56:58'),
+(5, 1, 2, 'Quiz# 1', 6, 'IAS', 'Risks', NULL, 1, '2024-09-09 10:19:12');
 
 -- --------------------------------------------------------
 
@@ -80,9 +88,6 @@ CREATE TABLE `class` (
   `subject` varchar(100) NOT NULL,
   `class_name` varchar(100) NOT NULL,
   `student_id` int(11) DEFAULT NULL,
-  `assessment_id` int(11) DEFAULT NULL,
-  `year` tinyint(4) NOT NULL,
-  `section` varchar(2) NOT NULL,
   `date_created` datetime NOT NULL DEFAULT current_timestamp(),
   `date_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -91,16 +96,17 @@ CREATE TABLE `class` (
 -- Dumping data for table `class`
 --
 
-INSERT INTO `class` (`class_id`, `code`, `faculty_id`, `course_id`, `subject`, `class_name`, `student_id`, `assessment_id`, `year`, `section`, `date_created`, `date_updated`) VALUES
-(14, '1', 1, 1, 'TEST', 'TEST', NULL, NULL, 3, '1', '2024-08-29 14:22:56', '2024-09-01 14:35:16'),
-(15, '2', 1, 1, 'test1', 'test1', NULL, NULL, 3, '2', '2024-08-29 16:43:36', '2024-09-01 14:35:27'),
-(16, '3', 1, 6, 'test', 'test', NULL, NULL, 1, '1', '2024-08-29 18:07:14', '2024-09-01 14:35:31'),
-(17, '4', 1, 6, 'SAD', 'BSIT 3-1', NULL, NULL, 3, '1', '2024-08-29 18:08:03', '2024-09-01 14:35:35'),
-(18, '5', 1, 6, 'IAS', 'BSIT 3-1', NULL, NULL, 3, '1', '2024-08-29 18:08:32', '2024-09-01 14:35:39'),
-(19, '6', 1, 5, 'Subject 1', 'BSCE 2-4', NULL, NULL, 2, '4', '2024-08-29 18:11:14', '2024-09-01 14:35:44'),
-(20, '2b0c35f8', 1, 5, 'TEST', 'BSCE 1-2', NULL, NULL, 3, '1', '2024-09-01 14:48:57', '2024-09-01 20:10:27'),
-(22, 'd9056bb1', 1, 5, 'test', 'test', NULL, NULL, 3, '5', '2024-09-02 14:52:56', '2024-09-02 14:52:56'),
-(23, 'd7ea8649', 1, 5, 'SAD', 'BSIT 3-1', NULL, NULL, 0, '', '2024-09-04 13:53:12', '2024-09-04 13:53:12');
+INSERT INTO `class` (`class_id`, `code`, `faculty_id`, `course_id`, `subject`, `class_name`, `student_id`, `date_created`, `date_updated`) VALUES
+(14, '123456', 1, 1, 'TEST', 'TEST', NULL, '2024-08-29 14:22:56', '2024-09-14 19:42:07'),
+(15, '2', 1, 1, 'test1', 'test1', NULL, '2024-08-29 16:43:36', '2024-09-01 14:35:27'),
+(16, '3', 1, 6, 'test', 'test', NULL, '2024-08-29 18:07:14', '2024-09-01 14:35:31'),
+(17, '4', 1, 6, 'SAD', 'BSIT 3-1', NULL, '2024-08-29 18:08:03', '2024-09-01 14:35:35'),
+(18, '5', 1, 6, 'IAS', 'BSIT 3-1', NULL, '2024-08-29 18:08:32', '2024-09-01 14:35:39'),
+(19, '6', 1, 5, 'Subject 1', 'BSCE 2-4', NULL, '2024-08-29 18:11:14', '2024-09-01 14:35:44'),
+(20, '2b0c35f8', 1, 5, 'Engineering Subject', 'BSCE 1-2', NULL, '2024-09-01 14:48:57', '2024-09-06 20:36:22'),
+(22, 'd9056bb1', 1, 5, 'test', 'test', NULL, '2024-09-02 14:52:56', '2024-09-02 14:52:56'),
+(24, '6f027398', 1, 7, 'Bookkeeping', 'BSA 1-3', NULL, '2024-09-04 23:30:10', '2024-09-14 19:54:31'),
+(25, 'a272a8df', 1, 7, 'Subject 1', 'BSA 1-2', NULL, '2024-09-04 23:38:33', '2024-09-04 23:38:33');
 
 -- --------------------------------------------------------
 
@@ -110,7 +116,6 @@ INSERT INTO `class` (`class_id`, `code`, `faculty_id`, `course_id`, `subject`, `
 
 CREATE TABLE `course` (
   `course_id` int(11) NOT NULL,
-  `class_id` int(11) DEFAULT NULL,
   `course_name` varchar(150) NOT NULL,
   `faculty_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -119,10 +124,12 @@ CREATE TABLE `course` (
 -- Dumping data for table `course`
 --
 
-INSERT INTO `course` (`course_id`, `class_id`, `course_name`, `faculty_id`) VALUES
-(1, NULL, 'Test 1', 1),
-(5, NULL, 'bsce', 1),
-(6, NULL, 'BSIT', 1);
+INSERT INTO `course` (`course_id`, `course_name`, `faculty_id`) VALUES
+(1, 'Test 1', 1),
+(5, 'bsce', 1),
+(6, 'BSIT', 1),
+(7, 'BSA', 1),
+(8, 'test 2', 1);
 
 -- --------------------------------------------------------
 
@@ -166,15 +173,14 @@ CREATE TABLE `flashcard` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `get_shared_code`
+-- Table structure for table `join_assessment`
 --
 
-CREATE TABLE `get_shared_code` (
-  `getcode_id` int(11) NOT NULL,
-  `sharedcode_id` int(11) NOT NULL,
-  `is_valid` tinyint(1) NOT NULL,
+CREATE TABLE `join_assessment` (
+  `join_id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `date_entered` datetime NOT NULL
+  `administer_id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -190,15 +196,21 @@ CREATE TABLE `questions` (
   `order_by` int(11) NOT NULL,
   `ques_type` tinyint(1) NOT NULL,
   `total_points` int(3) NOT NULL,
-  `date_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `date_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `time_limit` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `questions`
 --
 
-INSERT INTO `questions` (`question_id`, `question`, `assessment_id`, `order_by`, `ques_type`, `total_points`, `date_updated`) VALUES
-(1, 'test', 1, 1, 1, 1, '2024-09-02 17:05:42');
+INSERT INTO `questions` (`question_id`, `question`, `assessment_id`, `order_by`, `ques_type`, `total_points`, `date_updated`, `time_limit`) VALUES
+(1, 'test', 1, 1, 1, 1, '2024-09-02 17:05:42', 0),
+(2, 'did he do it?', 1, 0, 3, 1, '2024-09-09 10:10:13', NULL),
+(3, 'who is your bias?', 1, 0, 1, 1, '2024-09-09 10:11:33', NULL),
+(4, 'test', 2, 0, 4, 1, '2024-09-14 16:42:54', NULL),
+(5, 'test', 3, 0, 3, 1, '2024-09-15 16:27:50', NULL),
+(6, 'test', 4, 0, 5, 1, '2024-09-16 16:48:34', NULL);
 
 -- --------------------------------------------------------
 
@@ -212,6 +224,14 @@ CREATE TABLE `question_identifications` (
   `question_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `question_identifications`
+--
+
+INSERT INTO `question_identifications` (`identification_id`, `identification_answer`, `question_id`) VALUES
+(1, 'test', 4),
+(2, 'test', 6);
+
 -- --------------------------------------------------------
 
 --
@@ -224,6 +244,18 @@ CREATE TABLE `question_options` (
   `is_right` tinyint(1) NOT NULL,
   `question_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `question_options`
+--
+
+INSERT INTO `question_options` (`option_id`, `option_txt`, `is_right`, `question_id`) VALUES
+(1, 'true', 1, 2),
+(2, 'Seungmin', 0, 3),
+(3, 'Seungmin', 0, 3),
+(4, 'Seungmin', 0, 3),
+(5, 'All of the above', 1, 3),
+(6, 'true', 1, 5);
 
 -- --------------------------------------------------------
 
@@ -314,20 +346,6 @@ CREATE TABLE `rw_student_submission` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `shared_code`
---
-
-CREATE TABLE `shared_code` (
-  `sharedcode_id` int(11) NOT NULL,
-  `flashcard_id` int(11) NOT NULL,
-  `generated_code` varchar(255) NOT NULL,
-  `reviewer_id` int(11) NOT NULL,
-  `date_created` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `student`
 --
 
@@ -348,7 +366,8 @@ CREATE TABLE `student` (
 --
 
 INSERT INTO `student` (`student_id`, `firstname`, `lastname`, `webmail`, `student_number`, `username`, `password`, `user_type`, `date_updated`) VALUES
-(1, 'test', 'test', 'test@gmail.com', 'test', 'test', '$2y$10$QxKsWR.ylliFsH0LqdGcMe.psI2Q3Eehz/tI5sKK9iHG2y0.rq9qO', 3, '2024-08-23 17:19:42');
+(1, 'test', 'test', 'test@gmail.com', 'test', 'test', '$2y$10$QxKsWR.ylliFsH0LqdGcMe.psI2Q3Eehz/tI5sKK9iHG2y0.rq9qO', 3, '2024-08-23 17:19:42'),
+(2, 'Juan', 'dela Cruz', 'juandelacruz@iskolarngbayan.pup.edu.ph', '2021-01234-MN-0', 'Juan dela Cruz', '$2y$10$k70lWuZP3RYfTIotCbzfD.vDuDq6eRk1ctg8fS0zs4S3/Ux/Eg7ea', 3, '2024-09-04 22:57:10');
 
 -- --------------------------------------------------------
 
@@ -358,6 +377,7 @@ INSERT INTO `student` (`student_id`, `firstname`, `lastname`, `webmail`, `studen
 
 CREATE TABLE `student_answer` (
   `answer_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
   `answer_text` text NOT NULL,
   `identification_id` int(11) DEFAULT NULL,
   `submission_id` int(11) NOT NULL,
@@ -385,7 +405,15 @@ CREATE TABLE `student_enrollment` (
 --
 
 INSERT INTO `student_enrollment` (`studentEnrollment_id`, `class_id`, `student_id`, `status`) VALUES
-(5, 19, 1, 1);
+(5, 19, 1, 1),
+(11, 24, 2, 1),
+(12, 20, 2, 1),
+(13, 25, 2, 0),
+(14, 14, 2, 0),
+(15, 15, 2, 0),
+(16, 16, 2, 0),
+(17, 17, 2, 0),
+(18, 17, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -398,7 +426,7 @@ CREATE TABLE `student_results` (
   `assessment_id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
   `class_id` int(11) NOT NULL,
-  `items` int(3) NOT NULL,
+  `total_score` int(3) NOT NULL,
   `score` int(3) NOT NULL,
   `remarks` tinyint(1) DEFAULT NULL,
   `rank` int(3) DEFAULT NULL,
@@ -419,6 +447,14 @@ CREATE TABLE `student_submission` (
   `status` tinyint(1) NOT NULL,
   `date_taken` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_submission`
+--
+
+INSERT INTO `student_submission` (`submission_id`, `assessment_id`, `student_id`, `student_score`, `status`, `date_taken`) VALUES
+(1, 1, 2, 0, 0, '2024-09-10 11:08:03'),
+(2, 1, 2, 0, 0, '2024-09-10 11:08:31');
 
 --
 -- Indexes for dumped tables
@@ -470,11 +506,12 @@ ALTER TABLE `flashcard`
   ADD KEY `student_id` (`student_id`);
 
 --
--- Indexes for table `get_shared_code`
+-- Indexes for table `join_assessment`
 --
-ALTER TABLE `get_shared_code`
-  ADD PRIMARY KEY (`getcode_id`),
-  ADD KEY `sharedcode_id` (`sharedcode_id`);
+ALTER TABLE `join_assessment`
+  ADD PRIMARY KEY (`join_id`),
+  ADD KEY `join_assessment_ibfk_1` (`student_id`),
+  ADD KEY `join_assessment_ibfk_2` (`administer_id`);
 
 --
 -- Indexes for table `questions`
@@ -542,14 +579,6 @@ ALTER TABLE `rw_student_submission`
   ADD KEY `reviewer_id` (`reviewer_id`);
 
 --
--- Indexes for table `shared_code`
---
-ALTER TABLE `shared_code`
-  ADD PRIMARY KEY (`sharedcode_id`),
-  ADD KEY `reviewer_id` (`reviewer_id`),
-  ADD KEY `flashcard_id` (`flashcard_id`);
-
---
 -- Indexes for table `student`
 --
 ALTER TABLE `student`
@@ -561,7 +590,10 @@ ALTER TABLE `student`
 ALTER TABLE `student_answer`
   ADD PRIMARY KEY (`answer_id`),
   ADD KEY `submission_id` (`submission_id`),
-  ADD KEY `question_id` (`question_id`);
+  ADD KEY `question_id` (`question_id`),
+  ADD KEY `student_answer_ibfk_3` (`option_id`),
+  ADD KEY `student_answer_ibfk_4` (`identification_id`),
+  ADD KEY `student_answer_ibfk_5` (`student_id`);
 
 --
 -- Indexes for table `student_enrollment`
@@ -596,25 +628,25 @@ ALTER TABLE `student_submission`
 -- AUTO_INCREMENT for table `administer_assessment`
 --
 ALTER TABLE `administer_assessment`
-  MODIFY `administer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `administer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 
 --
 -- AUTO_INCREMENT for table `assessment`
 --
 ALTER TABLE `assessment`
-  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `class`
 --
 ALTER TABLE `class`
-  MODIFY `class_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `class_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `faculty`
@@ -629,28 +661,28 @@ ALTER TABLE `flashcard`
   MODIFY `flashcard_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `get_shared_code`
+-- AUTO_INCREMENT for table `join_assessment`
 --
-ALTER TABLE `get_shared_code`
-  MODIFY `getcode_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `join_assessment`
+  MODIFY `join_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `question_identifications`
 --
 ALTER TABLE `question_identifications`
-  MODIFY `identification_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `identification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `question_options`
 --
 ALTER TABLE `question_options`
-  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `rw_answer`
@@ -689,16 +721,10 @@ ALTER TABLE `rw_student_submission`
   MODIFY `rw_submission_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `shared_code`
---
-ALTER TABLE `shared_code`
-  MODIFY `sharedcode_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `student`
 --
 ALTER TABLE `student`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `student_answer`
@@ -710,7 +736,7 @@ ALTER TABLE `student_answer`
 -- AUTO_INCREMENT for table `student_enrollment`
 --
 ALTER TABLE `student_enrollment`
-  MODIFY `studentEnrollment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `studentEnrollment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `student_results`
@@ -722,7 +748,7 @@ ALTER TABLE `student_results`
 -- AUTO_INCREMENT for table `student_submission`
 --
 ALTER TABLE `student_submission`
-  MODIFY `submission_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `submission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -763,10 +789,11 @@ ALTER TABLE `flashcard`
   ADD CONSTRAINT `flashcard_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`);
 
 --
--- Constraints for table `get_shared_code`
+-- Constraints for table `join_assessment`
 --
-ALTER TABLE `get_shared_code`
-  ADD CONSTRAINT `get_shared_code_ibfk_1` FOREIGN KEY (`sharedcode_id`) REFERENCES `shared_code` (`sharedcode_id`);
+ALTER TABLE `join_assessment`
+  ADD CONSTRAINT `join_assessment_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`),
+  ADD CONSTRAINT `join_assessment_ibfk_2` FOREIGN KEY (`administer_id`) REFERENCES `administer_assessment` (`administer_id`);
 
 --
 -- Constraints for table `questions`
@@ -820,18 +847,14 @@ ALTER TABLE `rw_student_submission`
   ADD CONSTRAINT `rw_student_submission_ibfk_2` FOREIGN KEY (`reviewer_id`) REFERENCES `rw_reviewer` (`reviewer_id`);
 
 --
--- Constraints for table `shared_code`
---
-ALTER TABLE `shared_code`
-  ADD CONSTRAINT `shared_code_ibfk_1` FOREIGN KEY (`reviewer_id`) REFERENCES `rw_reviewer` (`reviewer_id`),
-  ADD CONSTRAINT `shared_code_ibfk_2` FOREIGN KEY (`flashcard_id`) REFERENCES `flashcard` (`flashcard_id`);
-
---
 -- Constraints for table `student_answer`
 --
 ALTER TABLE `student_answer`
   ADD CONSTRAINT `student_answer_ibfk_1` FOREIGN KEY (`submission_id`) REFERENCES `student_submission` (`submission_id`),
-  ADD CONSTRAINT `student_answer_ibfk_2` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`);
+  ADD CONSTRAINT `student_answer_ibfk_2` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`),
+  ADD CONSTRAINT `student_answer_ibfk_3` FOREIGN KEY (`option_id`) REFERENCES `question_options` (`option_id`),
+  ADD CONSTRAINT `student_answer_ibfk_4` FOREIGN KEY (`identification_id`) REFERENCES `question_identifications` (`identification_id`),
+  ADD CONSTRAINT `student_answer_ibfk_5` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`);
 
 --
 -- Constraints for table `student_enrollment`
