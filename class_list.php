@@ -8,21 +8,19 @@
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/figma-design.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-</head>
+    
 <body>
     <?php include('nav_bar.php') ?>
 
-    <div class="container-fluid admin figma-container-fluid">
+    <div class="container-fluid admin">
+        <!-- Header Container -->
         <div class="add-course-container">
-            <button class="btn btn-primary btn-sm add-btn fimga-button1" id="add_course"><i class="fa fa-plus"></i> Add Course</button>
-            <button class="btn btn-primary btn-sm add-btn fimga-button1" id="add_class" style="display:none;"><i class="fa fa-plus"></i> Add Class</button>
-            <div class="search-bar">
-                <form action="search_courses.php" method="GET">
-                    <input type="text" name="query" placeholder="Search" required>
-                    <button type="submit">Search</button>
-                </form>
-            </div>
+            <button class="secondary-button" id="addCourse">Add Course</button>
+            <button class="secondary-button" id="addClass" style="display:none;">Add Class</button>
+            <form class="search-bar" action="#" method="GET">
+                <input type="text" name="query" placeholder="Search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
         </div>
 
         <div class="tabs-container">
@@ -56,9 +54,15 @@
                         </div>
                         <div class="course-card-title figma-course-card-title"><?php echo $row['course_name'] ?></div>
                         <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
+<<<<<<< HEAD
                         <div class="course-actions figma-course-actions">
                             <button class="btn btn-outline-primary btn-sm classes figma-button2" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
                             <button class="btn btn-primary btn-sm view_course_details figma-button2" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
+=======
+                        <div class="course-actions">
+                            <button id="viewClasses" class="tertiary-button" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
+                            <button id="viewCourseDetails" class="main-button" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
+>>>>>>> kath
                         </div>
                     </div>
                 </div>
@@ -304,12 +308,14 @@
             // Show the appropriate button based on the active tab
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
-                $('.add-btn').hide(); // Hide all buttons initially
+                // Hide both buttons initially
+                $('#addCourse').hide();
+                $('#addClass').hide();
 
                 if (activeTab === 'courses-tab') {
-                    $('#add_course').show();
+                    $('#addCourse').show();
                 } else if (activeTab === 'classes-tab') {
-                    $('#add_class').show();
+                    $('#addClass').show();
                 }
             }
 
@@ -336,7 +342,7 @@
             });
 
             // When add new course button is clicked
-            $('#add_course').click(function() {
+            $('#addCourse').click(function() {
                 $('#msg').html('');
                 $('#manage_course .modal-title').html('Add New Course');
                 $('#manage_course #course-frm').get(0).reset();
@@ -371,7 +377,7 @@
                 });
 
             // When add new class button is clicked
-            $('#add_class').click(function() {
+            $('#addClass').click(function() {
                 $('#msg').html('');
                 $('#manage_class .modal-title').html('Add New Class');
                 $('#manage_class #class-frm').get(0).reset();
@@ -535,7 +541,7 @@
                 });
 
             // View course details button
-            $(document).on('click', '.view_course_details', function() {
+            $(document).on('click', '#viewCourseDetails', function() {
                 var course_id = $(this).attr('data-id');
                 $.ajax({
                     url: 'get_course_details.php',
@@ -553,7 +559,7 @@
             });
 
             // View class details button
-            $(document).on('click', '.view_class_details', function() {
+            $(document).on('click', '#viewClassDetails', function() {
                 var class_id = $(this).attr('data-id');
                 $.ajax({
                     url: 'get_class_details.php',
@@ -662,7 +668,7 @@
             });
 
             // Handle Classes button click
-            $('.classes').click(function() {
+            $('#viewClasses').click(function() {
                 var course_id = $(this).attr('data-id');
                 var course_name = $(this).attr('data-name');
 
