@@ -38,11 +38,6 @@
                     </div>
                     
                     <button type="submit" id="signInButton" class="main-button">Sign in</button>
-
-                    <div class="form-group text-center">
-                        <span class="text-muted">Don't have an account? </span>
-                        <a href="register.php">Sign Up Here</a>
-                    </div>
                 </form>
             </div>
         </div>
@@ -73,7 +68,7 @@
                             if (userType == '2') {
                                 location.replace('faculty_dashboard.php');
                             } else {
-                                location.replace('home.php');
+                                location.replace('student_dashboard.php');
                             }
                         } else {
                             alert("Incorrect username or password.");

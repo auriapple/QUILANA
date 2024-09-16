@@ -1,13 +1,13 @@
 <?php
 include('db_connect.php');
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['question_id'])) {
-    $question_id = intval($_GET['question_id']);
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['rw_question_id'])) {
+    $rw_question_id = intval($_GET['rw_question_id']);
 
     // Fetch question details
-    $query = "SELECT * FROM questions WHERE question_id = ?";
+    $query = "SELECT * FROM rw_questions WHERE rw_question_id = ?";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $question_id);
+    $stmt->bind_param("i", $rw_question_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -22,17 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['question_id'])) {
             4 => 'identification',
             5 => 'fill_blank'
         ];
-        $question_type = $ques_type_map[$question['ques_type']] ?? '';
+        $question_type = $ques_type_map[$question['question_type']] ?? '';
 
         $response = [
             'status' => 'success',
             'data' => [
-                'question_id' => $question['question_id'],
+                'question_id' => $question['rw_question_id'],
                 'question' => $question['question'],
                 'question_type' => $question_type,
                 'total_points' => $question['total_points'],
-                'options' => [],
-                'answer' => ''
+                'options' => [],  // Default empty options array
+                'answer' => ''     // Default empty answer
             ]
         ];
 
@@ -40,15 +40,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['question_id'])) {
         switch ($question_type) {
             case 'multiple_choice':
             case 'checkbox':
-            case 'true_false':
-                $options_query = "SELECT * FROM question_options WHERE question_id = ?";
+                $options_query = "SELECT * FROM rw_question_opt WHERE rw_question_id = ?";
                 $options_stmt = $conn->prepare($options_query);
-                $options_stmt->bind_param("i", $question_id);
+                $options_stmt->bind_param("i", $rw_question_id);
                 $options_stmt->execute();
                 $options_result = $options_stmt->get_result();
                 while ($option = $options_result->fetch_assoc()) {
                     $response['data']['options'][] = [
-                        'option_txt' => $option['option_txt'],
+                        'option_txt' => $option['option_text'],
+                        'is_right' => $option['is_right']
+                    ];
+                }
+                break;
+
+            case 'true_false':
+                $options_query = "SELECT * FROM rw_question_opt WHERE rw_question_id = ?";
+                $options_stmt = $conn->prepare($options_query);
+                $options_stmt->bind_param("i", $rw_question_id);
+                $options_stmt->execute();
+                $options_result = $options_stmt->get_result();
+                while ($option = $options_result->fetch_assoc()) {
+                    $response['data']['options'][] = [
+                        'option_txt' => $option['option_text'],
                         'is_right' => $option['is_right']
                     ];
                 }
@@ -56,9 +69,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['question_id'])) {
 
             case 'identification':
             case 'fill_blank':
-                $answer_query = "SELECT identification_answer FROM question_identifications WHERE question_id = ?";
+                $answer_query = "SELECT identification_answer FROM rw_question_identifications WHERE rw_question_id = ?";
                 $answer_stmt = $conn->prepare($answer_query);
-                $answer_stmt->bind_param("i", $question_id);
+                $answer_stmt->bind_param("i", $rw_question_id);
                 $answer_stmt->execute();
                 $answer_result = $answer_stmt->get_result();
                 if ($answer = $answer_result->fetch_assoc()) {
