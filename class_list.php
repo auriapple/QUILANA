@@ -6,6 +6,7 @@
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="assets/cssfaculty-dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
 <body>
