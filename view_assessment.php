@@ -110,6 +110,7 @@ if ($assessment_mode == 1) { // Normal Mode
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             max-height: 410px;
             overflow-y: auto;
+            width: 100%;
         }
         .question {
             margin-bottom: 25px;

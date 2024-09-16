@@ -200,8 +200,8 @@ if ($stmt = $conn->prepare($query)) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="manageQuestionLabel">Add New Question</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
                 <form id="question-frm">
                     <div class="modal-body">
                         <div id="msg"></div>
@@ -285,7 +285,7 @@ if ($stmt = $conn->prepare($query)) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-secondary back_vcd_false" data-dismiss="modal">Close</button>
                         <button id="save_question_btn" type="submit" class="btn btn-primary">Save Question</button>
                     </div>
                 </form>
@@ -299,7 +299,7 @@ if ($stmt = $conn->prepare($query)) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editTimeLimitLabel">Edit Time Limit</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-time-limit-form">
@@ -310,15 +310,12 @@ if ($stmt = $conn->prepare($query)) {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-secondary back_vcd_false" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="save_time_limit">Save changes</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 
     <script>
     $(document).ready(function() {
