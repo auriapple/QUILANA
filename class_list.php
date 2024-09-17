@@ -55,7 +55,7 @@
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
                         <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
                         <div class="course-actions">
-                            <button id="viewClasses" class="tertiary-button" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
+                            <button id="viewClasses" class="tertiary-button viewClasses" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
                             <button id="viewCourseDetails" class="main-button" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
                         </div>
                     </div>
@@ -668,9 +668,12 @@
             });
 
             // Handle Classes button click
-            $('#viewClasses').click(function() {
+            $('.viewClasses').click(function() {
                 var course_id = $(this).attr('data-id');
                 var course_name = $(this).attr('data-name');
+
+                // for testing
+                console.log("click");
 
                 // Show the Classes tab and set the course name
                 $('#classes-tab-link').show().click();
@@ -684,6 +687,9 @@
                     success: function(response) {
                         $('#class-container').html(response);
                         updateMeatballMenu();
+
+                        // for testing
+                        console.log("it should work");
                     }
                 });
 

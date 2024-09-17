@@ -42,7 +42,7 @@
                 echo '<tr>
                         <td>' . $class['class_name'] . '</td>
                         <td>' . $class['subject'] . '</td>
-                        <td>' ?> <button class="btn btn-primary btn-sm view_class_details action_vcd" data-id="<?php echo $class['class_id']?>"  type="button">View Class</button> <?php '</td>
+                        <td>' ?> <button id="viewClassDetails" class="btn btn-primary btn-sm view_class_details action_vcd" data-id="<?php echo $class['class_id']?>"  type="button">View Class</button> <?php '</td>
                     </tr>';
             }
         } else {
