@@ -409,7 +409,7 @@
                     $('#manage_delete_class').modal('show');
                 });
 
-                $(document).on('click', '.get_code', function() {
+                $(document).on('click', '.get_code', function() { 
                     var classId = $(this).data('class-id');
                     var className = $(this).data('class-name');
                     var subject = $(this).data('subject');
@@ -423,9 +423,14 @@
                     $.ajax({
                         url: 'generated_code.php',
                         type: 'POST',
-                        data: { classId: classId }, 
+                        data: { class_id: classId }, 
                         success: function(response) {
-                            $('#modal_code').text(response);
+                            var result = JSON.parse(response);
+                            if (result.success) {
+                                $('#modal_code').text(result.code);
+                            } else {
+                                $('#modal_code').text('Error: ' + result.error);
+                            }
                             $('#manage_get_code').modal('show');
                         },
                         error: function(xhr, status, error) {

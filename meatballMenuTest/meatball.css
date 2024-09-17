@@ -6,6 +6,7 @@
     display: inline-block;
     justify-content: center;
     align-items: center;
+    z-index: 999;
 }
 
 /* Meatball button style */
@@ -39,7 +40,7 @@
     background-color: #6E72C1;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     border-radius: 4px;
-    z-index: 1;
+    z-index: 999;
 }
 
 .meatball-menu a {
