@@ -146,7 +146,11 @@ if (isset($_GET['class_id'])) {
                             echo '<td> Enrolled </td>';
                             echo '<td>' ?><div class="btn-container">
                             <button class="btn btn-primary btn-sm" data-class-id="<?php $class_id ?>"  type="button">Scores</button>
-                            <button class="btn btn-primary btn-sm reject-btn" data-class-id="<?php $class_id ?>"  type="button">Remove</button>
+                            <button class="btn btn-primary btn-sm reject-btn reject" 
+                                    data-class-id="<?php echo $class_id ?>" 
+                                    data-student-id="<?php echo $student['student_id'] ?>" 
+                                    data-status="2" 
+                                    type="button">Remove</button>
                             </div> <?php '</td>';
                         };
                     echo '</tr>';

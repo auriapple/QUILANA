@@ -28,7 +28,7 @@
             <ul class="tabs">
                 <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
                 <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
-                <li class="tab-link" id="administer-tab-link" style="display: none;" data-tab="administer-tab">Administer</li>
+                <li class="tab-link" id="administer-tab-link" style="display: none; white-space: nowrap" data-tab="administer-tab">Administer</li>
             </ul>
         </div>
 
@@ -311,6 +311,7 @@
                 $(this).addClass('active');
                 $('.tab-content').removeClass('active');
                 $('#' + tabId).addClass('active');
+                $('.add-assessment-container').show();
             });
 
             // Show modal when "Add Assessment" is clicked
@@ -484,7 +485,7 @@
                                 },
                                 success: function(response) {
                                     $('#administer-container').html(response);
-                                    updateMeatballMenu(); // Call your function to initialize or update meatball menus
+                                    $('.add-assessment-container').hide();
                                 },
                                 error: function(xhr, status, error) {
                                     $('#administer-container').html('<div class="alert alert-danger">Failed to load content. Please try again.</div>');
