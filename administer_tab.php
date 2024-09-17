@@ -78,38 +78,43 @@
         }
 
         .main-container .table-wrapper {
-            flex: 1; /* Allow the wrapper to grow and fill available space */
-            overflow: hidden; /* Ensure no overflow issues */
+            overflow: hidden;
             margin: 10px 50px;
-            border-radius: 20px;
         }
 
         .table-wrapper table {
             width: calc(100% - 100px);
             height: 50vh;
             table-layout: fixed;
-            margin: 10px 50px;
             overflow: hidden;
             border-radius: 20px;
             justify-self: center;
         }
-
+        
         .table-wrapper thead, 
         .table-wrapper tr {
             width: 100%;
-            padding: 8px;
             text-align: center;
             background-color: #f2f2f2;
             border-radius: 20px;
         }
 
         .table-wrapper tr {
+            display: table;
             height: 20px;
             background-color: #ffffff;
             border-radius: 0px;
+            box-sizing: border-box;
+        }
+
+        #rowCount {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
         }
 
         .table-wrapper tbody {
+            display: block;
             max-height: calc(50vh - 24px);
             overflow-y: auto;
         }
@@ -151,14 +156,15 @@
             background-color: #00b4d838;
             color: #0077B6;
         }
+
+        .table-wrapper tbody::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <?php
     include('db_connect.php');
-
-    // Ensure correct content type for HTML output
-    // header('Content-Type: text/html');
 
     // Check if the POST request contains 'assessment_id' and 'class_id'
     if (isset($_POST['assessment_id']) && isset($_POST['class_id'])) {
@@ -226,6 +232,7 @@
                     <h3><?php echo htmlspecialchars($administer['class_name']) . ' (' . htmlspecialchars($administer['subject']) . ')'?> </h3>
                 
                     <div class='table-wrapper'>
+                        <div id="rowCount">Rows: 0</div>
                         <table id="dataTable">
                             <thead>
                                 <tr>
@@ -291,11 +298,14 @@
                                     row.innerHTML = `<td colspan="3" style="text-align: center;">No join assessments found</td>`;
                                     tbody.appendChild(row);
                                 }
+
+                                // Update row count
+                                document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
                             })
                             .catch(error => console.error('Error:', error));
                         }
 
-                        // Set interval to check for updates every 30 seconds
+                        // Set interval to check for updates every 3 seconds
                         setInterval(updateTable, 3000);
 
                         // Initial table load
