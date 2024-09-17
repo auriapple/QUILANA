@@ -6,17 +6,12 @@
 /* Track */
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
-    background-clip: padding-box;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 10px;
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
     background-clip: padding-box;
 }
 
@@ -194,6 +189,7 @@ body {
     overflow: hidden
 }
 
+td .btns, 
 .student-item .btns {
     display: flex;
     min-width: fit-content;
@@ -215,7 +211,6 @@ body {
     text-align: center;
 }
 
-.accept :hover,
 .btns .reject {
     background-color: #ff8585;
     color: #de1616;

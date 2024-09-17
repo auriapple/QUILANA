@@ -28,8 +28,9 @@
             <ul class="tabs">
                 <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
                 <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
+                <li class="tab-link" id="administer-tab-link" style="display: none; white-space: nowrap" data-tab="administer-tab">Administer</li>
             </ul>
-        </div>    
+        </div>
 
         <div class="scrollable-content">
             <div id="assessment-tab" class="tab-content active">
@@ -51,59 +52,68 @@
                     $assessment_name = htmlspecialchars($row['assessment_name']);
                     $topic = htmlspecialchars($row['topic']);
                     $assessment_id = $row['assessment_id'];
-                ?>
                 
-                <?php if ($course_name !== $current_course) { ?>
-                    <?php if ($current_course !== '') { ?></div><?php } ?>
-                    <div class="course-section">
-                        <h2><?php echo $course_name; ?></h2>
-                <?php 
-                    $current_course = $course_name;
-                    $current_subject = '';
-                } ?>
+                    if ($course_name !== $current_course) {
+                        if ($current_course !== '') { ?>
+                        </div> <?php 
+                        } ?>
+                            <div class="course-section">
+                                <h2><?php echo $course_name; ?></h2>
+                            <?php 
+                                $current_course = $course_name;
+                                $current_subject = '';
+                            }
 
-                <?php if ($subject_name !== $current_subject) { ?>
-                    <?php if ($current_subject !== '') { ?></div><?php } ?>
-                    <div class="subject-separator">
-                        <span class="subject-name"><?php echo $subject_name; ?></span>
-                        <hr class="separator-line">
-                    </div>
-                    <div class="assessment-container">
-                <?php 
-                    $current_subject = $subject_name;
-                } ?>
-
-                <div class="assessment-card">
-                    <div class="assessment-card-body">
-                        <div class="meatball-menu-container">
-                            <button class="meatball-menu-btn">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="meatball-menu">
-                                <a href="#" class="edit_assessment" data-id="<?php echo $assessment_id ?>">Edit</a>
-                                <a href="#" class="delete_assessment" data-id="<?php echo $assessment_id ?>">Delete</a>
+                        if ($subject_name !== $current_subject) {
+                            if ($current_subject !== '') { ?></div><?php } ?>
+                            <div class="subject-separator">
+                                <span class="subject-name"><?php echo $subject_name; ?></span>
+                                <hr class="separator-line">
                             </div>
-                        </div>
-                        <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
-                        <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
-                        <div class="assessment-actions">
-                            <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
-                            <button id="administer" class="main-button" 
-                                data-course-id="<?php echo $row['course_id']; ?>" 
-                                data-course-name="<?php echo $row['course_name']; ?>" 
-                                data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
-                                data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
-                                data-id="<?php echo $row['assessment_id']; ?>">Administer</button>
-                        </div>
-                    </div>
-                </div>
-
+                            <div class="assessment-container">
+                        <?php 
+                            $current_subject = $subject_name;
+                        } ?>
+                                <div class="assessment-card">
+                                    <div class="assessment-card-body">
+                                        <div class="meatball-menu-container">
+                                            <button class="meatball-menu-btn">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="meatball-menu">
+                                                <a href="#" class="edit_assessment" data-id="<?php echo $assessment_id ?>">Edit</a>
+                                                <a href="#" class="delete_assessment" data-id="<?php echo $assessment_id ?>">Delete</a>
+                                            </div>
+                                        </div>
+                                        <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
+                                        <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
+                                        <div class="assessment-actions">
+                                            <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
+                                            <button id="administer" class="main-button" 
+                                                data-course-id="<?php echo $row['course_id']; ?>" 
+                                                data-course-name="<?php echo $row['course_name']; ?>" 
+                                                data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
+                                                data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
+                                                data-id="<?php echo $row['assessment_id']; ?>"
+                                                data-assessment-name="<?php echo htmlspecialchars($row['assessment_name']); ?>">Administer</button>
+                                        </div>
+                                    </div>
+                                </div>
                 <?php } ?>
-                </div> <!-- Close the last subject card container -->
-                </div> <!-- Close the last course section -->
+                            </div> <!-- Close the last subject card container -->
+                        </div> <!-- Close the last course section -->
+                </div>
             </div>
-            <div id="details-tab" class="tab-content">     
-        </div>
+
+            <div id="details-tab" class="tab-content">
+                <h1></h1>
+            </div>
+
+            <div id="administer-tab" class="tab-content"> 
+                <div class="course-container" id="administer-container">
+                    <h1>Test</h1>
+                </div>
+            </div>
 
         <!-- Modal for managing assessments -->
         <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
@@ -195,6 +205,8 @@
                                     <option value="">Select Class</option>
                                 </select>
                             </div>
+                            <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
+                            <input type="hidden" id="assessment_name_hidden" name="assessment_name_hidden" />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -284,6 +296,24 @@
 
             <script>
           $(document).ready(function() {
+            // Hide Administer tab link initially
+            $('#administer-tab-link').hide();
+
+            // Handle tab click for assessments tab
+            $('.tab-link').click(function() {
+                var tabId = $(this).data('tab');
+
+                if (tabId === 'assessment-tab') {
+                    $('#administer-tab-link').hide(); // Hide the Administer tab when Assessment tab is clicked
+                }
+
+                $('.tab-link').removeClass('active');
+                $(this).addClass('active');
+                $('.tab-content').removeClass('active');
+                $('#' + tabId).addClass('active');
+                $('.add-assessment-container').show();
+            });
+
             // Show modal when "Add Assessment" is clicked
             $('#addAssessment').click(function() {
                 $('#manage_assessment').modal('show');
@@ -343,6 +373,7 @@
                 var courseName = $(this).data('course-name'); // Get the course name
                 var subjectName = $(this).data('subject');  // Get the subject name
                 var mode = $(this).data('mode');            // Get the assessment mode
+                var assessmentName = $(this).data('assessment-name') // Get the assessment name
 
                 // Check if the assessment has questions
                 $.ajax({
@@ -356,6 +387,7 @@
                             // Set the hidden fields
                             $('#assessment_id_hidden').val(assessmentId);
                             $('#course_id_hidden').val(courseId);
+                            $('#assessment_name_hidden').val(assessmentName);
 
                             // Set other fields
                             $('#administer_course').val(courseName); // Display course name
@@ -406,8 +438,13 @@
 
                 // Update the previous class id
                 previousClassId = selectedClassId;
-            });
 
+                var selectedOption = $(this).find('option:selected');
+                var className = selectedOption.text(); // Get the class name
+
+                $('#administer_class_name_hidden').val(className);
+            });
+            
             // Handle administer form submission
             $('#administer-assessment-frm').submit(function(e) {
                 e.preventDefault();
@@ -423,12 +460,45 @@
                             $('#msg1').html('<div class="alert alert-success">' + response.message + '</div>');
                             $('#administer_btn').prop('disabled', true).text('Administered'); // Disable the button
 
+                            // Close the modal after 1 second
+                            setTimeout(function() {
+                                $('#administer_assessment_modal').modal('hide');
+                            }, 100);
+
+                            // Activate the Administer tab
+                            $('.tab-content').removeClass('active'); // Remove 'active' from all tab contents
+                            $('.tab-link').removeClass('active');
+                            $('#administer-tab-link').show();
+                            $('#administer-tab-link').addClass('active'); // Add 'active' class to link
+                            $('#administer-tab').addClass('active'); // Add 'active' class to the tab content
+                            
+                            // Set the Tab Name
+                            $('#administer-tab-link').text($('#administer_class_name_hidden').val() + ' | ' + $('#administer_subject').val() + ' | ' + $('#assessment_name_hidden').val());
+
+                            // Load the content for the Administer tab via AJAX
+                            $.ajax({
+                                url: 'administer_tab.php',
+                                method: 'POST',
+                                data: {
+                                    assessment_id: $('#assessment_id_hidden').val(),
+                                    class_id: $('#administer_class_id').val()
+                                },
+                                success: function(response) {
+                                    $('#administer-container').html(response);
+                                    $('.add-assessment-container').hide();
+                                },
+                                error: function(xhr, status, error) {
+                                    $('#administer-container').html('<div class="alert alert-danger">Failed to load content. Please try again.</div>');
+                                    console.error('Error in content load:', status, error); // Log error for debugging
+                                }
+                            });
                         } else {
                             $('#msg1').html('<div class="alert alert-danger">' + response.message + '</div>');
                         }
                     },
                     error: function(xhr, status, error) {
                         $('#msg1').html('<div class="alert alert-danger">Failed to administer. Please try again.</div>');
+                        console.error('Administer form failed:', status, error);  // Log for debugging
                     }
                 });
 

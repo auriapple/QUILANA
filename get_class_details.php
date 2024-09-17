@@ -129,13 +129,13 @@ if (isset($_GET['class_id'])) {
                         if (htmlspecialchars($student['status']) == 0) {
                             echo '<td> Pending </td>';
                             echo '<td>'; 
-                            ?> <div>
-                                <button class="btn btn-primary btn-sm accept-btn" 
+                            ?> <div class="btns">
+                                <button class="btn btn-primary btn-sm accept-btn accept" 
                                         data-class-id="<?php echo $class_id ?>" 
                                         data-student-id="<?php echo $student['student_id'] ?>" 
                                         data-status="1" 
                                         type="button">Accept</button>
-                                <button class="btn btn-primary btn-sm reject-btn" 
+                                <button class="btn btn-primary btn-sm reject-btn reject" 
                                         data-class-id="<?php echo $class_id ?>" 
                                         data-student-id="<?php echo $student['student_id'] ?>" 
                                         data-status="2" 
@@ -146,7 +146,11 @@ if (isset($_GET['class_id'])) {
                             echo '<td> Enrolled </td>';
                             echo '<td>' ?><div class="btn-container">
                             <button class="btn btn-primary btn-sm" data-class-id="<?php $class_id ?>"  type="button">Scores</button>
-                            <button class="btn btn-primary btn-sm reject-btn" data-class-id="<?php $class_id ?>"  type="button">Remove</button>
+                            <button class="btn btn-primary btn-sm reject-btn reject" 
+                                    data-class-id="<?php echo $class_id ?>" 
+                                    data-student-id="<?php echo $student['student_id'] ?>" 
+                                    data-status="2" 
+                                    type="button">Remove</button>
                             </div> <?php '</td>';
                         };
                     echo '</tr>';
