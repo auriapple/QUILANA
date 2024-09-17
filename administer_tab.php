@@ -288,19 +288,20 @@
                                         }
 
                                         tbody.appendChild(row);
+                                        // Update row count
+                                        document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
                                     });
                                 } else if (data.error) {
                                     const row = document.createElement('tr');
                                     row.innerHTML = `<td colspan="3" style="text-align: center;">${data.error}</td>`;
                                     tbody.appendChild(row);
+                                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
                                 } else {
                                     const row = document.createElement('tr');
-                                    row.innerHTML = `<td colspan="3" style="text-align: center;">No join assessments found</td>`;
+                                    row.innerHTML = `<td colspan="3" style="text-align: center;">No Students have joined</td>`;
                                     tbody.appendChild(row);
+                                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
                                 }
-
-                                // Update row count
-                                document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
                             })
                             .catch(error => console.error('Error:', error));
                         }
