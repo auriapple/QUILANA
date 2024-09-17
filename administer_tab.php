@@ -128,7 +128,9 @@
             border-right: none;
         }
 
-        .table-wrapper .joined {
+        .table-wrapper .joined,
+        .table-wrapper .answering,
+        .table-wrapper .finished {
             background-color: #a3a3a338;
             width: 150px;
             height: auto;
@@ -137,7 +139,17 @@
             display: inline-block;
             justify-content: center;
             align-items: center;
-            color: 8a8a8a
+            color: #8a8a8a;
+        }
+
+        .table-wrapper .answering {
+            background-color: #fef86e38;
+            color: #a7a701;
+        }
+
+        .table-wrapper .finished {
+            background-color: #00b4d838;
+            color: #0077B6;
         }
     </style>
 </head>
@@ -146,7 +158,7 @@
     include('db_connect.php');
 
     // Ensure correct content type for HTML output
-    header('Content-Type: text/html');
+    // header('Content-Type: text/html');
 
     // Check if the POST request contains 'assessment_id' and 'class_id'
     if (isset($_POST['assessment_id']) && isset($_POST['class_id'])) {
@@ -258,9 +270,11 @@
 
                                         // Conditionally add a <div> based on the status value
                                         if (parseInt(item.status) === 0) {
-                                            const statusCell = document.createElement('td');
-                                            statusCell.innerHTML = '<div class="joined">Joined</div>';
-                                            row.appendChild(statusCell);
+                                            row.innerHTML += '<td> <div class="joined">Joined</div>  </td>';
+                                        } else if (parseInt(item.status) === 1) {
+                                            row.innerHTML += '<td> <div class="answering">Answering</div> </td>';
+                                        } else if (parseInt(item.status) === 2) {
+                                            row.innerHTML += '<td> <div class="finished">Finished</div> </td>';
                                         } else {
                                             // Append an empty cell if the status is not 0
                                             row.innerHTML += '<td> No Status</td>';
