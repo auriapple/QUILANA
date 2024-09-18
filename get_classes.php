@@ -22,9 +22,23 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="meatball-menu">
-                                        <a href="#" class="edit_class" data-class-id="<?php echo $row['class_id'] ?>" data-class-name="<?php echo $row['class_name']?>" data-subject="<?php echo $row['subject']?>">Edit</a>
-                                        <a href="#" class="delete_class" data-class-id="<?php echo $row['class_id'] ?>" data-class-name="<?php echo $row['class_name'] ?>" data-subject="<?php echo $row['subject']?>">Delete</a>
-                                        <a href="#" class="get_code" data-class-id="<?php echo $row['class_id'] ?>">Get Code</a>
+                                        <div class="arrow-up"></div>
+                                        <a href="#" class="edit_class" 
+                                            data-class-id="<?php echo $row['class_id'] ?>" 
+                                            data-class-name="<?php echo $row['class_name']?>" 
+                                            data-subject="<?php echo $row['subject']?>">
+                                            <span class="material-symbols-outlined">Edit</span>
+                                            Edit</a>
+                                        <a href="#" class="delete_class" 
+                                            data-class-id="<?php echo $row['class_id'] ?>" 
+                                            data-class-name="<?php echo $row['class_name'] ?>" 
+                                            data-subject="<?php echo $row['subject']?>">
+                                            <span class="material-symbols-outlined">delete</span>
+                                            Delete</a>
+                                        <a href="#" class="get_code" 
+                                            data-class-id="<?php echo $row['class_id'] ?>">
+                                            <span class="material-symbols-outlined">key</span>
+                                            Get Code</a>
                                     </div>
                                 </div>
                                 <div class="class-card-title"><?php echo htmlspecialchars($row['class_name']) ?></div>

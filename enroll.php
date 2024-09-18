@@ -5,6 +5,8 @@
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
+    <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -44,6 +46,20 @@
 
                 <!-- Display class details -->
                 <div class="class-card">
+                    <div class="meatball-menu-container">
+                    <button class="meatball-menu-btn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                        <div class="meatball-menu">
+                            <div class="arrow-up"></div>
+                            <a href="#" class="unenroll">
+                            <span class="material-symbols-outlined">exit_to_app</span>
+                                Unenroll</a>
+                            <a href="#" class="report">
+                            <span class="material-symbols-outlined">report</span>
+                                Report</a>
+                        </div>
+                    </div>
                     <div class="class-card-title"><?php echo $row['subject'] ?></div>
                     <div class="class-card-text">Section: <?php echo $row['class_name'] ?> <br>Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
                     <div class="class-actions">
@@ -183,6 +199,36 @@
                     }
                 });
                 updateButtons();
+            });
+
+            initializeMeatballMenu();
+
+            function initializeMeatballMenu() {
+                console.log("Meatball menu initialized");
+
+                // Ensure the click event is bound to dynamically loaded elements
+                $(document).on('click', '.meatball-menu-btn', function(event) {
+                    event.stopPropagation();
+                    $('.meatball-menu-container').not($(this).parent()).removeClass('show');
+                    $(this).parent().toggleClass('show');
+                });
+
+                // Close the menu if clicked outside
+                $(document).on('click', function(event) {
+                    if (!$(event.target).closest('.meatball-menu-container').length) {
+                        $('.meatball-menu-container').removeClass('show');
+                    }
+                });
+            }
+
+            function updateMeatballMenu() {
+                // Remove any existing open menus
+                $('.meatball-menu-container').removeClass('show');
+            }
+
+            // Ensure meatball menu is initialized after any dynamic content changes
+            $(document).ajaxComplete(function() {
+                updateMeatballMenu();
             });
         });
     </script>

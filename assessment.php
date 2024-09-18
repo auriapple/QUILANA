@@ -81,8 +81,15 @@
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <div class="meatball-menu">
-                                                <a href="#" class="edit_assessment" data-id="<?php echo $assessment_id ?>">Edit</a>
-                                                <a href="#" class="delete_assessment" data-id="<?php echo $assessment_id ?>">Delete</a>
+                                                <div class="arrow-up"></div>
+                                                <a href="#" class="edit_assessment" 
+                                                    data-id="<?php echo $assessment_id ?>">
+                                                    <span class="material-symbols-outlined">Edit</span>
+                                                    Edit</a>
+                                                <a href="#" class="delete_assessment" 
+                                                    data-id="<?php echo $assessment_id ?>">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                    Delete</a>
                                             </div>
                                         </div>
                                         <div class="assessment-card-title"><?php echo $assessment_name; ?></div>

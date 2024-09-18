@@ -16,10 +16,15 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-items: center;
+    align-items: center;
     width: 15px;
     height: 24px;
     box-sizing: border-box;
+}
+
+.meatball-menu-btn:focus {
+    outline: none;
 }
 
 .meatball-menu-btn .dot {
@@ -35,27 +40,50 @@
 .meatball-menu {
     display: none;
     position: absolute;
+    /* overflow: hidden; */
     top: 100%;
-    right: 0;
-    background-color: #6E72C1;
+    right: -20px;
+    width: 125px;
+    background-color: #6e72c1e0;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+    border-radius: 10px;
+    padding: 5px 0;
     z-index: 999;
+}
+
+.class-card .meatball-menu {
+    width: 150px;
 }
 
 .meatball-menu a {
     color: white;
-    padding: 8px 16px;
+    padding: 8px 12px;
     text-decoration: none;
-    display: block;
+    display: flex;
+    gap: 10px;
     white-space: nowrap;
+    transition: 100ms ease-in;
 }
 
 .meatball-menu a:hover {
-    background-color: #8a8dd1;
+    background-color: #6e72c1;
+    border-left: 2px solid white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Show the menu when the button is clicked */
 .meatball-menu-container.show .meatball-menu {
     display: block;
+}
+
+.arrow-up {
+    width: 0; 
+    height: 0; 
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 6px solid #6e72c1e0;
+    position: absolute;
+    right: 20px;
+    top: -6px;
+    z-index: 999;
 }

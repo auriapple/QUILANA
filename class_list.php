@@ -7,6 +7,7 @@
     <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
 <body>
@@ -48,8 +49,17 @@
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                             <div class="meatball-menu">
-                                <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
-                                <a href="#" class="delete_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
+                                <div class="arrow-up"></div>
+                                <a href="#" class="edit_course" 
+                                    data-id="<?php echo $row['course_id'] ?>" 
+                                    data-name="<?php echo $row['course_name'] ?>">
+                                    <span class="material-symbols-outlined">Edit</span>
+                                    Edit</a>
+                                <a href="#" class="delete_course" 
+                                    data-id="<?php echo $row['course_id'] ?>" 
+                                    data-name="<?php echo $row['course_name'] ?>">
+                                    <span class="material-symbols-outlined">delete</span>
+                                    Delete</a>
                             </div>
                         </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
@@ -735,27 +745,27 @@
             });
 
             function initializeMeatballMenu() {
-            console.log("Meatball menu initialized");
+                console.log("Meatball menu initialized");
 
-            // Ensure the click event is bound to dynamically loaded elements
-            $(document).on('click', '.meatball-menu-btn', function(event) {
-                event.stopPropagation();
-                $('.meatball-menu-container').not($(this).parent()).removeClass('show');
-                $(this).parent().toggleClass('show');
-            });
+                // Ensure the click event is bound to dynamically loaded elements
+                $(document).on('click', '.meatball-menu-btn', function(event) {
+                    event.stopPropagation();
+                    $('.meatball-menu-container').not($(this).parent()).removeClass('show');
+                    $(this).parent().toggleClass('show');
+                });
 
-            // Close the menu if clicked outside
-            $(document).on('click', function(event) {
-                if (!$(event.target).closest('.meatball-menu-container').length) {
-                    $('.meatball-menu-container').removeClass('show');
-                }
-            });
-        }
+                // Close the menu if clicked outside
+                $(document).on('click', function(event) {
+                    if (!$(event.target).closest('.meatball-menu-container').length) {
+                        $('.meatball-menu-container').removeClass('show');
+                    }
+                });
+            }
 
-        function updateMeatballMenu() {
-            // Remove any existing open menus
-            $('.meatball-menu-container').removeClass('show');
-        }
+            function updateMeatballMenu() {
+                // Remove any existing open menus
+                $('.meatball-menu-container').removeClass('show');
+            }
 
             // Check if the URL contains `show_modal=true`
             const urlParams = new URLSearchParams(window.location.search);
