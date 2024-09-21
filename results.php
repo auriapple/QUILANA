@@ -48,75 +48,77 @@
             </ul>
         </div>
 
-        <!-- Quizzes Tab -->
-        <div id="quizzes-tab" class="tab-content active">
-            <div class="assessments-container">
-            <?php
-            $student_id = $_SESSION['login_id'];
+        <div class="scrollable-content">
+            <!-- Quizzes Tab -->
+            <div id="quizzes-tab" class="tab-content active">
+                <div class="assessments-container">
+                <?php
+                $student_id = $_SESSION['login_id'];
 
-            // Fetch student's enrolled classes
-            $classes_query = $conn->query("SELECT c.class_id, c.subject 
-                                            FROM class c 
-                                            JOIN student_enrollment s ON c.class_id = s.class_id 
-                                            WHERE s.student_id = '$student_id' AND s.status='1'");
+                // Fetch student's enrolled classes
+                $classes_query = $conn->query("SELECT c.class_id, c.subject 
+                                                FROM class c 
+                                                JOIN student_enrollment s ON c.class_id = s.class_id 
+                                                WHERE s.student_id = '$student_id' AND s.status='1'");
 
-            if ($classes_query->num_rows > 0) {
-                while ($class = $classes_query->fetch_assoc()) {
-                    echo '<div class="subject-separator">';
-                    echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
-                    echo '<hr class="separator-line">';
-                    echo '</div>';
-
-                    // Fetch quizzes for each class
-                    $quizzes_query = $conn->query("
-                        SELECT a.assessment_id, a.assessment_name, a.topic 
-                        FROM assessment a
-                        JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
-                        WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1
-                    ");
-
-                    $quizzes = [];
-                    while ($row = $quizzes_query->fetch_assoc()) {
-                        $quizzes[] = $row;
-                    }
-
-                    if (count($quizzes) > 0) {
-                        $has_results = false;// Track if any quizzes have been taken by the student
-
-                        echo '<div class="quizzes-container">';
-                        foreach ($quizzes as $quiz) {
-                            // Check if the student has already taken the quiz
-                            $results_query = $conn->query("
-                                SELECT 1 
-                                FROM student_results 
-                                WHERE student_id = '$student_id' AND assessment_id = '" . $quiz['assessment_id'] . "'
-                            ");
-
-                            if ($results_query->num_rows > 0) {
-                                $has_results = true;
-                                echo '<div class="assessment-card">';
-                                echo '<div class="assessment-card-title">' . htmlspecialchars($quiz['assessment_name']) . '</div>';
-                                echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
-                                echo '<button id="viewResult_' . $quiz['assessment_id'] . '" class="main-button" data-id="' . $quiz['assessment_id'] . '" type="button">View Result</button>';
-                                echo '</div>';
-                            }
-                        }
+                if ($classes_query->num_rows > 0) {
+                    while ($class = $classes_query->fetch_assoc()) {
+                        echo '<div class="subject-separator">';
+                        echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
+                        echo '<hr class="separator-line">';
                         echo '</div>';
-                    
-                        // If no quizzes have results yet
-                        if (!$has_results) {
+
+                        // Fetch quizzes for each class
+                        $quizzes_query = $conn->query("
+                            SELECT a.assessment_id, a.assessment_name, a.topic
+                            FROM assessment a
+                            JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
+                            WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1
+                        ");
+
+                        $quizzes = [];
+                        while ($row = $quizzes_query->fetch_assoc()) {
+                            $quizzes[] = $row;
+                        }
+
+                        if (count($quizzes) > 0) {
+                            $has_results = false;// Track if any quizzes have been taken by the student
+
+                            echo '<div class="quizzes-container">';
+                            foreach ($quizzes as $quiz) {
+                                // Check if the student has already taken the quiz
+                                $results_query = $conn->query("
+                                    SELECT 1 
+                                    FROM student_results 
+                                    WHERE student_id = '$student_id' AND assessment_id = '" . $quiz['assessment_id'] . "'
+                                ");
+
+                                if ($results_query->num_rows > 0) {
+                                    $has_results = true;
+                                    echo '<div class="assessment-card">';
+                                    echo '<div class="assessment-card-title">' . htmlspecialchars($quiz['assessment_name']) . '</div>';
+                                    echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
+                                    echo '<button id="viewResult_' . $quiz['assessment_id'] . '" class="main-button" data-id="' . $quiz['assessment_id'] . '" type="button">View Result</button>';
+                                    echo '</div>';
+                                }
+                            }
+                            echo '</div>';
+                        
+                            // If no quizzes have results yet
+                            if (!$has_results) {
+                                echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
+                            }
+
+                        // If there are no quizzes at all    
+                        } else {
                             echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         }
-
-                    // If there are no quizzes at all    
-                    } else {
-                        echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                     }
+                } else {
+                    echo '<div class="no-assessments">No quizzes yet</div>';
                 }
-            } else {
-                echo '<div class="no-assessments">No quizzes yet</div>';
-            }
-            ?>
+                ?>
+                </div>
             </div>
         </div>
 
@@ -139,7 +141,7 @@
 
                     // Fetch exams for each class
                     $exams_query = $conn->query("
-                        SELECT a.assessment_id, a.assessment_name, a.topic 
+                        SELECT a.assessment_id, a.assessment_name, a.topic
                         FROM assessment a
                         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                         WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 2
@@ -219,23 +221,64 @@
                     success: function(result) {
                     if (result.title && result.topic) {
                         $('#assessment-title').text(result.title);
+                        if(result.mode) {
+                            $('#assessment-title').html(result.title + '<br>' + result.mode);
+                        }
                         $('#assessment-topic').text(result.topic);
                         
                         // Clear previous details
+                        $('#assessment-details thead').empty();
                         $('#assessment-details tbody').empty();
                         
                         if (Array.isArray(result.details) && result.details.length > 0) {
-                            // Add new details to table
-                            result.details.forEach(function(item) {
-                                $('#assessment-details tbody').append(
+                            // Check if assessment_mode is 1
+                            if (result.assessment_mode == 1) {
+                                $('#assessment-details thead').append(
                                     '<tr>' +
-                                    '<td>' + formatDate(item.date) + '</td>' +
-                                    '<td>' + item.score + '</td>' +
-                                    '<td>' + item.total_score + '</td>' +
-                                    '<td>' + item.remarks + '</td>' +
+                                    '<th>Date</th>' +
+                                    '<th>Score</th>' +
+                                    '<th>Total Score</th>' +
+                                    '<th>Remarks</th>' +
                                     '</tr>'
                                 );
-                            });
+                                
+                                // Add details to table
+                                result.details.forEach(function(item) {
+                                    $('#assessment-details tbody').append(
+                                        '<tr>' +
+                                        '<td>' + formatDate(item.date) + '</td>' +
+                                        '<td>' + item.score + '</td>' +
+                                        '<td>' + item.total_score + '</td>' +
+                                        '<td>' + item.remarks + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                                
+                            } else {
+                                // Add rank column
+                                $('#assessment-details thead').append(
+                                    '<tr>' +
+                                    '<th>Date</th>' +
+                                    '<th>Score</th>' +
+                                    '<th>Total Score</th>' +
+                                    '<th>Rank</th>' +  // New column for rank
+                                    '<th>Remarks</th>' +
+                                    '</tr>'
+                                );
+                                
+                                // Add details to table with rank
+                                result.details.forEach(function(item) {
+                                    $('#assessment-details tbody').append(
+                                        '<tr>' +
+                                        '<td>' + formatDate(item.date) + '</td>' +
+                                        '<td>' + item.score + '</td>' +
+                                        '<td>' + item.total_score + '</td>' +
+                                        '<td>' + item.rank + '</td>' + 
+                                        '<td>' + item.remarks + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                            }
                         } else {
                             // Show message if no results found
                             $('#assessment-details tbody').append(
@@ -251,7 +294,6 @@
                         alert('Assessment details not found.');
                     }
                 }
-
                 });
             });
 

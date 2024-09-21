@@ -1,8 +1,7 @@
-/* width */
+/* Width */
 ::-webkit-scrollbar {
     width: 10px;
 }
-
 /* Track */
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
@@ -10,7 +9,6 @@
     border-bottom: 15px solid transparent;
     background-clip: padding-box;
 }
-
 /* Handle */
 ::-webkit-scrollbar-thumb {
     background: #ccc;
@@ -19,7 +17,6 @@
     border-bottom: 15px solid transparent;
     background-clip: padding-box;
 }
-
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #aaa;
@@ -34,6 +31,7 @@ body {
     overflow-y: hidden;
 }
 
+/* DASHBOARD */
 .dashboard-container {
     display: grid; 
     grid-template-columns: repeat(8, 1fr) 375px;
@@ -43,9 +41,11 @@ body {
     overflow-y: hidden;
 }
 
+/* Dashboard Containers */
 .dashboard-summary,
 .dashboard-requests,
-.dashboard-calendar {
+.dashboard-calendar,
+.recent-assessments {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
@@ -58,15 +58,9 @@ body {
     box-shadow: 0px 4px 20px 0px rgba(238, 238, 238, 0.50);
     border: 1px solid #F8F9FA;
 }
-
-.dashboard-summary {
-    justify-content: flex-start;
-    grid-column: 1 / 9;
-    grid-row: 1 / 2;
-}
-
 .dashboard-requests h1,
-.dashboard-summary h1 {
+.dashboard-summary h1,
+.recent-assessments h1 {
     height: fit-content;
     font-size: 20px;
     font-weight: 600;
@@ -74,12 +68,17 @@ body {
     white-space: nowrap;
 }
 
+/* DASHBOARD SUMMARY */
+.dashboard-summary {
+    justify-content: flex-start;
+    grid-column: 1 / 9;
+    grid-row: 1 / 2;
+}
 .dashboard-summary h2 {
     font-size: 16px;
     font-weight: 500;
     color: #8f8f9d;
 }
-
 .dashboard-summary .cards {
     height: fit-content;
     width: 100%;
@@ -88,7 +87,6 @@ body {
     gap: 20px;
     box-sizing: border-box;
 }
-
 .cards .card {
     display: flex;
     flex-direction: column;
@@ -103,26 +101,23 @@ body {
     overflow: hidden;
     white-space: nowrap;
 }
-
 .card .card-data {
     display: flex;
     flex-direction: column;
     gap: -10px;
+    overflow: hidden;
 }
-
 .cards .icons {
     width: 40px;
     height: 40px;
     margin-bottom: 20px;
 }
-
 .cards h3 {
     font-size: 20px;
     width: 40px;
     color: #151d48;
     font-weight: bold;
 }
-
 .card-data label {
     color: #415165;
     font-size: 14px;
@@ -132,44 +127,42 @@ body {
     text-overflow: ellipsis;
 }
 
+/* Dashboard Requests and Recent Assessments */
 .dashboard-requests,
 .recent-assessments {
     justify-content: flex-start;
     align-content: space-between;
-    overflow-y: scroll;
     grid-column: 1 / 9;
     grid-row: 2 / 7;
+    overflow: hidden;
 }
-
 .dashboard-requests::-webkit-scrollbar,
-.recent-assessments::-webkit-scrollbar {
+.recent-scrollable::-webkit-scrollbar {
     display: none;
 }
 
+/* DASHBOARD REQUESTS */
 .dashboard-requests .class-header {
     display: flex;
     align-items: center;
     margin: 10px 0px;
     gap: 10px;
 }
-
 .class-header span {
     font-size: 16px;
     color: #8f8f9d;
     white-space: nowrap;
 }
-
 .class-header .line {
     flex: 1;
     border-bottom: 1.5px solid #8f8f9d7e;
 }
-
+/* Student Details */
 .student-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-
 .student-item {
     display: flex;
     justify-content: space-between;
@@ -182,19 +175,17 @@ body {
     height: fit-content;
     padding: 5px 15px;
 }
-
 .student-item label {
     max-height: 18px;
     overflow: hidden
 }
-
 .student-item .btns {
     display: flex;
     min-width: fit-content;
     height: fit-content;
     gap: 10px;
 }
-
+/* Accept and Reject Button */
 .btns .accept,
 .btns .reject {
     width: 80px;
@@ -208,19 +199,17 @@ body {
     color: #2f8113;
     text-align: center;
 }
-
 .accept :hover,
 .btns .reject {
     background-color: #ff8585;
     color: #de1616;
 }
 
-.dashboard-calendar {
-    grid-column: 9 / 10;
-    grid-row: 1 / 3;
-    padding: 5px 25px
+/* RECENT ASSESSMENTS */
+.recent-scrollable {
+    overflow-y: scroll;
 }
-
+/* Recent assessments separator (date and line) */
 .assessment-separator {
     display: flex;
     align-items: center;
@@ -239,42 +228,32 @@ body {
     border-top: 1px solid #CDCDCD;;
     margin: 0;
 }
-
+/* Recent Card */
 #recents {
-    margin-bottom: 20px;
+   margin-bottom: 15px;
+   border-radius: 16px;
 }
-
 #recent-card {
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    padding: 10px;
+   padding: 10px;
 }
-
-#recents .icons {
-    margin-right: 20px;
-    flex-shrink: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    width: 50px;
-    height: 50px;
-}
-
+/* Recent Data */
 #recent-data {
     display:flex;
     align-items: center;
-    margin-left: 10px;
     width: 100%;
-    flex-direction: row;
-    padding: 10px;
+    flex-direction: row; 
 }
-
 #recent-icon{
     float: left;
     width: 30%;
-    margin-right: 15px;
 }
-
+#recent-data .icons {
+    margin-right: 20px;
+    margin-left: 20px;
+    flex-shrink: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
 #recent-details{
     float: left;
     width:70%;
@@ -282,8 +261,15 @@ body {
     padding: 0;
     flex-grow: 1;
 }
+#recent-details h3, 
+#recent-details label {
+    margin: 0;
+    padding: 0;
+}
 
-#recent-details h3, label{
-    margin-top: 0;
-    margin-bottom: 0;
+/* DASHBOARD CALENDAR */
+.dashboard-calendar {
+    grid-column: 9 / 10;
+    grid-row: 1 / 3;
+    padding: 5px 25px
 }

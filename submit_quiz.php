@@ -107,7 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Determine the answer type based on the question type
             // Multiple Choice or True/False
             if ($question_type == 1 || $question_type == 3) {
-                $answer_type = 'option';
+                if ($question_type == 1) {
+                    $answer_type = 'multiple choices';
+                }
+                else {
+                    $answer_type = 'true or false';
+                }
 
                 $option_query = $conn->query("SELECT option_id, option_txt FROM question_options WHERE question_id = '" . $conn->real_escape_string($question_id) . "' AND LOWER(TRIM(option_txt)) = '" . $conn->real_escape_string(strtolower(trim($answer))) . "'");
                 if ($option_query && $option_query->num_rows>0){
@@ -130,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Multiple Selection
             } elseif ($question_type == 2) {
-                $answer_type = 'option';
+                $answer_type = 'multiple selection';
 
                 $selected_answers = is_array($answer) ? array_map('strtolower', array_map('trim', $answer)) : [strtolower(trim($answer))];
                 $all_answers_correct = true;
@@ -193,7 +198,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             } elseif ($question_type == 4 || $question_type == 5) {
                 // Fill-in-the-blank or identification
-                $answer_type = 'text';
+                if ($question_type == 4) {
+                    $answer_type = 'fill in the blank';
+                } else {
+                    $answer_type = 'identification';
+                }
 
                 $text_query = $conn->query("SELECT identification_id, identification_answer FROM question_identifications WHERE question_id = '" . $conn->real_escape_string($question_id) . "' AND LOWER(TRIM(identification_answer)) = '" . $conn->real_escape_string(strtolower(trim($answer))) . "'");
                 if ($text_query && $text_query->num_rows>0){
@@ -230,19 +239,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $assessment_mode_data = $assessment_mode_query->fetch_assoc();
         $assessment_mode = $assessment_mode_data['assessment_mode'];
 
-        $rank = ($assessment_mode == 1) ? NULL : 0;
+        //$rank = ($assessment_mode == 1) ? NULL : 0;
 
         // Insert results into student_results table
         $insert_results_query = "
             INSERT INTO student_results (submission_id, assessment_id, student_id, total_score, score, remarks, rank)
-            VALUES ('$submission_id', '$assessment_id', '$student_id', '$total_possible_score', '$total_score', '$remarks', " . ($rank === NULL ? "NULL" : "'$rank'") . ")
+            VALUES ('$submission_id', '$assessment_id', '$student_id', '$total_possible_score', '$total_score', '$remarks', " . ($rank === NULL ? "NULL" : "$rank") . ")
         ";
         if ($conn->query($insert_results_query)) {
             echo "Results inserted successfully!";
         } else {
             echo "Error inserting results: " . $conn->error;
         }
-        
+
+        // Calculate Rank
+        if ($assessment_mode == 1){
+            $rank = NULL;
+        }
+        else {
+            $scores_query = $conn->query("
+                SELECT DISTINCT score
+                FROM student_results
+                WHERE assessment_id = '$assessment_id'
+                ORDER BY score DESC
+            ");
+
+            $rank = 0;
+            $current_rank = 1;
+
+            while ($row = $scores_query->fetch_assoc()) {
+                $score = $row['score'];
+                if ($score == $total_score){
+                    $rank = $current_rank;
+                    break;
+                }
+                $current_rank++;
+            }
+
+            // Update the rank in student_results table
+            $update_rank_query = "
+                UPDATE student_results
+                SET rank = '$rank'
+                WHERE submission_id = '$submission_id'
+            ";
+            if (!$conn->query($update_rank_query)) {
+                die("Error updating rank: " . $conn->error);
+            }
+        }
+
         $conn->close();
 
         echo "Assessment submitted successfully. Your score is $total_score out of $total_possible_score.";

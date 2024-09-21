@@ -500,16 +500,23 @@ button.btn-rounded{
 
 /* CLASSES AND RESULTS - STUDENT */
 /* JOIN CLASS POPUP */
-#join-modal-content {
+#join-modal-content,
+#message-modal-content {
     width: 450px;
     height: 350px;
     margin: 10% auto;
     align-items: center;
     z-index: 1005;
 }
-#join-class-title {
+#join-class-title,
+#message-popup-title {
     margin-bottom: 20px;
     font-size: 36px;
+}
+#message-body {
+    margin: 10px 0;
+    font-size: 24px;
+    color: #4a4a4a;
 }
 /* Class Code Input Field */
 /* Default State */
@@ -586,7 +593,8 @@ button.btn-rounded{
     color: #8F8F9D;
     margin: 10px 0 0 0;
 }
-.assessment-card-duration {
+.assessment-card-duration,
+.assessment-card-mode {
     font-size: 16px;
     color: #8F8F9D;
     margin-top: 0;
@@ -604,7 +612,7 @@ button.btn-rounded{
 }
 
 /* Buttons */
-[id^=viewResult_],
+/*[id^=viewResult_],
 [id^=viewClassDetails_],
 #viewClassDetails {
     width: calc(100% - 40px);
@@ -614,7 +622,9 @@ button.btn-rounded{
     position: absolute;
     bottom: 40px;
     outline: none !important; 
-}
+}*/
+[id^=viewResult_],
+[id^=viewClassDetails_],
 [id^=takeAssessment_] {
     width: calc(100% - 40px);
     border-radius: 5px;
@@ -684,7 +694,10 @@ button.btn-rounded{
 }
 
 /* Questions Container */
-.questions-container {
+.questions-container,
+.personal-ranking-container,
+.leaderboards-container,
+.ranking-container {
     background-color: #FFFFFF;
     border: 1px solid #F8F9FA;
     border-radius: 8px;
@@ -778,7 +791,7 @@ button.btn-rounded{
 /* Popup Styles */
 #modal-content {
     width: 600px;
-    height: 350px;
+    height: 400px;
     margin: 10% auto;
     align-items: center;
 }
@@ -805,11 +818,16 @@ th, td {
     text-align: center;
     border: none;
     color:#4a4a4a;
+    border-right: 1px solid rgba(59, 39, 110, 0.80);
+    width: 25%;
 }
 thead th {
     background-color: #E0E0EC;
     color: #474747;
     font-size: 16px;
+}
+td:last-child, th:last-child {
+    border-right: none;
 }
 /* END */
 
