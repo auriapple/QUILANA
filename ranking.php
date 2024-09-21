@@ -108,7 +108,7 @@ $display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';
 <body>
     <?php include('nav_bar.php'); ?>
 
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <!-- Close Button -->
         <div class="header-container">
             <?php if ($display === 'leaderboard'): ?>

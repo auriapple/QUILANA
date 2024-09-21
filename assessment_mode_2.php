@@ -68,7 +68,7 @@ while ($question = $questions_query->fetch_assoc()) {
         </div>
     </div>
 
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <form id="quiz-form" action="submit_quiz.php" method="POST">
             <!-- Header with timer -->
             <div class="header-container">

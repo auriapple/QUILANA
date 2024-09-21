@@ -5,9 +5,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 75vh;
     overflow: hidden;
-    width: 100%;
     position: relative;
 }
 

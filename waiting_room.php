@@ -40,6 +40,7 @@ if ($assessment['assessment_mode'] == 1){
         }
         .general-details {
             justify-content: center;
+            margin-top: 50px;
         }
         .general-details h1 {
             font-size: 36px;
@@ -108,7 +109,7 @@ if ($assessment['assessment_mode'] == 1){
 <body>
     <?php include('nav_bar.php') ?>
 
-    <div class="container-fluid admin">
+    <div class="content-wrapper">
         <div class="assessment-details">
             <div class="general-details">
                 <h1><?php echo htmlspecialchars(strtoupper($assessment['assessment_name'])); ?></h1>

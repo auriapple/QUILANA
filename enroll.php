@@ -41,9 +41,8 @@
                                                         JOIN faculty f ON c.faculty_id = f.faculty_id
                                                         WHERE e.student_id = '$student_id' AND e.status = '1'");
 
-                if ($enrolled_classes_query && $enrolled_classes_query->num_rows>0){
-                    while ($row = $enrolled_classes_query->fetch_assoc()) {
-                    ?>
+                while ($row = $enrolled_classes_query->fetch_assoc()) {
+                ?>
 
                 <!-- Display class details -->
                 <div class="class-card">
@@ -66,12 +65,8 @@
                     <div class="class-actions">
                         <button id="viewClassDetails_<?php echo $row['class_id']; ?>" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
                     </div>
-                    <?php } 
-                } else {
-                    echo '<div class="no-assessments">No classes yet</div>';
-                }
-                   ?> 
-                
+                </div>
+                <?php } ?>
             </div>
         </div>
         
@@ -92,7 +87,7 @@
         <!-- Modal for entering class code to join a class-->
         <div id="join-class-popup" class="popup-overlay">
             <div id="join-modal-content" class="popup-content">
-                <span id="join-modal-close" class="popup-close">&times;</span>
+                <span id="modal-close" class="popup-close">&times;</span>
                 <h2 id="join-class-title" class="popup-title">Join Class</h2>
 
                 <!-- Form to submit the class code -->
@@ -160,8 +155,8 @@
                 $('#join-class-popup').show();
             });
 
-            // Close the join class popup
-            $('#join-modal-close').click(function() {
+            // Close the popup
+            $('#modal-close').click(function() {
                 $('#join-class-popup').hide(); 
             });
 

@@ -56,16 +56,16 @@ if (isset($_POST['class_id'])) {
                 $redirect_url = '';
                 $assessment_mode = '';
                 if ($row['assessment_mode'] == 1) {
-                    //$redirect_url = 'quiz.php';
-                    $redirect_url = 'waiting_room.php';
+                    $redirect_url = 'quiz.php';
+                    //$redirect_url = 'waiting_room.php';
                     $assessment_mode = 'Normal Mode';
                 } elseif ($row['assessment_mode'] == 2) {
-                    //$redirect_url = 'assessment_mode_2.php';
-                    $redirect_url = 'waiting_room.php';
+                    $redirect_url = 'assessment_mode_2.php';
+                    //$redirect_url = 'waiting_room.php';
                     $assessment_mode = 'Quiz Bee Mode';
                 } elseif ($row['assessment_mode'] == 3) {
-                    //$redirect_url = 'assessment_mode_3.php';
-                    $redirect_url = 'waiting_room.php';
+                    $redirect_url = 'assessment_mode_3.php';
+                    //$redirect_url = 'waiting_room.php';
                     $assessment_mode = 'Speed Mode';
                 }
 
