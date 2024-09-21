@@ -1,0 +1,110 @@
+/* INCOMPLETE STYLES */
+/* Style for the questions container */
+#quiz-modes-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75vh;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+/* Style for each question */
+.question {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+}
+
+/* Style for the question number */
+.question-number {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #4A4CA6;
+}
+
+/* Style for the question text */
+.question-text {
+    margin-top: 0px;
+    font-size: 48px;
+}
+
+/* Style for the option buttons container */
+.option-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 25px;
+}
+
+/* Style for individual option buttons */
+.option-buttons button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #DDE3FF;
+    color: #1E1A43;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    height: 100px;
+}
+
+.option-buttons button:hover {
+    background-color: #A9B7FD;
+    color: #FFFFFF;
+}
+
+.option-buttons button:focus {
+    background-color: #7B92FF;
+    color: #FFFFFF;
+    outline: none;
+}
+
+#quiz-modes-input {
+    margin-top: 20px;
+    font-size: 25px;
+    background-color: #DDE3FF;
+    border: none;
+    outline: none;
+    padding: 20px;
+    color: #8F8F9D;
+    border-radius: 5px;
+}
+
+#quiz-modes-input::placeholder {
+    color: rgba(143, 143, 157, 0.75);
+}
+
+#quiz-modes-input:hover {
+    background-color: #A9B7FD;
+    color: #FFFFFF;
+}
+
+#quiz-modes-input:focus {
+    border: 1px solid #7B92FF;
+    color: #FFFFFF;
+    box-shadow: 0 0 5px rgba(123, 146, 255, 0.5);
+}
+
+#quiz-modes-input:active {
+    background-color: #A9B7FD;
+    color: #FFFFFF;
+    border: 1px solid #7B92FF;
+}
+        
+.form-check-group {
+    padding-left: 0;
+}
