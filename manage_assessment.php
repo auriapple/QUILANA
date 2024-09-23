@@ -495,6 +495,7 @@ if ($stmt = $conn->prepare($query)) {
                 success: function(response) {
                     if (response.status === 'success') {
                         populateQuestionForm(response.data);
+                        $('#manageQuestionLabel').text('Edit Question');
                         $('#manage_question').modal('show');
                     } else {
                         alert('Error: ' + response.message);
