@@ -1,15 +1,48 @@
-
 <?php
 include('db_connect.php');
 include('auth.php');
 
 // Check if assessment_id is set in URL
 if (!isset($_GET['assessment_id'])) {
-    header('location: quiz.php');
+    header('location: load_assessments.php');
     exit();
 }
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+$student_id = $_SESSION['login_id'];
+
+// Fetch administer assessment details
+$administer_query = $conn->query("
+    SELECT administer_id
+    FROM administer_assessment
+    WHERE assessment_id = '$assessment_id'
+");
+
+// Check if there is administer assessment details
+if ($administer_query->num_rows>0) {
+    $administer_row = $administer_query->fetch_assoc();
+    $administer_id = $administer_row['administer_id'];
+
+    // Check if there is a join assessment record
+    $join_query = $conn->query("
+        SELECT * 
+        FROM join_assessment 
+        WHERE administer_id = '$administer_id' 
+        AND student_id = '$student_id'
+    ");
+
+    // If there is no record yet
+    if ($join_query->num_rows==0){
+        // Insert the join details with the status of 1 (answering)
+        $insert_join_query = $conn->query("
+            INSERT INTO join_assessment (student_id, administer_id, status)
+            VALUES ('$student_id', '$administer_id', 1)
+        ");
+        if (!$insert_join_query) {
+            echo "Error inserting record: " . $conn->error;
+        }
+    }
+}
 
 // Fetch assessment details
 $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
@@ -141,6 +174,7 @@ $time_limit = $assessment['time_limit'];
                 ?>
                 <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
                 <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
+                <!--input type="hidden" name="join_status" id="join_status" value="1"-->
             </div>
         </form>
     </div>
@@ -217,9 +251,11 @@ $time_limit = $assessment['time_limit'];
         function handleSubmit() {
             if (timerExpired) {
                 closePopup('timer-runout-popup');
+                //document.getElementById('join_status').value = 2;
                 submitForm();
             } else {
                 closePopup('confirmation-popup');
+                //document.getElementById('join_status').value = 2;
                 submitForm();
             }
         }

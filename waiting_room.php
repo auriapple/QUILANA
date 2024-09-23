@@ -3,26 +3,97 @@ include('db_connect.php');
 include('auth.php');
 
 // Check if assessment_id is set in URL
-if (!isset($_GET['assessment_id'])) {
+if (!isset($_GET['assessment_id']) || !isset($_GET['student_id'])) {
     header('location: load_assessments.php');
     exit();
 }
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+$student_id = $conn->real_escape_string($_GET['student_id']);
 
 // Fetch assessment details
 $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
-$assessment = $assessment_query->fetch_assoc();
 
-$assessment_mode = '';
-if ($assessment['assessment_mode'] == 1){
-    $assessment_mode = 'Normal Mode';
-} elseif ($assessment['assessment_mode'] == 2){
-    $assessment_mode = 'Quiz Bee Mode';
-} elseif ($assessment['assessment_mode'] == 3){
-    $assessment_mode = 'Speed Mode';
+if ($assessment_query->num_rows>0) {
+    $assessment = $assessment_query->fetch_assoc();
+
+    // Setting the assessment mode text for display
+    $assessment_mode = '';
+    if ($assessment['assessment_mode'] == 1){
+        $assessment_mode = 'Normal Mode';
+    } elseif ($assessment['assessment_mode'] == 2){
+        $assessment_mode = 'Quiz Bee Mode';
+    } elseif ($assessment['assessment_mode'] == 3){
+        $assessment_mode = 'Speed Mode';
+    }
+
+    // Fetch administer assessment details
+    $administer_query = $conn->query("
+        SELECT administer_id, status
+        FROM administer_assessment
+        WHERE assessment_id = '$assessment_id'
+    ");
+    $administer_row = $administer_query->fetch_assoc();
+    $administer_id = $administer_row['administer_id'];
+    $status = $administer_row['status'];
+
+    // Check if the assessment is really administered
+    if ($administer_query->num_rows>0) {
+
+        // Check if there is a join assessment record
+        $join_query = $conn->query("
+            SELECT * 
+            FROM join_assessment 
+            WHERE administer_id = '$administer_id' 
+            AND student_id = '$student_id'
+        ");
+
+        // If there is no record yet
+        if ($join_query->num_rows==0){
+            // Check if the assessment has not yet started
+            if ($status == 0) {
+                // Insert the join details with the status of 0 (joined)
+                $insert_join_query = $conn->query("
+                    INSERT INTO join_assessment (student_id, administer_id, status)
+                    VALUES ('$student_id', '$administer_id', 0)
+                ");
+                if (!$insert_join_query) {
+                    echo "Error inserting record: " . $conn->error;
+                }
+            }
+        // Check if there is already a record
+        } else {
+            // Check if the assessment has started
+            if ($status == 1) {
+                // Update the status of the join details to 1 (answering)
+                $update_status_query = $conn->query("
+                    UPDATE join_assessment
+                    SET status = 1
+                    WHERE administer_id = '$administer_id' AND student_id = '$student_id'
+                ");
+                if (!$update_status_query) {
+                    echo "Error updating record: " . $conn->error;
+                }
+
+                // Set the redirection based on the assessment mode
+                $redirect_url = '';
+                if ($assessment['assessment_mode'] == 1){
+                    $redirect_url = 'quiz.php';
+                } elseif ($assessment['assessment_mode'] == 2){
+                    $redirect_url = 'assessment_mode_2.php';
+                } elseif ($assessment['assessment_mode'] == 3){
+                    $redirect_url = 'assessment_mode_3.php';
+                }
+
+                // Redirect to the corrrect assessment page
+                header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id));
+            }
+        }     
+    }
+} else {
+    header('location: load_assessment.php');
+    exit();
 }
-
 ?>
 
 <!DOCTYPE html>
