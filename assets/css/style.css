@@ -619,6 +619,18 @@ button.btn-rounded{
     bottom: 20px;
     outline: none !important;
 }
+
+td #viewClassDetails {
+    height: auto;
+    width: 100px;
+    margin: 0;
+    bottom: 0px;
+    position: relative;
+    font-size: small;
+    padding: 5px;
+    text-align: center;
+}
+
 [id^=takeAssessment_] {
     width: calc(100% - 40px);
     border-radius: 5px;
