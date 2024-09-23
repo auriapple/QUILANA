@@ -52,8 +52,10 @@
                     </button>
                         <div class="meatball-menu">
                             <div class="arrow-up"></div>
-                            <a href="#" class="unenroll">
-                            <span class="material-symbols-outlined">exit_to_app</span>
+                            <a href="#" class="unenroll"
+                                data-id = "<?php echo $row['class_id'] ?>"
+                                data-name = "<?php echo $row['class_name'] ?>" >
+                                <span class="material-symbols-outlined">exit_to_app</span>
                                 Unenroll</a>
                             <a href="#" class="report">
                             <span class="material-symbols-outlined">report</span>
@@ -104,7 +106,27 @@
                 </form>
             </div>
         </div>
-    </div>
+
+        <!-- Modal for Unenrolling -->
+        <div class="modal fade" id="unenroll_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Unenroll from Class</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirm_unenroll_btn" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <script>
         $(document).ready(function() {
@@ -229,6 +251,41 @@
             // Ensure meatball menu is initialized after any dynamic content changes
             $(document).ajaxComplete(function() {
                 updateMeatballMenu();
+            });
+
+            // Unenroll button functionality
+            $(document).on('click', '.unenroll', function() {
+                var classId = $(this).data('id');
+                var className = $(this).data('name');
+
+                $('#confirm_unenroll_btn').data('class-id', classId); // Set class ID on confirm button
+                $('#unenroll_class_name').text(className);
+                $('#unenroll_modal').modal('show'); // Show confirmation modal
+            });
+
+            // Confirm delete action
+            $('#confirm_unenroll_btn').click(function() {
+                var classId = $(this).data('class-id');
+                var studentId = $(this).data('student-id');
+                var status = '2';
+
+                $.ajax({
+                    url: 'status_update.php',
+                    method: 'POST',
+                    data: { 
+                        class_id: classId,
+                        student_id: studentId,
+                        status: status 
+                    },
+                    success: function(response) {
+                        if (response == "success") {
+                            alert('You have successfully unenrolled from the class');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert('Error: Unable to unenroll from the class.');
+                        }
+                    }, 
+                });
             });
         });
     </script>

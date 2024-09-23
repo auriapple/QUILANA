@@ -34,7 +34,8 @@ if (!isset($_SESSION['login_user_type'])) {
                         $result = $conn->query("SELECT COUNT(*) as totalClasses 
                                                 FROM class c
                                                 JOIN student_enrollment s ON c.class_id = s.class_id
-                                                WHERE s.student_id = '".$_SESSION['login_id']."'");
+                                                WHERE s.student_id = '".$_SESSION['login_id']."'
+                                                AND s.status = '1'");
                         $resTotalClasses = $result->fetch_assoc();
                         $totalClasses = $resTotalClasses['totalClasses'];
                         ?>
