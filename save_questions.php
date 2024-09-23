@@ -86,12 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'true_false':
-                $tf_answer = $_POST['tf_answer'] ?? '';
-                $is_correct = ($tf_answer === 'true') ? 1 : 0;
-
+                $correct_option = $_POST['tf_answer'] ?? '';
                 $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
+
+                // Insert the 'true' option
+                $true_option = 'true'; // Set as 'true'
+                $is_correct = ($correct_option === 'true') ? 1 : 0; // Mark as correct if 'true'
                 $option_stmt = $conn->prepare($options_query);
-                $option_stmt->bind_param("sii", $tf_answer, $is_correct, $question_id);
+                $option_stmt->bind_param("sii", $true_option, $is_correct, $question_id);
+                $option_stmt->execute();
+
+                // Insert the 'false' option
+                $false_option = 'false'; // Set as 'false'
+                $is_correct = ($correct_option === 'false') ? 1 : 0; // Mark as correct if 'false'
+                $option_stmt->bind_param("sii", $false_option, $is_correct, $question_id);
                 $option_stmt->execute();
                 break;
 

@@ -160,6 +160,10 @@
         .table-wrapper tbody::-webkit-scrollbar {
             display: none;
         }
+        #startAssessment {
+            outline: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -220,12 +224,12 @@
                         <div class='top-right-container'>
                             <?php
                                 if ($administer['time_limit'] != null) { ?>
-                                    <h4 class='time'>Time Limit: <?php echo htmlspecialchars($administer['time_limit']); ?> </h4>
+                                    <h4 class='time'>Time Limit: <?php echo htmlspecialchars($administer['time_limit']) . " minutes"; ?> </h4>
                                 <?php } else { ?>
                                     <h4 class='time'>Time Limit: no time limit set</h4>
                                 <?php } 
                             ?>
-                            <button class='main-button button'> Start </button>
+                            <button id="startAssessment" class='main-button button' onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">Start</button>
                         </div>
                     </div>
 
@@ -328,5 +332,28 @@
     // Close the database connection
     $conn->close();
     ?>
+
+    <script>
+        function updateStatus(administerId) {
+            fetch('update_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ administer_id: administerId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Assessment started successfully!');
+                } else {
+                    alert('Failed to start assessment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ if (isset($_POST['class_id'])) {
 
     // Query to get all assessments for the class
     $total_assessments_query = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, a.time_limit, a.topic
+        SELECT a.assessment_id, a.assessment_name, a.time_limit, a.topic, a.assessment_mode, a.assessment_type, aa.status
         FROM assessment a
         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
         WHERE aa.class_id = '$class_id'
@@ -49,13 +49,37 @@ if (isset($_POST['class_id'])) {
 
             // Show assessments that aren't taken yet
             if ($assessment_query->num_rows == 0) {
+                // Determine button text based on assessment type
+                $button_text = $row['assessment_type'] == 1 ? 'Take Quiz' : 'Take Exam';
+
+                // Determine redirection URL based on assessment mode and set the assessment mode text
+                $redirect_url = '';
+                $assessment_mode = '';
+
+                if ($row['status'] == 0) {
+                    // Redirect to waiting room if status is 0
+                    $redirect_url = 'waiting_room.php';
+                    $assessment_mode = $row['assessment_mode'] == 1 ? 'Normal Mode' : ($row['assessment_mode'] == 2 ? 'Quiz Bee Mode' : 'Speed Mode');
+                } elseif ($row['status'] == 1) {
+                    // Redirect to respective assessment page based on mode
+                    if ($row['assessment_mode'] == 1) {
+                        $redirect_url = 'quiz.php'; //assessment_mode_1.php
+                    } elseif ($row['assessment_mode'] == 2) {
+                        $redirect_url = 'assessment_mode_2.php';
+                    } elseif ($row['assessment_mode'] == 3) {
+                        $redirect_url = 'assessment_mode_3.php';
+                    }
+                    $assessment_mode = $row['assessment_mode'] == 1 ? 'Normal Mode' : ($row['assessment_mode'] == 2 ? 'Quiz Bee Mode' : 'Speed Mode');
+                }
+
+                // Display assessment card information
                 echo '<div class="assessment-card">';
                 echo '<div class="assessment-card-title">' . htmlspecialchars($row['assessment_name']) . '</div>';
                 echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
-                echo '<div class="assessment-card-duration">Duration: ' . htmlspecialchars($row['time_limit']) . ' minutes</div>';
+                echo '<div class="assessment-card-mode">Mode: ' . htmlspecialchars($assessment_mode) . '</div>';
                 echo '<div class="assessments-actions">';
-                echo '<a href="quiz.php?assessment_id=' . htmlspecialchars($row['assessment_id']) . '" class="take-assessment-link">';
-                echo '<button id="takeAssessment_' . $row['assessment_id'] . '" class="main-button">Take Assessment</button>';
+                echo '<a href="' . htmlspecialchars($redirect_url) . '?assessment_id=' . htmlspecialchars($row['assessment_id']) . '&student_id=' . htmlspecialchars($student_id) . '" class="take-assessment-link">';
+                echo '<button id="takeAssessment_' . $row['assessment_id'] . '" class="main-button">' . htmlspecialchars($button_text) . '</button>';
                 echo '</a>';
                 echo '</div>';
                 echo '</div>';

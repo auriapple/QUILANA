@@ -129,6 +129,7 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
+    margin-right: 0;
     display: flex;
     border-bottom: 2px solid #CDCDCD;
 }
@@ -502,16 +503,23 @@ button.btn-rounded{
 
 /* CLASSES AND RESULTS - STUDENT */
 /* JOIN CLASS POPUP */
-#join-modal-content {
+#join-modal-content,
+#message-modal-content {
     width: 450px;
     height: 350px;
     margin: 10% auto;
     align-items: center;
     z-index: 1005;
 }
-#join-class-title {
+#join-class-title,
+#message-popup-title {
     margin-bottom: 20px;
     font-size: 36px;
+}
+#message-body {
+    margin: 40px 0;
+    font-size: 24px;
+    color: #4a4a4a;
 }
 /* Class Code Input Field */
 /* Default State */
@@ -589,7 +597,8 @@ button.btn-rounded{
     color: #8F8F9D;
     margin: 10px 0 0 0;
 }
-.assessment-card-duration {
+.assessment-card-duration,
+.assessment-card-mode {
     font-size: 16px;
     color: #8F8F9D;
     margin-top: 0;
@@ -601,15 +610,14 @@ button.btn-rounded{
     display: flex;
     justify-content: space-between; 
     position: absolute;
-    bottom: 20px; 
-    left: 20px; 
-    right: 20px;
-    align-items: center; 
+    bottom: 20px;
+    width: calc(100% - 40px);
 }
 
 /* Buttons */
 [id^=viewResult_],
 [id^=viewClassDetails_],
+[id^=takeAssessment_],
 #viewClassDetails {
     width: calc(100% - 40px);
     border-radius: 5px;
@@ -631,16 +639,6 @@ td #viewClassDetails {
     text-align: center;
 }
 
-[id^=takeAssessment_] {
-    width: calc(100% - 40px);
-    border-radius: 5px;
-    padding: 12px 30px;
-    font-size: 14px;
-    position: absolute;
-    bottom: 25px;
-    outline: none;
-    text-align: center;
-}
 #administer,
 #manage,
 #viewClasses,
@@ -701,15 +699,18 @@ td #viewClassDetails {
 }
 
 /* Questions Container */
-.questions-container {
+.questions-container,
+.personal-ranking-container,
+.leaderboards-container,
+.ranking-container {
     background-color: #FFFFFF;
     border: 1px solid #F8F9FA;
     border-radius: 8px;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
     overflow: auto;
     width: 97.5%;
-    height: 72vh;
-    margin: 10px;
+    height: 75vh;
+    margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
 }
@@ -768,7 +769,7 @@ td #viewClassDetails {
 .subject-separator {
     display: flex;
     align-items: center;
-    margin: 20px 0;
+    margin: 15px 0;
     text-align: left;
     position: relative;
 }
@@ -795,7 +796,7 @@ td #viewClassDetails {
 /* Popup Styles */
 #modal-content {
     width: 600px;
-    height: 350px;
+    height: 400px;
     margin: 10% auto;
     align-items: center;
 }
@@ -822,11 +823,16 @@ th, td {
     text-align: center;
     border: none;
     color:#4a4a4a;
+    border-right: 1px solid rgba(59, 39, 110, 0.80);
+    width: 25%;
 }
 thead th {
     background-color: #E0E0EC;
     color: #474747;
     font-size: 16px;
+}
+td:last-child, th:last-child {
+    border-right: none;
 }
 /* END */
 
@@ -844,7 +850,7 @@ thead th {
 }
 
 .scrollable-content {
-    max-height: 73vh; 
+    max-height: 75vh; 
     overflow-y: auto;
     padding-right: 15px; 
 }

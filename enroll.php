@@ -28,21 +28,22 @@
             </ul>
         </div>
 
-        <!-- Classes Tab -->
-        <div id="classes-tab" class="tab-content active">
-            <div class="class-container">
-                <?php
-                $student_id = $_SESSION['login_id'];
+        <div class="scrollable-content">
+            <!-- Classes Tab -->
+            <div id="classes-tab" class="tab-content active">
+                <div class="class-container">
+                    <?php
+                    $student_id = $_SESSION['login_id'];
 
-                // Fetch student's enrolled classes
-                $enrolled_classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name, f.firstname, f.lastname 
-                                                        FROM student_enrollment e
-                                                        JOIN class c ON e.class_id = c.class_id
-                                                        JOIN faculty f ON c.faculty_id = f.faculty_id
-                                                        WHERE e.student_id = '$student_id' AND e.status = '1'");
+                    // Fetch student's enrolled classes
+                    $enrolled_classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name, f.firstname, f.lastname 
+                                                            FROM student_enrollment e
+                                                            JOIN class c ON e.class_id = c.class_id
+                                                            JOIN faculty f ON c.faculty_id = f.faculty_id
+                                                            WHERE e.student_id = '$student_id' AND e.status = '1'");
 
-                while ($row = $enrolled_classes_query->fetch_assoc()) {
-                ?>
+                    while ($row = $enrolled_classes_query->fetch_assoc()) {
+                    ?>
 
                 <!-- Display class details -->
                 <div class="class-card">
@@ -76,13 +77,14 @@
         <div id="assessments-tab" class="tab-content">
             <div id="class-container">
 
-                <!-- If a class is selected, assessments are loaded here -->
-                <?php
-                if (isset($_GET['class_id'])) {
-                    $class_id = $_GET['class_id'];
-                    include('load_assessment.php');
-                }
-                ?>
+                    <!-- If a class is selected, assessments are loaded here -->
+                    <?php
+                    if (isset($_GET['class_id'])) {
+                        $class_id = $_GET['class_id'];
+                        include('load_assessment.php');
+                    }
+                    ?>
+                </div>
             </div>
         </div>
 
@@ -126,6 +128,17 @@
                     </div>
                 </div>
             </div>
+
+        <!-- Modal for success/error message -->
+        <div id="message-popup" class="popup-overlay" style="display: none;">
+            <div id="message-modal-content" class="popup-content">
+                <span id="message-modal-close" class="popup-close">&times;</span>
+                <h2 id="message-popup-title" class="popup-title">Message</h2>
+                <div id="message-body" class="modal-body">
+                    <!-- Message will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
         </div>
 
     <script>
@@ -171,6 +184,11 @@
                 $('#join-class-popup').hide(); 
             });
 
+            // Close the message popup
+            $('#message-modal-close').click(function() {
+                $('#message-popup').hide();
+            });
+
             // Handles code submission
             $('#code-frm').submit(function(event) {
                 event.preventDefault();
@@ -181,14 +199,26 @@
                     data: $(this).serialize(),
                     success: function(response) {
                         var result = JSON.parse(response);
-                        
-                        if (result.status === 'success') {
-                            $('#msg').html('<div class="alert alert-success">' +
-                                            'Enrollment request sent! Please wait for approval.' +
-                                            '</div>');
+
+                        // Close the popup
+                        $('#join-class-popup').hide(); 
+    
+                        var message = '';
+                        var title = '';
+                        var titleColor = '';
+                        if (result.status === 'success'){
+                            title = 'SUCCESS';
+                            titleColor = '#28A745';
+                            message = result.message;
                         } else {
-                            $('#msg').html('<div class="alert alert-danger">' + result.message + '</div>');
+                            title = 'ERROR';
+                            titleColor = '#DC3545';
+                            message = result.message;
                         }
+                        $('#message-popup-title').text(title).css('color', titleColor);
+                        $('#message-body').html(message);
+
+                        $('#message-popup').show();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.log("Request failed: " + textStatus + ", " + errorThrown);
