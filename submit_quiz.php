@@ -1,6 +1,7 @@
 <?php
 // Database connection
 require 'db_connect.php';
+require 'auth.php';
 session_start();
 
 function check_correctness($question_id, $answer_value, $question_type, $conn) {
@@ -77,9 +78,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $answers = $_POST['answers'];
     $date_taken = date('Y-m-d H:i:s');
 
+
     //$conn->begin_transaction();
 
     try {
+        // Fetch administer assessment details
+        $administer_query = $conn->query("
+            SELECT aa.administer_id 
+            FROM administer_assessment aa
+            JOIN assessment a ON a.assessment_id = aa.assessment_id
+            WHERE a.assessment_id = '$assessment_id'
+        ");
+
+        // Check if there is administer assessment details
+        if ($administer_query->num_rows>0) {
+            $administer_data = $administer_query->fetch_assoc();
+            $administer_id = $administer_data['administer_id'];
+            
+            // Update the join_assessment status to 2 (finished)
+            $update_join_query = $conn->query("
+                UPDATE join_assessment 
+                SET status = 2
+                WHERE administer_id = '$administer_id' 
+                AND student_id = '$student_id'
+            ");
+                
+            if (!$update_join_query) {
+                echo "Error updating record: " . $conn->error;
+            }
+        }
+
         // Insert submission details into the student_submission table
         $insert_submission_query = "INSERT INTO student_submission (student_id, assessment_id, date_taken) 
                                     VALUES ('$student_id', '$assessment_id', '$date_taken')";
