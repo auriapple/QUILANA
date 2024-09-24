@@ -1,0 +1,118 @@
+/* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+.wrapper {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.wrapper header{
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    justify-content: space-between;
+}
+
+header .icons{
+    display: flex;
+}
+
+header .icons span{
+    height: 38px;
+    width: 38px;
+    margin: 0 1px;
+    cursor: pointer;
+    color: #878787;
+    text-align: center;
+    line-height: 38px;
+    font-size: 1.5rem;
+    user-select: none;
+    border-radius: 50%;
+}
+
+.icons span:last-child{
+    margin-right: -10px;
+}
+
+header .icons span:hover{
+    background: #f2f2f2;
+}
+
+header .current-date{
+    font-size: 1.3rem;
+    font-weight: 500;
+    margin: 0; /* Ensure no margin affecting the centering */
+    line-height: 1; /* Reset the line-height to avoid vertical misalignment */
+}
+
+.calendar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.calendar ul{
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    text-align: center;
+}
+
+.calendar .days{
+    height: 100%;
+}
+
+.calendar li{
+    color: #333;
+    width: calc(100% / 7);
+    font-size: 1rem;
+}
+.calendar .weeks li{
+    font-weight: 500;
+    cursor: default;
+}
+
+.calendar .days li{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    cursor: pointer;
+    position: relative;
+    height: calc(100% / 5);
+}
+
+.days li.inactive{
+     color: #aaa;
+}
+
+.days li.active{
+     color: #fff;
+}
+
+.days li::before{
+    position: absolute;
+    content: "";
+    left: 50%;
+    top: 50%;
+    height: 40px;
+    width: 40px;
+    z-index: -1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.days li.active::before{
+    background: #9B59B6;
+}
+
+.days li:not(.active):hover::before{
+     background: #f2f2f2;
+}

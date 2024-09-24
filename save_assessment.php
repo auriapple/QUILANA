@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $assessment_type = $_POST['assessment_type'];
     $assessment_mode = $_POST['assessment_mode'];
     $course_id = $_POST['course_id'];
-    $class_id = $_POST['class_id'];
+    $subject = $_POST['subject'];
     $topic = $_POST['topic'];
     
     // Add time_limit to the POST data we're collecting
@@ -21,20 +21,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($assessment_id) {
         // Update existing assessment
         if ($assessment_mode == 1) {
-            $stmt = $conn->prepare("UPDATE assessment SET faculty_id = ?, assessment_name = ?, assessment_type = ?, assessment_mode = ?, course_id = ?, class_id = ?, topic = ?, time_limit = ? WHERE assessment_id = ?");
-            $stmt->bind_param('issiissii', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $class_id, $topic, $time_limit, $assessment_id);
+            $stmt = $conn->prepare("UPDATE assessment SET faculty_id = ?, assessment_name = ?, assessment_type = ?, assessment_mode = ?, course_id = ?, subject = ?, topic = ?, time_limit = ? WHERE assessment_id = ?");
+            $stmt->bind_param('issiissii', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $subject, $topic, $time_limit, $assessment_id);
         } else {
-            $stmt = $conn->prepare("UPDATE assessment SET faculty_id = ?, assessment_name = ?, assessment_type = ?, assessment_mode = ?, course_id = ?, class_id = ?, topic = ?, time_limit = NULL WHERE assessment_id = ?");
-            $stmt->bind_param('issiissi', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $class_id, $topic, $assessment_id);
+            $stmt = $conn->prepare("UPDATE assessment SET faculty_id = ?, assessment_name = ?, assessment_type = ?, assessment_mode = ?, course_id = ?, subject = ?, topic = ?, time_limit = NULL WHERE assessment_id = ?");
+            $stmt->bind_param('issiissi', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $subject, $topic, $assessment_id);
         }
     } else {
         // Add new assessment
         if ($assessment_mode == 1) {
-            $stmt = $conn->prepare("INSERT INTO assessment (faculty_id, assessment_name, assessment_type, assessment_mode, course_id, class_id, topic, time_limit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param('issiissi', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $class_id, $topic, $time_limit);
+            $stmt = $conn->prepare("INSERT INTO assessment (faculty_id, assessment_name, assessment_type, assessment_mode, course_id, subject, topic, time_limit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param('issiissi', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $subject, $topic, $time_limit);
         } else {
-            $stmt = $conn->prepare("INSERT INTO assessment (faculty_id, assessment_name, assessment_type, assessment_mode, course_id, class_id, topic) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param('issiiss', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $class_id, $topic);
+            $stmt = $conn->prepare("INSERT INTO assessment (faculty_id, assessment_name, assessment_type, assessment_mode, course_id, subject, topic) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param('issiiss', $faculty_id, $assessment_name, $assessment_type, $assessment_mode, $course_id, $subject, $topic);
         }
     }
 

@@ -6,22 +6,22 @@
     <?php include('db_connect.php') ?>
     <title>Courses | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-</head>
+    
 <body>
     <?php include('nav_bar.php') ?>
 
-    <div class="container-fluid admin">
+<div class="content-wrapper">
+        <!-- Header Container -->
         <div class="add-course-container">
-            <button class="btn btn-primary btn-sm add-btn" id="add_course"><i class="fa fa-plus"></i> Add Course</button>
-            <button class="btn btn-primary btn-sm add-btn" id="add_class" style="display:none;"><i class="fa fa-plus"></i> Add Class</button>
-            <div class="search-bar">
-                <form action="search_courses.php" method="GET">
-                    <input type="text" name="query" placeholder="Search" required>
-                    <button type="submit">Search</button>
-                </form>
-            </div>
+            <button class="secondary-button" id="addCourse">Add Course</button>
+            <button class="secondary-button" id="addClass" style="display:none;">Add Class</button>
+            <form class="search-bar" action="#" method="GET">
+                <input type="text" name="query" placeholder="Search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
         </div>
 
         <div class="tabs-container">
@@ -49,15 +49,24 @@
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                             <div class="meatball-menu">
-                                <a href="#" class="edit_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Edit</a>
-                                <a href="#" class="delete_course" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>">Delete</a>
+                                <div class="arrow-up"></div>
+                                <a href="#" class="edit_course" 
+                                    data-id="<?php echo $row['course_id'] ?>" 
+                                    data-name="<?php echo $row['course_name'] ?>">
+                                    <span class="material-symbols-outlined">Edit</span>
+                                    Edit</a>
+                                <a href="#" class="delete_course" 
+                                    data-id="<?php echo $row['course_id'] ?>" 
+                                    data-name="<?php echo $row['course_name'] ?>">
+                                    <span class="material-symbols-outlined">delete</span>
+                                    Delete</a>
                             </div>
                         </div>
                         <div class="course-card-title"><?php echo $row['course_name'] ?></div>
                         <div class="course-card-text"><?php echo $classCount ?> Class(es)</div>
                         <div class="course-actions">
-                            <button class="btn btn-outline-primary btn-sm classes" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
-                            <button class="btn btn-primary btn-sm view_course_details" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
+                            <button id="viewClasses" class="tertiary-button viewClasses" data-id="<?php echo $row['course_id'] ?>" data-name="<?php echo $row['course_name'] ?>" type="button">Classes</button>
+                            <button id="viewCourseDetails" class="main-button" data-id="<?php echo $row['course_id'] ?>" type="button">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -292,7 +301,8 @@
                     </div>
                 </div>
             </div>
-        </div>
+        
+</div>
 
 
         <script>
@@ -303,12 +313,14 @@
             // Show the appropriate button based on the active tab
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
-                $('.add-btn').hide(); // Hide all buttons initially
+                // Hide both buttons initially
+                $('#addCourse').hide();
+                $('#addClass').hide();
 
                 if (activeTab === 'courses-tab') {
-                    $('#add_course').show();
+                    $('#addCourse').show();
                 } else if (activeTab === 'classes-tab') {
-                    $('#add_class').show();
+                    $('#addClass').show();
                 }
             }
 
@@ -335,7 +347,7 @@
             });
 
             // When add new course button is clicked
-            $('#add_course').click(function() {
+            $('#addCourse').click(function() {
                 $('#msg').html('');
                 $('#manage_course .modal-title').html('Add New Course');
                 $('#manage_course #course-frm').get(0).reset();
@@ -370,7 +382,7 @@
                 });
 
             // When add new class button is clicked
-            $('#add_class').click(function() {
+            $('#addClass').click(function() {
                 $('#msg').html('');
                 $('#manage_class .modal-title').html('Add New Class');
                 $('#manage_class #class-frm').get(0).reset();
@@ -408,19 +420,36 @@
                     $('#manage_delete_class').modal('show');
                 });
 
-            $(document).on('click', '.get_code', function() {
-                var classId = $(this).data('class-id');
-                var className = $(this).data('class-name');
-                var subject = $(this).data('subject');
-                var code = $(this).data('code');
+                $(document).on('click', '.get_code', function() { 
+                    var classId = $(this).data('class-id');
+                    var className = $(this).data('class-name');
+                    var subject = $(this).data('subject');
 
-                $('#msg').html('');
-                $('#manage_get_code .modal-title').html('Join Code');
-                $('#manage_get_code #modal_class_name').text(className);
-                $('#manage_get_code #modal_subject').text(subject);
-                $('#modal_code').text(code);
-                $('#manage_get_code').modal('show');
-            });
+                    $('#msg').html('');
+                    $('#manage_get_code .modal-title').html('Join Code');
+                    $('#manage_get_code #modal_class_name').text(className);
+                    $('#manage_get_code #modal_subject').text(subject);
+
+                    // Fetch the code dynamically using AJAX
+                    $.ajax({
+                        url: 'generated_code.php',
+                        type: 'POST',
+                        data: { class_id: classId }, 
+                        success: function(response) {
+                            var result = JSON.parse(response);
+                            if (result.success) {
+                                $('#modal_code').text(result.code);
+                            } else {
+                                $('#modal_code').text('Error: ' + result.error);
+                            }
+                            $('#manage_get_code').modal('show');
+                        },
+                        error: function(xhr, status, error) {
+                            $('#modal_code').text('Error fetching code. Please try again.');
+                            console.error('Error:', error);
+                        }
+                    });
+                });
 
             // Handle Edit Form (Course)
             $('#edit-course-frm').submit(function(event) {
@@ -522,7 +551,7 @@
                 });
 
             // View course details button
-            $(document).on('click', '.view_course_details', function() {
+            $(document).on('click', '#viewCourseDetails', function() {
                 var course_id = $(this).attr('data-id');
                 $.ajax({
                     url: 'get_course_details.php',
@@ -540,7 +569,7 @@
             });
 
             // View class details button
-            $(document).on('click', '.view_class_details', function() {
+            $(document).on('click', '#viewClassDetails', function() {
                 var class_id = $(this).attr('data-id');
                 $.ajax({
                     url: 'get_class_details.php',
@@ -649,9 +678,12 @@
             });
 
             // Handle Classes button click
-            $('.classes').click(function() {
+            $('.viewClasses').click(function() {
                 var course_id = $(this).attr('data-id');
                 var course_name = $(this).attr('data-name');
+
+                // for testing
+                console.log("click");
 
                 // Show the Classes tab and set the course name
                 $('#classes-tab-link').show().click();
@@ -665,6 +697,9 @@
                     success: function(response) {
                         $('#class-container').html(response);
                         updateMeatballMenu();
+
+                        // for testing
+                        console.log("it should work");
                     }
                 });
 
@@ -710,27 +745,27 @@
             });
 
             function initializeMeatballMenu() {
-            console.log("Meatball menu initialized");
+                console.log("Meatball menu initialized");
 
-            // Ensure the click event is bound to dynamically loaded elements
-            $(document).on('click', '.meatball-menu-btn', function(event) {
-                event.stopPropagation();
-                $('.meatball-menu-container').not($(this).parent()).removeClass('show');
-                $(this).parent().toggleClass('show');
-            });
+                // Ensure the click event is bound to dynamically loaded elements
+                $(document).on('click', '.meatball-menu-btn', function(event) {
+                    event.stopPropagation();
+                    $('.meatball-menu-container').not($(this).parent()).removeClass('show');
+                    $(this).parent().toggleClass('show');
+                });
 
-            // Close the menu if clicked outside
-            $(document).on('click', function(event) {
-                if (!$(event.target).closest('.meatball-menu-container').length) {
-                    $('.meatball-menu-container').removeClass('show');
-                }
-            });
-        }
+                // Close the menu if clicked outside
+                $(document).on('click', function(event) {
+                    if (!$(event.target).closest('.meatball-menu-container').length) {
+                        $('.meatball-menu-container').removeClass('show');
+                    }
+                });
+            }
 
-        function updateMeatballMenu() {
-            // Remove any existing open menus
-            $('.meatball-menu-container').removeClass('show');
-        }
+            function updateMeatballMenu() {
+                // Remove any existing open menus
+                $('.meatball-menu-container').removeClass('show');
+            }
 
             // Check if the URL contains `show_modal=true`
             const urlParams = new URLSearchParams(window.location.search);

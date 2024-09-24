@@ -1,47 +1,64 @@
 <?php
 include('db_connect.php');
+include('auth.php');
 
-if (isset($_GET['assessment_id'])) {
+header('Content-Type: application/json');
+
+// Function to fetch assessment details
+function getAssessmentDetails($conn, $assessment_id) {
+    $stmt = $conn->prepare("SELECT assessment_name, topic FROM assessment WHERE assessment_id = ?");
+    $stmt->bind_param("i", $assessment_id);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
+
+// Function to fetch student results
+function getStudentResults($conn, $assessment_id, $student_id) {
+    $stmt = $conn->prepare("SELECT date_updated, score, total_score, remarks 
+                            FROM student_results 
+                            WHERE assessment_id = ? AND student_id = ?");
+    $stmt->bind_param("ii", $assessment_id, $student_id);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+if (isset($_GET['assessment_id']) && filter_var($_GET['assessment_id'], FILTER_VALIDATE_INT)) {
     $assessment_id = $_GET['assessment_id'];
+    $student_id = $_SESSION['login_id'];
 
-    // Fetch assessment details from the student_results table
-    $result_query = $conn->query("SELECT * FROM student_results WHERE assessment_id = '$assessment_id'");
-
-    $details = [];
-    if ($result_query->num_rows > 0) {
-        // Fetch each result and store it in the $details array
-        while ($row = $result_query->fetch_assoc()) {
-            $details[] = [
-                'date' => htmlspecialchars($row['date_updated']),
-                'score' => htmlspecialchars($row['score']),
-                'total_score' => htmlspecialchars($row['total_score']),
-                'remarks' => htmlspecialchars($row['remarks'])
-            ];
-        }
-    } else {
-        echo json_encode(['error' => 'No results found for this assessment.']);
-        exit;
+    // Fetch assessment details
+    $assessment_data = getAssessmentDetails($conn, $assessment_id);
+    if (!$assessment_data) {
+        echo json_encode(['error' => 'Assessment not found']);
+        exit();
     }
 
-    // Fetch assessment name and topic from the assessment table
-    $assessment_query = $conn->query("SELECT assessment_name, topic FROM assessment WHERE assessment_id = '$assessment_id'");
+    // Fetch student results
+    $results_query = getStudentResults($conn, $assessment_id, $student_id);
+    $details = [];
+    while ($row = $results_query->fetch_assoc()) {
+        $details[] = [
+            'date' => $row['date_updated'],
+            'score' => $row['score'],
+            'total_score' => $row['total_score'],
+            'remarks' => $row['remarks']
+        ];
+    }
 
-    if ($assessment_query->num_rows > 0) {
-        $assessment = $assessment_query->fetch_assoc();
-
-        // Create response array with title, topic, and details
+    // Handle empty results
+    if (empty($details)) {
+        echo json_encode(['error' => 'No results found for this assessment and student']);
+    } else {
+        // Prepare the response
         $response = [
-            'title' => htmlspecialchars($assessment['assessment_name']),
-            'topic' => htmlspecialchars($assessment['topic']),
+            'title' => $assessment_data['assessment_name'],
+            'topic' => $assessment_data['topic'],
             'details' => $details
         ];
-
-        // Return response as JSON
         echo json_encode($response);
-    } else {
-        echo json_encode(['error' => 'Assessment details not found.']);
     }
 } else {
-    echo json_encode(['error' => 'Assessment ID not provided.']);
+    echo json_encode(['error' => 'Invalid or missing assessment ID']);
 }
+$conn->close();
 ?>
