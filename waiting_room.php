@@ -279,10 +279,8 @@ if ($assessment_query->num_rows>0) {
                         echo "</ul>";
                         echo "<p>Once you are sure of your answer, click the “Submit Answer” button on the top right corner of your screen to lock in your response. Remember, the faster you submit, the more points you can earn! Good luck and speed up to score high!</p>";
                     }
-                ?>
-
+                    ?>
                 </div>
-                
             </div>
             <div class="message">
                 <h5>Get ready to show off those smarts! The <?php echo ($assessment['assessment_type'] == 1) ? 'quiz' : 'exam'; ?> will begin shortly!</h5>
