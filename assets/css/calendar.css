@@ -56,6 +56,8 @@ header .current-date{
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-width: 320px;
+    white-space: nowrap;
 }
 
 .calendar ul{
@@ -72,6 +74,7 @@ header .current-date{
 .calendar li{
     color: #333;
     width: calc(100% / 7);
+    min-width: 40px;
     font-size: 1rem;
 }
 .calendar .weeks li{

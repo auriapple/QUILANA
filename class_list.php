@@ -673,7 +673,10 @@
                                 $('#msg').html('<div class="alert alert-danger">' + resp.msg + '</div>');
                             }
                         }
-                    }
+                    }, error: function(jqXHR, textStatus, errorThrown) {
+                            console.log("Request failed: " + textStatus + ", " + errorThrown);
+                            alert('An error occurred while saving the course.');
+                        }
                 });
             });
 
