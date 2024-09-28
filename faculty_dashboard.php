@@ -41,7 +41,7 @@ if (!isset($_SESSION['login_user_type'])) {
                             <label>Total Number of Courses</label> 
                         </div>
                     </div>
-                    <div class="card"> 
+                    <div class="card" style="background-color: #FADEFF"> 
                         <img class="icons" src="image/DashboardClassesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses FROM class
