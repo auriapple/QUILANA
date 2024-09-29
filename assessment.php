@@ -37,7 +37,7 @@
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
-                    SELECT a.*, c.course_name, cl.subject 
+                    SELECT a.*, c.course_name
                     FROM assessment a 
                     JOIN course c ON a.course_id = c.course_id 
                     WHERE a.faculty_id = '".$_SESSION['login_id']."'
