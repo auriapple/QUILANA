@@ -97,50 +97,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 break;
 
-            case 'true_false':
-                $correct_option = $_POST['tf_answer'] ?? '';
-                $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
-
-                // Check for existing options
-                $existing_options_query = "SELECT option_id FROM question_options WHERE question_id = ?";
-                $existing_options_stmt = $conn->prepare($existing_options_query);
-                $existing_options_stmt->bind_param("i", $question_id);
-                $existing_options_stmt->execute();
-                $existing_options_result = $existing_options_stmt->get_result();
-
-                $existing_options = [];
-                while ($row = $existing_options_result->fetch_assoc()) {
-                    $existing_options[] = $row['option_id'];
-                }
-
-                // Insert or update true and false options
-                foreach (['true', 'false'] as $option) {
-                    $is_correct = ($option === $correct_option) ? 1 : 0;
-
-                    if (in_array($option, $existing_options)) {
-                        // Update existing option
-                        $update_option_query = "UPDATE question_options SET is_right = ? WHERE option_txt = ? AND question_id = ?";
-                        $update_stmt = $conn->prepare($update_option_query);
-                        $update_stmt->bind_param("isi", $is_correct, $option, $question_id);
-                        $update_stmt->execute();
-                    } else {
-                        // Insert new option
-                        $option_stmt = $conn->prepare($options_query);
-                        $option_stmt->bind_param("sii", $option, $is_correct, $question_id);
-                        $option_stmt->execute();
+                case 'true_false':
+                    $correct_option = $_POST['tf_answer'] ?? '';
+                    $options = ['true', 'false'];
+                    
+                    // Check for existing options
+                    $existing_options_query = "SELECT option_txt, option_id FROM question_options WHERE question_id = ?";
+                    $existing_options_stmt = $conn->prepare($existing_options_query);
+                    $existing_options_stmt->bind_param("i", $question_id);
+                    $existing_options_stmt->execute();
+                    $existing_options_result = $existing_options_stmt->get_result();
+                
+                    $existing_options = [];
+                    while ($row = $existing_options_result->fetch_assoc()) {
+                        $existing_options[$row['option_txt']] = $row['option_id'];
                     }
-                }
-                break;
+                
+                    foreach ($options as $option) {
+                        $is_correct = ($option === $correct_option) ? 1 : 0;
+                
+                        if (isset($existing_options[$option])) {
+                            // Update existing option
+                            $option_id = $existing_options[$option];
+                            $update_option_query = "UPDATE question_options SET is_right = ? WHERE option_id = ?";
+                            $update_stmt = $conn->prepare($update_option_query);
+                            $update_stmt->bind_param("ii", $is_correct, $option_id);
+                            $update_stmt->execute();
+                        } else {
+                            // Insert new option
+                            $insert_option_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
+                            $insert_stmt = $conn->prepare($insert_option_query);
+                            $insert_stmt->bind_param("sii", $option, $is_correct, $question_id);
+                            $insert_stmt->execute();
+                        }
+                    }
+                    break;
 
             case 'identification':
             case 'fill_blank':
                 $answer_text = $_POST[$question_type . '_answer'] ?? '';
 
                 if (!empty($answer_text)) {
-                    $identification_query = "INSERT INTO question_identifications (identification_answer, question_id) VALUES (?, ?)";
-                    $identification_stmt = $conn->prepare($identification_query);
-                    $identification_stmt->bind_param("si", $answer_text, $question_id);
-                    $identification_stmt->execute();
+                    // Check if an answer already exists
+                    $check_existing_query = "SELECT identification_id FROM question_identifications WHERE question_id = ?";
+                    $check_existing_stmt = $conn->prepare($check_existing_query);
+                    $check_existing_stmt->bind_param("i", $question_id);
+                    $check_existing_stmt->execute();
+                    $check_existing_result = $check_existing_stmt->get_result();
+
+                    if ($check_existing_result->num_rows > 0) {
+                        // Update existing answer
+                        $existing_answer = $check_existing_result->fetch_assoc();
+                        $identification_query = "UPDATE question_identifications SET identification_answer = ? WHERE identification_id = ?";
+                        $identification_stmt = $conn->prepare($identification_query);
+                        $identification_stmt->bind_param("si", $answer_text, $existing_answer['identification_id']);
+                        $identification_stmt->execute();
+                    } else {
+                        // Insert new answer
+                        $identification_query = "INSERT INTO question_identifications (identification_answer, question_id) VALUES (?, ?)";
+                        $identification_stmt = $conn->prepare($identification_query);
+                        $identification_stmt->bind_param("si", $answer_text, $question_id);
+                        $identification_stmt->execute();
+                    }
                 } else {
                     throw new Exception(ucfirst($question_type) . ' answer is required.');
                 }
@@ -159,4 +177,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $conn->close();
 }
-?>

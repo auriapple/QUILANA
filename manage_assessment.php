@@ -95,7 +95,7 @@ if ($stmt = $conn->prepare($query)) {
             margin-bottom: 20px;
         }
         .card-body {
-            max-height: 290px;
+            max-height: 45vh;
             overflow-y: auto;
         }
         .list-group-item {
@@ -321,35 +321,35 @@ if ($stmt = $conn->prepare($query)) {
     $(document).ready(function() {
         // Show/hide question type options based on selection
         $('#question_type').change(function() {
+            var questionType = $(this).val();
+
+            // Hide all question type options and show the selected one
             $('.question-type-options').hide();
-            $('#' + $(this).val() + '_options').show();
-            
-            // Remove 'required' attribute from hidden fields
+            $('#' + questionType + '_options').show();
+
+            // Toggle 'required' attribute for visible fields
             $('.question-type-options:hidden').find('[required]').prop('required', false);
-            
-            // Add 'required' attribute to visible fields
-            $('#' + $(this).val() + '_options').find('input, textarea').prop('required', true);
+            $('#' + questionType + '_options').find('input, textarea').prop('required', true);
 
             // Initialize options for multiple choice and checkbox
-            if ($(this).val() === 'multiple_choice' || $(this).val() === 'checkbox') {
-                initializeOptions($(this).val());
+            if (questionType === 'multiple_choice' || questionType === 'checkbox') {
+                initializeOptions(questionType);
             }
         });
 
-        // Function to initialize options for multiple choice and checkbox
+        // Initialize options if none exist for multiple choice or checkbox
         function initializeOptions(type) {
             var optionsContainer = $('#' + type + '_options');
             if (optionsContainer.find('.option-group').length === 0) {
-                // Add one initial option if none exist
                 addOption(type);
             }
         }
 
-        // Function to add a new option
+        // Add a new option for multiple choice or checkbox
         function addOption(type) {
             var optionsContainer = $('#' + type + '_options');
             var optionCount = optionsContainer.find('.option-group').length + 1;
-            
+
             var newOption = `
                 <div class="option-group d-flex align-items-center mb-2">
                     <textarea rows="2" name="question_opt[]" id="${type}_option_${optionCount}" class="form-control flex-grow-1 mr-2" required></textarea>
@@ -360,13 +360,13 @@ if ($stmt = $conn->prepare($query)) {
             optionsContainer.find('.form-group').append(newOption);
         }
 
-        // Add option buttons
+        // Add option buttons handler
         $(document).on('click', '#add_mc_option, #add_cb_option', function() {
             var type = $(this).attr('id').includes('mc') ? 'multiple_choice' : 'checkbox';
             addOption(type);
         });
 
-        // Remove option button
+        // Remove option button handler
         $(document).on('click', '.remove-option', function() {
             var optionsContainer = $(this).closest('.question-type-options');
             if (optionsContainer.find('.option-group').length > 1) {
@@ -379,64 +379,40 @@ if ($stmt = $conn->prepare($query)) {
         // Form submission
         $('#question-frm').submit(function(e) {
             e.preventDefault();
-            
+
             var questionType = $('#question_type').val();
             var formData = new FormData(this);
-            
-            // Validation logic
-            var isValid = true;
-            $('#' + questionType + '_options').find('input:visible, textarea:visible').each(function() {
-                if ($(this).prop('required') && !$(this).val()) {
-                    isValid = false;
-                    $(this).addClass('is-invalid');
-                } else {
-                    $(this).removeClass('is-invalid');
+
+            if (!formData.get('id')) {
+                formData.delete('id');
+            }
+
+            // Clear and append options correctly for the selected question type
+            formData.delete('question_opt[]');
+            formData.delete('is_right[]');
+            formData.delete('is_right');
+
+            // Append option data for multiple_choice or checkbox types
+            $('#' + questionType + '_options .option-group').each(function(index) {
+                var optionText = $(this).find('textarea[name="question_opt[]"]').val();
+                if (optionText && optionText.trim() !== '') {
+                    formData.append('question_opt[]', optionText.trim());
+
+                    if (questionType === 'multiple_choice') {
+                        if ($(this).find('input[name="is_right"]:checked').length > 0) {
+                            formData.append('is_right', index);
+                        }
+                    } else if (questionType === 'checkbox') {
+                        if ($(this).find('input[name="is_right[]"]:checked').length > 0) {
+                            formData.append('is_right[]', index);
+                        }
+                    }
                 }
             });
-            
-            if (!isValid) {
-                $('#msg').html('<div class="alert alert-danger">Please fill out all required fields.</div>');
-                return;
-            }
-            
+
             // Additional validation for specific question types
-            switch(questionType) {
-                case 'multiple_choice':
-                    if ($('#' + questionType + '_options .option-group').length < 2) {
-                        $('#msg').html('<div class="alert alert-danger">Please add at least two options.</div>');
-                        return;
-                    }
-                    if ($('#' + questionType + '_options input[name="is_right"]:checked').length === 0) {
-                        $('#msg').html('<div class="alert alert-danger">Please select the correct answer.</div>');
-                        return;
-                    }
-                    break;
-                case 'checkbox':
-                    if ($('#' + questionType + '_options .option-group').length < 2) {
-                        $('#msg').html('<div class="alert alert-danger">Please add at least two options.</div>');
-                        return;
-                    }
-                    // Check if at least one checkbox is selected
-                    if ($('#' + questionType + '_options input[name="is_right[]"]:checked').length === 0) {
-                        $('#msg').html('<div class="alert alert-danger">Please select at least one correct answer.</div>');
-                        return;
-                    }
-                    break;
-                case 'true_false':
-                    if (!$('input[name="tf_answer"]:checked').val()) {
-                        $('#msg').html('<div class="alert alert-danger">Please select True or False.</div>');
-                        return;
-                    }
-                    break;
-            }
-    
-            // Add time limit validation for Quiz Bee and Speed Mode
-            var mode = '<?php echo $assessment_mode_code; ?>';
-            if ((mode == '2' || mode == '3') && !$('#time_limit').val()) {
-                $('#msg').html('<div class="alert alert-danger">Please enter a time limit for this question.</div>');
-                return;
-            }
-            
+            if (!validateForm(questionType)) return;
+
             // AJAX submission
             $.ajax({
                 type: 'POST',
@@ -448,7 +424,7 @@ if ($stmt = $conn->prepare($query)) {
                 success: function(response) {
                     if (response.status === 'success') {
                         $('#msg').html('<div class="alert alert-success">' + response.message + '</div>');
-                        $('#save_question_btn').prop('disabled', true).text('Saved'); // Disable the button
+                        $('#save_question_btn').prop('disabled', true).text('Saved');
                         setTimeout(function() {
                             $('#manage_question').modal('hide');
                             location.reload();
@@ -458,35 +434,134 @@ if ($stmt = $conn->prepare($query)) {
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error("AJAX Error: " + status + ": " + error);
                     $('#msg').html('<div class="alert alert-danger">An error occurred while saving the question. Please try again.</div>');
                 }
             });
         });
 
-        // Add Question Button
-        $(document).on('click', '#add_question_btn', function() {
-            // Clear the form
+        // Form validation function
+        function validateForm(questionType) {
+            var isValid = true;
+
+            // Validate required fields
+            $('#' + questionType + '_options').find('input:visible, textarea:visible').each(function() {
+                if ($(this).prop('required') && !$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                $('#msg').html('<div class="alert alert-danger">Please fill out all required fields.</div>');
+                return false;
+            }
+
+            // Additional validation for question types
+            switch (questionType) {
+                case 'multiple_choice':
+                    if ($('#' + questionType + '_options .option-group').length < 2) {
+                        $('#msg').html('<div class="alert alert-danger">Please add at least two options.</div>');
+                        return false;
+                    }
+                    if ($('#' + questionType + '_options input[name="is_right"]:checked').length === 0) {
+                        $('#msg').html('<div class="alert alert-danger">Please select the correct answer.</div>');
+                        return false;
+                    }
+                    break;
+                case 'checkbox':
+                    if ($('#' + questionType + '_options .option-group').length < 2) {
+                        $('#msg').html('<div class="alert alert-danger">Please add at least two options.</div>');
+                        return false;
+                    }
+                    if ($('#' + questionType + '_options input[name="is_right[]"]:checked').length === 0) {
+                        $('#msg').html('<div class="alert alert-danger">Please select at least one correct answer.</div>');
+                        return false;
+                    }
+                    break;
+                case 'true_false':
+                    if (!$('input[name="tf_answer"]:checked').val()) {
+                        $('#msg').html('<div class="alert alert-danger">Please select True or False.</div>');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        // Populate form when editing question
+        function populateQuestionForm(data) {
             $('#question-frm')[0].reset();
-            
-            // Reset question type and trigger change event
+            $('#question_type').val(data.question_type).trigger('change');
+            $('input[name="id"]').val(data.question_id);
+            $('#question').val(data.question);
+            $('#points').val(data.total_points);
+
+            if (data.question_type === 'multiple_choice' || data.question_type === 'checkbox') {
+                $('#' + data.question_type + '_options .form-group').empty();
+
+                data.options.forEach(function(option, index) {
+                    var newOption = `
+                        <div class="option-group d-flex align-items-center mb-2">
+                            <textarea rows="2" name="question_opt[]" class="form-control flex-grow-1 mr-2" required>${option.option_txt}</textarea>
+                            <label>
+                                <input type="${data.question_type === 'multiple_choice' ? 'radio' : 'checkbox'}" 
+                                    name="${data.question_type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" 
+                                    value="${index}" ${option.is_right ? 'checked' : ''}>
+                            </label>
+                            <button type="button" class="btn btn-sm btn-danger ml-2 remove-option">Remove</button>
+                        </div>
+                    `;
+                    $('#' + data.question_type + '_options .form-group').append(newOption);
+                });
+            } 
+            else if (data.question_type === 'true_false') {
+                $('input[name="tf_answer"]').prop('checked', false);
+                    if (Array.isArray(data.options) && data.options.length === 2) {
+                        const trueOption = data.options[0].option_txt; 
+                        const falseOption = data.options[1].option_txt; 
+                        
+                        const answer = data.options[0].is_right ? trueOption : falseOption;
+
+                        $(`input[name="tf_answer"][value="${answer}"]`).prop('checked', true);
+                    } else {
+                        console.warn('Options are not valid for true_false:', data.options);
+                    }
+                    } 
+            else if (data.question_type === 'identification') {
+                    if (data.answer !== undefined) {
+                        $('#identification_answer').val(data.answer);
+                    } else {
+                        console.warn('Answer is not defined for identification:', data.answer);
+                    }
+                } 
+            else if (data.question_type === 'fill_blank') {
+                    if (data.answer !== undefined) {
+                        $('#fill_blank_answer').val(data.answer);
+                    } else {
+                        console.warn('Answer is not defined for fill_blank:', data.answer);
+                    }
+                }
+            }
+
+
+        // Add question button handler (for new questions)
+        $(document).on('click', '#add_question_btn', function() {
+            $('#question-frm')[0].reset();
             $('#question_type').val('').trigger('change');
-            
-            // Clear any existing messages
             $('#msg').html('');
-            
-            // Clear any existing options for multiple choice and checkbox questions
             $('#multiple_choice_options .form-group, #checkbox_options .form-group').empty();
-            
-            // Show the modal
+            $('input[name="id"]').val(''); 
+            $('#manageQuestionLabel').text('Add New Question');
             $('#manage_question').modal('show');
         });
 
-        // Edit question button
-        $(document).on('click', '.edit_question', function() {
+                // Edit question button handler
+                $(document).on('click', '.edit_question', function() {
             var questionId = $(this).data('id');
-            
-            // Fetch question details
+
+            // Fetch question details for editing
             $.ajax({
                 type: 'GET',
                 url: 'get_question.php',
@@ -495,6 +570,7 @@ if ($stmt = $conn->prepare($query)) {
                 success: function(response) {
                     if (response.status === 'success') {
                         populateQuestionForm(response.data);
+                        $('input[name="id"]').val(response.data.question_id); 
                         $('#manageQuestionLabel').text('Edit Question');
                         $('#manage_question').modal('show');
                     } else {
@@ -508,7 +584,7 @@ if ($stmt = $conn->prepare($query)) {
             });
         });
 
-        // Delete question button
+        // Delete question button handler
         $(document).on('click', '.remove_question', function() {
             var questionId = $(this).data('id');
 
@@ -534,14 +610,14 @@ if ($stmt = $conn->prepare($query)) {
             }
         });
 
-        // Edit time limit button
+        // Edit time limit button handler
         $('#edit_time_limit_btn').click(function() {
             var currentTimeLimit = $('#current-time-limit').text();
             $('#assessment_time_limit').val(currentTimeLimit === 'Not set' ? '' : currentTimeLimit);
             $('#edit_time_limit_modal').modal('show');
         });
 
-        // Save time limit button
+        // Save time limit button handler
         $('#save_time_limit').click(function() {
             var newTimeLimit = $('#assessment_time_limit').val();
             if (newTimeLimit === '') {
@@ -573,63 +649,6 @@ if ($stmt = $conn->prepare($query)) {
             });
         });
 
-        function populateQuestionForm(data) {
-        console.log('Question Data:', data); // Log the entire data object
-        
-        $('#question-frm')[0].reset();
-        $('#question_type').val(data.question_type).trigger('change');
-        $('input[name="id"]').val(data.question_id);
-        $('#question').val(data.question);
-        $('#points').val(data.total_points);
-
-        switch(data.question_type) {
-            case 'multiple_choice':
-            case 'checkbox':
-                $('#' + data.question_type + '_options .form-group').empty();
-                if (Array.isArray(data.options)) {
-                    data.options.forEach(function(option, index) {
-                        if (option.option_txt !== undefined) { 
-                            var newOption = `
-                                <div class="option-group d-flex align-items-center mb-2">
-                                    <textarea rows="2" name="question_opt[]" class="form-control flex-grow-1 mr-2" required>${option.option_txt}</textarea>
-                                    <label><input type="${data.question_type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${data.question_type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${index}" ${option.is_right ? 'checked' : ''} required></label>
-                                    <button type="button" class="btn btn-sm btn-danger ml-2 remove-option">Remove</button>
-                                </div>
-                            `;
-                            $('#' + data.question_type + '_options .form-group').append(newOption);
-                        } else {
-                            console.warn('Option is missing option_txt:', option);
-                        }
-                    });
-                } else {
-                    console.warn('Options is not an array:', data.options);
-                }
-                break;
-            case 'true_false':
-                if (Array.isArray(data.options) && data.options[0] && data.options[0].option_txt !== undefined) {
-                    $(`input[name="tf_answer"][value="${data.options[0].option_txt}"]`).prop('checked', true);
-                } else {
-                    console.warn('Options is not valid for true_false:', data.options);
-                }
-                break;
-            case 'identification':
-                if (data.answer !== undefined) {
-                    $('#identification_answer').val(data.answer);
-                } else {
-                    console.warn('Answer is not defined for identification:', data.answer);
-                }
-                break;
-            case 'fill_blank':
-                if (data.answer !== undefined) {
-                    $('#fill_blank_answer').val(data.answer);
-                } else {
-                    console.warn('Answer is not defined for fill_blank:', data.answer);
-                }
-                break;
-        }
-    }
-
-
         // Function to handle assessment mode change
         function handleAssessmentModeChange() {
             var mode = '<?php echo $assessment_mode_code; ?>';
@@ -645,6 +664,6 @@ if ($stmt = $conn->prepare($query)) {
         // Call the function on page load
         handleAssessmentModeChange();
     });
-    </script>
+</script>
 </body>
 </html>
