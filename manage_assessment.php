@@ -95,7 +95,7 @@ if ($stmt = $conn->prepare($query)) {
             margin-bottom: 20px;
         }
         .card-body {
-            max-height: 290px;
+            max-height: 45vh;
             overflow-y: auto;
         }
         .list-group-item {
@@ -134,60 +134,6 @@ if ($stmt = $conn->prepare($query)) {
             </a>
         </div>
 
-<<<<<<< HEAD
-        <?php
-        if (isset($_GET['assessment_id'])) {
-            $assessment_id = intval($_GET['assessment_id']);
-            $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit 
-            FROM assessment a
-            JOIN course c ON a.course_id = c.course_id
-            WHERE a.assessment_id = ?";
-
-            if ($stmt = $conn->prepare($query)) {
-                $stmt->bind_param("i", $assessment_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
-                    $assessment_name = htmlspecialchars($row['assessment_name']);
-                    $assessment_type_code = htmlspecialchars($row['assessment_type']);
-                    $assessment_mode_code = htmlspecialchars($row['assessment_mode']);
-                    $course_name = htmlspecialchars($row['course_name']);
-                    $subject_name = htmlspecialchars($row['subject']);
-                    $assessment_time_limit = $row['time_limit'];
-
-                    $assessment_type = ($assessment_type_code == 1) ? 'Quiz' : 'Exam';
-
-                    switch ($assessment_mode_code) {
-                        case 1:
-                            $assessment_mode = 'Normal Mode';
-                            break;
-                        case 2:
-                            $assessment_mode = 'Quiz Bee Mode';
-                            break;
-                        case 3:
-                            $assessment_mode = 'Speed Mode';
-                            break;
-                        default:
-                            $assessment_mode = 'Unknown Mode';
-                            break;
-                    }
-                } else {
-                    echo "<p>No assessment found with the provided ID.</p>";
-                }
-
-                $stmt->close();
-            } else {
-                echo "<p>Error preparing the SQL query.</p>";
-            }
-        } else {
-            echo "<p>Assessment ID not provided.</p>";
-        }
-        ?>
-
-=======
->>>>>>> nathan
         <div class="assessment-details">
             <h2><?php echo $assessment_name; ?></h2>
             <p><strong>Assessment Mode:</strong> <?php echo $assessment_mode; ?></p>
@@ -408,11 +354,15 @@ if ($stmt = $conn->prepare($query)) {
                 <div class="option-group d-flex align-items-center mb-2">
                     <textarea rows="2" name="question_opt[]" id="${type}_option_${optionCount}" class="form-control flex-grow-1 mr-2" required></textarea>
 <<<<<<< HEAD
+<<<<<<< HEAD
                     <label><input type="${type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${optionCount - 1}" ${type === 'multiple_choice' ? 'required' : ''}></label>
 =======
                     <label>
                         <input type="${type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${optionCount - 1}">
                     </label>
+>>>>>>> nathan
+=======
+                    <label><input type="${type === 'multiple_choice' ? 'radio' : 'checkbox'}" name="${type === 'multiple_choice' ? 'is_right' : 'is_right[]'}" value="${optionCount - 1}" ${type === 'multiple_choice' ? 'required' : ''}></label>
 >>>>>>> nathan
                     <button type="button" class="btn btn-sm btn-danger ml-2 remove-option">Remove</button>
                 </div>
