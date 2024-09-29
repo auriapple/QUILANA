@@ -374,18 +374,6 @@
 
             var previousClassId = null; // Variable to keep track of the previously selected class
 
-<<<<<<< HEAD
-            var previousClassId = null; // Variable to keep track of the previously selected class
-
-            // Show modal when "Administer Assessment" is clicked
-            $(document).on('click', '.administer', function() {
-                var assessmentId = $(this).data('id');      // Get the assessment ID
-                var courseId = $(this).data('course-id');   // Get the course ID
-                var courseName = $(this).data('course-name'); // Get the course name
-                var subjectName = $(this).data('subject');  // Get the subject name
-                var mode = $(this).data('mode');            // Get the assessment mode
-
-=======
             // Show modal when "Administer Assessment" is clicked
             $(document).on('click', '#administer', function() {
                 var assessmentId = $(this).data('id');      // Get the assessment ID
@@ -395,7 +383,6 @@
                 var mode = $(this).data('mode');            // Get the assessment mode
                 var assessmentName = $(this).data('assessment-name') // Get the assessment name
 
->>>>>>> nathan
                 // Check if the assessment has questions
                 $.ajax({
                     url: 'check_questions.php', // PHP file to check questions
@@ -408,10 +395,7 @@
                             // Set the hidden fields
                             $('#assessment_id_hidden').val(assessmentId);
                             $('#course_id_hidden').val(courseId);
-<<<<<<< HEAD
-=======
                             $('#assessment_name_hidden').val(assessmentName);
->>>>>>> nathan
 
                             // Set other fields
                             $('#administer_course').val(courseName); // Display course name
@@ -462,10 +446,6 @@
 
                 // Update the previous class id
                 previousClassId = selectedClassId;
-<<<<<<< HEAD
-            });
-
-=======
 
                 var selectedOption = $(this).find('option:selected');
                 var className = selectedOption.text(); // Get the class name
@@ -473,7 +453,6 @@
                 $('#administer_class_name_hidden').val(className);
             });
             
->>>>>>> nathan
             // Handle administer form submission
             $('#administer-assessment-frm').submit(function(e) {
                 e.preventDefault();
