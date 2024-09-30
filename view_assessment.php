@@ -3,8 +3,9 @@ include('header.php');
 include('auth.php');
 include('db_connect.php');
 
-// Retrieve assessment ID from query parameters
+// Retrieve assessment ID and class ID from query parameters
 $assessment_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$class_id = isset($_GET['class_id']) ? intval($_GET['class_id']) : 0;
 
 if ($assessment_id > 0) {
     // Fetch the assessment details and time limits based on mode
@@ -60,8 +61,8 @@ if ($assessment_mode == 1) { // Normal Mode
     }
     $overall_time_limit_minutes = ceil($total_question_time_limit / 60);
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -70,6 +71,7 @@ if ($assessment_mode == 1) { // Normal Mode
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Assessment | Quilana</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         .back-arrow {
             font-size: 24px; 
@@ -108,7 +110,7 @@ if ($assessment_mode == 1) { // Normal Mode
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-height: 410px;
+            max-height: 50vh;
             overflow-y: auto;
             width: 100%;
         }
@@ -145,47 +147,64 @@ if ($assessment_mode == 1) { // Normal Mode
             padding: 5px;
             border-radius: 4px;
         }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-radius: 15px;
+            border: 2px solid rgba(59, 39, 110, 0.80);
+            overflow: hidden;
+            border-spacing: 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: none;
+            color: #4a4a4a;
+            border-right: 1px solid rgba(59, 39, 110, 0.80);
+            width: 25%;
+        }
+        thead th {
+            background-color: #E0E0EC;
+            color: #474747;
+            font-size: 16px;
+        }
+        td:last-child, th:last-child {
+            border-right: none;
+        }
     </style>
 </head>
 <body>
     <?php include('nav_bar.php'); ?>
-
     <div class="content-wrapper">
         <div class="back-arrow">
-            <a href="class_list.php?class_id=<?php echo htmlspecialchars($_GET['class_id']); ?>&show_modal=true">
+            <a href="class_list.php?class_id=<?php echo htmlspecialchars($class_id); ?>&show_modal=true">
                 <i class="fa fa-arrow-left"></i>
             </a>
         </div>
 
-        <div class="assessment-details">
-            <h2><?php echo htmlspecialchars($assessment_details[0]['assessment_name']); ?></h2>
-            <p><strong>Topic:</strong> <?php echo htmlspecialchars($assessment_details[0]['topic']); ?></p>
-
-            <?php
-            switch ($assessment_mode) {
-                case 1:
-                    echo '<p><strong>Overall Time Limit:</strong> ' . htmlspecialchars($overall_time_limit_minutes) . ' minutes (Normal Mode)</p>';
-                    break;
-                case 2:
-                    echo '<p><strong>Overall Time Limit:</strong> ' . htmlspecialchars($overall_time_limit_minutes) . ' minutes (Quiz Bee Mode)</p>';
-                    break;
-                case 3:
-                    echo '<p><strong>Overall Time Limit:</strong> ' . htmlspecialchars($overall_time_limit_minutes) . ' minutes (Speed Mode)</p>';
-                    break;
-                default:
-                    echo '<p><strong>Overall Time Limit:</strong> Not specified</p>';
-                    break;
-            }
-            ?>
+        <div class="tabs-container">
+            <ul class="tabs">
+                <li class="tab-link active" data-tab="assessment">Assessment Details</li>
+                <li class="tab-link" data-tab="scores">Student Scores</li>
+            </ul>
         </div>
 
-        <div style="padding-right: 50px;">
+        <!-- Assessment Details Tab Content -->
+        <div class="tab-content active" id="assessment">
+            <div class="assessment-details">
+                <h2><?php echo htmlspecialchars($assessment_details[0]['assessment_name']); ?></h2>
+                <p><strong>Topic:</strong> <?php echo htmlspecialchars($assessment_details[0]['topic']); ?></p>
+                <p><strong>Overall Time Limit:</strong> <?php echo htmlspecialchars($overall_time_limit_minutes) . ' minutes (' . ($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode)'; ?></p>
+            </div>
+
             <div class="questions-container">
                 <?php
                 $current_question = null;
                 $question_number = 1;
+
                 foreach ($assessment_details as $detail) {
                     if ($current_question !== $detail['question']) {
+                        // Close the previous question if it exists
                         if ($current_question !== null) {
                             echo '</div>'; // Close previous question
                         }
@@ -193,45 +212,123 @@ if ($assessment_mode == 1) { // Normal Mode
                         echo '<div class="question">';
                         echo '<div class="question-number">Question ' . $question_number . ':</div>';
                         echo '<p>' . htmlspecialchars($current_question) . '</p>';
-                        
+
+                        // Display time limit if applicable
                         if ($assessment_mode == 2 || $assessment_mode == 3) {
                             $question_time_limit = isset($detail['question_time_limit']) ? htmlspecialchars($detail['question_time_limit']) : 'Not specified';
                             echo '<div class="time-limit">Time Limit: ' . $question_time_limit . ' seconds</div>';
                         }
-                        
+
                         $question_number++;
                     }
 
+                    // Display options based on question type
                     switch ($detail['ques_type']) {
                         case 1:  // Multiple Choice
                         case 2:  // Multiple Select (Checkbox)
                         case 3:  // True/False
                             $input_type = $detail['ques_type'] == 2 ? 'checkbox' : 'radio';
                             $checked_attr = $detail['is_right'] ? 'checked' : '';
-                            $checked_class = $detail['is_right'] ? 'checked' : '';
+                            $checked_class = $detail['is_right'] ? 'checked' : ''; 
+                            
                             echo '<div class="option">';
-                            echo '<label class="' . $checked_class . '">';
-                            echo '<input type="' . $input_type . '" disabled ' . $checked_attr . '>';
-                            echo htmlspecialchars($detail['option_txt']);
+                            echo '<label class="' . $checked_class . '">'; 
+                            echo '<input type="' . $input_type . '" name="question_' . ($question_number - 1) . '" ' . $checked_attr . '>' . htmlspecialchars($detail['option_txt']);
                             echo '</label>';
                             echo '</div>';
                             break;
 
                         case 4:  // Identification
                         case 5:  // Fill in the Blank
-                            echo '<p><strong>Answer:</strong> ' . htmlspecialchars($detail['identification_answer']) . '</p>';
-                            break;
-
-                        default:
+                            echo '<div class="option"><strong>Answer:</strong> <span>' . htmlspecialchars($detail['identification_answer']) . '</span></div>';
                             break;
                     }
                 }
+
                 if ($current_question !== null) {
-                    echo '</div>'; // Close last question
+                    echo '</div>'; // Close the last question
                 }
                 ?>
             </div>
         </div>
+
+        <!-- Student Scores Tab Content -->
+        <div class="tab-content" id="scores" style="display:none;">
+            <div class="scores-container">
+                <div id="loading-scores">Loading scores...</div>
+                <div class="table-responsive">
+                    <table id="scores-table" style="display:none;" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Last Name</th>
+                                <th>First Name</th>
+                                <th>Score</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+    $(document).ready(function() {
+        $('.tab-link').on('click', function() {
+            const tabId = $(this).data('tab');
+            $('.tab-content').hide().removeClass('active');
+            $('#' + tabId).show().addClass('active');
+            $('.tab-link').removeClass('active');
+            $(this).addClass('active');
+
+            if (tabId === 'scores') {
+                loadStudentScores();
+            }
+        });
+
+        function loadStudentScores() {
+            const assessmentId = <?php echo $assessment_id; ?>;
+            const classId = <?php echo $class_id; ?>;
+
+            $('#loading-scores').show();
+            $('#scores-table').hide();
+
+            $.ajax({
+                url: 'get_scores.php',
+                method: 'GET',
+                data: { assessment_id: assessmentId, class_id: classId },
+                dataType: 'json',
+                success: function(data) {
+                    const tbody = $('#scores-table tbody');
+                    tbody.empty();
+
+                    if (data.scores && data.scores.length > 0) {
+                        data.scores.forEach(score => {
+                            tbody.append(`
+                                <tr>
+                                    <td>${score.lastname}</td>
+                                    <td>${score.firstname}</td>
+                                    <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not taken'}</td>
+                                    <td>${score.remarks}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tbody.append('<tr><td colspan="4">No scores available.</td></tr>');
+                    }
+
+                    $('#scores-table').show();
+                    $('#loading-scores').hide();
+                },
+                error: function() {
+                    $('#loading-scores').text('Error loading scores. Please try again later.');
+                    $('#scores-table').hide();
+                }
+            });
+        }
+    });
+    </script>
+
 </body>
 </html>
