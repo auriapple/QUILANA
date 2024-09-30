@@ -209,8 +209,9 @@ function showStudentScores(studentId, studentName) {
             const scoresBody = document.getElementById('studentScoresBody');
             
             scoresTitle.textContent = ` ${studentName}`;
-            scoresBody.innerHTML = ''; // Clear previous scores
+            scoresBody.innerHTML = ''; 
             
+            // Check if data has scores
             if (data.length > 0) {
                 data.forEach(score => {
                     scoresBody.innerHTML += `
@@ -222,18 +223,19 @@ function showStudentScores(studentId, studentName) {
                         </tr>
                     `;
                 });
-                // Show the Scores tab
-                document.getElementById('studentScoresTab').style.display = 'block'; // Ensure the Scores tab is visible
-                openTab({currentTarget: document.getElementById('studentScoresTab')}, 'StudentScores'); // Open Scores tab
             } else {
                 scoresBody.innerHTML = '<tr><td colspan="4" class="text-center">No scores found for this student.</td></tr>';
             }
+            
+            document.getElementById('studentScoresTab').style.display = 'block'; 
+            openTab({currentTarget: document.getElementById('studentScoresTab')}, 'StudentScores');
         })
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while fetching student scores.');
         });
 }
+
 
 function removeAdministeredAssessment(assessmentId, classId) {
     if (confirm("Are you sure you want to remove this administered assessment from this class?")) {

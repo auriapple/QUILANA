@@ -15,16 +15,16 @@ if (isset($_POST['class_id']) && isset($_POST['student_id']) && isset($_POST['st
         if ($stmt->execute()) {
             echo 'success';
         } else {
-            echo 'error';
+            echo 'error 1';
         }
 
         $stmt->close();
     } else {
-        echo 'error';
+        echo 'error 2';
     }
 
     $conn->close();
 } else {
-    echo 'error';
+    echo 'error 3';
 }
 ?>

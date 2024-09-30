@@ -17,11 +17,28 @@
             color: white;
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             position: fixed;
             width: 100%;
             z-index: 1000;
+        }
+        .navbar-content {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+        }
+        .navbar-left,
+        .navbar-title,
+        .navbar-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-right {
+            justify-content: right;
+        }
+        .navbar-title {
+            justify-content: center;
         }
         .navbar h3 {
             margin: 0;
@@ -35,7 +52,7 @@
             background-color: #f8f9fa;
             overflow-x: hidden;
             transition: 0.3s;
-            padding-top: 60px;
+            padding-top: 50px;
             z-index: 999;
         }
         #sidebar.active {
@@ -58,6 +75,7 @@
         .content-wrapper {
             transition: margin-left 0.3s;
             margin-left: 20px;
+            margin-right: 20px;
             padding-top: 60px;
         }
         .content-wrapper.active {
@@ -69,6 +87,7 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
+            outline: none;
         }
         @media screen and (max-width: 768px) {
             #sidebar {
@@ -86,13 +105,21 @@
 </head>
 <body>
     <nav class="navbar">
-        <button id="sidebarCollapse">
-            <i class="fa fa-bars"></i>
-        </button>
-        <h3>QUILANA</h3>
-        <a href="logout.php" style="color:white">
-            <?php echo $firstname ?> <i class="fa fa-power-off"></i>
-        </a>
+        <div class="navbar-content">
+            <div class="navbar-left">
+                <button id="sidebarCollapse">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+            <div class="navbar-title">
+                <h3>QUILANA</h3>
+            </div>
+            <div class="navbar-right">
+                <a href="logout.php" style="color:white">
+                    <?php echo $firstname ?> <i class="fa fa-power-off"></i>
+                </a>
+            </div>
+        </div>
     </nav>
 
     <div id="sidebar">

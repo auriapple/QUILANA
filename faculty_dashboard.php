@@ -17,6 +17,7 @@ if (!isset($_SESSION['login_user_type'])) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,200" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
         <script src="assets/js/calendar.js" defer></script>
     </head>
@@ -57,67 +58,9 @@ if (!isset($_SESSION['login_user_type'])) {
             </div>
             <div class="dashboard-requests">
                 <h1> Pending Requests </h1>
-                <?php
-                $qry = $conn->query("
-                    SELECT s.student_id, CONCAT(s.lastname, ', ', s.firstname) AS student_name, c.class_id, c.faculty_id, c.class_name, c.subject, se.status
-                    FROM student s
-                    JOIN student_enrollment se ON s.student_id = se.student_id
-                    JOIN class c ON se.class_id = c.class_id
-                    WHERE c.faculty_id = '".$_SESSION['login_id']."' AND se.status = '0'
-                    ORDER BY c.class_name, student_name
-                ");
-                
-                $current_class = '';
-
-                while ($row = $qry->fetch_assoc()) {
-                    $student_id = htmlspecialchars($row['student_id']);
-                    $student_name = htmlspecialchars($row['student_name']);
-                    $class_id = htmlspecialchars($row['class_id']);
-                    $class_name = htmlspecialchars($row['class_name']);
-                    $subject = htmlspecialchars($row['subject']);
-                    $status = htmlspecialchars($row['status']);
-                    
-                    if ($class_name !== $current_class) {
-                        // Close the previous class section (if it's not the first class)
-                        if ($current_class !== '') {
-                            echo "</div>"; // End of the previous class section
-                        }
-                        
-                        // Start a new class section
-                        $current_class = $class_name;
-                        ?>
-                        <div class="class-header">
-                            <span><?php echo $class_name . ' ( ' . $subject . ' )' ?></span>
-                            <div class="line"></div>
-                        </div>
-                        <div class="student-list">
-                        <?php
-                     }
-
-                     // Student Items 
-                     ?>
-                     <div class="student-item">
-                        <label> <?php echo $student_name ?> </label>
-                        <div class="btns">
-                            <button class="btn btn-primary btn-sm accept-btn accept" 
-                                data-class-id="<?php echo $class_id ?>" 
-                                data-student-id="<?php echo $student_id ?>" 
-                                data-status="1" 
-                                type="button">Accept</button>
-                            <button class="btn btn-primary btn-sm reject-btn reject" 
-                                data-class-id="<?php echo $class_id ?>" 
-                                data-student-id="<?php echo $student_id ?>" 
-                                data-status="2" 
-                                type="button">Reject</button>
-                        </div>
-                     </div>
-                     <?php
-                }
-
-                if ($current_class !== '') {
-                    echo "</div>"; // Close the last student-list div
-                }
-                ?>
+                <div id="pending-requests" class="requests">
+                    <!-- Requests will be loaded here -->
+                </div>
             </div>
             <div class="dashboard-calendar">
                 <div class="wrapper">
@@ -167,6 +110,21 @@ if (!isset($_SESSION['login_user_type'])) {
                     } 
                 });
             });
+            
+            function fetchPendingRequests() {
+                fetch('get_requests.php')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('pending-requests').innerHTML = data;
+                })
+                .catch(error => console.error('Error fetching pending requests:', error));
+            }
+
+            // Initial fetch
+            fetchPendingRequests();
+
+            // Refresh every 5 seconds
+            setInterval(fetchPendingRequests, 3000);
         </script>
     </body>
 </html>
