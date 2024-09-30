@@ -64,30 +64,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'checkbox':
                 $options = $_POST['question_opt'] ?? [];
                 $is_right = isset($_POST['is_right']) ? (array)$_POST['is_right'] : [];
-
+        
+                // Get the existing options from the database
+                $existing_options_query = "SELECT option_id, option_txt FROM question_options WHERE question_id = ?";
+                $existing_options_stmt = $conn->prepare($existing_options_query);
+                $existing_options_stmt->bind_param("i", $question_id);
+                $existing_options_stmt->execute();
+                $existing_options_result = $existing_options_stmt->get_result();
+        
+                // Track existing options in the database
+                $existing_options = [];
+                while ($row = $existing_options_result->fetch_assoc()) {
+                    $existing_options[$row['option_id']] = $row['option_txt'];
+                }
+        
+                // Array to track submitted options
+                $submitted_options = [];
+        
+                // Loop through the submitted options and update/insert them
                 foreach ($options as $index => $option) {
                     $option_text = trim($option);
                     if (!empty($option_text)) {
-                        // Check if the option already exists
-                        $existing_option_query = "SELECT option_id FROM question_options WHERE question_id = ? AND option_txt = ?";
-                        $existing_stmt = $conn->prepare($existing_option_query);
-                        $existing_stmt->bind_param("is", $question_id, $option_text);
-                        $existing_stmt->execute();
-                        $existing_result = $existing_stmt->get_result();
-
-                        if ($existing_result->num_rows > 0) {
+                        // Add options to submitted list
+                        $submitted_options[] = $option_text;
+        
+                        $is_correct = in_array((string)$index, $is_right) ? 1 : 0;
+        
+                        // Check if options already exists in the database
+                        $option_exists = array_search($option_text, $existing_options);
+        
+                        if ($option_exists !== false) {
                             // Update existing option
-                            $option_id = $existing_result->fetch_assoc()['option_id'];
-                            $is_correct = in_array((string)$index, $is_right) ? 1 : 0;
-
                             $update_option_query = "UPDATE question_options SET is_right = ? WHERE option_id = ?";
                             $update_stmt = $conn->prepare($update_option_query);
-                            $update_stmt->bind_param("ii", $is_correct, $option_id);
+                            $update_stmt->bind_param("ii", $is_correct, $option_exists);
                             $update_stmt->execute();
+                            // Remove from the existing options array as it has been processed
+                            unset($existing_options[$option_exists]);
                         } else {
                             // Insert new option
-                            $is_correct = in_array((string)$index, $is_right) ? 1 : 0;
-
                             $options_query = "INSERT INTO question_options (option_txt, is_right, question_id) VALUES (?, ?, ?)";
                             $option_stmt = $conn->prepare($options_query);
                             $option_stmt->bind_param("sii", $option_text, $is_correct, $question_id);
@@ -95,6 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
+        
+                // Deletion of options
+                foreach ($existing_options as $option_id => $option_text) {
+                    $delete_option_query = "DELETE FROM question_options WHERE option_id = ?";
+                    $delete_stmt = $conn->prepare($delete_option_query);
+                    $delete_stmt->bind_param("i", $option_id);
+                    $delete_stmt->execute();
+                }
+        
                 break;
 
                 case 'true_false':
