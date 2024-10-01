@@ -4,7 +4,7 @@
     <?php include('header.php') ?>
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
-    <title>Courses | Quilana</title>
+    <title>Classes | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
@@ -41,105 +41,108 @@
                                                             JOIN class c ON e.class_id = c.class_id
                                                             JOIN faculty f ON c.faculty_id = f.faculty_id
                                                             WHERE e.student_id = '$student_id' AND e.status = '1'");
-
-                    while ($row = $enrolled_classes_query->fetch_assoc()) {
-                    ?>
-
-                <!-- Display class details -->
-                <div class="class-card">
-                    <div class="meatball-menu-container">
-                    <button class="meatball-menu-btn">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                        <div class="meatball-menu">
-                            <div class="arrow-up"></div>
-                            <a href="#" class="unenroll"
-                                data-id = "<?php echo $row['class_id'] ?>"
-                                data-name = "<?php echo $row['class_name'] ?>" >
-                                <span class="material-symbols-outlined">exit_to_app</span>
-                                Unenroll</a>
-                            <a href="#" class="report">
-                            <span class="material-symbols-outlined">report</span>
-                                Report</a>
+                    // Check if there are any enrolled classes
+                    if ($enrolled_classes_query->num_rows>0) {
+                        while ($row = $enrolled_classes_query->fetch_assoc()) {
+                    ?>        
+                        
+                        <!-- Display class details -->
+                        <div class="class-card">
+                            <div class="meatball-menu-container">
+                            <button class="meatball-menu-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                                <div class="meatball-menu">
+                                    <div class="arrow-up"></div>
+                                    <a href="#" class="unenroll"
+                                        data-id = "<?php echo $row['class_id'] ?>"
+                                        data-name = "<?php echo $row['class_name'] ?>" >
+                                        <span class="material-symbols-outlined">exit_to_app</span>
+                                        Unenroll</a>
+                                    <a href="#" class="report">
+                                    <span class="material-symbols-outlined">report</span>
+                                        Report</a>
+                                </div>
+                            </div>
+                            <div class="class-card-title"><?php echo $row['subject'] ?></div>
+                            <div class="class-card-text">Section: <?php echo $row['class_name'] ?> <br>Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
+                            <div class="class-actions">
+                                <button id="viewClassDetails_<?php echo $row['class_id']; ?>" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="class-card-title"><?php echo $row['subject'] ?></div>
-                    <div class="class-card-text">Section: <?php echo $row['class_name'] ?> <br>Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
-                    <div class="class-actions">
-                        <button id="viewClassDetails_<?php echo $row['class_id']; ?>" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
-                    </div>
-                </div>
-                <?php } ?>
+                        <?php }
+                    } else {
+                        echo '<p class="no-assessments">You are not enrolled in any classes</p>';
+                    }
+                    ?>           
             </div>
         </div>
         
         <!-- Assessments Tab -->
         <div id="assessments-tab" class="tab-content">
             <div id="class-container">
-
-                    <!-- If a class is selected, assessments are loaded here -->
-                    <?php
+                <!-- If a class is selected, assessments are loaded here -->
+                <?php
                     if (isset($_GET['class_id'])) {
                         $class_id = $_GET['class_id'];
                         include('load_assessment.php');
                     }
-                    ?>
+                ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for entering class code to join a class-->
+    <div id="join-class-popup" class="popup-overlay">
+        <div id="join-modal-content" class="popup-content">
+            <span id="modal-close" class="popup-close">&times;</span>
+            <h2 id="join-class-title" class="popup-title">Join Class</h2>
+
+            <!-- Form to submit the class code -->
+            <form id='code-frm' action="" method="POST">
+                <div class="modal-body">
+                    <div class="class-code">
+                        <input type="text" name="get_code" required="required" class="code" placeholder="Class Code" />
+                    </div>
+                </div>
+                <div class="join-button">
+                    <button id="join" type="submit" class="secondary-button" name="join_by_code">Join</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Unenrolling -->
+    <div class="modal fade" id="unenroll_modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Unenroll from Class</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" id="confirm_unenroll_btn" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal for entering class code to join a class-->
-        <div id="join-class-popup" class="popup-overlay">
-            <div id="join-modal-content" class="popup-content">
-                <span id="modal-close" class="popup-close">&times;</span>
-                <h2 id="join-class-title" class="popup-title">Join Class</h2>
-
-                <!-- Form to submit the class code -->
-                <form id='code-frm' action="" method="POST">
-                    <div class="modal-body">
-                        <div id="msg"></div>
-                        <div class="class-code">
-                            <input type="text" name="get_code" required="required" class="code" placeholder="Class Code" />
-                        </div>
-                    </div>
-                    <div class="join-button">
-                        <button id="join" type="submit" class="secondary-button" name="join_by_code">Join</button>
-                    </div>
-                </form>
+    <!-- Modal for success/error message -->
+    <div id="message-popup" class="popup-overlay" style="display: none;">
+        <div id="message-modal-content" class="popup-content">
+            <span id="message-modal-close" class="popup-close">&times;</span>
+            <h2 id="message-popup-title" class="popup-title">Message</h2>
+            <div id="message-body" class="modal-body">
+                <!-- Message will be dynamically inserted here -->
             </div>
         </div>
-
-        <!-- Modal for Unenrolling -->
-        <div class="modal fade" id="unenroll_modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Unenroll from Class</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" id="confirm_unenroll_btn" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
-                    </div>
-                </div>
-            </div>
-
-        <!-- Modal for success/error message -->
-        <div id="message-popup" class="popup-overlay" style="display: none;">
-            <div id="message-modal-content" class="popup-content">
-                <span id="message-modal-close" class="popup-close">&times;</span>
-                <h2 id="message-popup-title" class="popup-title">Message</h2>
-                <div id="message-body" class="modal-body">
-                    <!-- Message will be dynamically inserted here -->
-                </div>
-            </div>
-        </div>
-        </div>
+    </div>
 
     <script>
         $(document).ready(function() {

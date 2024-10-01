@@ -664,6 +664,7 @@ td #viewClassDetails {
     outline: none;
 }
 #result,
+#result-2,
 #submit-answers,
 #error {
     margin-top: 10px;

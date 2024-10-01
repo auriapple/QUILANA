@@ -90,7 +90,7 @@ while ($question = $questions_query->fetch_assoc()) {
             <h2 class="popup-title">You have finished the quiz!</h2>
             <p class="popup-message">SUBMIT YOUR ANSWERS NOW</p>
             <div class="popup-buttons">
-                <button id="final-submit" class="secondary-button" onclick="finalSubmit()">Submit</button>
+                <button id="submit-answers" class="secondary-button" onclick="finalSubmit()">Submit</button>
             </div>
         </div>
     </div>
@@ -121,7 +121,7 @@ while ($question = $questions_query->fetch_assoc()) {
             <!-- Header with stopwatch and submit button -->
             <div class="header-container">
                 <!--p>Time Left: <span id="timer" class="timer">00:00</span></p-->
-                <p>Time Elapsed: <span id="stopwatch" class="timer">00:00:000</span></p>
+                <p>Time Elapsed: <span id="stopwatch" class="timer">00:00</span></p>
                 <button type="button" onclick="showPopup(currentQuestionIndex < questions.length - 1 ? 'confirmation-popup' : 'final-confirmation-popup')" id="submit" class="secondary-button">Submit</button>
             </div>
 
@@ -143,6 +143,9 @@ while ($question = $questions_query->fetch_assoc()) {
                         <?php
                         $question_type = $question['ques_type'];
                         if ($question_type == 1) { // Single choice
+                            // Add a hidden input to ensure an empty string is submitted if no radio button is checked
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
                                 echo "<div class='form-check'>";
@@ -151,6 +154,9 @@ while ($question = $questions_query->fetch_assoc()) {
                                 echo "</div>";
                             }
                         } elseif ($question_type == 2) { // Multiple choice
+                            // Add a hidden input to ensure an empty string is submitted if no radio button is checked
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
                                 echo "<div class='form-check'>";
@@ -159,6 +165,9 @@ while ($question = $questions_query->fetch_assoc()) {
                                 echo "</div>";
                             }
                         } elseif ($question_type == 3) { // True/False
+                            // Add a hidden input to ensure an empty string is submitted if no radio button is checked
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             echo "<div class='form-check'>";
                             echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
                             echo "<label class='form-check-label'>True</label>";
@@ -177,16 +186,18 @@ while ($question = $questions_query->fetch_assoc()) {
                 <?php endforeach; ?>
                 <input type="hidden" name="assessment_id" value="<?php echo htmlspecialchars($assessment_id); ?>">
                 <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
-                <input type="hidden" name="time_elapsed" id="time_elapsed" value="0">
             </div>
         </form>
     </div>
 
     <script>
         let stopwatchInterval;
-        let elapsedTime = 0; // Time in milliseconds
+        let elapsedTime = 0;
+        let isPaused = false; // Tracks whether the timer is paused
         const questions = document.querySelectorAll('.questions-container .question');
         let currentQuestionIndex = 0;
+
+        let questionTimes = Array(questions.length).fill(0);
 
         function showQuestion(index) {
             questions.forEach((question, i) => {
@@ -196,51 +207,63 @@ while ($question = $questions_query->fetch_assoc()) {
         }
 
         function startStopwatch() {
+            clearInterval(stopwatchInterval);
+            elapsedTime = 0;
             stopwatchInterval = setInterval(() => {
-                elapsedTime += 100; // Increment by 100ms
-                updateStopwatchDisplay();
+                //elapsedTime += 100; // Increment by 100ms
+                //updateStopwatchDisplay();
+                if (!isPaused) { // Only update if not paused
+                    elapsedTime += 100; // Increment by 100ms
+                    updateStopwatchDisplay();
+                }
             }, 100);
         }
 
         function updateStopwatchDisplay() {
-            const hours = Math.floor(elapsedTime / 3600000);
             const minutes = Math.floor((elapsedTime % 3600000) / 60000);
             const seconds = Math.floor((elapsedTime % 60000) / 1000);
-            const milliseconds = Math.floor((elapsedTime % 1000) / 100);
             document.getElementById('stopwatch').textContent = 
-                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${milliseconds}`;
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 showQuestion(currentQuestionIndex);
+                startStopwatch();
             } else {
                 showPopup('final-confirmation-popup');
             }
         }
 
         function submitAnswer() {
-            // Logic for saving the answer could go here (if needed)
-            // Just moving to the next question
+            questionTimes[currentQuestionIndex] = elapsedTime;
+            console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
             closePopup('confirmation-popup');
             nextQuestion();
         }
 
         function finalSubmit() {
+            questionTimes[currentQuestionIndex] = elapsedTime;
+            console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
             closePopup('final-confirmation-popup');
             submitForm();
         }
 
         function submitForm() {
             const formData = new FormData(document.getElementById('quiz-form'));
+
+            // Add question times to the form data
+            formData.append('time_elapsed', JSON.stringify(questionTimes));
+
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'submit_quiz.php', true);
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     clearInterval(stopwatchInterval);
-                    alert('Your answers have been submitted successfully!');
-                    window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(formData.get('assessment_id'));
+                    showPopup('success-popup');
+                    //alert('Your answers have been submitted successfully! Time elapsed: ' + response.time_elapsed);
+                    //window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(formData.get('assessment_id'));
                 } else {
                     alert('Error submitting your answers. Please try again.');
                 }
@@ -250,15 +273,27 @@ while ($question = $questions_query->fetch_assoc()) {
 
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
+            if (popupId === 'confirmation-popup') {
+                isPaused = true; // Set paused state
+            }
         }
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
+            if (popupId === 'confirmation-popup') {
+                isPaused = false; // Resume updating
+            }
         }
 
         // When the window loads
         window.onload = function () {
             showQuestion(currentQuestionIndex); // Show the first question
+            startStopwatch();
         };
+
+        function viewResult() {
+            const assessmentId = document.querySelector('input[name="assessment_id"]').value;
+            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId);
+        }
     </script>
 </body>
 </html>
