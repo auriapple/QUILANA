@@ -49,11 +49,12 @@ body {
 .dashboard-requests h1,
 .dashboard-summary h1,
 .recent-assessments h1 {
-    height: fit-content;
+    min-height: fit-content;
     font-size: 20px;
     font-weight: 600;
     color: #1e1a43;
     white-space: nowrap;
+    overflow: hidden;
 }
 
 /* DASHBOARD SUMMARY */

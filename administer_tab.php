@@ -224,12 +224,24 @@
                         <div class='top-right-container'>
                             <?php
                                 if ($administer['time_limit'] != null) { ?>
-                                    <h4 class='time'>Time Limit: <?php echo htmlspecialchars($administer['time_limit']) . " minutes"; ?> </h4>
+                                    <h4 class='time'>Time Limit: 
+                                        <a id="minuteDisplay"> <?php echo htmlspecialchars($administer['time_limit']) ?> </a> 
+                                        <a> : </a>
+                                        <a id="secondDisplay"> 00 </a>
+                                    </h4>
                                 <?php } else { ?>
                                     <h4 class='time'>Time Limit: no time limit set</h4>
                                 <?php } 
                             ?>
-                            <button id="startAssessment" class='main-button button' onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">Start</button>
+                            <button id="startAssessment" class='main-button button'
+                                data-status = 1
+                                data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
+                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
+                                Start</button>
+                            <button id="stopAssessment" class='main-button button'
+                                data-status = 2
+                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
+                                Stop</button>
                         </div>
                     </div>
 
@@ -335,17 +347,24 @@
 
     <script>
         function updateStatus(administerId) {
+            const button = event.target;
+            const status = button.getAttribute('data-status');
+
             fetch('update_status.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ administer_id: administerId })
+                body: JSON.stringify({ administer_id: administerId, status: status })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.success && button.id === 'startAssessment') {
                     alert('Assessment started successfully!');
+                } else if (data.success && button.id === 'stopAssessment') {
+                    alert('Assessment stopped successfully!');
+                } else if (!data.success &&button.id === 'stopAssessment') {
+                    alert('Failed to stop assessment: ' + data.message);
                 } else {
                     alert('Failed to start assessment: ' + data.message);
                 }
@@ -354,6 +373,57 @@
                 console.error('Error:', error);
             });
         }
+
+        $('#stopAssessment').hide();
+
+        document.getElementById('startAssessment').addEventListener('click', function() {
+            $('#startAssessment').hide();
+            $('#stopAssessment').show();
+            const timeLimit = parseInt(this.getAttribute('data-time'));
+            
+            if (isNaN(timeLimit) || timeLimit <= 0) {
+                alert('No valid time limit set for this assessment.');
+                return;
+            }
+
+            let countdownTime = timeLimit * 60; // Convert minutes to seconds
+            const minuteDisplay = document.getElementById('minuteDisplay');
+            const secondDisplay = document.getElementById('secondDisplay');
+
+            interval = setInterval(function() {
+                // Calculate minutes and seconds
+                const minutes = Math.floor(countdownTime / 60);
+                const seconds = countdownTime % 60;
+
+                // Update the timer display
+                if (minutes < 10) {
+                    minuteDisplay.textContent = '0' + `${minutes}`;
+                } else {
+                    minuteDisplay.textContent = `${minutes}`
+                }
+
+                if (seconds < 10) {
+                    secondDisplay.textContent = '0' + `${seconds}`;
+                } else {
+                    secondDisplay.textContent = `${seconds}`
+                }
+                
+
+                // Check if time is up
+                if (countdownTime <= 0) {
+                    clearInterval(interval);
+                    timerDisplay.textContent = "Time's up!";
+                }
+
+                // Decrease countdown time by 1 second
+                countdownTime--;
+            }, 1000);
+        });
+
+        document.getElementById('stopAssessment').addEventListener('click', function() {
+            clearInterval(interval);
+            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
+        });
     </script>
 </body>
 </html>

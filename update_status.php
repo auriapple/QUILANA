@@ -5,11 +5,12 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 if (isset($data['administer_id'])) {
     $administer_id = $conn->real_escape_string($data['administer_id']);
+    $status = (int)$data['status'];
 
     // Update status in administer_assessment table
     $update_query = "
         UPDATE administer_assessment
-        SET status = 1
+        SET status = $status
         WHERE administer_id = '$administer_id'
     ";
 
