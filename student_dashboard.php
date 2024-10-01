@@ -23,13 +23,14 @@ if (!isset($_SESSION['login_user_type'])) {
     <body>
         <?php include 'nav_bar.php'; ?>
         <div class="content-wrapper dashboard-container">
+            <!-- Summary -->
             <div class="dashboard-summary">
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards">
                     <!-- Total Number of Classes -->
                     <div class="card" style="background-color: #FFE2E5;">
-                        <img class="icons" src="image/DashboardCoursesIcon.png" alt="Courses Icon">
+                        <img class="icons" src="image/DashboardCoursesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses 
                                                 FROM class c
@@ -45,8 +46,8 @@ if (!isset($_SESSION['login_user_type'])) {
                         </div>
                     </div>
                     <!-- Total Number of Quizzes -->
-                    <div class="card"> 
-                        <img class="icons" src="image/DashboardClassesIcon.png" alt="Classes Icon">
+                    <div class="card" style="background-color: #FADEFF"> 
+                        <img class="icons" src="image/DashboardClassesIcon.png" alt="Quizzes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalQuizzes 
                                                 FROM student_submission s
@@ -64,7 +65,7 @@ if (!isset($_SESSION['login_user_type'])) {
                     </div>
                     <!-- Total Number of Exams -->
                     <div class="card" style="background-color: #DCE1FC;"> 
-                        <img class="icons" src="image/DashboardExamsIcon.png" alt="Classes Icon">
+                        <img class="icons" src="image/DashboardExamsIcon.png" alt="Exams Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalExams
                                                 FROM student_submission s
@@ -83,6 +84,7 @@ if (!isset($_SESSION['login_user_type'])) {
                 </div>
             </div>
 
+            <!-- Recents -->
             <div class="recent-assessments">
                 <h1> Recents </h1>
                 <div class="recent-scrollable">
@@ -96,7 +98,6 @@ if (!isset($_SESSION['login_user_type'])) {
                         JOIN class c ON aa.class_id = c.class_id
                         WHERE ss.student_id = '".$_SESSION['login_id']."'
                         ORDER BY ss.date_taken DESC
-                        LIMIT 5
                     ");
 
                     $currentDate = '';
@@ -138,12 +139,13 @@ if (!isset($_SESSION['login_user_type'])) {
                             echo "</div>";
                         }
                         } else {
-                            echo "<p class='no-assessments'>No recent submissions.</p>";
+                            echo "<p class='no-assessments'>No recent assessments.</p>";
                         }
                     ?>
                 </div>
             </div>
 
+            <!-- Calendar -->
             <div class="dashboard-calendar">
                 <div class="wrapper">
                     <header>

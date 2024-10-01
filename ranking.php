@@ -12,24 +12,112 @@ $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
 
 // Fetch assessment details
-$assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
+$assessment_query = $conn->query("
+    SELECT a.assessment_mode, aa.administer_id, a.assessment_name, aa.ranks_status
+    FROM assessment a
+    JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
+    WHERE a.assessment_id = '$assessment_id'
+");
 $assessment = $assessment_query->fetch_assoc();
+$assessment_name = $assessment['assessment_name'];
+$assessment_mode = $assessment['assessment_mode'];
+$administer_id = $assessment['administer_id'];
+$ranks_status = $assessment['ranks_status'];
 
-// Fetch student details and rank for the assessment
-$student_query = $conn->query("
-    SELECT s.firstname, sr.rank, sr.score, s.student_id
-    FROM student s
-    JOIN student_results sr ON s.student_id = sr.student_id
-    WHERE sr.assessment_id = '$assessment_id' AND sr.student_id = '$student_id'
+// Fetch all students' status
+$status_query = $conn->query("
+    SELECT status
+    FROM join_assessment
+    WHERE administer_id = '$administer_id'
 ");
 
-// Check if student data was found
-if ($student_query && $student_query->num_rows > 0) {
-    $student_data = $student_query->fetch_assoc();
+// Count how many students have completed (status = 2)
+$total_students = $status_query->num_rows;
+$completed_count = 0;
+
+while ($row = $status_query->fetch_assoc()) {
+    if ($row['status'] == 2) {
+        $completed_count++;
+    }
+}
+
+// Check if all students are finished
+$all_completed = ($completed_count == $total_students);
+
+$display = '';
+// Calculate Rank
+if ($all_completed) {
+    if (!$ranks_status) {
+        ob_start();
+        include('get_ranking.php');
+        $status = ob_get_clean();
+
+        if(trim($status) !== "success") {
+            $display = 'waiting';
+        }
+    } else {
+        // Fetch student score
+        $score_query = $conn->query("
+            SELECT score 
+            FROM student_results 
+            WHERE assessment_id = '$assessment_id' 
+            AND student_id = '$student_id'
+        ");
+        $score_row = $score_query->fetch_assoc();
+        $total_score = $score_row['score'];
+
+        // Fetch student details and rank for the assessment
+        $student_query = $conn->query("
+            SELECT s.firstname, sr.rank, sr.score, s.student_id
+            FROM student s
+            JOIN student_results sr ON s.student_id = sr.student_id
+            WHERE sr.assessment_id = '$assessment_id' AND sr.student_id = '$student_id'
+        ");
+
+        // Check if student data was found
+        if ($student_query && $student_query->num_rows > 0) {
+            $student_data = $student_query->fetch_assoc();
+        } else {
+            // Handle the case where no student data was found
+            echo "<p>No results found for this assessment.</p>";
+            exit;
+        }
+
+        // Fetch leaderboard details
+        $leaderboard_query = $conn->query("
+            SELECT s.firstname, s.lastname, sr.score, sr.rank, s.student_id
+            FROM student s
+            JOIN student_results sr ON s.student_id = sr.student_id
+            WHERE sr.assessment_id = '$assessment_id'
+            ORDER BY sr.rank ASC
+        ");
+
+        // Group leaderboard data based on rank
+        $grouped_data = [];
+        while ($row = $leaderboard_query->fetch_assoc()) {
+            $grouped_data[$row['rank']][] = $row;
+        }
+        //Sets the rank suffix based on the rank number
+        $rank_suffix = getRankSuffix($student_data['rank']);
+
+        // Displays the leaderboard when the view leaderboard button is clicked
+        $display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';
+    }
 } else {
-    // Handle the case where no student data was found
-    echo "<p>No results found for this assessment.</p>";
-    exit;
+    $display = 'waiting';
+}
+
+
+// Function to get rank suffix
+function getRankSuffix($rank) {
+    if ($rank % 10 == 1 && $rank % 100 != 11) {
+        return "st";
+    } elseif ($rank % 10 == 2 && $rank % 100 != 12) {
+        return "nd";
+    } elseif ($rank % 10 == 3 && $rank % 100 != 13) {
+        return "rd";
+    }
+    return "th";
 }
 
 // DUMMY DATA (Uncomment to use)
@@ -62,38 +150,6 @@ $grouped_data = [
         ['firstname' => 'Ava', 'lastname' => 'Garcia', 'score' => 80, 'rank' => 5, 'student_id' => 11]
     ]
 ];*/
-
-// Fetch leaderboard details
-$leaderboard_query = $conn->query("
-    SELECT s.firstname, s.lastname, sr.score, sr.rank, s.student_id
-    FROM student s
-    JOIN student_results sr ON s.student_id = sr.student_id
-    WHERE sr.assessment_id = '$assessment_id'
-    ORDER BY sr.rank ASC
-");
-
-// Group leaderboard data based on rank
-$grouped_data = [];
-while ($row = $leaderboard_query->fetch_assoc()) {
-    $grouped_data[$row['rank']][] = $row;
-}
-
-// Function to get rank suffix
-function getRankSuffix($rank) {
-    if ($rank % 10 == 1 && $rank % 100 != 11) {
-        return "st";
-    } elseif ($rank % 10 == 2 && $rank % 100 != 12) {
-        return "nd";
-    } elseif ($rank % 10 == 3 && $rank % 100 != 13) {
-        return "rd";
-    }
-    return "th";
-}
-//Sets the rank suffix based on the rank number
-$rank_suffix = getRankSuffix($student_data['rank']);
-
-// Displays the leaderboard when the view leaderboard button is clicked
-$display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';
 ?>
 
 <!DOCTYPE html>
@@ -101,7 +157,7 @@ $display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
+    <title><?php echo htmlspecialchars($assessment_name); ?> | Quilana</title>
     <?php include('header.php'); ?>
     <link rel="stylesheet" href="assets/css/ranking.css">
 </head>
@@ -122,12 +178,17 @@ $display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';
         <!-- Displays the assessment name on a tab -->
         <div class="tabs-container">
             <ul class="tabs">
-                <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
+                <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment_name); ?></li>
             </ul>
         </div>
 
         <!-- Displays the personal ranking by default -->
-        <?php if ($display === 'ranking'): ?>
+        <?php if ($display === 'waiting'): ?>
+            <div id="waiting-container" class="ranking-container">
+                <h3>Congratulations on finishing the quiz!</h3>
+                <h5>Take a breather while waiting for others to finish</h5>
+            </div>
+        <?php elseif ($display === 'ranking'): ?>
             <div id="personal-ranking-container" class="ranking-container">
                 <div class="ranking-flag-image">
                     <div class="ranking-flag-content">
