@@ -47,6 +47,7 @@ if ($administer_query->num_rows>0) {
 // Fetch assessment details
 $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
 $assessment = $assessment_query->fetch_assoc();
+$assessment_mode = $assessment['assessment_mode'];
 
 // Fetch questions related to the assessment
 $questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
@@ -129,6 +130,8 @@ while ($question = $questions_query->fetch_assoc()) {
                         if ($question_type == 1) { // Single choice
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                                 echo "<div class='form-check'>";
                                 echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
                                 echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
@@ -137,12 +140,16 @@ while ($question = $questions_query->fetch_assoc()) {
                         } elseif ($question_type == 2) { // Multiple choice
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                                 echo "<div class='form-check'>";
                                 echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
                                 echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                                 echo "</div>";
                             }
                         } elseif ($question_type == 3) { // True/False
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             echo "<div class='form-check'>";
                             echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
                             echo "<label class='form-check-label'>True</label>";
@@ -160,6 +167,7 @@ while ($question = $questions_query->fetch_assoc()) {
                     </div>
                 <?php endforeach; ?>
                 <input type="hidden" name="assessment_id" value="<?php echo htmlspecialchars($assessment_id); ?>">
+                <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
             </div>
         </form>
     </div>
@@ -279,7 +287,8 @@ while ($question = $questions_query->fetch_assoc()) {
 
         function viewResult() {
             const assessmentId = document.querySelector('input[name="assessment_id"]').value;
-            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId);
+            const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
+            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
         }
     </script>
 </body>

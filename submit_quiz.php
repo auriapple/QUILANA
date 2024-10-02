@@ -1,8 +1,6 @@
 <?php
-// Database connection
 require 'db_connect.php';
 require 'auth.php';
-session_start();
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -10,8 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Fetch details from the form submitted
     $assessment_id = $conn->real_escape_string($_POST['assessment_id']);
-    //$assessment_mode = $conn->real_escape_string($_POST['assessment_mode']);
-    //$assessment_mode = $conn->real_escape_string($_POST['assessment_mode'] ?? NULL);
     $answers = $_POST['answers'];
     $time_elapsed = isset($_POST['time_elapsed']) ? json_decode($_POST['time_elapsed'], true) : [];
     
@@ -266,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $assessment_mode_data = $assessment_mode_query->fetch_assoc();
         $assessment_mode = $assessment_mode_data['assessment_mode'];
 
-        //$rank = ($assessment_mode == 1) ? NULL : 0;
+        $rank = NULL;
 
         $score = ($assessment_mode != 3) ? $total_score : 0;
 
@@ -274,13 +270,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Calculate remarks
         $pass_mark = 0.5 * $total_possible_score;
-        //$remarks = ($total_score >= $pass_mark) ? 'Passed' : 'Failed';
         $remarks = ($assessment_mode != 3) ? (($score >= $pass_mark) ? 'Passed' : 'Failed') : NULL;
 
         // Insert results into student_results table
         $insert_results_query = "
             INSERT INTO student_results (submission_id, assessment_id, student_id, total_score, score, remarks, rank)
-            VALUES ('$submission_id', '$assessment_id', '$student_id', '$assessment_score', '$score', " . ($remarks === NULL ? "NULL" : "'$remarks'") . ", " . ($rank === NULL ? "NULL" : "$rank") . ")
+            VALUES ('$submission_id', '$assessment_id', '$student_id', '$assessment_score', '$score', " . ($remarks === NULL ? "NULL" : "'$remarks'") . ", '$rank')
             ";
         if ($conn->query($insert_results_query)) {
             echo "Results inserted successfully!";
@@ -289,13 +284,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         $conn->close();
-        //echo "Assessment submitted successfully. Your score is $total_score out of $total_possible_score.";
+        echo "Assessment submitted successfully. Your score is $total_score out of $total_possible_score.";
     } catch (Exception $e) {
         // Rollback transaction on error
         $conn->rollback();
         echo "Error submitting assessment: " . $e->getMessage();
     }
-    $conn->close();
 } else {
     echo "No form submitted.";
 }

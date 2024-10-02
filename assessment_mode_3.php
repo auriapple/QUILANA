@@ -120,7 +120,6 @@ while ($question = $questions_query->fetch_assoc()) {
         <form id="quiz-form" action="submit_quiz.php" method="POST">
             <!-- Header with stopwatch and submit button -->
             <div class="header-container">
-                <!--p>Time Left: <span id="timer" class="timer">00:00</span></p-->
                 <p>Time Elapsed: <span id="stopwatch" class="timer">00:00</span></p>
                 <button type="button" onclick="showPopup(currentQuestionIndex < questions.length - 1 ? 'confirmation-popup' : 'final-confirmation-popup')" id="submit" class="secondary-button">Submit</button>
             </div>
@@ -136,14 +135,13 @@ while ($question = $questions_query->fetch_assoc()) {
             <div id="quiz-modes-container" class="questions-container">
                 <?php foreach ($questions as $index => $question) : ?>
                     <div class="question" id="question-<?php echo $question['question_id']; ?>" style="display: none;">
-                    <div class="question-number">QUESTION # <?php echo $index + 1; ?></div> <!-- Display the question number -->
+                    <div class="question-number">QUESTION # <?php echo $index + 1; ?></div>
                         <div class="question-text">
                             <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
                         </div>
                         <?php
                         $question_type = $question['ques_type'];
                         if ($question_type == 1) { // Single choice
-                            // Add a hidden input to ensure an empty string is submitted if no radio button is checked
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
@@ -154,7 +152,6 @@ while ($question = $questions_query->fetch_assoc()) {
                                 echo "</div>";
                             }
                         } elseif ($question_type == 2) { // Multiple choice
-                            // Add a hidden input to ensure an empty string is submitted if no radio button is checked
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
@@ -165,7 +162,6 @@ while ($question = $questions_query->fetch_assoc()) {
                                 echo "</div>";
                             }
                         } elseif ($question_type == 3) { // True/False
-                            // Add a hidden input to ensure an empty string is submitted if no radio button is checked
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
                             echo "<div class='form-check'>";
@@ -210,10 +206,8 @@ while ($question = $questions_query->fetch_assoc()) {
             clearInterval(stopwatchInterval);
             elapsedTime = 0;
             stopwatchInterval = setInterval(() => {
-                //elapsedTime += 100; // Increment by 100ms
-                //updateStopwatchDisplay();
                 if (!isPaused) { // Only update if not paused
-                    elapsedTime += 100; // Increment by 100ms
+                    elapsedTime += 100;
                     updateStopwatchDisplay();
                 }
             }, 100);
@@ -253,7 +247,6 @@ while ($question = $questions_query->fetch_assoc()) {
         function submitForm() {
             const formData = new FormData(document.getElementById('quiz-form'));
 
-            // Add question times to the form data
             formData.append('time_elapsed', JSON.stringify(questionTimes));
 
             const xhr = new XMLHttpRequest();
@@ -262,8 +255,6 @@ while ($question = $questions_query->fetch_assoc()) {
                 if (xhr.status === 200) {
                     clearInterval(stopwatchInterval);
                     showPopup('success-popup');
-                    //alert('Your answers have been submitted successfully! Time elapsed: ' + response.time_elapsed);
-                    //window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(formData.get('assessment_id'));
                 } else {
                     alert('Error submitting your answers. Please try again.');
                 }
@@ -292,7 +283,8 @@ while ($question = $questions_query->fetch_assoc()) {
 
         function viewResult() {
             const assessmentId = document.querySelector('input[name="assessment_id"]').value;
-            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId);
+            const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
+            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
         }
     </script>
 </body>

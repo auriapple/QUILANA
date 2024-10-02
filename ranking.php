@@ -4,7 +4,8 @@ include('auth.php');
 
 // Check if assessment_id is set in URL
 if (!isset($_GET['assessment_id'])) {
-    header('Location: assessment_mode_2.php');
+    $redirect_page = isset($_GET['assessment_mode']) && $_GET['assessment_mode'] === '3' ? 'assessment_mode_3.php' : 'assessment_mode_2.php';
+    header("Location: $redirect_page");
     exit();
 }
 
@@ -55,6 +56,54 @@ if ($all_completed) {
         if(trim($status) !== "success") {
             $display = 'waiting';
         }
+        $display = 'waiting';
+
+        // Fetch student score
+        /*$score_query = $conn->query("
+            SELECT score 
+            FROM student_results 
+            WHERE assessment_id = '$assessment_id' 
+            AND student_id = '$student_id'
+        ");
+        $score_row = $score_query->fetch_assoc();
+        $total_score = $score_row['score'];
+
+        // Fetch student details and rank for the assessment
+        $student_query = $conn->query("
+            SELECT s.firstname, sr.rank, sr.score, s.student_id
+            FROM student s
+            JOIN student_results sr ON s.student_id = sr.student_id
+            WHERE sr.assessment_id = '$assessment_id' AND sr.student_id = '$student_id'
+        ");
+
+        // Check if student data was found
+        if ($student_query && $student_query->num_rows > 0) {
+            $student_data = $student_query->fetch_assoc();
+        } else {
+            // Handle the case where no student data was found
+            echo "<p>No results found for this assessment.</p>";
+            exit;
+        }
+
+        // Fetch leaderboard details
+        $leaderboard_query = $conn->query("
+            SELECT s.firstname, s.lastname, sr.score, sr.rank, s.student_id
+            FROM student s
+            JOIN student_results sr ON s.student_id = sr.student_id
+            WHERE sr.assessment_id = '$assessment_id'
+            ORDER BY sr.rank ASC
+        ");
+
+        // Group leaderboard data based on rank
+        $grouped_data = [];
+        while ($row = $leaderboard_query->fetch_assoc()) {
+            $grouped_data[$row['rank']][] = $row;
+        }
+        //Sets the rank suffix based on the rank number
+        $rank_suffix = getRankSuffix($student_data['rank']);
+
+        // Displays the leaderboard when the view leaderboard button is clicked
+        $display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';*/
     } else {
         // Fetch student score
         $score_query = $conn->query("
@@ -77,6 +126,7 @@ if ($all_completed) {
         // Check if student data was found
         if ($student_query && $student_query->num_rows > 0) {
             $student_data = $student_query->fetch_assoc();
+            error_log('Fetched student data: ' . print_r($student_data, true));
         } else {
             // Handle the case where no student data was found
             echo "<p>No results found for this assessment.</p>";

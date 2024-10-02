@@ -138,6 +138,8 @@ $time_limit = $assessment['time_limit'];
                     if ($question_type == 1) {
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             echo "<div class='form-check'>";
                             echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
                             echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
@@ -147,6 +149,8 @@ $time_limit = $assessment['time_limit'];
                     } elseif ($question_type == 2) {
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             echo "<div class='form-check'>";
                             echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
                             echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
@@ -154,6 +158,8 @@ $time_limit = $assessment['time_limit'];
                         }
                     // True/False (radio buttons)
                     } elseif ($question_type == 3) {
+                        echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+                        
                         echo "<div class='form-check'>";
                         echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
                         echo "<label class='form-check-label'>True</label>";
