@@ -18,8 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $assessment_mode = $mode_result->fetch_assoc()['assessment_mode'];
     $mode_stmt->close();
 
-    // Handle time limit based on assessment mode
-    $time_limit = ($assessment_mode == 2 || $assessment_mode == 3) ? intval($_POST['time_limit']) : null;
+    // Handle time limit
+    if ($assessment_mode == 2) { // Quiz Bee Mode
+        $time_limit = isset($_POST['time_limit']) ? intval($_POST['time_limit']) : null;
+    } else {
+        $time_limit = null;
+    }
 
     // Map question type to numeric value
     $ques_type_map = [
@@ -32,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ques_type = $ques_type_map[$question_type] ?? 0;
 
     // Validate inputs
-    if (empty($question_text) || empty($assessment_id) || empty($ques_type) || empty($total_points)) {
+    if (empty($question_text) || empty($assessment_id) || empty($ques_type)) {
         echo json_encode(['status' => 'error', 'message' => 'Please fill out all required fields.']);
         exit;
     }

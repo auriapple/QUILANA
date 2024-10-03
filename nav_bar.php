@@ -95,7 +95,7 @@
                 left: -100%;
             }
             #sidebar.active {
-                width: 100%;
+                width: 50%;
             }
             .content-wrapper.active {
                 margin-left: 0;

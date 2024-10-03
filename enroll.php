@@ -7,6 +7,7 @@
     <title>Classes | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -194,41 +195,53 @@
 
             // Handles code submission
             $('#code-frm').submit(function(event) {
-                event.preventDefault();
+            event.preventDefault();
+            console.log("Form submitted");
 
-                $.ajax({
-                    type: 'POST',
-                    url: 'join_class.php',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        var result = JSON.parse(response);
+            $.ajax({
+                type: 'POST',
+                url: 'join_class.php',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    console.log("AJAX call successful", response);
+                    
+                    // Close the join class popup
+                    $('#join-class-popup').hide(); 
 
-                        // Close the popup
-                        $('#join-class-popup').hide(); 
-    
-                        var message = '';
-                        var title = '';
-                        var titleColor = '';
-                        if (result.status === 'success'){
-                            title = 'SUCCESS';
-                            titleColor = '#28A745';
-                            message = result.message;
-                        } else {
-                            title = 'ERROR';
-                            titleColor = '#DC3545';
-                            message = result.message;
-                        }
-                        $('#message-popup-title').text(title).css('color', titleColor);
-                        $('#message-body').html(message);
-
-                        $('#message-popup').show();
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.log("Request failed: " + textStatus + ", " + errorThrown);
-                        alert('An error occurred while saving the course.');
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload(); 
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
-                });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log("AJAX request failed", jqXHR.responseText, textStatus, errorThrown);
+                    
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while joining the class. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             });
+        });
+
 
             // View Class Details
             $('[id^=viewClassDetails_]').click(function() {
