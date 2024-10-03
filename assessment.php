@@ -567,8 +567,8 @@
                             method: 'POST',
                             data: { course_id: data.course_id },
                             success: function(response) {
-                                $('#edit_class_id').html(response);
-                                $('#edit_class_id').val(data.class_id); // Set the selected subject
+                                $('#edit_subject').html(response);
+                                $('#edit_subject').val(data.class_id); // Set the selected subject
                             }
                         });
 
