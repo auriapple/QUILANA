@@ -11,7 +11,8 @@ if (!isset($_GET['assessment_id'])) {
 $assessment_id = intval($_GET['assessment_id']);
 
 // Fetch assessment details
-$query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit 
+$query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit, a.passing_rate,
+          a.max_points, a.student_count, a.remaining_points
           FROM assessment a
           JOIN course c ON a.course_id = c.course_id
           WHERE a.assessment_id = ?";
@@ -29,6 +30,10 @@ if ($stmt = $conn->prepare($query)) {
         $course_name = htmlspecialchars($row['course_name']);
         $subject_name = htmlspecialchars($row['subject']);
         $assessment_time_limit = $row['time_limit'];
+        $assessment_passing_rate = $row['passing_rate'];
+        $assessment_max_points = $row['max_points'];
+        $assessment_student_count= $row['student_count'];
+        $assessment_remaining_points= $row['remaining_points'];
 
         $assessment_type = ($assessment_type_code == 1) ? 'Quiz' : 'Exam';
 
@@ -64,6 +69,8 @@ if ($stmt = $conn->prepare($query)) {
     <title>Manage Assessment | Quilana</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    
 
     <style>
         body {
@@ -142,10 +149,37 @@ if ($stmt = $conn->prepare($query)) {
                 <p><strong>Time Limit:</strong> 
                     <span id="current-time-limit"><?php echo isset($assessment_time_limit) && $assessment_time_limit > 0 ? $assessment_time_limit : 'Not set'; ?></span> minutes
                 </p>
+                <p><strong>Passing Rate:</strong> 
+                    <span id="current-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                </p>
+            <?php endif; ?>
+            <?php if ($assessment_mode_code == 2): ?>
+                <p><strong>Passing Rate:</strong> 
+                    <span id="quizbee-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                </p>
+            <?php endif; ?>
+            <?php if ($assessment_mode_code == 3): ?>
+                <p><strong>Passing Rate:</strong> 
+                    <span id="speedmode-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                </p>
+                <div class="d-flex align-items-center">
+                    <p class="mb-0" style="margin-right: 15px;"><strong>Max Points:</strong> <span id="current-max-points"><?php echo isset($assessment_max_points) ? $assessment_max_points : 'Not set'; ?></span></p>
+                    <p class="mb-0"><strong>Student Count:</strong> <span id="current-student-count"><?php echo isset($assessment_student_count) ? $assessment_student_count : 'Not set'; ?></span></p>
+                </div>
+
+                <p><strong>Remaining Points:</strong> 
+                    <span id="current-remaining-points"><?php echo isset($assessment_remaining_points) ? $assessment_remaining_points : 'Not set'; ?></span></p>                
+                </p>
             <?php endif; ?>
             <div class="mt-3">
                 <?php if ($assessment_mode_code == 1): ?>
-                    <button class="btn btn-secondary me-2" id="edit_time_limit_btn">Edit Time Limit</button>
+                    <button class="btn btn-secondary me-2" id="edit_time_limit_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Time Limit</button>
+                <?php endif; ?>
+                <?php if ($assessment_mode_code == 2): ?>
+                    <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate</button>
+                <?php endif; ?>
+                <?php if ($assessment_mode_code == 3): ?>
+                    <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Points</button>
                 <?php endif; ?>
                 <button class="btn btn-primary" id="add_question_btn">
                     <i class="fa fa-plus"></i> Add Question
@@ -222,9 +256,9 @@ if ($stmt = $conn->prepare($query)) {
                             <input type="hidden" name="id" />
                             <textarea id="question" rows="3" name="question" required class="form-control"></textarea>
                         </div>
-                        <div class="form-group">
+                        <div id="points_container" class="form-group" style="display: none;">
                             <label for="points">Points:</label>
-                            <input type="number" id="points" name="points" class="form-control" required>
+                            <input type="number" id="points" name="points" class="form-control">
                         </div>
                         <div id="time_limit_container" class="form-group" style="display: none;">
                             <label for="time_limit">Time Limit (seconds):</label>
@@ -293,29 +327,99 @@ if ($stmt = $conn->prepare($query)) {
         </div>
     </div>
 
-    <!-- Modal for editing the time limit -->
-    <div class="modal fade" id="edit_time_limit_modal" tabindex="-1" aria-labelledby="editTimeLimitLabel" aria-hidden="true">
+    <!-- Edit Time Limit and Passing Rate Modal -->
+    <div id="edit_time_limit_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Time Limit and Passing Rate</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit_assessment_form">
+                        <div class="form-group">
+                            <label for="assessment_time_limit">Time Limit (minutes)</label>
+                            <input type="number" id="assessment_time_limit" name="time_limit" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_passing_rate">Passing Rate (%)</label>
+                            <input type="number" id="assessment_passing_rate" name="passing_rate"  min="0" max="100" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="save_time_limit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Speed Mode Details -->
+    <div class="modal fade" id="edit_speedmode_modal" tabindex="-1" aria-labelledby="editSpeedModeLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editTimeLimitLabel">Edit Time Limit</h5>
+                    <h5 class="modal-title" id="editSpeedModeLabel">Edit Passing Rate and Points</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <form id="edit-time-limit-form">
+                    <form id="edit-speedmode-form">
                         <div class="form-group">
-                            <label for="assessment_time_limit">Time Limit (minutes):</label>
-                            <input type="number" class="form-control" id="assessment_time_limit" name="assessment_time_limit" required>
+                            <label for="speedmode_passing_rate">Passing Rate (%):</label>
+                            <input type="number" class="form-control" id="speedmode_passing_rate" name="passing_rate"  min="0" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_max_points">Maximum Points:</label>
+                            <input type="number" class="form-control" id="assessment_max_points" name="assessment_max_points" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_student_count">Number of Students Eligible for Maximum Points:</label>
+                            <input type="number" class="form-control" id="assessment_student_count" name="assessment_student_count" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_remaining_points">Remaining Points (for those not eligible for maximum points):</label>
+                            <input type="number" class="form-control" id="assessment_remaining_points" name="assessment_remaining_points" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary back_vcd_false" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="save_time_limit">Save changes</button>
+                    <button type="button" class="btn btn-primary" id="save_speed_mode">Save changes</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Edit Passing Rate Modal -->
+    <div id="edit_passing_rate_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Passing Rate</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit_quizbee_form">
+                        <div class="form-group">
+                            <label for="quizbee_passing_rate">Passing Rate (%)</label>
+                            <input type="number" id="quizbee_passing_rate" name="passing_rate" class="form-control" min="0" max="100" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="save_passing_rate" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <script>
     $(document).ready(function() {
@@ -497,6 +601,7 @@ if ($stmt = $conn->prepare($query)) {
             $('input[name="id"]').val(data.question_id);
             $('#question').val(data.question);
             $('#points').val(data.total_points);
+            $('#time_limit').val(data.time_limit);
 
             if (data.question_type === 'multiple_choice' || data.question_type === 'checkbox') {
                 $('#' + data.question_type + '_options .form-group').empty();
@@ -610,18 +715,25 @@ if ($stmt = $conn->prepare($query)) {
             }
         });
 
-        // Edit time limit button handler
+        // Edit time limit and passing rate button handler
         $('#edit_time_limit_btn').click(function() {
             var currentTimeLimit = $('#current-time-limit').text();
+            var currentPassingRate = $('#current-passing-rate').text();
+
             $('#assessment_time_limit').val(currentTimeLimit === 'Not set' ? '' : currentTimeLimit);
+            $('#assessment_passing_rate').val(currentPassingRate === 'Not set' ? '' : currentPassingRate);
+
             $('#edit_time_limit_modal').modal('show');
         });
 
-        // Save time limit button handler
+        // Save time limit and passing rate button handler
         $('#save_time_limit').click(function() {
             var newTimeLimit = $('#assessment_time_limit').val();
-            if (newTimeLimit === '') {
-                alert('Please enter a valid time limit.');
+            var newPassingRate = $('#assessment_passing_rate').val();
+
+            // Validate the inputs
+            if (newTimeLimit === '' || newPassingRate === '') {
+                alert('Please enter both a valid time limit and passing rate.');
                 return;
             }
 
@@ -630,40 +742,154 @@ if ($stmt = $conn->prepare($query)) {
                 url: 'update_assessment_time_limit.php',
                 data: {
                     assessment_id: <?php echo $assessment_id; ?>,
-                    time_limit: newTimeLimit
+                    time_limit: newTimeLimit,
+                    passing_rate: newPassingRate
                 },
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
                         $('#current-time-limit').text(newTimeLimit === '0' ? 'Not set' : newTimeLimit);
+                        $('#current-passing-rate').text(newPassingRate === '0' ? 'Not set' : newPassingRate);
+
                         $('#edit_time_limit_modal').modal('hide');
-                        alert('Time limit updated successfully.');
+                        alert('Time limit and passing rate updated successfully.');
                     } else {
                         alert('Error: ' + response.message);
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error("AJAX Error: " + status + ": " + error);
-                    alert('An error occurred while updating the time limit. Please try again.');
+                    alert('An error occurred while updating the time limit and passing rate. Please try again.');
                 }
             });
         });
 
+
+        // Edit Speed Mode Details button handler
+        $('#edit_speedmode_details_btn').click(function() {
+                var currentPassingRate = $('#speedmode-passing-rate').text().trim();
+                var currentMaxPoints = $('#current-max-points').text().trim();
+                var currentStudentCount = $('#current-student-count').text().trim();
+                var currentRemainingPoints = $('#current-remaining-points').text().trim();
+
+                $('#speedmode_passing_rate').val(currentPassingRate !== 'Not set' ? currentPassingRate : '');
+                $('#assessment_max_points').val(currentMaxPoints !== 'Not set' ? currentMaxPoints : '');
+                $('#assessment_student_count').val(currentStudentCount !== 'Not set' ? currentStudentCount : '');
+                $('#assessment_remaining_points').val(currentRemainingPoints !== 'Not set' ? currentRemainingPoints : '');
+
+                $('#edit_speedmode_modal').modal('show');
+            });
+
+            // Save Speed Mode Details button handler
+            $('#save_speed_mode').click(function() {
+
+            var passingRate = $('#speedmode_passing_rate').val();
+            var maxPoints = $('#assessment_max_points').val();
+            var studentCount = $('#assessment_student_count').val();
+            var remainingPoints = $('#assessment_remaining_points').val();
+
+            if (!passingRate || !maxPoints || !studentCount || !remainingPoints) {
+                alert('Please fill in all fields correctly.');
+                return;
+            }
+
+            // AJAX call to save the data
+            $.ajax({
+                url: 'save_speedmode_details.php',
+                method: 'POST',
+                data: {
+                    assessment_id: <?php echo json_encode($assessment_id); ?>,
+                    passing_rate: passingRate,
+                    max_points: maxPoints,
+                    student_count: studentCount,
+                    remaining_points: remainingPoints
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('Speed mode details saved successfully!');
+                        $('#edit_speedmode_modal').modal('hide');
+                    } else {
+                        alert('Failed to save speed mode details: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error in AJAX request. Please try again.');
+                }
+            });
+        });
+
+        // Edit Passing Rate button handler (for Quiz Bee Mode)
+        $('#edit_passing_rate_btn').click(function() {
+            var currentPassingRate = $('#quizbee-passing-rate').text().trim();
+
+            $('#quizbee_passing_rate').val(currentPassingRate === 'Not set' ? '' : currentPassingRate);
+            $('#edit_passing_rate_modal').modal('show');
+        });
+
+        // Save passing rate button handler
+        $('#save_passing_rate').click(function() {
+            var newPassingRate = $('#quizbee_passing_rate').val();
+
+            if (newPassingRate === '') {
+                alert('Please enter a valid passing rate.');
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: 'update_assessment_passing_rate.php', 
+                data: {
+                    assessment_id: <?php echo $assessment_id; ?>, 
+                    passing_rate: newPassingRate
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#quizbee-passing-rate').text(newPassingRate === '0' ? 'Not set' : newPassingRate);
+                        $('#edit_passing_rate_modal').modal('hide');
+                        alert('Passing rate updated successfully.');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: " + status + ": " + error);
+                    alert('An error occurred while updating passing rate. Please try again.');
+                }
+            });
+        });
+
+
         // Function to handle assessment mode change
         function handleAssessmentModeChange() {
-            var mode = '<?php echo $assessment_mode_code; ?>';
-            if (mode == '2' || mode == '3') { // Quiz Bee Mode or Speed Mode
-                $('#time_limit_container').show();
-                $('#time_limit').prop('required', true);
-            } else {
+            var mode = '<?php echo $assessment_mode_code; ?>'; 
+
+            if (mode == '2') { // Quiz Bee Mode
+                $('#time_limit_container').show(); 
+                $('#time_limit').prop('required', true); 
+                $('#points_container').show(); 
+                $('#points').prop('required', true); 
+            } else if (mode == '3') { // Speed Mode
                 $('#time_limit_container').hide();
-                $('#time_limit').prop('required', false);
+                $('#time_limit').prop('required', false); 
+                $('#points_container').hide(); 
+                $('#points').prop('required', false); 
+            } else { //Normal Mode
+                $('#time_limit_container').hide(); 
+                $('#time_limit').prop('required', false); 
+                $('#points_container').show(); 
+                $('#points').prop('required', true);
             }
         }
 
         // Call the function on page load
-        handleAssessmentModeChange();
+        $(document).ready(function() {
+            handleAssessmentModeChange(); 
+        });
+
     });
+
 </script>
 </body>
 </html>
