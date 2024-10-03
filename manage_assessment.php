@@ -393,7 +393,7 @@ if ($stmt = $conn->prepare($query)) {
         </div>
     </div>
 
-    <!-- Edit Passing Rate Modal -->
+    <!-- Edit Passing Rate Modal For Quiz Bee Mode -->
     <div id="edit_passing_rate_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -767,10 +767,10 @@ if ($stmt = $conn->prepare($query)) {
 
         // Edit Speed Mode Details button handler
         $('#edit_speedmode_details_btn').click(function() {
-                var currentPassingRate = $('#speedmode-passing-rate').text().trim();
-                var currentMaxPoints = $('#current-max-points').text().trim();
-                var currentStudentCount = $('#current-student-count').text().trim();
-                var currentRemainingPoints = $('#current-remaining-points').text().trim();
+                var currentPassingRate = $('#speedmode-passing-rate').text();
+                var currentMaxPoints = $('#current-max-points').text();
+                var currentStudentCount = $('#current-student-count').text();
+                var currentRemainingPoints = $('#current-remaining-points').text();
 
                 $('#speedmode_passing_rate').val(currentPassingRate !== 'Not set' ? currentPassingRate : '');
                 $('#assessment_max_points').val(currentMaxPoints !== 'Not set' ? currentMaxPoints : '');
@@ -795,8 +795,8 @@ if ($stmt = $conn->prepare($query)) {
 
             // AJAX call to save the data
             $.ajax({
+                type: 'POST',
                 url: 'save_speedmode_details.php',
-                method: 'POST',
                 data: {
                     assessment_id: <?php echo json_encode($assessment_id); ?>,
                     passing_rate: passingRate,
@@ -807,15 +807,20 @@ if ($stmt = $conn->prepare($query)) {
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
-                        alert('Speed mode details saved successfully!');
+                        $('#speedmode-passing-rate').text(passingRate === '0' ? 'Not set' : passingRate);
+                        $('#current-max-points').text(maxPoints === '0' ? 'Not set' : maxPoints);
+                        $('#current-student-count').text(studentCount === '0' ? 'Not set' : studentCount);
+                        $('#current-remaining-points').text(remainingPoints === '0' ? 'Not set' : remainingPoints);
+
                         $('#edit_speedmode_modal').modal('hide');
+                        alert('Speed mode details saved successfully!');
                     } else {
                         alert('Failed to save speed mode details: ' + response.message);
                     }
                 },
-                error: function() {
-                    alert('Error in AJAX request. Please try again.');
-                }
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: " + status + ": " + error);
+                    alert('An error occurred while updating speed mode details. Please try again.') }
             });
         });
 
