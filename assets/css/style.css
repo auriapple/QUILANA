@@ -10,6 +10,8 @@ body {
     background-color: #4A4CA6;
     color: white;
     border: none;
+    width: 100%;
+    flex-grow: 1;
     font-weight: bold;
     box-shadow: none;
     z-index: 2;
@@ -54,6 +56,8 @@ body {
     color: #4A4CA6;
     border: 2px solid #4A4CA6;
     border-radius: 5px;
+    width: 100%;
+    flex-grow: 1;
     font-weight: bold;
     z-index: 2;
     transition: color 0.3 ease, background-color 0.3s ease, box-shadow 0.3s ease;
@@ -149,6 +153,11 @@ body {
 }
 .tab-content.active {
     display: block;
+}
+.tab-link:hover:not(.active)  {
+    background: linear-gradient(0deg, rgba(238,238,238,1) 0%, rgba(238,238,238,0) 100%);
+    border-bottom: 2px solid gray;
+    color: #8d8ff6;
 }
 /* END */
 
@@ -558,23 +567,22 @@ button.btn-rounded{
 .quizzes-container,
 .exams-container,
 .assessment-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: start;
+    width: 100%;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
 }
 
 /* Cards */
 .course-card,
 .class-card,
 .assessment-card {
-    width: 330px;
     height: 208px;
     background-color: #FFFFFF;
-    border: 1px solid #F8F9FA;
-    border-radius: 8px;
+    border: 1px solid #eee;
+    border-radius: 20px;
     margin: 10px; 
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
     padding: 20px;
     box-sizing: border-box;
     position: relative;
@@ -608,7 +616,8 @@ button.btn-rounded{
 .course-actions,
 .assessment-actions {
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
+    gap: 20px;
     position: absolute;
     bottom: 20px;
     width: calc(100% - 40px);
@@ -899,11 +908,6 @@ td:last-child, th:last-child {
     #getStartedButton {
         margin-top: 300px;
     }
-
-    /* Course Container Adjustments */
-    .course-card {
-        width: 45%;
-    }
 }
 
 /* For mobile devices (width 576px and below) */
@@ -960,19 +964,6 @@ td:last-child, th:last-child {
 
     #getStartedButton {
         margin-top: 200px;
-    }
-
-    /* Course Container Adjustments */
-    .course-card {
-        width: 100%;
-    }
-
-    @media (max-width: 768px) {
-        .course-card,
-        .class-card,
-        .assessment-card {
-            width: 100%; /* Adjust for smaller screens */
-        }
     }
 }
 

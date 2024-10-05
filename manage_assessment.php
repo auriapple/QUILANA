@@ -204,7 +204,7 @@ if ($stmt = $conn->prepare($query)) {
                     echo '<li class="list-group-item">';
                     echo htmlspecialchars($row['question']);
                     echo '<p><strong>Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
-                    if ($assessment_mode_code == 2 || $assessment_mode_code == 3) {
+                    if ($assessment_mode_code == 2) {
                         echo '<p><strong>Time Limit:</strong> ' . htmlspecialchars($row['time_limit']) . ' seconds</p>';
                     }
                     echo '<div class="float-right">';

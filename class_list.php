@@ -685,9 +685,6 @@
                 var course_id = $(this).attr('data-id');
                 var course_name = $(this).attr('data-name');
 
-                // for testing
-                console.log("click");
-
                 // Show the Classes tab and set the course name
                 $('#classes-tab-link').show().click();
                 $('#classes-tab-link').text(course_name);
@@ -699,10 +696,7 @@
                     data: { course_id: course_id },
                     success: function(response) {
                         $('#class-container').html(response);
-                        updateMeatballMenu();
-
-                        // for testing
-                        console.log("it should work");
+                        updateMeatballMenu();   
                     }
                 });
 
