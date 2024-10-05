@@ -1,8 +1,8 @@
 /* Container for the meatball menu */
 .meatball-menu-container {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 18px;
+    right: 13px;
     display: inline-block;
     justify-content: center;
     align-items: center;
@@ -13,14 +13,19 @@
 .meatball-menu-btn {
     background: none;
     border: none;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    justify-items: center;
+    justify-content: center;
     align-items: center;
-    width: 15px;
-    height: 24px;
+    width: 24px;
+    height: 24px;   
     box-sizing: border-box;
+}
+
+.meatball-menu-btn:hover {
+    background-color: rgba(182, 182, 182, 0.307);
 }
 
 .meatball-menu-btn:focus {
@@ -42,7 +47,7 @@
     position: absolute;
     /* overflow: hidden; */
     top: 100%;
-    right: -20px;
+    right: -16px;
     width: 125px;
     background-color: #6e72c1e0;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
