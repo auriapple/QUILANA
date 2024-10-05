@@ -135,6 +135,7 @@ if ($assessment_query->num_rows>0) {
         }
         .instructions {
             width: 80%;
+            min-width: 370px;
             height: auto;
             border: 3px solid #6A7AC7;
             border-radius: 25px;
@@ -163,6 +164,7 @@ if ($assessment_query->num_rows>0) {
         }
         .instruction-text ul {
             max-width: 65%;
+            min-width: 250px;
         }
         .instruction-text li {
             color: #4A4A4A;
@@ -194,31 +196,48 @@ if ($assessment_query->num_rows>0) {
                     // For Normal Mode
                     if ($assessment_mode == 'Normal Mode') {
                         echo "<ul>";
+                        
                         // Total Duration
                         echo "<li>Total " . (($assessment['assessment_type'] == 1) ? 'Quiz' : 'Exam') . " Duration: " . htmlspecialchars($assessment['time_limit']) . " minutes</li>";
                         
+                        // Number of questions
+                        $question_query = $conn->query("
+                            SELECT COUNT(DISTINCT question_id) AS question_count
+                            FROM questions
+                            WHERE assessment_id = '$assessment_id'
+                        ");
+                        $question_data = $question_query->fetch_assoc();
+
+                        // Total Duration
+                        echo "<li>Total Questions: " . htmlspecialchars($question_data['question_count']) . "</li>";
+
                         // Pointing system
                         $points_query = $conn->query("
                             SELECT DISTINCT total_points
                             FROM questions
                             WHERE assessment_id = $assessment_id
                         ");
+
+                        // Check the points per question
                         $points = [];
                         while ($row = $points_query->fetch_assoc()) {
                             $points[] = $row['total_points'];
                         }
+
                         if (count($points) === 1) {
-                            echo "<li>" . htmlspecialchars($points[0]) . " points per correct answer</li>";
+                            echo "<li>" . htmlspecialchars($points[0]) . " point/s per correct answer</li>";
                         }
 
                         // No points for skipped questions
                         echo "<li>No points for skipped questions</li>";
+
+                        // Passing rate
+                        echo "<li> Passing Rate: ". htmlspecialchars($assessment['passing_rate']) ."%</li>";
                         echo "</ul>";
 
                     // For Quiz Bee Mode
                     } elseif ($assessment_mode == 'Quiz Bee Mode'){
                         echo "<ul>";
-                        // Total Duration
 
                         // Total Quiz Duration (sum of all time limits)
                         $total_duration_query = $conn->query("
@@ -241,15 +260,29 @@ if ($assessment_query->num_rows>0) {
                             FROM questions
                             WHERE assessment_id = $assessment_id
                         ");
+
+                        // Check the time limit per question
                         $time_limits = [];
                         while ($row = $time_limit_query->fetch_assoc()) {
                             $time_limits[] = $row['time_limit'];
                         }
+
                         if (count($time_limits) === 1) {
-                            echo "<li>Time limit per question: " . htmlspecialchars($time_limits[0]) . "seconds</li>";
+                            echo "<li>Time limit per question: " . htmlspecialchars($time_limits[0]) . " seconds</li>";
                         } else {
                             echo "<li>There are different time limits per question, so make sure to check the time limit in the upper right corner</li>";
                         }
+
+                        // Number of questions
+                        $question_query = $conn->query("
+                            SELECT COUNT(DISTINCT question_id) AS question_count
+                            FROM questions
+                            WHERE assessment_id = '$assessment_id'
+                        ");
+                        $question_data = $question_query->fetch_assoc();
+
+                        // Total Duration
+                        echo "<li>Total Questions: " . htmlspecialchars($question_data['question_count']) . "</li>";
                         
                         // Pointing system
                         $points_query = $conn->query("
@@ -257,27 +290,56 @@ if ($assessment_query->num_rows>0) {
                             FROM questions
                             WHERE assessment_id = $assessment_id
                         ");
+
+                        // Check the points per question
                         $points = [];
                         while ($row = $points_query->fetch_assoc()) {
                             $points[] = $row['total_points'];
                         }
                         if (count($points) === 1) {
-                            echo "<li>" . htmlspecialchars($points[0]) . "points per correct answer</li>";
+                            echo "<li>" . htmlspecialchars($points[0]) . " point/s per correct answer</li>";
                         }
 
                         // No points for skipped questions
                         echo "<li>No points for skipped questions</li>";
+
+                        // Passing rate
+                        echo "<li> Passing Rate: ". htmlspecialchars($assessment['passing_rate']) ."%</li>";
                         echo "</ul>";
 
                     // For Speed Mode
                     } elseif ($assessment_mode == 'Speed Mode'){
+                        // Opening instructions
                         echo "<p>In this mode, your score is determined not just by answering correctly but also by how quickly you submit your answer.</p>";
+                        
                         echo "<ul>";
-                        echo "<li>The fastest correct answers will earn 5 points, the second fastest will earn 4 points, and the third fastest will earn 3 points.</li>";
-                        echo "<li>All remaining correct answers will receive 1 point.</li>";
-                        echo "<li>Any incorrect answers will earn 0 points.</li>";
+
+                        // Number of questions
+                        $question_query = $conn->query("
+                            SELECT COUNT(DISTINCT question_id) AS question_count
+                            FROM questions
+                            WHERE assessment_id = '$assessment_id'
+                        ");
+                        $question_data = $question_query->fetch_assoc();
+
+                        // Total Duration
+                        echo "<li>Total Questions: " . htmlspecialchars($question_data['question_count']) . "</li>";
+
+                        // Student count and pointing system
+                        if ($assessment['student_count'] == 1) {
+                            echo "<li>The first student to submit correct answers will earn " . htmlspecialchars($assessment['max_points']) ." point/s.</li>"; 
+                        } else {
+                           echo "<li>The first " . htmlspecialchars($assessment['student_count']) ." students to submit correct answers will earn " . htmlspecialchars($assessment['max_points']) ." point/s.</li>"; 
+                        }
+
+                        echo "<li>All remaining correct answers will receive " . htmlspecialchars($assessment['remaining_points']) . " point/s.</li>";
+                        
+                        // No points for skipped questions
+                        echo "<li>No points for skipped questions</li>";
                         echo "</ul>";
-                        echo "<p>Once you are sure of your answer, click the “Submit Answer” button on the top right corner of your screen to lock in your response. Remember, the faster you submit, the more points you can earn! Good luck and speed up to score high!</p>";
+
+                        // Closing instructions
+                        echo "<p>Once you are sure of your answer, click the “<strong>Submit</strong>” button on the top right corner of your screen to lock in your response. Remember, the faster you submit, the more points you can earn! Good luck and speed up to score high!</p>";
                     }
                     ?>
                 </div>

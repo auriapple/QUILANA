@@ -254,7 +254,7 @@
                                     );
                                 });
                                 
-                            } else {
+                            } else if (result.assessment_mode == 2) {
                                 // Add rank column
                                 $('#assessment-details thead').append(
                                     '<tr>' +
@@ -275,6 +275,28 @@
                                         '<td>' + item.total_score + '</td>' +
                                         '<td>' + item.rank + '</td>' + 
                                         '<td>' + item.remarks + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                            } else {
+                                // Add rank column
+                                $('#assessment-details thead').append(
+                                    '<tr>' +
+                                    '<th>Date</th>' +
+                                    '<th>Score</th>' +
+                                    '<th>Total Score</th>' +
+                                    '<th>Rank</th>' +  // New column for rank
+                                    '</tr>'
+                                );
+                                
+                                // Add details to table with rank
+                                result.details.forEach(function(item) {
+                                    $('#assessment-details tbody').append(
+                                        '<tr>' +
+                                        '<td>' + formatDate(item.date) + '</td>' +
+                                        '<td>' + item.score + '</td>' +
+                                        '<td>' + item.total_score + '</td>' +
+                                        '<td>' + item.rank + '</td>' + 
                                         '</tr>'
                                     );
                                 });

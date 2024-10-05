@@ -121,27 +121,27 @@ while ($question = $questions_query->fetch_assoc()) {
             <div id="quiz-modes-container" class="questions-container">
                 <?php foreach ($questions as $index => $question) : ?>
                     <div class="question" id="question-<?php echo $question['question_id']; ?>" data-time-limit="<?php echo $question['time_limit']; ?>" style="display: none;">
-                    <div class="question-number">QUESTION # <?php echo $index + 1; ?></div> <!-- Display the question number -->
+                    <div class="question-number">QUESTION # <?php echo $index + 1; ?></div>
                         <div class="question-text">
                             <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
                         </div>
                         <?php
                         $question_type = $question['ques_type'];
                         if ($question_type == 1) { // Single choice
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
-                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
                                 echo "<div class='form-check'>";
                                 echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
                                 echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                                 echo "</div>";
                             }
                         } elseif ($question_type == 2) { // Multiple choice
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
-                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
                                 echo "<div class='form-check'>";
                                 echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
                                 echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";

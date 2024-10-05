@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date_taken = date('Y-m-d H:i:s');
 
     try {
+        $conn->begin_transaction();
         // Fetch administer assessment details
         $administer_query = $conn->query("
             SELECT aa.administer_id 
@@ -246,30 +247,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $conn->query($insert_answer_query);
             }
             $index++;
-        }
-
-        // Calculate total possible score based on the total points of each question in the assessment
-        /*$total_possible_score_query = $conn->query("SELECT SUM(total_points) as total_possible_score 
-                                                    FROM questions
-                                                    WHERE assessment_id = '$assessment_id'");
-        $total_possible_score_data = $total_possible_score_query->fetch_assoc();
-        $total_possible_score = $total_possible_score_data['total_possible_score'];*/
-
-        
+        }       
 
         // Get assessment mode
-        $assessment_mode_query = $conn->query("SELECT assessment_mode FROM assessment WHERE assessment_id = '$assessment_id'");
-        $assessment_mode_data = $assessment_mode_query->fetch_assoc();
-        $assessment_mode = $assessment_mode_data['assessment_mode'];
+        $assessment_query = $conn->query("SELECT assessment_mode, passing_rate FROM assessment WHERE assessment_id = '$assessment_id'");
+        $assessment_data = $assessment_query->fetch_assoc();
+        $assessment_mode = $assessment_data['assessment_mode'];
+        $passing_rate = $assessment_data['passing_rate'];
 
         $rank = NULL;
 
         $score = ($assessment_mode != 3) ? $total_score : 0;
 
-        $assessment_score = ($assessment_mode != 3) ? $total_possible_score : 15;
+        $assessment_score = ($assessment_mode != 3) ? $total_possible_score : 0;
 
         // Calculate remarks
-        $pass_mark = 0.5 * $total_possible_score;
+        $pass_mark = ($passing_rate/100) * $total_possible_score;
         $remarks = ($assessment_mode != 3) ? (($score >= $pass_mark) ? 'Passed' : 'Failed') : NULL;
 
         // Insert results into student_results table
@@ -283,6 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo "Error inserting results: " . $conn->error;
         }
 
+        $conn->commit();
         $conn->close();
         echo "Assessment submitted successfully. Your score is $total_score out of $total_possible_score.";
     } catch (Exception $e) {

@@ -32,7 +32,7 @@ $status_query = $conn->query("
     WHERE administer_id = '$administer_id'
 ");
 
-// Count how many students have completed (status = 2)
+// Count how many students have completed the quiz (status = 2)
 $total_students = $status_query->num_rows;
 $completed_count = 0;
 
@@ -45,11 +45,16 @@ while ($row = $status_query->fetch_assoc()) {
 // Check if all students are finished
 $all_completed = ($completed_count == $total_students);
 
+// Initialize display
 $display = '';
-// Calculate Rank
+
+// If all students have finished answering the quiz
 if ($all_completed) {
+    // If the rank hasn't been set yet
     if (!$ranks_status) {
         ob_start();
+
+        // Calculate score and rank
         include('get_ranking.php');
         $status = ob_get_clean();
 
@@ -57,53 +62,7 @@ if ($all_completed) {
             $display = 'waiting';
         }
         $display = 'waiting';
-
-        // Fetch student score
-        /*$score_query = $conn->query("
-            SELECT score 
-            FROM student_results 
-            WHERE assessment_id = '$assessment_id' 
-            AND student_id = '$student_id'
-        ");
-        $score_row = $score_query->fetch_assoc();
-        $total_score = $score_row['score'];
-
-        // Fetch student details and rank for the assessment
-        $student_query = $conn->query("
-            SELECT s.firstname, sr.rank, sr.score, s.student_id
-            FROM student s
-            JOIN student_results sr ON s.student_id = sr.student_id
-            WHERE sr.assessment_id = '$assessment_id' AND sr.student_id = '$student_id'
-        ");
-
-        // Check if student data was found
-        if ($student_query && $student_query->num_rows > 0) {
-            $student_data = $student_query->fetch_assoc();
-        } else {
-            // Handle the case where no student data was found
-            echo "<p>No results found for this assessment.</p>";
-            exit;
-        }
-
-        // Fetch leaderboard details
-        $leaderboard_query = $conn->query("
-            SELECT s.firstname, s.lastname, sr.score, sr.rank, s.student_id
-            FROM student s
-            JOIN student_results sr ON s.student_id = sr.student_id
-            WHERE sr.assessment_id = '$assessment_id'
-            ORDER BY sr.rank ASC
-        ");
-
-        // Group leaderboard data based on rank
-        $grouped_data = [];
-        while ($row = $leaderboard_query->fetch_assoc()) {
-            $grouped_data[$row['rank']][] = $row;
-        }
-        //Sets the rank suffix based on the rank number
-        $rank_suffix = getRankSuffix($student_data['rank']);
-
-        // Displays the leaderboard when the view leaderboard button is clicked
-        $display = isset($_POST['view_leaderboard']) ? 'leaderboard' : 'ranking';*/
+    // If the rank has been set already, display
     } else {
         // Fetch student score
         $score_query = $conn->query("
@@ -303,6 +262,7 @@ $grouped_data = [
                     isset($top_entries[1]) ? $top_entries[1] : null,
                     isset($top_entries[3]) ? $top_entries[3] : null,
                 ];
+
                 // Top 3 Platfrom
                 echo "<div class='ranking-platform'>";
                 echo "<div class='ranking-platform-content'>";
@@ -358,16 +318,19 @@ $grouped_data = [
                 // Leaderboard Container
                 echo "<div class='leaderboard-group-container'>";
                 foreach ($grouped_data as $rank => $students) {
+                    
                     // Rank Separator
                     echo "<div class='rank-container'>";
                     echo "<hr class='separator-line'>";
                     echo "<span class='rank'>Rank $rank</span>";
                     echo "<hr class='separator-line'>";
                     echo "</div>";
+
                     // Displays the name and score of students
                     foreach ($students as $student) {
                         $full_name = htmlspecialchars($student['firstname'] . ' ' . $student['lastname']);
                         $score_display = htmlspecialchars($student['score']);
+
                         // Checks the student id and highlights the record
                         $is_highlighted = ($student['student_id'] == $student_id) ? 'highlighted-entry' : '';
                         echo "<div class='leaderboard-entry $is_highlighted'>

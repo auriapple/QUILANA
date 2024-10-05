@@ -136,10 +136,10 @@ $time_limit = $assessment['time_limit'];
 
                     // Single choice (radio buttons)
                     if ($question_type == 1) {
+                        echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
                             echo "<div class='form-check'>";
                             echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
                             echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
@@ -147,10 +147,10 @@ $time_limit = $assessment['time_limit'];
                         }
                     // Multiple choice (checkboxes)
                     } elseif ($question_type == 2) {
+                        echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
                             echo "<div class='form-check'>";
                             echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
                             echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
@@ -180,7 +180,6 @@ $time_limit = $assessment['time_limit'];
                 ?>
                 <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
                 <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
-                <!--input type="hidden" name="join_status" id="join_status" value="1"-->
             </div>
         </form>
     </div>
@@ -257,11 +256,9 @@ $time_limit = $assessment['time_limit'];
         function handleSubmit() {
             if (timerExpired) {
                 closePopup('timer-runout-popup');
-                //document.getElementById('join_status').value = 2;
                 submitForm();
             } else {
                 closePopup('confirmation-popup');
-                //document.getElementById('join_status').value = 2;
                 submitForm();
             }
         }
