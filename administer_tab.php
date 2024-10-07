@@ -83,7 +83,7 @@
         }
 
         .table-wrapper table {
-            width: calc(100% - 100px);
+            width: 100%;
             height: 50vh;
             table-layout: fixed;
             overflow: hidden;
@@ -121,7 +121,7 @@
 
         .table-wrapper th, 
         .table-wrapper td {
-            width: calc(100% / 3);
+            width: calc(100% / 4);
             text-align: center;
             border-bottom: 1px solid #a494bc;
             border-right: 2px solid #a494bc;
@@ -139,7 +139,7 @@
             background-color: #a3a3a338;
             width: 150px;
             height: auto;
-            padding: 8px 0px;
+            padding: 3px 0px;
             border-radius: 5px;
             display: inline-block;
             justify-content: center;
@@ -163,6 +163,57 @@
         #startAssessment {
             outline: none;
             border-radius: 5px;
+        }
+
+        .notification-container {
+            display: flex;
+            flex-direction: column-reverse;
+            padding: 0 5px 5px 0;
+            gap: 10px;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            height: 300px;
+            width: 300px;
+            background-color: transparent;
+            overflow-y: auto;
+        }
+
+        .notification-card {
+            position: relative;
+            width: 100%;
+            height: fit-content;
+            border-radius: 10px;
+            padding: 25px 25px 15px 15px;
+            border: 1px solid #eee;
+            background-color: #fff;
+            box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
+            font-size: 14px;
+            color: #777;
+            text-align: justify;
+        }
+
+        .notification-card span.notif-close {
+            width: 18px;
+            height: 18px;
+            text-align: center;
+            border-radius: 9px;
+            position: absolute;
+            top: 5px;
+            right: 7px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #999;
+        }
+
+        .notification-card span.notif-close:hover {
+            position: absolute;
+            top: 5px;
+            right: 7px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #888;
+            background-color: #eee;
         }
     </style>
 </head>
@@ -234,6 +285,7 @@
                                 <?php } 
                             ?>
                             <button id="startAssessment" class='main-button button'
+                                style="width: 180px;"
                                 data-status = 1
                                 data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
                                 onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
@@ -254,6 +306,7 @@
                                 <tr>
                                     <th>Student Number</th>
                                     <th>Student Name</th>
+                                    <th>Number of Tab Switches</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -263,71 +316,9 @@
                         </table>
                     </div>
                           
-                    <script>
-                        const assessmentId = <?php echo json_encode($assessment_id); ?>;
-                        const classId = <?php echo json_encode($class_id); ?>;
-
-                        function updateTable() {
-                            fetch('get_joined.php', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded'
-                                },
-                                body: new URLSearchParams({
-                                    assessment_id: assessmentId,
-                                    class_id: classId
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                const tbody = document.querySelector('#dataTable tbody');
-                                tbody.innerHTML = ''; // Clear existing data
-
-                                if (Array.isArray(data) && data.length > 0) {
-                                    data.forEach(item => {
-                                        const row = document.createElement('tr');
-                                        row.innerHTML = `
-                                            <td>${item.student_number}</td>
-                                            <td>${item.student_name}</td>
-                                        `;
-
-                                        // Conditionally add a <div> based on the status value
-                                        if (parseInt(item.status) === 0) {
-                                            row.innerHTML += '<td> <div class="joined">Joined</div>  </td>';
-                                        } else if (parseInt(item.status) === 1) {
-                                            row.innerHTML += '<td> <div class="answering">Answering</div> </td>';
-                                        } else if (parseInt(item.status) === 2) {
-                                            row.innerHTML += '<td> <div class="finished">Finished</div> </td>';
-                                        } else {
-                                            // Append an empty cell if the status is not 0
-                                            row.innerHTML += '<td> No Status</td>';
-                                        }
-
-                                        tbody.appendChild(row);
-                                        // Update row count
-                                        document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
-                                    });
-                                } else if (data.error) {
-                                    const row = document.createElement('tr');
-                                    row.innerHTML = `<td colspan="3" style="text-align: center;">${data.error}</td>`;
-                                    tbody.appendChild(row);
-                                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
-                                } else {
-                                    const row = document.createElement('tr');
-                                    row.innerHTML = `<td colspan="3" style="text-align: center;">No Students have joined</td>`;
-                                    tbody.appendChild(row);
-                                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
-                                }
-                            })
-                            .catch(error => console.error('Error:', error));
-                        }
-
-                        // Set interval to check for updates every 3 seconds
-                        setInterval(updateTable, 3000);
-
-                        // Initial table load
-                        updateTable();
-                    </script>
+                    <div class="notification-container" id="notification-container">
+                        <!-- Notifications for switching tabs will be displayed here -->
+                    </div>
                 </div> <?php
             } else {
                 echo '<div class="alert alert-info">No assessments found for this criteria.</div>';
@@ -346,6 +337,124 @@
     ?>
 
     <script>
+        const assessmentId = <?php echo json_encode($assessment_id); ?>;
+        const classId = <?php echo json_encode($class_id); ?>;
+
+        function updateTable() {
+            fetch('get_joined.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    assessment_id: assessmentId,
+                    class_id: classId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#dataTable tbody');
+                tbody.innerHTML = ''; // Clear existing data
+
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.student_number}</td>
+                            <td>${item.student_name}</td>
+                            <td>${item.tab_switches}</td>
+                        `;
+
+                        // Conditionally add a <div> based on the status value
+                        if (parseInt(item.status) === 0) {
+                            row.innerHTML += '<td> <div class="joined">Joined</div>  </td>';
+                        } else if (parseInt(item.status) === 1) {
+                            row.innerHTML += '<td> <div class="answering">Answering</div> </td>';
+                        } else if (parseInt(item.status) === 2) {
+                            row.innerHTML += '<td> <div class="finished">Finished</div> </td>';
+                        } else {
+                            // Append an empty cell if the status is not 0
+                            row.innerHTML += '<td> No Status</td>';
+                        }
+
+                        tbody.appendChild(row);
+                        // Update row count
+                        document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
+                    });
+                } else if (data.error) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="3" style="text-align: center;">${data.error}</td>`;
+                    tbody.appendChild(row);
+                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="3" style="text-align: center;">No Students have joined</td>`;
+                    tbody.appendChild(row);
+                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Set interval to check for updates every 3 seconds
+        setInterval(updateTable, 3000);
+
+        // Initial table load
+        updateTable();
+
+        function updateNotifs() {
+            $.ajax({
+                url: 'switchTab_notifs.php',
+                method: 'POST',
+                data: { class_id: classId, assessment_id: assessmentId },
+                success: function(response) {
+                    $('#notification-container').html(response);
+                    addCloseListeners();
+                }
+            });
+        }
+
+        setInterval(updateNotifs, 3000);
+
+        updateNotifs();
+
+        // Function to add click listeners to all close buttons
+        function addCloseListeners() {
+            document.querySelectorAll('.notif-close').forEach(closeButton => {
+                closeButton.addEventListener('click', function() {
+                    // Get the notification card and retrieve the necessary data
+                    const notificationCard = this.parentElement;
+                    const administerId = notificationCard.getAttribute('data-administer-id');
+                    const studentId = notificationCard.getAttribute('data-student-id');
+
+                    // Hide the notification card visually
+                    notificationCard.style.display = 'none';
+
+                    // Send an AJAX request to update the if_display attribute in the database
+                    fetch('switchTab_displayUpdate.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            administer_id: administerId,
+                            student_id: studentId,
+                            if_display: false
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Failed to update the database:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        }
+
         function updateStatus(administerId) {
             const button = event.target;
             const status = button.getAttribute('data-status');

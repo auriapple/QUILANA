@@ -1,3 +1,18 @@
+<html>
+    <header>
+        <style>
+            .popup-overlay {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .secondary-button {
+                padding: 10px 30px;
+            }
+        </style>
+    </header>
+</html>
 <?php
 include('db_connect.php');
 include('auth.php');
@@ -13,15 +28,17 @@ $student_id = $_SESSION['login_id'];
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT administer_id
-    FROM administer_assessment
-    WHERE assessment_id = '$assessment_id'
+    SELECT aa.administer_id, a.max_warnings
+    FROM administer_assessment aa
+    JOIN assessment a ON aa.assessment_id = a.assessment_id
+    WHERE aa.assessment_id = '$assessment_id'
 ");
 
 // Check if there is administer assessment details
 if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
+    $max_warnings = $administer_row['max_warnings'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
@@ -97,6 +114,14 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
+    <!-- Maximum Warnings Reached Popup --->
+    <div id="max-warnings-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2 class="popup-title">You have reached the maximum amount of warnings!</h2>
+            <button id="submit-answers" class="secondary-button" onclick="handleSubmit()">Submit</button>
+        </div>
+    </div>
+
     <!-- Error Popup -->
     <div id="error-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
@@ -108,6 +133,9 @@ $time_limit = $assessment['time_limit'];
     </div>
 
     <div class="content-wrapper">
+        <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
+        <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
+        
         <form id="quiz-form" action="submit_quiz.php" method="POST">
             <!-- Header with submit button and timer -->
                 <div class="header-container">
@@ -182,11 +210,24 @@ $time_limit = $assessment['time_limit'];
                 <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
             </div>
         </form>
+
+        <!-- Modal for warning for switching tabs -->
+        <div id="switchtab-popup" class="popup-overlay" style="display: none;">
+            <div id="switchtab-modal-content" class="popup-content">
+                <span id="switchtab-modal-close" class="popup-close">&times;</span>
+                <h2 id="switchtab-modal-title" class="popup-title">Warning!</h2>
+                <div id="switchtab-modal-body" class="modal-body">
+                    You only have <span id="attempts-display"></span> warning(s) left before disqualification.
+                </div>
+                <button id="confirm-warning" class="secondary-button button">OK</button>
+            </div>
+        </div>
     </div>
 
     <script>
         var timerInterval;
         var timerExpired = false; // Flag to track if timer has expired
+        var maxWarningReached = false; // Flag to track if maximum warnings have been reached
 
         // Timer functionality
         function startTimer(duration, display) {
@@ -257,6 +298,9 @@ $time_limit = $assessment['time_limit'];
             if (timerExpired) {
                 closePopup('timer-runout-popup');
                 submitForm();
+            } else if (maxWarningReached) {
+                closePopup('max-warnings-popup')
+                submitForm();
             } else {
                 closePopup('confirmation-popup');
                 submitForm();
@@ -289,6 +333,51 @@ $time_limit = $assessment['time_limit'];
         function viewResult() {
             window.location.href = 'results.php'; // Redirect to results page
         }
+
+        let counter = 0;
+        let max_warnings = parseInt(document.getElementById('maxWarnings_container').value); 
+
+        // Listen for the "blur" event on the window (when the tab loses focus)
+        window.addEventListener("blur", () => {
+            counter++;
+            console.log("switch");
+
+            const administerId = parseInt(document.getElementById('administerId_container').value);
+            fetch('switchTab_update.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tab_switches: counter, administer_id: administerId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if(counter == max_warnings) {
+                        clearInterval(timerInterval);
+                        showPopup('max-warnings-popup');
+                        maxWarningReached = true;
+                    } else {
+                        document.getElementById("attempts-display").innerHTML = max_warnings - counter;
+                        document.getElementById("switchtab-popup").style.display = "flex";
+                    }
+                    
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Modals
+        // Close the message popup
+        $('#switchtab-modal-close').click(function() {
+            $('#switchtab-popup').hide();
+        });
+
+        $('#confirm-warning').click(function() {
+            $('#switchtab-popup').hide();
+        });
     </script>
 </body>
 </html>
