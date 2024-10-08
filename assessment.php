@@ -11,7 +11,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
 </head>
 <body>
     <?php include('nav_bar.php'); ?>
@@ -119,7 +118,7 @@
             </div>
 
             <div id="administer-tab" class="tab-content"> 
-                <div class="course-container" id="administer-container">
+                <div id="administer-container">
                     <h1>Test</h1>
                 </div>
             </div>

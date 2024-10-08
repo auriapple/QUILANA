@@ -12,7 +12,7 @@ $assessment_id = intval($_GET['assessment_id']);
 
 // Fetch assessment details
 $query = "SELECT a.assessment_name, a.assessment_type, a.assessment_mode, c.course_name, a.subject, a.time_limit, a.passing_rate,
-          a.max_points, a.student_count, a.remaining_points
+          a.max_points, a.max_warnings, a.student_count, a.remaining_points
           FROM assessment a
           JOIN course c ON a.course_id = c.course_id
           WHERE a.assessment_id = ?";
@@ -32,6 +32,7 @@ if ($stmt = $conn->prepare($query)) {
         $assessment_time_limit = $row['time_limit'];
         $assessment_passing_rate = $row['passing_rate'];
         $assessment_max_points = $row['max_points'];
+        $assessment_max_warnings = $row['max_warnings'];
         $assessment_student_count= $row['student_count'];
         $assessment_remaining_points= $row['remaining_points'];
 
@@ -152,15 +153,24 @@ if ($stmt = $conn->prepare($query)) {
                 <p><strong>Passing Rate:</strong> 
                     <span id="current-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
                 </p>
+                <p><strong>Maximum Warnings:</strong> 
+                    <span id="current-max-warnings"><?php echo $assessment_max_warnings; ?></span>
+                </p>
             <?php endif; ?>
             <?php if ($assessment_mode_code == 2): ?>
                 <p><strong>Passing Rate:</strong> 
                     <span id="quizbee-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
                 </p>
+                <p><strong>Maximum Warnings:</strong> 
+                    <span id="quizbee-max-warnings"><?php echo $assessment_max_warnings; ?></span>
+                </p>
             <?php endif; ?>
             <?php if ($assessment_mode_code == 3): ?>
                 <p><strong>Passing Rate:</strong> 
                     <span id="speedmode-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                </p>
+                <p><strong>Maximum Warnings:</strong> 
+                    <span id="speedmode-max-warnings"><?php echo $assessment_max_warnings; ?></span>
                 </p>
                 <div class="d-flex align-items-center">
                     <p class="mb-0" style="margin-right: 15px;"><strong>Max Points:</strong> <span id="current-max-points"><?php echo isset($assessment_max_points) ? $assessment_max_points : 'Not set'; ?></span></p>
@@ -173,13 +183,13 @@ if ($stmt = $conn->prepare($query)) {
             <?php endif; ?>
             <div class="mt-3">
                 <?php if ($assessment_mode_code == 1): ?>
-                    <button class="btn btn-secondary me-2" id="edit_time_limit_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Time Limit</button>
+                    <button class="btn btn-secondary me-2" id="edit_time_limit_btn"><i class="fa fa-plus"></i> Edit Time Limit, Passing Rate, and Maximum Warnings</button>
                 <?php endif; ?>
                 <?php if ($assessment_mode_code == 2): ?>
-                    <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate</button>
+                    <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Maximum Warnings</button>
                 <?php endif; ?>
                 <?php if ($assessment_mode_code == 3): ?>
-                    <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Points</button>
+                    <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate, Points, and Maximum Warnings</button>
                 <?php endif; ?>
                 <button class="btn btn-primary" id="add_question_btn">
                     <i class="fa fa-plus"></i> Add Question
@@ -327,7 +337,7 @@ if ($stmt = $conn->prepare($query)) {
         </div>
     </div>
 
-    <!-- Edit Time Limit and Passing Rate Modal -->
+    <!-- Edit Time Limit, Passing Rate, and Max Warning Modal -->
     <div id="edit_time_limit_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -346,6 +356,10 @@ if ($stmt = $conn->prepare($query)) {
                         <div class="form-group">
                             <label for="assessment_passing_rate">Passing Rate (%)</label>
                             <input type="number" id="assessment_passing_rate" name="passing_rate"  min="0" max="100" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_max_warnings">Maximum Warnings</label>
+                            <input type="number" id="assessment_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                     </form>
                 </div>
@@ -719,9 +733,11 @@ if ($stmt = $conn->prepare($query)) {
         $('#edit_time_limit_btn').click(function() {
             var currentTimeLimit = $('#current-time-limit').text();
             var currentPassingRate = $('#current-passing-rate').text();
+            var currentMaxWarnings = $('#current-max-warnings').text();
 
             $('#assessment_time_limit').val(currentTimeLimit === 'Not set' ? '' : currentTimeLimit);
             $('#assessment_passing_rate').val(currentPassingRate === 'Not set' ? '' : currentPassingRate);
+            $('#assessment_max_warnings').val(currentMaxWarnings === 'Not set' ? '' : currentMaxWarnings);
 
             $('#edit_time_limit_modal').modal('show');
         });
@@ -730,10 +746,11 @@ if ($stmt = $conn->prepare($query)) {
         $('#save_time_limit').click(function() {
             var newTimeLimit = $('#assessment_time_limit').val();
             var newPassingRate = $('#assessment_passing_rate').val();
+            var newMaxWarnings = $('#assessment_max_warnings').val();
 
             // Validate the inputs
-            if (newTimeLimit === '' || newPassingRate === '') {
-                alert('Please enter both a valid time limit and passing rate.');
+            if (newTimeLimit === '' || newPassingRate === '' || newMaxWarnings === '') {
+                alert('Please enter new valid time limit, passing rate, and max warnings.');
                 return;
             }
 
@@ -743,7 +760,8 @@ if ($stmt = $conn->prepare($query)) {
                 data: {
                     assessment_id: <?php echo $assessment_id; ?>,
                     time_limit: newTimeLimit,
-                    passing_rate: newPassingRate
+                    passing_rate: newPassingRate,
+                    max_warnings: newMaxWarnings
                 },
                 dataType: 'json',
                 success: function(response) {
@@ -753,6 +771,7 @@ if ($stmt = $conn->prepare($query)) {
 
                         $('#edit_time_limit_modal').modal('hide');
                         alert('Time limit and passing rate updated successfully.');
+                        location.reload();
                     } else {
                         alert('Error: ' + response.message);
                     }
