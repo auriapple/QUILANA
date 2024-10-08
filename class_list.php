@@ -31,7 +31,7 @@
             </ul>
         </div>
 
-        <div id="courses-tab" class="tab-content active">
+        <div id="courses-tab" class="tab-content scrollable-content active">
             <div class="course-container">
                 <?php
                 $qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."' ORDER BY course_name ASC");
@@ -77,7 +77,7 @@
             </div>
         </div>
 
-        <div id="classes-tab" class="tab-content">
+        <div id="classes-tab" class="tab-content scrollable-content">
             <div class="course-container" id="class-container">
                 <!-- Classes will be dynamically loaded here -->
             </div>

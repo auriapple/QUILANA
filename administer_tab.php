@@ -3,11 +3,22 @@
 <head>
     <title>Administer Assessment</title>
     <style>
+        .content-wrapper,
+        .scrollable-content {
+            max-height: none;
+            height: calc(100vh - 150px);
+        }
+
+        .tab-content,
+        #administer-container {
+            height: 100%;
+        }
+
         .main-container {
             display: flex;
             flex-direction: column;
             width: 100%;
-            height: auto;
+            height: 100%;
             overflow: hidden;
         }
         
@@ -24,6 +35,7 @@
             align-content: center;
             flex-direction: column;
             width: 100%;
+            height: fit-content;
         }
 
         .top-container .top-right-container {
@@ -31,20 +43,21 @@
             justify-content: flex-end;
             gap: 20px;
             align-items: center;
+            height: 75px;
             width: 100%;
         }
 
         .top-left-container h1 {
+            margin-bottom: 0;
             width: fit-content;
-            height: 40px;
+            height: fit-content;
             font-weight: 600;
             color: #000000;
             font-size: 32px;
-            overflow: hidden;
-            white-space: norwap;
         }
 
         .top-left-container h2 {
+            margin-bottom: 0;
             width: fit-content;
             height: 20px;
             font-weight: 400;
@@ -55,6 +68,7 @@
         }
 
         .top-container h3 {
+            margin-bottom: 0;
             width: fit-content;
             height: 38px;
             font-weight: 600;
@@ -66,6 +80,7 @@
 
         .top-right-container h4 {
             width: fit-content;
+            min-width: fit-content;
             font-weight: 400;
             color: #787878;
             font-size: 16px;
@@ -78,13 +93,14 @@
         }
 
         .main-container .table-wrapper {
-            overflow: hidden;
+            height: 100%;
             margin: 10px 50px;
+            transition: ease-in 150ms;
         }
 
         .table-wrapper table {
             width: 100%;
-            height: 50vh;
+            height: 100%;
             table-layout: fixed;
             overflow: hidden;
             border-radius: 20px;
@@ -145,6 +161,7 @@
             justify-content: center;
             align-items: center;
             color: #8a8a8a;
+            transition: ease-in 300ms;
         }
 
         .table-wrapper .answering {
@@ -197,9 +214,10 @@
             width: 18px;
             height: 18px;
             text-align: center;
+            line-height: 18px;
             border-radius: 9px;
             position: absolute;
-            top: 5px;
+            top: 7px;
             right: 7px;
             cursor: pointer;
             font-size: 16px;
@@ -214,6 +232,68 @@
             font-size: 16px;
             color: #888;
             background-color: #eee;
+        }
+
+        .notification-card .timeStamp {
+            position: absolute;
+            bottom: 7px;
+            right: 15px;
+            text-align: right;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: #999;
+        }
+
+        @media screen and (max-width: 850px) {
+            .main-container .table-wrapper {
+                margin: 10px 0;
+            }
+
+            .scrollable-content::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 750px) {
+            .studentNumber-column {
+                transition: ease-out 300ms;
+                display: none;
+            }
+
+            .table-wrapper th, 
+            .table-wrapper td {
+                width: calc(100% / 3);
+                min-width: 93px;
+            }
+
+            .table-wrapper .joined,
+            .table-wrapper .answering,
+            .table-wrapper .finished {
+                width: 100px;
+            }
+        }
+
+        @media screen and (max-width: 550px) {
+            .main-container .table-wrapper {
+                margin: 0;
+            }
+
+            .table-wrapper .joined,
+            .table-wrapper .answering,
+            .table-wrapper .finished {
+                width: 30px;
+                border-radius: 15px;
+                color: transparent;
+            }
+
+            .top-container {
+                flex-direction: column;
+            }
+
+            .top-container .top-right-container {
+                height: 50px;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
@@ -270,6 +350,7 @@
                                         <h2>Mode was not chosen</h2>
                                 <?php }
                             ?>
+                            <h3><?php echo htmlspecialchars($administer['class_name']) . ' (' . htmlspecialchars($administer['subject']) . ')'?> </h3>
                         </div>
 
                         <div class='top-right-container'>
@@ -297,17 +378,15 @@
                         </div>
                     </div>
 
-                    <h3><?php echo htmlspecialchars($administer['class_name']) . ' (' . htmlspecialchars($administer['subject']) . ')'?> </h3>
-                
                     <div class='table-wrapper'>
                         <div id="rowCount">Rows: 0</div>
                         <table id="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Student Number</th>
+                                    <th class="studentNumber-column">Student Number</th>
                                     <th>Student Name</th>
                                     <th>Number of Tab Switches</th>
-                                    <th>Status</th>
+                                    <th class="status-column">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -315,11 +394,12 @@
                             </tbody>
                         </table>
                     </div>
-                          
+                        
                     <div class="notification-container" id="notification-container">
                         <!-- Notifications for switching tabs will be displayed here -->
                     </div>
-                </div> <?php
+                </div>
+                 <?php
             } else {
                 echo '<div class="alert alert-info">No assessments found for this criteria.</div>';
             }
@@ -360,21 +440,21 @@
                     data.forEach(item => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${item.student_number}</td>
+                            <td class="studentNumber-column">${item.student_number}</td>
                             <td>${item.student_name}</td>
                             <td>${item.tab_switches}</td>
                         `;
 
                         // Conditionally add a <div> based on the status value
                         if (parseInt(item.status) === 0) {
-                            row.innerHTML += '<td> <div class="joined">Joined</div>  </td>';
+                            row.innerHTML += '<td class="status-column"> <div class="joined">Joined</div>  </td>';
                         } else if (parseInt(item.status) === 1) {
-                            row.innerHTML += '<td> <div class="answering">Answering</div> </td>';
+                            row.innerHTML += '<td class="status-column"> <div class="answering">Answering</div> </td>';
                         } else if (parseInt(item.status) === 2) {
-                            row.innerHTML += '<td> <div class="finished">Finished</div> </td>';
+                            row.innerHTML += '<td class="status-column"> <div class="finished">Finished</div> </td>';
                         } else {
                             // Append an empty cell if the status is not 0
-                            row.innerHTML += '<td> No Status</td>';
+                            row.innerHTML += '<td class="status-column"> No Status</td>';
                         }
 
                         tbody.appendChild(row);

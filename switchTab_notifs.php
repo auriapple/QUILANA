@@ -25,6 +25,7 @@
                         <div class="notification-card" data-administer-id="<?php echo $row['administer_id']; ?>" data-student-id="<?php echo $row['student_id']; ?>">
                             <span class="notif-close" class="popup-close">&times;</span>
                             <div> <?php echo htmlspecialchars($row['student_name']); ?> has switched to another tab or window. They have <?php echo $row['max_warnings'] - $row['tab_switches']?> warnings left. </div>
+                            <div class="timeStamp"> <?php echo date("h:ia", strtotime($row['time_updated'])); ?> </div>
                         </div>
         <?php 
                     }

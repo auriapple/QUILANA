@@ -144,7 +144,6 @@ body {
 .class-header span {
     font-size: 16px;
     color: #8f8f9d;
-    white-space: nowrap;
 }
 .class-header .line {
     flex: 1;
@@ -310,7 +309,26 @@ td .btns,
         max-height: none;
     }
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 550px) {
+    .dashboard-summary .cards {
+        flex-direction: column;
+    }
+    .cards .card {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 20px;
+        align-items: center;
+    }
+    .cards .icons {
+        margin-bottom: 0;
+    }
+    .cards .card-data {
+        padding: 3px 0 0 0;
+    }
+    .cards label,
+    .cards h3 {
+        margin-bottom: 0;
+    }
     .btns .accept,
     .btns .reject {
         display: flex;
