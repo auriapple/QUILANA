@@ -122,21 +122,37 @@ while ($question = $questions_query->fetch_assoc()) {
                 <?php foreach ($questions as $index => $question) : ?>
                     <div class="question" id="question-<?php echo $question['question_id']; ?>" data-time-limit="<?php echo $question['time_limit']; ?>" style="display: none;">
                     <div class="question-number">QUESTION # <?php echo $index + 1; ?></div>
-                        <div class="question-text">
-                            <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
-                        </div>
-                        <?php
+                    <div class="question-text">
+                        <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
+                    </div>
+                    <?php
                         $question_type = $question['ques_type'];
                         if ($question_type == 1) { // Single choice
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+                            //echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
+                            echo "<div class='option-buttons'>";
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
-                                echo "<div class='form-check'>";
+                                /*echo "<div class='form-check'>";
                                 echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
                                 echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
-                                echo "</div>";
+                                echo "</div>";*/
+
+                                /*echo "<div class='option'>"; // Wrap each choice with a div
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>"; // Hidden input
+                                //echo "<button type='button' class='option-button' onclick=\"selectAnswer('" . htmlspecialchars($choice['option_txt']) . "', " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                //echo "<button type='button' class='option-button' onclick=\"selectAnswer(" . json_encode($choice['option_txt']) . ", " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                $option_txt = addslashes($choice['option_txt']); // Escape single quotes
+                                echo "<button type='button' class='option-button' onclick=\"selectAnswer('$option_txt', " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                echo "</div>"; // Close the option div*/
+
+                                $option_txt = addslashes($choice['option_txt']); // Escape single quotes
+                                echo "<div class='option'>"; // Wrap each choice with a div
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>"; // Hidden input
+                                echo "<button type='button' class='option-button' onclick=\"selectAnswer('$option_txt', " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                echo "</div>"; // Close the option div
                             }
+                            echo "</div>";
                         } elseif ($question_type == 2) { // Multiple choice
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
@@ -289,6 +305,33 @@ while ($question = $questions_query->fetch_assoc()) {
             const assessmentId = document.querySelector('input[name="assessment_id"]').value;
             const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
             window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
+        }
+
+        function selectAnswer(optionText, questionId, button) {
+            const buttons = button.parentElement.parentElement.querySelectorAll('.option-button'); // Adjust to find the correct parent
+            const hiddenInput = button.parentElement.querySelector('input[type="hidden"]');
+
+            // Check if the clicked button is already selected
+            const alreadySelected = button.classList.contains('selected');
+
+            // Remove the selected class from all buttons and reset their hidden inputs
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                const input = btn.parentElement.querySelector('input[type="hidden"]');
+                input.value = ''; // Clear the hidden input value
+            });
+
+            // If the button was not already selected, highlight it and store the value
+            if (!alreadySelected) {
+                button.classList.add('selected');
+                hiddenInput.value = optionText; // Store the selected answer
+                console.log(`Hidden input value set to: ${hiddenInput.value}`);
+            } else {
+                // If the button was already selected, unselect it (value remains empty)
+                console.log(`Unselected answer for question ${questionId}`);
+            }
+
+            console.log(`Selected answer for question ${questionId}: ${optionText}`); // For debugging
         }
     </script>
 </body>

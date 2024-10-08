@@ -107,6 +107,17 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
+    <!-- Warning Popup -->
+    <div id="warning-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <!--h2 class="popup-title" style="font-size: 22px";>I caught you doing something a bit suspicious, so this is your first warning. If it happens again, you could be disqualified from this assessment. Got it?</h2-->
+            <h2 class="popup-title" style="font-size: 22px";></h2>
+            <div class="popup-buttons">
+                <button id="error" class="secondary-button" onclick="closePopup('warning-popup')">Sorry</button>
+            </div>
+        </div>
+    </div>
+
     <div class="content-wrapper">
         <form id="quiz-form" action="submit_quiz.php" method="POST">
             <!-- Header with submit button and timer -->
@@ -263,7 +274,7 @@ $time_limit = $assessment['time_limit'];
             }
         }
 
-        /* Handles Form Submission */
+        // Handles Form Submission
         function submitForm() {
             // Create a new FormData object from the form
             var formData = new FormData(document.getElementById('quiz-form'));
@@ -289,6 +300,62 @@ $time_limit = $assessment['time_limit'];
         function viewResult() {
             window.location.href = 'results.php'; // Redirect to results page
         }
+
+        let warning_count = 0;
+
+        function getWarningCount() {
+            //warning_count = 0;
+            return warning_count;
+        }
+
+        function showWarningPopup() {
+            const warningCount = getWarningCount();
+            const popupTitle = document.querySelector('.popup-title');
+
+            if (warningCount === 1) {
+                popupTitle.textContent = "I caught you doing something a bit suspicious, so this is your first warning. If it happens again, you could be disqualified from this assessment. Got it?";
+            } else if (warningCount === 2) {
+                popupTitle.textContent = "This is your second warning. Further suspicious activity may lead to disqualification!";
+            } else if (warningCount > 2) {
+                popupTitle.textContent = "Final warning! Further violations will result in disqualification.";
+            } else {
+                popupTitle.textContent = "Unexpected warning count.";
+            }
+
+            // Show the popup
+            document.getElementById('warning-popup').style.display = 'block';
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                console.log('Tab is inactive');
+                warning_count++;
+            } else {
+                console.log('Tab is active');
+                //showPopup('warning-popup');
+                showWarningPopup();
+            }
+        });
+
+        document.addEventListener('copy', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable right-click
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        })
+
+        // Disable specific keyboard shortcuts (e.g., Print Screen)
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && (event.key === 'PrintScreen' || event.key === 'Print Scr' || event.key === 'prtsc')) {
+                event.preventDefault();
+            }
+
+            if (event.ctrlKey && event.key === 'c') {
+                event.preventDefault();
+            }
+        })
     </script>
 </body>
 </html>

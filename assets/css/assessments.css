@@ -47,6 +47,17 @@
     font-size: 25px;
 }
 
+/*.option-buttons-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns for the buttons 
+    gap: 25px;
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+}*/
+
 /* Style for individual option buttons */
 .option-buttons button {
     padding: 10px;
@@ -66,6 +77,13 @@
 }
 
 .option-buttons button:focus {
+    background-color: #7B92FF;
+    color: #FFFFFF;
+    outline: none;
+}
+
+/* Style for the selected button */
+.option-buttons button.selected {
     background-color: #7B92FF;
     color: #FFFFFF;
     outline: none;
