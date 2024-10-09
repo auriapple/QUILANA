@@ -2,15 +2,25 @@
 <html>
 <head>
     <title>Administer Assessment</title>
+    <link rel="stylesheet" href="assets\css\style.css">
+    <?php include('header.php'); ?>
+    <?php include('auth.php'); ?>
+    <?php include('db_connect.php'); ?>
+    <title>Assessments | Quilana</title>
+    <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .content-wrapper,
         .scrollable-content {
             max-height: none;
-            height: calc(100vh - 150px);
+            height: calc(100vh - 60px);
         }
 
-        .tab-content,
-        #administer-container {
+        .tab-content {
             height: 100%;
         }
 
@@ -93,14 +103,14 @@
         }
 
         .main-container .table-wrapper {
-            height: calc(100% - 70px);
+            height: calc(100% - 50px);
             margin: 10px 50px;
             transition: ease-in 150ms;
         }
 
         .table-wrapper table {
             width: 100%;
-            height: calc(100% - 70px);
+            height: calc(100% - 50px);
             table-layout: fixed;
             overflow: hidden;
             border-radius: 20px;
@@ -131,7 +141,7 @@
 
         .table-wrapper tbody {
             display: block;
-            height: 100%;
+            max-height: calc(50vh - 24px);
             overflow-y: auto;
         }
 
@@ -299,8 +309,11 @@
 </head>
 <body>
     <?php
+    include('nav_bar.php');
     include('db_connect.php');
 
+    $_POST['assessment_id'] = 9;
+    $_POST['class_id'] = 18;
     // Check if the POST request contains 'assessment_id' and 'class_id'
     if (isset($_POST['assessment_id']) && isset($_POST['class_id'])) {
         // Escape and sanitize the 'assessment_id' and 'class_id'
@@ -331,72 +344,76 @@
             if ($result1->num_rows > 0) {
                 $administer = $result1->fetch_assoc();
                 ?>
-                <div class='main-container'>
-                    <div class='top-container'>
-                        <div class='top-left-container'>
-                            <h1> <?php echo htmlspecialchars($administer['assessment_name']); ?> </h1>
-                            <?php
-                                switch ($administer['assessment_mode']) {
-                                    case 1: ?>
-                                        <h2>Normal Mode</h2> 
-                                        <?php break;
-                                    case 2: ?>
-                                        <h2>Quiz Bee Mode</h2> 
-                                        <?php break;
-                                    case 3: ?>
-                                        <h2>Speed Mode</h2> 
-                                        <?php break;
-                                    default: ?>
-                                        <h2>Mode was not chosen</h2>
-                                <?php }
-                            ?>
-                            <h3><?php echo htmlspecialchars($administer['class_name']) . ' (' . htmlspecialchars($administer['subject']) . ')'?> </h3>
+                <div class="content-wrapper">
+                    <div class="scrollable-content">
+                        <div class='main-container'>
+                        <div class='top-container'>
+                            <div class='top-left-container'>
+                                <h1> <?php echo htmlspecialchars($administer['assessment_name']); ?> </h1>
+                                <?php
+                                    switch ($administer['assessment_mode']) {
+                                        case 1: ?>
+                                            <h2>Normal Mode</h2> 
+                                            <?php break;
+                                        case 2: ?>
+                                            <h2>Quiz Bee Mode</h2> 
+                                            <?php break;
+                                        case 3: ?>
+                                            <h2>Speed Mode</h2> 
+                                            <?php break;
+                                        default: ?>
+                                            <h2>Mode was not chosen</h2>
+                                    <?php }
+                                ?>
+                                <h3><?php echo htmlspecialchars($administer['class_name']) . ' (' . htmlspecialchars($administer['subject']) . ')'?> </h3>
+                            </div>
+
+                            <div class='top-right-container'>
+                                <?php
+                                    if ($administer['time_limit'] != null) { ?>
+                                        <h4 class='time'>Time Limit: 
+                                            <a id="minuteDisplay"> <?php echo htmlspecialchars($administer['time_limit']) ?> </a> 
+                                            <a> : </a>
+                                            <a id="secondDisplay"> 00 </a>
+                                        </h4>
+                                    <?php } else { ?>
+                                        <h4 class='time'>Time Limit: no time limit set</h4>
+                                    <?php } 
+                                ?>
+                                <button id="startAssessment" class='main-button button'
+                                    style="width: 180px;"
+                                    data-status = 1
+                                    data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
+                                    onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
+                                    Start</button>
+                                <button id="stopAssessment" class='main-button button'
+                                    data-status = 2
+                                    onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
+                                    Stop</button>
+                            </div>
                         </div>
 
-                        <div class='top-right-container'>
-                            <?php
-                                if ($administer['time_limit'] != null) { ?>
-                                    <h4 class='time'>Time Limit: 
-                                        <a id="minuteDisplay"> <?php echo htmlspecialchars($administer['time_limit']) ?> </a> 
-                                        <a> : </a>
-                                        <a id="secondDisplay"> 00 </a>
-                                    </h4>
-                                <?php } else { ?>
-                                    <h4 class='time'>Time Limit: no time limit set</h4>
-                                <?php } 
-                            ?>
-                            <button id="startAssessment" class='main-button button'
-                                style="width: 180px;"
-                                data-status = 1
-                                data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Start</button>
-                            <button id="stopAssessment" class='main-button button'
-                                data-status = 2
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Stop</button>
+                        <div class='table-wrapper'>
+                            <div id="rowCount">Rows: 0</div>
+                            <table id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th class="studentNumber-column">Student Number</th>
+                                        <th>Student Name</th>
+                                        <th>Number of Tab Switches</th>
+                                        <th class="status-column">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Table data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                            
+                        <div class="notification-container" id="notification-container">
+                            <!-- Notifications for switching tabs will be displayed here -->
                         </div>
                     </div>
-
-                    <div class='table-wrapper'>
-                        <div id="rowCount">Rows: 0</div>
-                        <table id="dataTable">
-                            <thead>
-                                <tr>
-                                    <th class="studentNumber-column">Student Number</th>
-                                    <th>Student Name</th>
-                                    <th>Number of Tab Switches</th>
-                                    <th class="status-column">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Table data will be inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                        
-                    <div class="notification-container" id="notification-container">
-                        <!-- Notifications for switching tabs will be displayed here -->
                     </div>
                 </div>
                  <?php
