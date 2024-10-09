@@ -16,7 +16,7 @@
 <div class="content-wrapper">
         <!-- Header Container -->
         <div class="add-course-container">
-            <button class="secondary-button" id="addCourse">Add Course</button>
+            <button class="secondary-button" id="addCourse">Add Program</button>
             <button class="secondary-button" id="addClass" style="display:none;">Add Class</button>
             <form class="search-bar" action="#" method="GET">
                 <input type="text" name="query" placeholder="Search" required>

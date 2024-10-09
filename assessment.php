@@ -122,6 +122,7 @@
                     <h1>Test</h1>
                 </div>
             </div>
+        </div>
 
         <!-- Modal for managing assessments -->
         <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
