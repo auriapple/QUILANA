@@ -38,7 +38,7 @@ if (!isset($_SESSION['login_user_type'])) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalCourses ?> </h3>
-                            <label>Total Number of Courses</label> 
+                            <label>Total Courses</label> 
                         </div>
                     </div>
                     <div class="card" style="background-color: #FADEFF"> 
@@ -51,7 +51,7 @@ if (!isset($_SESSION['login_user_type'])) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalClasses ?> </h3>
-                            <label>Total Number of Classes</label> 
+                            <label>Total Classes</label> 
                         </div>
                     </div>
                 </div>

@@ -868,13 +868,7 @@ td:last-child, th:last-child {
 
 .scrollable-content {
     max-height: 75vh; 
-    /*overflow-y: auto;
-    padding-right: 15px;*/
     overflow-y: scroll;
-}
-
-.scrollable-content::-webkit-scrollbar {
-    display: none;
 }
 /* END */
 
@@ -919,6 +913,10 @@ td:last-child, th:last-child {
 
     #getStartedButton {
         margin-top: 300px;
+    }
+
+    .scrollable-content::-webkit-scrollbar {
+        display: none;
     }
 }
 
@@ -977,7 +975,7 @@ td:last-child, th:last-child {
     #getStartedButton {
         margin-top: 200px;
     }
-
+    
     /* Topbar Adjustments */
     .navbar .navbar-content {
         width: 100%;
@@ -1013,23 +1011,26 @@ td:last-child, th:last-child {
         width: 41px;
         border-radius: 20px;
     }
+
     #search-input {
         display: hide;
     }
+
     .search-bar button {
         position: absolute;
         right: 21px;
     }
+
     .search-bar:focus-within {
         width: 100%;
         border-radius: 10px;
     }
+
     .search-bar:focus-within button  {
         position: relative;
         right: 0px;
     }
 }
-
 /* Scroll Bar Design */
 /* width */
 ::-webkit-scrollbar {
