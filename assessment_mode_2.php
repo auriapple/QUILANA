@@ -1,18 +1,3 @@
-<html>
-    <header>
-        <style>
-            .popup-overlay {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .secondary-button {
-                padding: 10px 30px;
-            }
-        </style>
-    </header>
-</html>
 <?php
 include('db_connect.php');
 include('auth.php');
@@ -85,6 +70,35 @@ while ($question = $questions_query->fetch_assoc()) {
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .secondary-button {
+            padding: 10px 30px;
+            outline: none;
+        }
+
+        .popup-content .swal2-title,
+        .popup-content .swal2-html-container,
+        .popup-content .swal2-actions {
+            margin: 5px 0;
+            padding-top: 0;
+            padding-bottom: 0;
+
+        }
+
+        .popup-content .swal2-icon {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .popup-content {
+            display: flex;
+            flex-direction: column;
+            height: 350px;
+            padding: 20px;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -108,14 +122,6 @@ while ($question = $questions_query->fetch_assoc()) {
             <div class="popup-buttons">
                 <button id="result" class="secondary-button" onclick="viewResult()">View Result</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Maximum Warnings Reached Popup --->
-    <div id="max-warnings-popup" class="popup-overlay" style="display: none;">
-        <div class="popup-content">
-            <h2 class="popup-title">You have reached the maximum amount of warnings!</h2>
-            <button id="submit-answers" class="secondary-button" onclick="handleSubmit()">Submit</button>
         </div>
     </div>
 
@@ -306,7 +312,6 @@ while ($question = $questions_query->fetch_assoc()) {
 
         function handleSubmit() {
             if (maxWarningReached) {
-                //closePopup('max-warnings-popup')
                 submitForm();
             } else {
                 closePopup('confirmation-popup');
@@ -314,7 +319,7 @@ while ($question = $questions_query->fetch_assoc()) {
             }   
         }
 
-        /* Handles Form Submission */
+        // Handles Form Submission
         function submitForm() {
             // Create a new FormData object from the form
             var formData = new FormData(document.getElementById('quiz-form'));
@@ -408,10 +413,20 @@ while ($question = $questions_query->fetch_assoc()) {
                 if (counter >= max_warnings) {
                     maxWarningReached = true;
                     Swal.fire({
-                        title: 'Warning!',
-                        text: 'You have reached the maximum amount of warnings!',
+                        //title: 'Warning!',
+                        title: 'napakagaling!',
+                        //text: 'You have reached the maximum amount of warnings!',
+                        text: 'at inulit-ulit mo pa talagang pasaway ka',
                         icon: 'warning',
-                        confirmButtonText: 'Submit'
+                        confirmButtonText: 'i-submit mo na yan!!!',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            icon: 'popup-icon',
+                            title: 'popup-title',
+                            text: 'popup-message',
+                            confirmButton: 'secondary-button'
+                        }
                     }).then((result) => {
                         if (result.isConfirmed) {
                             handleSubmit();
@@ -419,10 +434,20 @@ while ($question = $questions_query->fetch_assoc()) {
                     });
                 } else {
                     Swal.fire({
-                        title: 'Warning!',
-                        text: 'You only have ' + (max_warnings - counter) + ' warnings left before disqualification.',
+                        //title: 'Warning!',
+                        title: 'Hoi huli ka boi akala mo ha!',
+                        //text: 'You only have ' + (max_warnings - counter) + ' warning/s left before disqualification.',
+                        text: 'nako kang bata ka, sige isa pa at makikita mo hinahanap mo',
                         icon: 'warning',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: 'sorry po di na mauulit >_< ',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            icon: 'popup-icon',
+                            title: 'popup-title',
+                            text: 'popup-message',
+                            confirmButton: 'secondary-button'
+                        }
                     });
                 }
             }
