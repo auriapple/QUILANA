@@ -84,6 +84,7 @@ while ($question = $questions_query->fetch_assoc()) {
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -150,21 +151,37 @@ while ($question = $questions_query->fetch_assoc()) {
                 <?php foreach ($questions as $index => $question) : ?>
                     <div class="question" id="question-<?php echo $question['question_id']; ?>" data-time-limit="<?php echo $question['time_limit']; ?>" style="display: none;">
                     <div class="question-number">QUESTION # <?php echo $index + 1; ?></div>
-                        <div class="question-text">
-                            <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
-                        </div>
-                        <?php
+                    <div class="question-text">
+                        <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
+                    </div>
+                    <?php
                         $question_type = $question['ques_type'];
                         if ($question_type == 1) { // Single choice
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+                            //echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
+                            echo "<div class='option-buttons'>";
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
-                                echo "<div class='form-check'>";
+                                /*echo "<div class='form-check'>";
                                 echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
                                 echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
-                                echo "</div>";
+                                echo "</div>";*/
+
+                                /*echo "<div class='option'>"; // Wrap each choice with a div
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>"; // Hidden input
+                                //echo "<button type='button' class='option-button' onclick=\"selectAnswer('" . htmlspecialchars($choice['option_txt']) . "', " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                //echo "<button type='button' class='option-button' onclick=\"selectAnswer(" . json_encode($choice['option_txt']) . ", " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                $option_txt = addslashes($choice['option_txt']); // Escape single quotes
+                                echo "<button type='button' class='option-button' onclick=\"selectAnswer('$option_txt', " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                echo "</div>"; // Close the option div*/
+
+                                $option_txt = addslashes($choice['option_txt']); // Escape single quotes
+                                echo "<div class='option'>"; // Wrap each choice with a div
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>"; // Hidden input
+                                echo "<button type='button' id='button_" . $question['question_id'] . "' class='option-button' onclick=\"selectAnswer('$option_txt', " . $question['question_id'] . ", this)\">" . htmlspecialchars($choice['option_txt']) . "</button>";
+                                echo "</div>"; // Close the option div
                             }
+                            echo "</div>";
                         } elseif ($question_type == 2) { // Multiple choice
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
@@ -198,18 +215,6 @@ while ($question = $questions_query->fetch_assoc()) {
                 <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
             </div>
         </form>
-
-        <!-- Modal for warning for switching tabs -->
-        <div id="switchtab-popup" class="popup-overlay" style="display: none;">
-            <div id="switchtab-modal-content" class="popup-content">
-                <span id="switchtab-modal-close" class="popup-close">&times;</span>
-                <h2 id="switchtab-modal-title" class="popup-title">Warning!</h2>
-                <div id="switchtab-modal-body" class="modal-body">
-                    You only have <span id="attempts-display"></span> warning(s) left before disqualification.
-                </div>
-                <button id="confirm-warning" class="secondary-button button">OK</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -301,7 +306,7 @@ while ($question = $questions_query->fetch_assoc()) {
 
         function handleSubmit() {
             if (maxWarningReached) {
-                closePopup('max-warnings-popup')
+                //closePopup('max-warnings-popup')
                 submitForm();
             } else {
                 closePopup('confirmation-popup');
@@ -336,7 +341,35 @@ while ($question = $questions_query->fetch_assoc()) {
             const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
             window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
         }
+
+        function selectAnswer(optionText, questionId, button) {
+            const buttons = button.parentElement.parentElement.querySelectorAll('[id^=button_]'); // Adjust to find the correct parent .option-button
+            const hiddenInput = button.parentElement.querySelector('input[type="hidden"]');
+
+            // Check if the clicked button is already selected
+            const alreadySelected = button.classList.contains('selected');
+
+            // Remove the selected class from all buttons and reset their hidden inputs
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                const input = btn.parentElement.querySelector('input[type="hidden"]');
+                input.value = ''; // Clear the hidden input value
+            });
+
+            // If the button was not already selected, highlight it and store the value
+            if (!alreadySelected) {
+                button.classList.add('selected');
+                hiddenInput.value = optionText; // Store the selected answer
+                console.log(`Hidden input value set to: ${hiddenInput.value}`);
+            } else {
+                // If the button was already selected, unselect it (value remains empty)
+                console.log(`Unselected answer for question ${questionId}`);
+            }
+
+            console.log(`Selected answer for question ${questionId}: ${optionText}`); // For debugging
+        }
         
+        let tabSwitched = false; // tracker for switching tab
         let counter = 0;
         let max_warnings = parseInt(document.getElementById('maxWarnings_container').value); 
 
@@ -344,6 +377,7 @@ while ($question = $questions_query->fetch_assoc()) {
         window.addEventListener("blur", () => {
             counter++;
             console.log("switch");
+            tabSwitched = true;
 
             const administerId = parseInt(document.getElementById('administerId_container').value);
             fetch('switchTab_update.php', {
@@ -358,13 +392,8 @@ while ($question = $questions_query->fetch_assoc()) {
                 if (data.success) {
                     if(counter == max_warnings) {
                         clearInterval(timerInterval);
-                        showPopup('max-warnings-popup');
                         maxWarningReached = true;
-                    } else {
-                        document.getElementById("attempts-display").innerHTML = max_warnings - counter;
-                        document.getElementById("switchtab-popup").style.display = "flex";
                     }
-                    
                 }
             })
             .catch(error => {
@@ -372,14 +401,31 @@ while ($question = $questions_query->fetch_assoc()) {
             });
         });
 
-        // Modals
-        // Close the message popup
-        $('#switchtab-modal-close').click(function() {
-            $('#switchtab-popup').hide();
-        });
-
-        $('#confirm-warning').click(function() {
-            $('#switchtab-popup').hide();
+        // Show warning for focus event on the window (when the tab regains focus after being blurred)
+        window.addEventListener("focus", () => {
+            if (tabSwitched) {
+                tabSwitched = false;
+                if (counter >= max_warnings) {
+                    maxWarningReached = true;
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: 'You have reached the maximum amount of warnings!',
+                        icon: 'warning',
+                        confirmButtonText: 'Submit'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleSubmit();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: 'You only have ' + (max_warnings - counter) + ' warnings left before disqualification.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
         });
     </script>
 </body>

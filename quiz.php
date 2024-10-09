@@ -132,6 +132,17 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
+    <!-- Warning Popup -->
+    <div id="warning-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <!--h2 class="popup-title" style="font-size: 22px";>I caught you doing something a bit suspicious, so this is your first warning. If it happens again, you could be disqualified from this assessment. Got it?</h2-->
+            <h2 class="popup-title" style="font-size: 22px";></h2>
+            <div class="popup-buttons">
+                <button id="error" class="secondary-button" onclick="closePopup('warning-popup')">Sorry</button>
+            </div>
+        </div>
+    </div>
+
     <div class="content-wrapper">
         <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
         <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
@@ -307,7 +318,7 @@ $time_limit = $assessment['time_limit'];
             }
         }
 
-        /* Handles Form Submission */
+        // Handles Form Submission
         function submitForm() {
             // Create a new FormData object from the form
             var formData = new FormData(document.getElementById('quiz-form'));
