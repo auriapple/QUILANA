@@ -75,8 +75,8 @@ body {
 
 .course-actions .main-button,
 .course-actions .tertiary-button,
-.assessment-container .assessment-card .main-button,
-.assessment-card .tertiary-button {
+.assessment-actions .main-button,
+.assessment-actions .tertiary-button {
     width: 100%;
     flex-grow: 1;
 }
