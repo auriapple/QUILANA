@@ -1,18 +1,3 @@
-<html>
-    <header>
-        <style>
-            .popup-overlay {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .secondary-button {
-                padding: 10px 30px;
-            }
-        </style>
-    </header>
-</html>
 <?php
 include('db_connect.php');
 include('auth.php');
@@ -79,6 +64,36 @@ $time_limit = $assessment['time_limit'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .secondary-button {
+            padding: 10px 30px;
+            outline: none;
+        }
+
+        .popup-content .swal2-title,
+        .popup-content .swal2-html-container,
+        .popup-content .swal2-actions {
+            margin: 5px 0;
+            padding-top: 0;
+            padding-bottom: 0;
+
+        }
+
+        .popup-content .swal2-icon {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .popup-content {
+            display: flex;
+            flex-direction: column;
+            height: 350px;
+            padding: 20px;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -114,31 +129,12 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
-    <!-- Maximum Warnings Reached Popup --->
-    <div id="max-warnings-popup" class="popup-overlay" style="display: none;">
-        <div class="popup-content">
-            <h2 class="popup-title">You have reached the maximum amount of warnings!</h2>
-            <button id="submit-answers" class="secondary-button" onclick="handleSubmit()">Submit</button>
-        </div>
-    </div>
-
     <!-- Error Popup -->
     <div id="error-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
             <h2 class="popup-title">An error occurred while submitting the form. Please try again.</h2>
             <div class="popup-buttons">
                 <button id="error" class="secondary-button" onclick="closeErrorPopup('error-popup')">Try Again</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Warning Popup -->
-    <div id="warning-popup" class="popup-overlay" style="display: none;">
-        <div class="popup-content">
-            <!--h2 class="popup-title" style="font-size: 22px";>I caught you doing something a bit suspicious, so this is your first warning. If it happens again, you could be disqualified from this assessment. Got it?</h2-->
-            <h2 class="popup-title" style="font-size: 22px";></h2>
-            <div class="popup-buttons">
-                <button id="error" class="secondary-button" onclick="closePopup('warning-popup')">Sorry</button>
             </div>
         </div>
     </div>
@@ -345,6 +341,7 @@ $time_limit = $assessment['time_limit'];
             window.location.href = 'results.php'; // Redirect to results page
         }
 
+        let tabSwitched = false; // tracker for switching tab
         let counter = 0;
         let max_warnings = parseInt(document.getElementById('maxWarnings_container').value); 
 
@@ -352,6 +349,7 @@ $time_limit = $assessment['time_limit'];
         window.addEventListener("blur", () => {
             counter++;
             console.log("switch");
+            tabSwitched = true;
 
             const administerId = parseInt(document.getElementById('administerId_container').value);
             fetch('switchTab_update.php', {
@@ -366,13 +364,8 @@ $time_limit = $assessment['time_limit'];
                 if (data.success) {
                     if(counter == max_warnings) {
                         clearInterval(timerInterval);
-                        showPopup('max-warnings-popup');
                         maxWarningReached = true;
-                    } else {
-                        document.getElementById("attempts-display").innerHTML = max_warnings - counter;
-                        document.getElementById("switchtab-popup").style.display = "flex";
                     }
-                    
                 }
             })
             .catch(error => {
@@ -380,14 +373,52 @@ $time_limit = $assessment['time_limit'];
             });
         });
 
-        // Modals
-        // Close the message popup
-        $('#switchtab-modal-close').click(function() {
-            $('#switchtab-popup').hide();
-        });
-
-        $('#confirm-warning').click(function() {
-            $('#switchtab-popup').hide();
+        // Show warning for focus event on the window (when the tab regains focus after being blurred)
+        window.addEventListener("focus", () => {
+            if (tabSwitched) {
+                tabSwitched = false;
+                if (counter >= max_warnings) {
+                    maxWarningReached = true;
+                    Swal.fire({
+                        //title: 'Warning!',
+                        title: 'napakagaling!',
+                        //text: 'You have reached the maximum amount of warnings!',
+                        text: 'at inulit-ulit mo pa talagang pasaway ka',
+                        icon: 'warning',
+                        confirmButtonText: 'i-submit mo na yan!!!',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            icon: 'popup-icon',
+                            title: 'popup-title',
+                            text: 'popup-message',
+                            confirmButton: 'secondary-button'
+                        }
+                        
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleSubmit();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        //title: 'Warning!',
+                        title: 'Hoi huli ka boi akala mo ha!',
+                        //text: 'You only have ' + (max_warnings - counter) + ' warning/s left before disqualification.',
+                        text: 'nako kang bata ka, sige isa pa at makikita mo hinahanap mo',
+                        icon: 'warning',
+                        confirmButtonText: 'sorry po di na mauulit >_< ',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            icon: 'popup-icon',
+                            title: 'popup-title',
+                            text: 'popup-message',
+                            confirmButton: 'secondary-button'
+                        }
+                    });
+                }
+            }
         });
     </script>
 </body>

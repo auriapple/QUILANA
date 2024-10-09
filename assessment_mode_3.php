@@ -1,18 +1,3 @@
-<html>
-    <header>
-        <style>
-            .popup-overlay {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .secondary-button {
-                padding: 10px 30px;
-            }
-        </style>
-    </header>
-</html>
 <?php
 include('db_connect.php');
 include('auth.php');
@@ -84,6 +69,36 @@ while ($question = $questions_query->fetch_assoc()) {
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .secondary-button {
+            padding: 10px 30px;
+            outline: none;
+        }
+
+        .popup-content .swal2-title,
+        .popup-content .swal2-html-container,
+        .popup-content .swal2-actions {
+            margin: 5px 0;
+            padding-top: 0;
+            padding-bottom: 0;
+
+        }
+
+        .popup-content .swal2-icon {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .popup-content {
+            display: flex;
+            flex-direction: column;
+            height: 350px;
+            padding: 20px;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -120,14 +135,6 @@ while ($question = $questions_query->fetch_assoc()) {
             <div class="popup-buttons">
                 <button id="result" class="secondary-button" onclick="viewResult()">View Result</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Maximum Warnings Reached Popup --->
-    <div id="max-warnings-popup" class="popup-overlay" style="display: none;">
-        <div class="popup-content">
-            <h2 class="popup-title">You have reached the maximum amount of warnings!</h2>
-            <button id="submit-answers" class="secondary-button" onclick="finalSubmit()">Submit</button>
         </div>
     </div>
 
@@ -212,19 +219,6 @@ while ($question = $questions_query->fetch_assoc()) {
                 <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
             </div>
         </form>
-
-        <!-- Modal for warning for switching tabs -->
-        <div id="switchtab-popup" class="popup-overlay" style="display: none;">
-            <div id="switchtab-modal-content" class="popup-content">
-                <span id="switchtab-modal-close" class="popup-close">&times;</span>
-                <h2 id="switchtab-modal-title" class="popup-title">Warning!</h2>
-                <div id="switchtab-modal-body" class="modal-body">
-                    You only have <span id="attempts-display"></span> warning(s) left before disqualification.
-                </div>
-                <button id="confirm-warning" class="secondary-button button">OK</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         let stopwatchInterval;
@@ -334,6 +328,7 @@ while ($question = $questions_query->fetch_assoc()) {
             window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
         }
         
+        let tabSwitched = false; // tracker for switching tab
         let counter = 0;
         let max_warnings = parseInt(document.getElementById('maxWarnings_container').value); 
 
@@ -341,6 +336,7 @@ while ($question = $questions_query->fetch_assoc()) {
         window.addEventListener("blur", () => {
             counter++;
             console.log("switch");
+            tabSwitched = true;
 
             const administerId = parseInt(document.getElementById('administerId_container').value);
             fetch('switchTab_update.php', {
@@ -354,14 +350,9 @@ while ($question = $questions_query->fetch_assoc()) {
             .then(data => {
                 if (data.success) {
                     if(counter == max_warnings) {
-                        showPopup('max-warnings-popup');
+                        clearInterval(timerInterval);
                         maxWarningReached = true;
-                        console.log('reached');
-                    } else {
-                        document.getElementById("attempts-display").innerHTML = max_warnings - counter;
-                        document.getElementById("switchtab-popup").style.display = "flex";
                     }
-                    
                 }
             })
             .catch(error => {
@@ -369,14 +360,52 @@ while ($question = $questions_query->fetch_assoc()) {
             });
         });
 
-        // Modals
-        // Close the message popup
-        $('#switchtab-modal-close').click(function() {
-            $('#switchtab-popup').hide();
-        });
-
-        $('#confirm-warning').click(function() {
-            $('#switchtab-popup').hide();
+        // Show warning for focus event on the window (when the tab regains focus after being blurred)
+        window.addEventListener("focus", () => {
+            if (tabSwitched) {
+                tabSwitched = false;
+                if (counter >= max_warnings) {
+                    maxWarningReached = true;
+                    Swal.fire({
+                        //title: 'Warning!',
+                        title: 'napakagaling!',
+                        //text: 'You have reached the maximum amount of warnings!',
+                        text: 'at inulit-ulit mo pa talagang pasaway ka',
+                        icon: 'warning',
+                        confirmButtonText: 'i-submit mo na yan!!!',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            icon: 'popup-icon',
+                            title: 'popup-title',
+                            text: 'popup-message',
+                            confirmButton: 'secondary-button'
+                        }
+                        
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleSubmit();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        //title: 'Warning!',
+                        title: 'Hoi huli ka boi akala mo ha!',
+                        //text: 'You only have ' + (max_warnings - counter) + ' warning/s left before disqualification.',
+                        text: 'nako kang bata ka, sige isa pa at makikita mo hinahanap mo',
+                        icon: 'warning',
+                        confirmButtonText: 'sorry po di na mauulit >_< ',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            icon: 'popup-icon',
+                            title: 'popup-title',
+                            text: 'popup-message',
+                            confirmButton: 'secondary-button'
+                        }
+                    });
+                }
+            }
         });
     </script>
 </body>
