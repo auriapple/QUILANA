@@ -93,14 +93,14 @@
         }
 
         .main-container .table-wrapper {
-            height: 100%;
+            height: calc(100% - 70px);
             margin: 10px 50px;
             transition: ease-in 150ms;
         }
 
         .table-wrapper table {
             width: 100%;
-            height: 100%;
+            height: calc(100% - 70px);
             table-layout: fixed;
             overflow: hidden;
             border-radius: 20px;
