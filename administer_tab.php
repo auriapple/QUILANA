@@ -417,8 +417,8 @@
     ?>
 
     <script>
-        const assessmentId = <?php echo json_encode($assessment_id); ?>;
-        const classId = <?php echo json_encode($class_id); ?>;
+        var assessmentId = <?php echo json_encode($assessment_id); ?>;
+        var classId = <?php echo json_encode($class_id); ?>;
 
         function updateTable() {
             fetch('get_joined.php', {

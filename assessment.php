@@ -119,7 +119,7 @@
 
             <div id="administer-tab" class="tab-content"> 
                 <div id="administer-container">
-                    <h1>Test</h1>
+                    
                 </div>
             </div>
 
@@ -187,8 +187,8 @@
                         </button>
                     </div>
                     <form id="administer-assessment-frm">
-                    <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
-                    <input type="hidden" name="course_id" id="course_id_hidden" />
+                        <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
+                        <input type="hidden" name="course_id" id="course_id_hidden" />
                         <div class="modal-body">
                             <div id="msg1"></div>
                             <div class="form-group">
@@ -501,7 +501,7 @@
                                 success: function(response) {
                                     $('#administer-container').html(response);
                                     $('.add-assessment-container').hide();
-                                    document.getElementById("administer-tab-link").setAttribute('data-status', '0')
+                                    document.getElementById("administer-tab-link").setAttribute('data-status', '0');
                                 },
                                 error: function(xhr, status, error) {
                                     $('#administer-container').html('<div class="alert alert-danger">Failed to load content. Please try again.</div>');
