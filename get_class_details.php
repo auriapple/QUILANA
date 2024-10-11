@@ -237,19 +237,22 @@ function showStudentScores(studentId, studentName) {
 }
 
 
-function removeAdministeredAssessment(assessmentId, classId) {
-    if (confirm("Are you sure you want to remove this administered assessment from this class?")) {
+function removeAdministeredAssessment(assessmentId, classId, studentId, administerId) {
+    if (confirm("Are you sure you want to remove this administered assessment for this class and student?")) {
         fetch('remove_administered_assessment.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: 'assessment_id=' + assessmentId + '&class_id=' + classId
+            body: 'assessment_id=' + assessmentId + 
+                  '&class_id=' + classId + 
+                  '&student_id=' + studentId + 
+                  '&administer_id=' + administerId
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Administered assessment removed successfully from this class");
+                alert("Administered assessment removed successfully for this class and student");
                 location.reload();
             } else {
                 alert("Failed to remove administered assessment: " + data.message);
@@ -259,7 +262,10 @@ function removeAdministeredAssessment(assessmentId, classId) {
             console.error('Error:', error);
             alert("An error occurred while removing the administered assessment");
         });
-}};
+    }
+}
+
+
 
 function confirmStudentRemoval(studentId, classId) {
     var userConfirmed = confirm("Are you sure you want to remove this student from the class?");

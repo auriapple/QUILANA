@@ -237,10 +237,13 @@ $time_limit = $assessment['time_limit'];
         var maxWarningReached = false; // Flag to track if maximum warnings have been reached
 
         // Timer functionality
+        var timerInterval;
+        var timerExpired = false;
+        var maxWarningReached = false;
+
         function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
 
-            // Get stored end time
             var storedEndTime = localStorage.getItem('endTime');
             if (storedEndTime) {
                 var now = Date.now();
@@ -250,7 +253,7 @@ $time_limit = $assessment['time_limit'];
                 localStorage.setItem('endTime', endTime);
             }
 
-            updateDisplay(timer, display); // Initialize display immediately
+            updateDisplay(timer, display);
 
             timerInterval = setInterval(function () {
                 var now = Date.now();
@@ -258,17 +261,16 @@ $time_limit = $assessment['time_limit'];
 
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
-                    timerExpired = true; // Set flag to true when timer runs out
+                    timerExpired = true;
                     showPopup('timer-runout-popup');
                     localStorage.removeItem('endTime');
                 } else {
                     updateDisplay(remainingTime, display);
-                    localStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
+                    localStorage.setItem('remainingTime', remainingTime);
                 }
             }, 1000);
         }
 
-        // Function to update display
         function updateDisplay(remainingTime, display) {
             var minutes = Math.floor(remainingTime / 60);
             var seconds = remainingTime % 60;
@@ -277,75 +279,201 @@ $time_limit = $assessment['time_limit'];
             display.textContent = minutes + ":" + seconds;
         }
 
-        // When the window loads
         window.onload = function () {
             var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
                 display = document.querySelector('#timer');
-
             startTimer(timeLimit, display);
         };
 
-        // Handles Popups
+        // Popup handling
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
         }
+
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
         }
+
         function closeSuccessPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
             window.location.href = 'enroll.php#assessments-tab';
         }
+
         function closeErrorPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
             handleSubmit();
         }
 
-        function handleSubmit() {
-            if (timerExpired) {
-                closePopup('timer-runout-popup');
-                submitForm();
-            } else if (maxWarningReached) {
-                closePopup('max-warnings-popup')
-                submitForm();
+        // Screen capture detection
+        let screenCaptureCount = 0;
+        const MAX_SCREEN_CAPTURES = 5;
+
+        function handleScreenCapture(method) {
+            screenCaptureCount++;
+            console.log(`Screen capture attempt detected via ${method}`);
+
+            temporarilyHideOverlay(); 
+
+            if (screenCaptureCount >= MAX_SCREEN_CAPTURES) {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'Multiple screen capture attempts detected. Your quiz will be submitted automatically.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        icon: 'popup-icon',
+                        title: 'popup-title',
+                        text: 'popup-message',
+                        confirmButton: 'secondary-button'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        handleSubmit();
+                    }
+                });
             } else {
-                closePopup('confirmation-popup');
-                submitForm();
+                Swal.fire({
+                    title: 'Warning!',
+                    text: `Screen capture attempt detected. You have ${MAX_SCREEN_CAPTURES - screenCaptureCount} warnings left.`,
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        popup: 'popup-content',
+                        icon: 'popup-icon',
+                        title: 'popup-title',
+                        text: 'popup-message',
+                        confirmButton: 'secondary-button'
+                    }
+                });
             }
         }
 
-        // Handles Form Submission
-        function submitForm() {
-            // Create a new FormData object from the form
-            var formData = new FormData(document.getElementById('quiz-form'));
+        // Create a full-screen overlay to prevent screenshots
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'transparent';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.zIndex = '9999';
+        document.body.appendChild(overlay);
 
-            // Create an XMLHttpRequest object
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_quiz.php', true);
+        // Function to temporarily hide the overlay
+        function temporarilyHideOverlay() {
+            overlay.style.display = 'none';
+            setTimeout(() => {
+                overlay.style.display = 'block';
+            }, 1000); 
+        }
 
-            // Set up a handler for when the request completes
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    localStorage.removeItem('endTime');
-                    localStorage.removeItem('remainingTime');
-                    clearInterval(timerInterval);
-                    showPopup('success-popup');
-                } else {
-                    showPopup('error-popup');
+        // Detect print event 
+        window.addEventListener('beforeprint', (e) => {
+            e.preventDefault();
+            handleScreenCapture('print event');
+        });
+
+        // Detect visibility change 
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                handleScreenCapture('visibility change');
+            }
+        });
+
+        // keyboard shortcut detection
+        let altKeyPressed = false;
+        let winKeyPressed = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Alt') altKeyPressed = true;
+            if (e.key === 'Meta') winKeyPressed = true;
+
+            // Detect various screenshot shortcuts
+            if ((e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
+                (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
+                (winKeyPressed && e.shiftKey && e.key === 'S') ||
+                e.key === 'PrintScreen') {
+                e.preventDefault();
+                handleScreenCapture('keyboard shortcut');
+                temporarilyHideOverlay();
+            }
+            // Detect Windows+Alt+R (Windows 10 screen recording)
+            if (winKeyPressed && altKeyPressed && e.key === 'r') {
+                e.preventDefault();
+                handleScreenCapture('Windows+Alt+R');
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Alt') altKeyPressed = false;
+            if (e.key === 'Meta') winKeyPressed = false;
+
+            // Check for Print Screen key release
+            if (e.key === 'PrintScreen') {
+                handleScreenCapture('Print Screen key');
+                temporarilyHideOverlay();
+            }
+        });
+
+        // Detect screen recording attempts using getDisplayMedia
+        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+            const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
+            navigator.mediaDevices.getDisplayMedia = function(constraints) {
+                handleScreenCapture('getDisplayMedia');
+                return originalGetDisplayMedia.call(this, constraints);
+            }
+        }
+
+        // Additional measures to discourage screen capture
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('selectstart', event => event.preventDefault());
+        document.addEventListener('copy', event => event.preventDefault());
+
+        // Detect if DevTools is opened (which could be used to disable JavaScript)
+        let devToolsOpened = false;
+        setInterval(() => {
+            const widthThreshold = window.outerWidth - window.innerWidth > 160;
+            const heightThreshold = window.outerHeight - window.innerHeight > 160;
+            if (widthThreshold || heightThreshold) {
+                if (!devToolsOpened) {
+                    devToolsOpened = true;
+                    handleScreenCapture('DevTools opened');
                 }
-            };
-            xhr.send(formData); // Send the form data
-        }
+            } else {
+                devToolsOpened = false;
+            }
+        }, 1000);
 
-        function viewResult() {
-            window.location.href = 'results.php'; // Redirect to results page
-        }
+        // Detect and block browser's screenshot functionality
+        window.addEventListener('screenshot', (e) => {
+            e.preventDefault();
+            handleScreenCapture('browser screenshot event');
+        });
 
-        let tabSwitched = false; // tracker for switching tab
+        // check if a screenshot was taken
+        let lastPixel = null;
+        setInterval(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.drawWindow(window, 0, 0, 1, 1, "rgb(255,255,255)");
+            const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
+            if (lastPixel !== null && pixel !== lastPixel) {
+                handleScreenCapture('pixel change detected');
+                temporarilyHideOverlay();
+            }
+            lastPixel = pixel;
+        }, 1000);
+
+        // Tab switching detection
+        let tabSwitched = false;
         let counter = 0;
-        let max_warnings = parseInt(document.getElementById('maxWarnings_container').value); 
+        let max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
 
-        // Listen for the "blur" event on the window (when the tab loses focus)
         window.addEventListener("blur", () => {
             counter++;
             console.log("switch");
@@ -373,16 +501,14 @@ $time_limit = $assessment['time_limit'];
             });
         });
 
-        // Show warning for focus event on the window (when the tab regains focus after being blurred)
         window.addEventListener("focus", () => {
             if (tabSwitched) {
                 tabSwitched = false;
                 if (counter >= max_warnings) {
                     maxWarningReached = true;
+                    temporarilyHideOverlay(); 
                     Swal.fire({
-                        //title: 'Warning!',
                         title: 'napakagaling!',
-                        //text: 'You have reached the maximum amount of warnings!',
                         text: 'at inulit-ulit mo pa talagang pasaway ka',
                         icon: 'warning',
                         confirmButtonText: 'i-submit mo na yan!!!',
@@ -394,17 +520,15 @@ $time_limit = $assessment['time_limit'];
                             text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
-                        
                     }).then((result) => {
                         if (result.isConfirmed) {
                             handleSubmit();
                         }
                     });
                 } else {
+                    temporarilyHideOverlay(); 
                     Swal.fire({
-                        //title: 'Warning!',
                         title: 'Hoi huli ka boi akala mo ha!',
-                        //text: 'You only have ' + (max_warnings - counter) + ' warning/s left before disqualification.',
                         text: 'nako kang bata ka, sige isa pa at makikita mo hinahanap mo',
                         icon: 'warning',
                         confirmButtonText: 'sorry po di na mauulit >_< ',
@@ -420,6 +544,44 @@ $time_limit = $assessment['time_limit'];
                 }
             }
         });
+
+        // Handle form submission
+        function handleSubmit() {
+            if (timerExpired) {
+                closePopup('timer-runout-popup');
+                submitForm();
+            } else if (maxWarningReached || screenCaptureCount >= MAX_SCREEN_CAPTURES) {
+                submitForm();
+            } else {
+                closePopup('confirmation-popup');
+                submitForm();
+            }
+        }
+
+        function submitForm() {
+            var formData = new FormData(document.getElementById('quiz-form'));
+            formData.append('screenCaptureAttempts', screenCaptureCount);
+            formData.append('tabSwitches', counter);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'submit_quiz.php', true);
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    localStorage.removeItem('endTime');
+                    localStorage.removeItem('remainingTime');
+                    clearInterval(timerInterval);
+                    showPopup('success-popup');
+                } else {
+                    showPopup('error-popup');
+                }
+            };
+            xhr.send(formData);
+        }
+
+        function viewResult() {
+            window.location.href = 'results.php';
+        }
     </script>
 </body>
 </html>
