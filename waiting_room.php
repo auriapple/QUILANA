@@ -10,6 +10,7 @@ if (!isset($_GET['assessment_id']) || !isset($_GET['student_id'])) {
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $conn->real_escape_string($_GET['student_id']);
+$class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch assessment details
 $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
@@ -32,6 +33,7 @@ if ($assessment_query->num_rows>0) {
         SELECT administer_id, status
         FROM administer_assessment
         WHERE assessment_id = '$assessment_id'
+        AND class_id = '$class_id'
     ");
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
@@ -78,7 +80,7 @@ if ($assessment_query->num_rows>0) {
                 // Set the redirection based on the assessment mode
                 $redirect_url = '';
                 if ($assessment['assessment_mode'] == 1){
-                    $redirect_url = 'quiz.php';
+                    $redirect_url = 'assessment_mode_1.php';
                 } elseif ($assessment['assessment_mode'] == 2){
                     $redirect_url = 'assessment_mode_2.php';
                 } elseif ($assessment['assessment_mode'] == 3){
@@ -105,13 +107,17 @@ if ($assessment_query->num_rows>0) {
     <?php include('header.php') ?>
     <style>
         .assessment-details {
+            display: flex;
+            flex-direction: column;
             align-items: center;
             position: relative;
             justify-content: center;
+            height: 85vh;
         }
         .general-details {
             justify-content: center;
             margin-top: 50px;
+            height: 120px;
         }
         .general-details h1 {
             font-size: 36px;
@@ -125,17 +131,18 @@ if ($assessment_query->num_rows>0) {
             font-weight: bold;
             text-align: center;
             color: #4A4CA6;
-            margin-top: 0;
+            margin: 0;
         }
         .general-details h4 {
             font-size: 24px;
             text-align: center;
             color: #1E1A43;
-            margin-top: 25px;
+            margin-top: 15px;
+            margin-bottom: 0;
         }
         .instructions {
-            width: 80%;
-            min-width: 370px;
+            width: 75%;
+            min-width: 340px;
             height: auto;
             border: 3px solid #6A7AC7;
             border-radius: 25px;
@@ -143,13 +150,16 @@ if ($assessment_query->num_rows>0) {
             display: flex;
             flex-direction: column;
             position: relative;
-            margin: 25px auto;
+            margin: 20px auto;
+            flex: 1;
+            justify-content: center;
         }
         .instructions h3 {
             font-size: 36px;
             font-weight: bold;
             text-align: center;
             color: #1E1A43;
+            margin-bottom: 0;
         }
         .instruction-text {
             margin-top: 10px;
@@ -164,11 +174,15 @@ if ($assessment_query->num_rows>0) {
         }
         .instruction-text ul {
             max-width: 65%;
-            min-width: 250px;
+            min-width: 275px;
+            margin-bottom: 0;
         }
         .instruction-text li {
             color: #4A4A4A;
             font-size: 18px;
+        }
+        .message {
+            height: 65px;
         }
         .message h5 {
             font-size: 24px;
@@ -176,6 +190,34 @@ if ($assessment_query->num_rows>0) {
             justify-content: center;
             text-align: center;
             color: #6A7AC7;
+        }
+
+        @media screen and (max-width: 450px) {
+            .general-details {
+                margin-top: 25px;
+            }
+            .general-details h1,
+            .instructions h3 {
+                font-size: 32px;
+            }
+            .general-details h3 {
+                font-size: 28px;
+            }
+            .general-details h4,
+            .message h5 {
+                font-size: 20px;
+            }
+            .instructions {
+                margin: 15px;
+                padding: 20px;
+            }
+            .instruction-text ul {
+                max-width: 75%;
+            }
+            .instruction-text li,
+            .instruction-text p {
+                font-size: 16px;
+            }
         }
     </style>
 </head>

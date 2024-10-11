@@ -35,7 +35,7 @@ if (isset($_POST['class_id'])) {
 
     // Check if all assessments have been taken
     if ($total_assessments == $taken_assessments) {
-        echo '<p class="no-assessments">No assessments available for this class.</p>';
+        echo '<p class="no-records">No assessments available for this class.</p>';
     } else {
         echo '<div class="assessment-container">';
         // Display assessment details
@@ -64,7 +64,7 @@ if (isset($_POST['class_id'])) {
                 } elseif ($row['status'] == 1) {
                     // Redirect to respective assessment page based on mode
                     if ($row['assessment_mode'] == 1) {
-                        $redirect_url = 'quiz.php'; //assessment_mode_1.php
+                        $redirect_url = 'assessment_mode_1.php';
                     } elseif ($row['assessment_mode'] == 2) {
                         $redirect_url = 'assessment_mode_2.php';
                     } elseif ($row['assessment_mode'] == 3) {
@@ -78,7 +78,7 @@ if (isset($_POST['class_id'])) {
                 echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
                 echo '<div class="assessment-card-mode">Mode: ' . htmlspecialchars($assessment_mode) . '</div>';
                 echo '<div class="assessments-actions">';
-                echo '<a href="' . htmlspecialchars($redirect_url) . '?assessment_id=' . htmlspecialchars($row['assessment_id']) . '&student_id=' . htmlspecialchars($student_id) . '" class="take-assessment-link">';
+                echo '<a href="' . htmlspecialchars($redirect_url) . '?assessment_id=' . htmlspecialchars($row['assessment_id']) . '&student_id=' . htmlspecialchars($student_id) . '&class_id=' . htmlspecialchars($class_id) . '" class="take-assessment-link">';
                 echo '<button id="takeAssessment_' . $row['assessment_id'] . '" class="main-button">' . htmlspecialchars($button_text) . '</button>';
                 echo '</a>';
                 echo '</div>';

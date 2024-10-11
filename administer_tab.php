@@ -104,7 +104,9 @@
             table-layout: fixed;
             overflow: hidden;
             border-radius: 20px;
-            justify-self: center;
+            border-collapse: separate;
+            border: 2px solid rgba(59, 39, 110, 0.80);
+            border-spacing: 0;
         }
         
         .table-wrapper thead, 
@@ -113,6 +115,11 @@
             text-align: center;
             background-color: #f2f2f2;
             border-radius: 20px;
+        }
+
+        .table-wrapper thead th {
+            background-color: #E0E0EC;
+            font-size: 16px;
         }
 
         .table-wrapper tr {
@@ -139,14 +146,20 @@
         .table-wrapper td {
             width: calc(100% / 4);
             text-align: center;
-            border-bottom: 1px solid #a494bc;
-            border-right: 2px solid #a494bc;
+            border-bottom: 1px solid rgba(59, 39, 110, 0.80);
+            border-right: 1px solid rgba(59, 39, 110, 0.80);
             justify-content: center;
+            padding: 12px;
+            color:#4a4a4a;
         }
 
         .table-wrapper td:last-child,
         .table-wrapper th:last-child {
             border-right: none;
+        }
+
+        .table-wrapper tr:last-child {
+            border-bottom: none;
         }
 
         .table-wrapper .joined,
@@ -201,13 +214,14 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 25px 25px 15px 15px;
+            padding: 25px;
             border: 1px solid #eee;
             background-color: #fff;
             box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
             font-size: 14px;
             color: #777;
             text-align: justify;
+
         }
 
         .notification-card span.notif-close {
@@ -250,7 +264,7 @@
             }
 
             .scrollable-content::-webkit-scrollbar {
-                display: none;
+                display: none !important;
             }
         }
 
@@ -361,9 +375,7 @@
                                         <a> : </a>
                                         <a id="secondDisplay"> 00 </a>
                                     </h4>
-                                <?php } else { ?>
-                                    <h4 class='time'>Time Limit: no time limit set</h4>
-                                <?php } 
+                                <?php }
                             ?>
                             <button id="startAssessment" class='main-button button'
                                 style="width: 180px;"
@@ -371,10 +383,10 @@
                                 data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
                                 onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
                                 Start</button>
-                            <button id="stopAssessment" class='main-button button'
+                            <!--button id="stopAssessment" class='main-button button'
                                 data-status = 2
                                 onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Stop</button>
+                                Stop</button-->
                         </div>
                     </div>
 
@@ -563,11 +575,11 @@
             });
         }
 
-        $('#stopAssessment').hide();
+        //$('#stopAssessment').hide();
 
         document.getElementById('startAssessment').addEventListener('click', function() {
             $('#startAssessment').hide();
-            $('#stopAssessment').show();
+            //$('#stopAssessment').show();
             const timeLimit = parseInt(this.getAttribute('data-time'));
             
             if (isNaN(timeLimit) || timeLimit <= 0) {
@@ -609,10 +621,10 @@
             }, 1000);
         });
 
-        document.getElementById('stopAssessment').addEventListener('click', function() {
+        /*document.getElementById('stopAssessment').addEventListener('click', function() {
             clearInterval(interval);
             document.getElementById("administer-tab-link").setAttribute('data-status', '1')
-        });
+        });*/
     </script>
 </body>
 </html>

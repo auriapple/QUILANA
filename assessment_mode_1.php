@@ -64,36 +64,8 @@ $time_limit = $assessment['time_limit'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
+    <link rel="stylesheet" href="assets/css/assessments.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .secondary-button {
-            padding: 10px 30px;
-            outline: none;
-        }
-
-        .popup-content .swal2-title,
-        .popup-content .swal2-html-container,
-        .popup-content .swal2-actions {
-            margin: 5px 0;
-            padding-top: 0;
-            padding-bottom: 0;
-
-        }
-
-        .popup-content .swal2-icon {
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        .popup-content {
-            display: flex;
-            flex-direction: column;
-            height: 350px;
-            padding: 20px;
-            justify-content: center !important;
-            align-items: center !important;
-        }
-    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -113,7 +85,6 @@ $time_limit = $assessment['time_limit'];
     <!-- Success Popup -->
     <div id="success-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
-            <button class="popup-close" onclick="closeSuccessPopup('success-popup')">&times;</button>
             <h2 class="popup-title">Your answers have been submitted and recorded successfully!</h2>
             <div class="popup-buttons">
                 <button id="result" class="secondary-button" onclick="viewResult()">View Result</button>
@@ -143,12 +114,12 @@ $time_limit = $assessment['time_limit'];
         <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
         <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
         
-        <form id="quiz-form" action="submit_quiz.php" method="POST">
+        <form id="quiz-form" action="submit_assessment.php" method="POST">
             <!-- Header with submit button and timer -->
-                <div class="header-container">
-                    <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
-                    <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
-                </div>
+            <div class="header-container">
+                <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
+                <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
+            </div>
 
             <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
             <div class="tabs-container">
@@ -217,18 +188,6 @@ $time_limit = $assessment['time_limit'];
                 <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
             </div>
         </form>
-
-        <!-- Modal for warning for switching tabs -->
-        <div id="switchtab-popup" class="popup-overlay" style="display: none;">
-            <div id="switchtab-modal-content" class="popup-content">
-                <span id="switchtab-modal-close" class="popup-close">&times;</span>
-                <h2 id="switchtab-modal-title" class="popup-title">Warning!</h2>
-                <div id="switchtab-modal-body" class="modal-body">
-                    You only have <span id="attempts-display"></span> warning(s) left before disqualification.
-                </div>
-                <button id="confirm-warning" class="secondary-button button">OK</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -306,7 +265,6 @@ $time_limit = $assessment['time_limit'];
                 closePopup('timer-runout-popup');
                 submitForm();
             } else if (maxWarningReached) {
-                closePopup('max-warnings-popup')
                 submitForm();
             } else {
                 closePopup('confirmation-popup');
@@ -321,7 +279,7 @@ $time_limit = $assessment['time_limit'];
 
             // Create an XMLHttpRequest object
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_quiz.php', true);
+            xhr.open('POST', 'submit_assessment.php', true);
 
             // Set up a handler for when the request completes
             xhr.onload = function () {
@@ -379,6 +337,7 @@ $time_limit = $assessment['time_limit'];
                 tabSwitched = false;
                 if (counter >= max_warnings) {
                     maxWarningReached = true;
+                    closePopup();
                     Swal.fire({
                         //title: 'Warning!',
                         title: 'napakagaling!',
@@ -389,12 +348,8 @@ $time_limit = $assessment['time_limit'];
                         allowOutsideClick: false,
                         customClass: {
                             popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
-                        
                     }).then((result) => {
                         if (result.isConfirmed) {
                             handleSubmit();
@@ -411,9 +366,6 @@ $time_limit = $assessment['time_limit'];
                         allowOutsideClick: false,
                         customClass: {
                             popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
                     });

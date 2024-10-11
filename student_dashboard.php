@@ -113,8 +113,8 @@ if (!isset($_SESSION['login_user_type'])) {
                             // Divider by date_taken
                             if ($dateTaken !== $currentDate) {
                                 $currentDate = $dateTaken;
-                                echo "<div class='assessment-separator'>";
-                                echo "<span class='date'> " . $currentDate . "</span>";
+                                echo "<div id='assessment-separator' class='content-separator'>";
+                                echo "<span id='date' class='content-name'> " . $currentDate . "</span>";
                                 echo "<hr class='separator-line'>";
                                 echo "</div>";
                             }
@@ -125,21 +125,17 @@ if (!isset($_SESSION['login_user_type'])) {
 
                             // Display the card with proper icon and background color
                             echo "<div id='recents' class='cards'>";
-                                echo "<div id='recent-card' class='card' style='background-color: {$bgColor};'>";
-                                    echo "<div id='recent-data' class='card-data'>";
-                                        echo "<div class='recent-icon'>";
-                                            echo "<img class='icons' src='image/{$icon}' alt='" . (($assessmentType == 1) ? 'Quiz' : 'Exam') . " Icon'>";
-                                        echo "</div>";
-                                        echo "<div class='recent-details'>";
-                                            echo "<h3>{$assessmentName}</h3>";
-                                            echo "<label>{$className} ({$subjectName})</label>";
-                                        echo "</div>";
-                                    echo "</div>";
+                                echo "<div id='recent-card' class='card' style='background-color: {$bgColor};'>";   
+                                    echo "<img class='icons' src='image/{$icon}' alt='" . (($assessmentType == 1) ? 'Quiz' : 'Exam') . " Icon'>";
+                                    echo "<div id='recent-details' class='card-data'>";
+                                        echo "<h3>{$assessmentName}</h3>";
+                                        echo "<label>{$className} ({$subjectName})</label>";
+                                    echo "</div>";    
                                 echo "</div>";
                             echo "</div>";
                         }
                         } else {
-                            echo "<p class='no-assessments'>No recent assessments.</p>";
+                            echo "<p class='no-records'>No recent assessments.</p>";
                         }
                     ?>
                 </div>
