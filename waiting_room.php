@@ -10,6 +10,7 @@ if (!isset($_GET['assessment_id']) || !isset($_GET['student_id'])) {
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $conn->real_escape_string($_GET['student_id']);
+$class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch assessment details
 $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
@@ -32,6 +33,7 @@ if ($assessment_query->num_rows>0) {
         SELECT administer_id, status
         FROM administer_assessment
         WHERE assessment_id = '$assessment_id'
+        AND class_id = '$class_id' 
     ");
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];

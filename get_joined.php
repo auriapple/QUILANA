@@ -11,7 +11,7 @@ if (isset($_POST['assessment_id']) && isset($_POST['class_id'])) {
 
     // SQL query to fetch data
     $qry2 = "
-        SELECT s.*, CONCAT(lastname, ', ', firstname) as student_name, ja.*, aa.administer_id 
+        SELECT s.student_id, CONCAT(lastname, ', ', firstname) as student_name, ja.*, aa.administer_id 
         FROM student s
         JOIN join_assessment ja ON s.student_id = ja.student_id
         JOIN administer_assessment aa ON ja.administer_id = aa.administer_id

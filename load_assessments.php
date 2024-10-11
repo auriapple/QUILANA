@@ -78,7 +78,7 @@ if (isset($_POST['class_id'])) {
                 echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
                 echo '<div class="assessment-card-mode">Mode: ' . htmlspecialchars($assessment_mode) . '</div>';
                 echo '<div class="assessments-actions">';
-                echo '<a href="' . htmlspecialchars($redirect_url) . '?assessment_id=' . htmlspecialchars($row['assessment_id']) . '&student_id=' . htmlspecialchars($student_id) . '" class="take-assessment-link">';
+                echo '<a href="' . htmlspecialchars($redirect_url) . '?assessment_id=' . htmlspecialchars($row['assessment_id']) . '&student_id=' . htmlspecialchars($student_id) . '&class_id=' . htmlspecialchars($class_id) . '" class="take-assessment-link">';
                 echo '<button id="takeAssessment_' . $row['assessment_id'] . '" class="main-button">' . htmlspecialchars($button_text) . '</button>';
                 echo '</a>';
                 echo '</div>';
