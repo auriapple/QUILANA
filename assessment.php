@@ -67,12 +67,12 @@
 
                         if ($subject_name !== $current_subject) {
                             if ($current_subject !== '') { ?></div><?php } ?>
-                            <div class="subject-separator">
-                                <span class="subject-name"><?php echo $subject_name; ?></span>
+                            <div class="content-separator">
+                                <span class="content-name"><?php echo $subject_name; ?></span>
                                 <hr class="separator-line">
                             </div>
                             <div class="assessment-container">
-                        <?php 
+                            <?php 
                             $current_subject = $subject_name;
                         } ?>
                                 <div class="assessment-card">
@@ -107,10 +107,9 @@
                                         </div>
                                     </div>
                                 </div>
-                <?php } ?>
-                            </div> <!-- Close the last subject card container -->
-                        </div> <!-- Close the last course section -->
-                </div>
+                      <?php } ?>
+                    </div> <!-- Close the last subject card container -->
+                </div> <!-- Close the last course section -->
             </div>
 
             <div id="details-tab" class="tab-content">
@@ -122,6 +121,7 @@
                     
                 </div>
             </div>
+        </div>
 
         <!-- Modal for managing assessments -->
         <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
@@ -302,7 +302,7 @@
         </div>
 
 
-            <script>
+        <script>
           $(document).ready(function() {
             // Hide Administer tab link initially
             $('#administer-tab-link').hide();

@@ -70,35 +70,6 @@ while ($question = $questions_query->fetch_assoc()) {
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .secondary-button {
-            padding: 10px 30px;
-            outline: none;
-        }
-
-        .popup-content .swal2-title,
-        .popup-content .swal2-html-container,
-        .popup-content .swal2-actions {
-            margin: 5px 0;
-            padding-top: 0;
-            padding-bottom: 0;
-
-        }
-
-        .popup-content .swal2-icon {
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        .popup-content {
-            display: flex;
-            flex-direction: column;
-            height: 350px;
-            padding: 20px;
-            justify-content: center !important;
-            align-items: center !important;
-        }
-    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -152,7 +123,7 @@ while ($question = $questions_query->fetch_assoc()) {
         <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
         <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
 
-        <form id="quiz-form" action="submit_quiz.php" method="POST">
+        <form id="quiz-form" action="submit_assessment.php" method="POST">
             <!-- Header with stopwatch and submit button -->
             <div class="header-container">
                 <p>Time Elapsed: <span id="stopwatch" class="timer">00:00</span></p>
@@ -273,16 +244,10 @@ while ($question = $questions_query->fetch_assoc()) {
         }
 
         function finalSubmit() {
-            if (maxWarningReached) {
-                closePopup('max-warnings-popup')
-                submitForm();
-            } else {
-                questionTimes[currentQuestionIndex] = elapsedTime;
-                console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
-                closePopup('final-confirmation-popup');
-                submitForm();
-            }
-
+            questionTimes[currentQuestionIndex] = elapsedTime;
+            console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
+            closePopup('final-confirmation-popup');
+            submitForm();
         }
 
         function submitForm() {
@@ -291,7 +256,7 @@ while ($question = $questions_query->fetch_assoc()) {
             formData.append('time_elapsed', JSON.stringify(questionTimes));
 
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_quiz.php', true);
+            xhr.open('POST', 'submit_assessment.php', true);
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     clearInterval(stopwatchInterval);
@@ -327,6 +292,10 @@ while ($question = $questions_query->fetch_assoc()) {
             const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
             window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
         }
+
+        function handleSubmit() {
+            submitForm();
+        }
         
         let tabSwitched = false; // tracker for switching tab
         let counter = 0;
@@ -350,7 +319,6 @@ while ($question = $questions_query->fetch_assoc()) {
             .then(data => {
                 if (data.success) {
                     if(counter == max_warnings) {
-                        clearInterval(timerInterval);
                         maxWarningReached = true;
                     }
                 }
@@ -376,9 +344,6 @@ while ($question = $questions_query->fetch_assoc()) {
                         allowOutsideClick: false,
                         customClass: {
                             popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
                         
@@ -398,9 +363,6 @@ while ($question = $questions_query->fetch_assoc()) {
                         allowOutsideClick: false,
                         customClass: {
                             popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
                     });

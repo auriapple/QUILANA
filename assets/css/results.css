@@ -1,0 +1,73 @@
+/* RESULTS - STUDENT */
+/* Popup Styles */
+#result-content {
+    width: 600px;
+    height: 400px;
+    padding: 40px;
+    transition: width 0.3s ease, height 0.3s ease, padding 0.3s ease;
+}
+
+#assessment-title {
+    font-size: 36px;
+    margin-bottom: 10px;
+    transition: font-size 0.3s ease;
+}
+
+#assessment-topic {
+    margin-bottom: 20px;
+    font-size: 20px;
+    transition: font-size 0.3s ease;
+}
+
+#assessment-details {
+    width: 100%;
+    border-collapse: separate;
+    border-radius: 15px;
+    border: 2px solid rgba(59, 39, 110, 0.80);
+    overflow: hidden;
+    border-spacing: 0;
+}
+
+#assessment-details th, 
+#assessment-details td {
+    padding: 12px;
+    text-align: center;
+    border: none;
+    color: #4a4a4a;
+    border-right: 1px solid rgba(59, 39, 110, 0.80);
+    width: 25%;
+}
+
+#assessment-details th {
+    background-color: #E0E0EC;
+    font-size: 16px;
+}
+
+#assessment-details td:last-child, 
+#assessment-details th:last-child {
+    border-right: none;
+}
+
+/* Media Query for small screens */
+@media screen and (max-width: 640px) {
+    #result-content {
+        margin: 20px;
+    }
+}
+
+/* Media Query for extra small screens (Mobile) */
+@media screen and (max-width: 465px) {
+    #result-content {
+        width: 100%;
+        height: auto;
+        padding: 30px;
+    }
+
+    #assessment-title {
+        font-size: 30px;
+    }
+
+    #assessment-topic {
+        font-size: 18px;
+    }
+}

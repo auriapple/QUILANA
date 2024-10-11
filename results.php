@@ -5,6 +5,7 @@
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
     <title>Results | Quilana</title>
+    <link rel="stylesheet" href="assets/css/results.css">
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -19,8 +20,8 @@
 
         <!-- Assessment Results Modal -->
         <div id="assessment-popup" class="popup-overlay">
-            <div id="modal-content" class="popup-content">
-                <span id="modal-close" class="popup-close">&times;</span>
+            <div id="result-content" class="popup-content">
+                <button class="popup-close">&times;</button>
                 <h2 id="assessment-title" class="popup-title"></h2>
                 <p id="assessment-topic" class="popup-message"></p>
                 <table id="assessment-details" class="modal-table">
@@ -29,7 +30,6 @@
                         <tr>
                             <th>Date</th>
                             <th>Score</th>
-                            <th>Total Score</th>
                             <th>Remarks</th>
                         </tr>
                     </thead>
@@ -48,6 +48,7 @@
             </ul>
         </div>
 
+        <!-- Scrollable Content -->
         <div class="scrollable-content">
             <!-- Quizzes Tab -->
             <div id="quizzes-tab" class="tab-content active">
@@ -63,8 +64,8 @@
 
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
-                        echo '<div class="subject-separator">';
-                        echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
+                        echo '<div class="content-separator">';
+                        echo '<span class="content-name">' . htmlspecialchars($class['subject']) . '</span>';
                         echo '<hr class="separator-line">';
                         echo '</div>';
 
@@ -106,16 +107,16 @@
                         
                             // If no quizzes have results yet
                             if (!$has_results) {
-                                echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
+                                echo '<div class="no-records">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                             }
 
                         // If there are no quizzes at all    
                         } else {
-                            echo '<div class="no-assessments">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
+                            echo '<div class="no-records">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         }
                     }
                 } else {
-                    echo '<div class="no-assessments">No quizzes yet</div>';
+                    echo '<div class="no-records">No quizzes yet</div>';
                 }
                 ?>
                 </div>
@@ -134,8 +135,8 @@
 
             if ($classes_query->num_rows > 0) {
                 while ($class = $classes_query->fetch_assoc()) {
-                    echo '<div class="subject-separator">';
-                    echo '<span class="subject-name">' . htmlspecialchars($class['subject']) . '</span>';
+                    echo '<div class="content-separator">';
+                    echo '<span class="content-name">' . htmlspecialchars($class['subject']) . '</span>';
                     echo '<hr class="separator-line">';
                     echo '</div>';
 
@@ -175,14 +176,14 @@
                         echo '</div>';
 
                         if (!$has_results) {
-                            echo '<div class="no-assessments">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
+                            echo '<div class="no-records">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         } 
                     } else {
-                        echo '<div class="no-assessments">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
+                        echo '<div class="no-records">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                     }
                 }
             } else {
-            echo '<div class="no-assessments">No exams yet</div>';
+            echo '<div class="no-records">No exams yet</div>';
             }
             ?>
             </div>
@@ -207,6 +208,14 @@
                 var month = ('0' + (date.getMonth() + 1)).slice(-2);
                 var day = ('0' + date.getDate()).slice(-2);
                 return year + '-' + month + '-' + day;
+            }
+
+            // Handles Popups
+            function showPopup(popupId) {
+                $('#' + popupId).css('display', 'flex');
+            }
+            function closePopup(popupId) {
+                $('#' + popupId).css('display', 'none');
             }
             
             // View assessment results
@@ -234,70 +243,64 @@
                             // Check if assessment_mode is 1
                             if (result.assessment_mode == 1) {
                                 $('#assessment-details thead').append(
-                                    '<tr>' +
-                                    '<th>Date</th>' +
-                                    '<th>Score</th>' +
-                                    '<th>Total Score</th>' +
-                                    '<th>Remarks</th>' +
-                                    '</tr>'
+                                    `<tr>
+                                        <th>Date</th>
+                                        <th>Score</th>
+                                        <th>Remarks</th>
+                                    </tr>`
                                 );
                                 
                                 // Add details to table
                                 result.details.forEach(function(item) {
                                     $('#assessment-details tbody').append(
-                                        '<tr>' +
-                                        '<td>' + formatDate(item.date) + '</td>' +
-                                        '<td>' + item.score + '</td>' +
-                                        '<td>' + item.total_score + '</td>' +
-                                        '<td>' + item.remarks + '</td>' +
-                                        '</tr>'
+                                        `<tr>
+                                            <td>${formatDate(item.date)}</td>
+                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
+                                            <td>${item.remarks}</td>
+                                        </tr>`
                                     );
                                 });
                                 
                             } else if (result.assessment_mode == 2) {
                                 // Add rank column
                                 $('#assessment-details thead').append(
-                                    '<tr>' +
-                                    '<th>Date</th>' +
-                                    '<th>Score</th>' +
-                                    '<th>Total Score</th>' +
-                                    '<th>Rank</th>' +  // New column for rank
-                                    '<th>Remarks</th>' +
-                                    '</tr>'
+                                    `<tr>
+                                        <th>Date</th>
+                                        <th>Score</th>
+                                        <th>Rank</th>
+                                        <th>Remarks</th>
+                                    </tr>`  
                                 );
                                 
-                                // Add details to table with rank
+                                // Add details to table
                                 result.details.forEach(function(item) {
                                     $('#assessment-details tbody').append(
-                                        '<tr>' +
-                                        '<td>' + formatDate(item.date) + '</td>' +
-                                        '<td>' + item.score + '</td>' +
-                                        '<td>' + item.total_score + '</td>' +
-                                        '<td>' + item.rank + '</td>' + 
-                                        '<td>' + item.remarks + '</td>' +
-                                        '</tr>'
+                                        `<tr>
+                                            <td>${formatDate(item.date)}</td>
+                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
+                                            <td>${item.rank}</td>
+                                            <td>${item.remarks}</td>
+                                        </tr>`
                                     );
                                 });
                             } else {
-                                // Add rank column
+                                // Add rank column and remove remarks column
                                 $('#assessment-details thead').append(
-                                    '<tr>' +
-                                    '<th>Date</th>' +
-                                    '<th>Score</th>' +
-                                    '<th>Total Score</th>' +
-                                    '<th>Rank</th>' +  // New column for rank
-                                    '</tr>'
+                                    `<tr>
+                                        <th>Date</th>
+                                        <th>Score</th>
+                                        <th>Rank</th>
+                                    </tr>`
                                 );
                                 
-                                // Add details to table with rank
+                                // Add details to table
                                 result.details.forEach(function(item) {
                                     $('#assessment-details tbody').append(
-                                        '<tr>' +
-                                        '<td>' + formatDate(item.date) + '</td>' +
-                                        '<td>' + item.score + '</td>' +
-                                        '<td>' + item.total_score + '</td>' +
-                                        '<td>' + item.rank + '</td>' + 
-                                        '</tr>'
+                                        `<tr>
+                                            <td>${formatDate(item.date)}</td>
+                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
+                                            <td>${item.rank}</td>
+                                        </tr>`
                                     );
                                 });
                             }
@@ -309,19 +312,18 @@
                                 '</tr>'
                             );
                         }
-                        
-                        // Show the popup
-                        $('#assessment-popup').show();
+
+                        // Show result popup
+                        showPopup('assessment-popup');
                     } else {
                         alert('Assessment details not found.');
                     }
                 }
                 });
             });
-
-            // Close the popup
-            $('#modal-close').click(function() {
-                $('#assessment-popup').hide(); 
+            // Close the join class popup when close button is clicked
+            $('.popup-close').on('click', function() {
+                closePopup('assessment-popup');
             });
         });
     </script>
