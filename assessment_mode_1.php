@@ -13,7 +13,7 @@ $student_id = $_SESSION['login_id'];
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings
+    SELECT aa.administer_id, a.max_warnings, aa.class_id
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
@@ -24,6 +24,7 @@ if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
+    $class_id = $administer_row['class_id'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
@@ -96,7 +97,7 @@ $time_limit = $assessment['time_limit'];
     <div id="timer-runout-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
             <h2 class="popup-title">The timer ran out! You must submit your answers now!</p>
-            <button id="submit-answers" class="secondary-button" onclick="handleSubmit()">Submit</button>
+            <button id="submit-answers" class="secondary-button" onclick="submitForm()">Submit</button>
         </div>
     </div>
 
@@ -202,36 +203,28 @@ $time_limit = $assessment['time_limit'];
         // TIMER FUNCTIONALITY
         function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
+            var now = Date.now();
+            var endTime = now + (duration * 1000);
+            localStorage.setItem('endTime', endTime);
 
-            // Get stored end time
-            var storedEndTime = localStorage.getItem('endTime');
-            if (storedEndTime) {
+            function updateTimer() {
                 var now = Date.now();
-                timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
-            } else {
-                var endTime = Date.now() + (timer * 1000);
-                localStorage.setItem('endTime', endTime);
-            }
-
-            updateDisplay(timer, display); // Initialize display immediately
-
-            timerInterval = setInterval(function () {
-                var now = Date.now();
-                var remainingTime = Math.max(0, Math.floor((localStorage.getItem('endTime') - now) / 1000));
+                var remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
 
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
-                    timerExpired = true; // Set flag to true when timer runs out
+                    timerExpired = true;
                     showPopup('timer-runout-popup');
                     localStorage.removeItem('endTime');
                 } else {
                     updateDisplay(remainingTime, display);
-                    localStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
                 }
-            }, 1000);
+            }
+
+            updateTimer(); 
+            timerInterval = setInterval(updateTimer, 1000);
         }
 
-        // Function to update display
         function updateDisplay(remainingTime, display) {
             var minutes = Math.floor(remainingTime / 60);
             var seconds = remainingTime % 60;
@@ -244,13 +237,16 @@ $time_limit = $assessment['time_limit'];
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
         }
+
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
         }
+
         function closeSuccessPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
             window.location.href = 'results.php';
         }
+
         function closeErrorPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
             isSubmitting = false;

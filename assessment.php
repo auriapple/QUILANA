@@ -12,54 +12,69 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body>
+<di>
     <?php include('nav_bar.php'); ?>
 
     <div class="content-wrapper"> 
-        <!-- Header Container -->
-        <div class="add-assessment-container">
-            <button class="secondary-button" id="addAssessment">Add Assessment</button>
-            <form class="search-bar" action="#" method="GET">
-                <input type="text" name="query" placeholder="Search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
 
-        <div class="tabs-container">
-            <ul class="tabs">
-                <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
-                <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
-                <li class="tab-link" id="administer-tab-link" style="display: none; white-space: nowrap" data-status="0" data-tab="administer-tab">Administer</li>
-            </ul>
-        </div>
+    
+            <!-- Header Container -->
+            <div class="add-assessment-container">
+                <button class="secondary-button" id="addAssessment">Add Assessment</button>
+                <form class="search-bar" action="#" method="GET">
+                    <input type="text" name="query" placeholder="Search" required>
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
 
-        <div class="scrollable-content">
-            <div id="assessment-tab" class="tab-content active">
-                <?php
-                $qry = $conn->query("
-                    SELECT a.*, c.course_name
-                    FROM assessment a 
-                    JOIN course c ON a.course_id = c.course_id 
-                    WHERE a.faculty_id = '".$_SESSION['login_id']."'
-                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
-                ");
-                
-                $current_course = '';
-                $current_subject = '';
+            <div class="tabs-container">
+                <ul class="tabs">
+                    <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
+                    <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
+                    <li class="tab-link" id="administer-tab-link" style="display: none; white-space: nowrap" data-status="0" data-tab="administer-tab">Administer</li>
+                </ul>
+            </div>
 
-                while ($row = $qry->fetch_assoc()) {
-                    $course_name = htmlspecialchars($row['course_name']);
-                    $subject_name = htmlspecialchars($row['subject']);
-                    $assessment_name = htmlspecialchars($row['assessment_name']);
-                    $topic = htmlspecialchars($row['topic']);
-                    $assessment_id = $row['assessment_id'];
-                
-                    if ($course_name !== $current_course) {
-                        if ($current_course !== '') { ?>
-                        </div> <?php 
-                        } ?>
-                            <div class="course-section">
-                                <h2><?php echo $course_name; ?></h2>
+        <div class="scrollable-content"> 
+               
+                <div id="assessment-tab" class="tab-content active">
+                    <?php
+                    $qry = $conn->query("
+                        SELECT a.*, c.course_name
+                        FROM assessment a 
+                        JOIN course c ON a.course_id = c.course_id 
+                        WHERE a.faculty_id = '".$_SESSION['login_id']."'
+                        ORDER BY c.course_name, a.subject, a.assessment_name ASC
+                    ");
+                    
+                    $current_course = '';
+                    $current_subject = '';
+
+                    while ($row = $qry->fetch_assoc()) {
+                        $course_name = htmlspecialchars($row['course_name']);
+                        $subject_name = htmlspecialchars($row['subject']);
+                        $assessment_name = htmlspecialchars($row['assessment_name']);
+                        $topic = htmlspecialchars($row['topic']);
+                        $assessment_id = $row['assessment_id'];
+                    
+                        if ($course_name !== $current_course) {
+                            if ($current_course !== '') { ?>
+                            </div> <?php 
+                            } ?>
+                                <div class="course-section">
+                                    <h2><?php echo $course_name; ?></h2>
+                                <?php 
+                                    $current_course = $course_name;
+                                    $current_subject = '';
+                                }
+
+                            if ($subject_name !== $current_subject) {
+                                if ($current_subject !== '') { ?></div><?php } ?>
+                                <div class="subject-separator">
+                                    <span class="subject-name"><?php echo $subject_name; ?></span>
+                                    <hr class="separator-line">
+                                </div>
+                                <div class="assessment-container">
                             <?php 
                                 $current_course = $course_name;
                                 $current_subject = '';
@@ -93,209 +108,197 @@
                                                     Delete</a>
                                             </div>
                                         </div>
-                                        <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
-                                        <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
-                                        <div class="assessment-actions">
-                                            <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
-                                            <button id="administer" class="main-button" 
-                                                data-course-id="<?php echo $row['course_id']; ?>" 
-                                                data-course-name="<?php echo $row['course_name']; ?>" 
-                                                data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
-                                                data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
-                                                data-id="<?php echo $row['assessment_id']; ?>"
-                                                data-assessment-name="<?php echo htmlspecialchars($row['assessment_name']); ?>">Administer</button>
-                                        </div>
                                     </div>
+                    <?php } ?>
+                                </div> <!-- Close the last subject card container -->
+                            </di> <!-- Close the last course section -->
+                    </div>
+                </div>
+
+                <div id="details-tab" class="tab-content">
+                    <h1></h1>
+                </div>
+
+                <div id="administer-tab" class="tab-content"> 
+                    <div id="administer-container">
+                        
+                    </div>
+                </div>
+
+            <!-- Modal for managing assessments -->
+            <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">Add New Assessment</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <form id="assessment-frm">
+                            <div class="modal-body">
+                                <div id="msg"></div>
+                                <div class="form-group">
+                                    <label>Assessment Name</label>
+                                    <input type="hidden" name="assessment_id" />
+                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                    <input type="text" name="assessment_name" required="required" class="form-control" />
+                                    <label>Assessment Type</label>
+                                    <select name="assessment_type" id="assessment_type" required="required" class="form-control">
+                                        <option value="1">Quiz</option>
+                                        <option value="2">Exam</option>
+                                    </select>
+                                    <label>Assessment Mode</label>
+                                    <select name="assessment_mode" id="assessment_mode" required="required" class="form-control">
+                                        <option value="1">Normal Mode</option>
+                                        <option value="2">Quiz Bee Mode</option>
+                                        <option value="3">Speed Mode</option>
+                                    </select>
+                                    <label>Select Course</label>
+                                    <select name="course_id" id="course_id" required="required" class="form-control">
+                                        <option value="">Select Course</option>
+                                        <?php
+                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
+                                        while($course_row = $course_qry->fetch_assoc()) {
+                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <label>Select Course Subject</label>
+                                    <select name="subject" id="subject" required="required" class="form-control">
+                                        <option value="">Select Subject</option>
+                                    </select>
+                                    <label>Topic</label>
+                                    <input type="text" name="topic" required="required" class="form-control" />
                                 </div>
-                      <?php } ?>
-                    </div> <!-- Close the last subject card container -->
-                </div> <!-- Close the last course section -->
-            </div>
-
-            <div id="details-tab" class="tab-content">
-                <h1></h1>
-            </div>
-
-            <div id="administer-tab" class="tab-content"> 
-                <div id="administer-container">
-                    <h1>Test</h1>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Modal for managing assessments -->
-        <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Add New Assessment</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <form id="assessment-frm">
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <label>Assessment Name</label>
-                                <input type="hidden" name="assessment_id" />
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="assessment_name" required="required" class="form-control" />
-                                <label>Assessment Type</label>
-                                <select name="assessment_type" id="assessment_type" required="required" class="form-control">
-                                    <option value="1">Quiz</option>
-                                    <option value="2">Exam</option>
-                                </select>
-                                <label>Assessment Mode</label>
-                                <select name="assessment_mode" id="assessment_mode" required="required" class="form-control">
-                                    <option value="1">Normal Mode</option>
-                                    <option value="2">Quiz Bee Mode</option>
-                                    <option value="3">Speed Mode</option>
-                                </select>
-                                <label>Select Course</label>
-                                <select name="course_id" id="course_id" required="required" class="form-control">
-                                    <option value="">Select Course</option>
-                                    <?php
-                                    $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                    while($course_row = $course_qry->fetch_assoc()) {
-                                        echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                    }
-                                    ?>
-                                </select>
-                                <label>Select Course Subject</label>
-                                <select name="subject" id="subject" required="required" class="form-control">
-                                    <option value="">Select Subject</option>
-                                </select>
-                                <label>Topic</label>
-                                <input type="text" name="topic" required="required" class="form-control" />
+            <!-- Modal for administering assessments -->
+            <div class="modal fade" id="administer_assessment_modal" tabindex="-1">
+                <div class="modal-dialog modal-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="administerAssessmentLabel">Administer Assessment</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="administer-assessment-frm">
+                        <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
+                        <input type="hidden" name="course_id" id="course_id_hidden" />
+                            <div class="modal-body">
+                                <div id="msg1"></div>
+                                <div class="form-group">
+                                    <label for="administer_course">Course</label>
+                                    <input type="text" id="administer_course" class="form-control" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label for="administer_subject">Subject</label>
+                                    <input type="text" id="administer_subject" class="form-control" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label for="administer_mode">Mode</label>
+                                    <select id="administer_mode" class="form-control" disabled>
+                                        <option value="1">Normal Mode</option>
+                                        <option value="2">Quiz Bee Mode</option>
+                                        <option value="3">Speed Mode</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="administer_class_id">Select Class</label>
+                                    <select name="class_id" id="administer_class_id" required class="form-control">
+                                        <option value="">Select Class</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
+                                <input type="hidden" id="assessment_name_hidden" name="assessment_name_hidden" />
                             </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button id="administer_btn" type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Assessment Modal -->
+            <div class="modal fade" id="edit_assessment_modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="editModalLabel">Edit Assessment</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="edit-assessment-frm">
+                            <div class="modal-body">
+                                <div id="edit-msg"></div>
+                                <div class="form-group">
+                                    <label>Assessment Name</label>
+                                    <input type="hidden" name="assessment_id" id="edit_assessment_id" />
+                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                    <input type="text" name="assessment_name" id="edit_assessment_name" required="required" class="form-control" />
+                                    <label>Assessment Type</label>
+                                    <select name="assessment_type" id="edit_assessment_type" required="required" class="form-control">
+                                        <option value="1">Quiz</option>
+                                        <option value="2">Exam</option>
+                                    </select>
+                                    <label>Assessment Mode</label>
+                                    <select name="assessment_mode" id="edit_assessment_mode" required="required" class="form-control">
+                                        <option value="1">Normal Mode</option>
+                                        <option value="2">Quiz Bee Mode</option>
+                                        <option value="3">Speed Mode</option>
+                                    </select>
+                                    <label>Select Course</label>
+                                    <select name="course_id" id="edit_course_id" required="required" class="form-control">
+                                        <option value="">Select Course</option>
+                                        <?php
+                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
+                                        while($course_row = $course_qry->fetch_assoc()) {
+                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <label>Select Course Subject</label>
+                                    <select name="subject" id="edit_subject" required="required" class="form-control">
+                                        <option value="">Select Subject</option>
+                                    </select>
+                                    <label>Topic</label>
+                                    <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="delete_assessment_modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Delete Assessment</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this assessment?</p>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                            <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal for administering assessments -->
-        <div class="modal fade" id="administer_assessment_modal" tabindex="-1">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="administerAssessmentLabel">Administer Assessment</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form id="administer-assessment-frm">
-                    <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
-                    <input type="hidden" name="course_id" id="course_id_hidden" />
-                        <div class="modal-body">
-                            <div id="msg1"></div>
-                            <div class="form-group">
-                                <label for="administer_course">Course</label>
-                                <input type="text" id="administer_course" class="form-control" readonly />
-                            </div>
-                            <div class="form-group">
-                                <label for="administer_subject">Subject</label>
-                                <input type="text" id="administer_subject" class="form-control" readonly />
-                            </div>
-                            <div class="form-group">
-                                <label for="administer_mode">Mode</label>
-                                <select id="administer_mode" class="form-control" disabled>
-                                    <option value="1">Normal Mode</option>
-                                    <option value="2">Quiz Bee Mode</option>
-                                    <option value="3">Speed Mode</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="administer_class_id">Select Class</label>
-                                <select name="class_id" id="administer_class_id" required class="form-control">
-                                    <option value="">Select Class</option>
-                                </select>
-                            </div>
-                            <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
-                            <input type="hidden" id="assessment_name_hidden" name="assessment_name_hidden" />
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button id="administer_btn" type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Edit Assessment Modal -->
-        <div class="modal fade" id="edit_assessment_modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="editModalLabel">Edit Assessment</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form id="edit-assessment-frm">
-                        <div class="modal-body">
-                            <div id="edit-msg"></div>
-                            <div class="form-group">
-                                <label>Assessment Name</label>
-                                <input type="hidden" name="assessment_id" id="edit_assessment_id" />
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="assessment_name" id="edit_assessment_name" required="required" class="form-control" />
-                                <label>Assessment Type</label>
-                                <select name="assessment_type" id="edit_assessment_type" required="required" class="form-control">
-                                    <option value="1">Quiz</option>
-                                    <option value="2">Exam</option>
-                                </select>
-                                <label>Assessment Mode</label>
-                                <select name="assessment_mode" id="edit_assessment_mode" required="required" class="form-control">
-                                    <option value="1">Normal Mode</option>
-                                    <option value="2">Quiz Bee Mode</option>
-                                    <option value="3">Speed Mode</option>
-                                </select>
-                                <label>Select Course</label>
-                                <select name="course_id" id="edit_course_id" required="required" class="form-control">
-                                    <option value="">Select Course</option>
-                                    <?php
-                                    $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                    while($course_row = $course_qry->fetch_assoc()) {
-                                        echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                    }
-                                    ?>
-                                </select>
-                                <label>Select Course Subject</label>
-                                <select name="subject" id="edit_subject" required="required" class="form-control">
-                                    <option value="">Select Subject</option>
-                                </select>
-                                <label>Topic</label>
-                                <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="delete_assessment_modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Delete Assessment</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this assessment?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
                     </div>
                 </div>
             </div>
