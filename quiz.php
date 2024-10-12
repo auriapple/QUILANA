@@ -232,7 +232,7 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
-    <script>
+   <script>
         // Global variables
         let timerInterval;
         let timerExpired = false;
@@ -240,6 +240,8 @@ $time_limit = $assessment['time_limit'];
         let isSubmitting = false;
         let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
+        let altKeyPressed = false;
+        let winKeyPressed = false;
 
         // Timer functionality
         function startTimer(duration, display) {
@@ -310,7 +312,6 @@ $time_limit = $assessment['time_limit'];
                 body: JSON.stringify({ 
                     suspicious_act: warningCount, 
                     administer_id: administerId,
-
                 })
             })
             .then(response => response.json())
@@ -379,61 +380,82 @@ $time_limit = $assessment['time_limit'];
             }, 1000);
         }
 
+        // Enhanced key event listeners
+        document.addEventListener('keydown', (e) => {
+            // List of restricted keys
+            const restrictedKeys = ['PrintScreen', 'Meta', 'Win', 'Windows', 'F12'];
+            
+            if (e.key === 'Alt') altKeyPressed = true;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = true;
+
+            // Detect various screen capture attempts or restricted keys
+            if (restrictedKeys.includes(e.key) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
+                (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
+                (winKeyPressed && e.shiftKey && e.key === 'S') ||
+                (winKeyPressed && altKeyPressed && e.key === 'r') ||
+                (e.ctrlKey && e.key === 'p')) { 
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                handleWarning('Restricted key use');
+                flashScreen();
+
+                return false;
+            }
+        }, true); 
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Alt') altKeyPressed = false;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = false;
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                handleWarning('Print Screen use');
+                flashScreen();            
+                return false;
+            }
+        }, true); 
+
+        // Prevent default behavior for specific keys
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.key === 'PrintScreen' || 
+                e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows' ||
+                (e.ctrlKey && e.key === 'p')) {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
+
+        // Additional measure to block right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showTemporaryMessage('Right-click is disabled');
+            return false;
+        }, true);
+
+        // Block tab visibility API
+        Object.defineProperty(document, 'hidden', {
+            value: false,
+            writable: false
+        });
+        Object.defineProperty(document, 'visibilityState', {
+            value: 'visible',
+            writable: false
+        });
+        document.addEventListener('visibilitychange', function(e) {
+            e.stopImmediatePropagation();
+        }, true);
+
         // Event listeners for various capture methods
         window.addEventListener('beforeprint', (e) => {
             e.preventDefault();
             handleWarning('Print event');
         });
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                handleWarning('Tab switching');
-            }
-        });
-
-        let altKeyPressed = false;
-        let winKeyPressed = false;
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Alt') altKeyPressed = true;
-            if (e.key === 'Meta') winKeyPressed = true;
-
-            if ((e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
-                (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
-                (winKeyPressed && e.shiftKey && e.key === 'S') ||
-                e.key === 'PrintScreen') {
-                e.preventDefault();
-                handleWarning('Screen capture');
-                return false;
-            }
-            if (winKeyPressed && altKeyPressed && e.key === 'r') {
-                e.preventDefault();
-                handleWarning('Windows+Alt+R');
-                return false;
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'Alt') altKeyPressed = false;
-            if (e.key === 'Meta') winKeyPressed = false;
-            if (e.key === 'PrintScreen') {
-                e.preventDefault();
-                handleWarning('Print screen key');
-                return false;
-            }
-        });
-
-        // Detect screen recording attempts
-        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-            const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
-            navigator.mediaDevices.getDisplayMedia = function(constraints) {
-                handleWarning('getDisplayMedia');
-                return originalGetDisplayMedia.call(this, constraints);
-            }
-        }
-
         // Additional security measures
-        document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
 
@@ -521,14 +543,17 @@ $time_limit = $assessment['time_limit'];
             window.location.href = 'results.php';
         }
 
-        function disablePrintScreen(e) {
-            const keyCode = e.keyCode || e.which;
-            if (keyCode === 44 || (e.ctrlKey && e.key === 'PrintScreen')) {
-                e.preventDefault();
-                handleWarning('Print screen');
-                flashScreen();
-                return false;
-            }
+        function flashScreen() {
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'white';
+            flash.style.zIndex = '10000';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 50);
         }
 
         function setupAntiScreenshotOverlay() {
@@ -556,19 +581,6 @@ $time_limit = $assessment['time_limit'];
             }, 100);
         }
 
-        function flashScreen() {
-            const flash = document.createElement('div');
-            flash.style.position = 'fixed';
-            flash.style.top = '0';
-            flash.style.left = '0';
-            flash.style.width = '100%';
-            flash.style.height = '100%';
-            flash.style.backgroundColor = 'white';
-            flash.style.zIndex = '10000';
-            document.body.appendChild(flash);
-            setTimeout(() => flash.remove(), 50);
-        }
-
         // Initialize timer and set up event listeners
         window.onload = function () {
             var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
@@ -576,25 +588,9 @@ $time_limit = $assessment['time_limit'];
             startTimer(timeLimit, display);
 
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
-
-            // Disable print screen functionality
-            document.addEventListener('keyup', disablePrintScreen);
-            document.addEventListener('keydown', disablePrintScreen);
-
             
             setupAntiScreenshotOverlay();
         };
-
-        // Disable right-click
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // Disable Ctrl+P
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key == 'p') {
-                e.preventDefault();
-                handleWarning('Print event');
-            }
-        });
     </script>
 </body>
 </html>
