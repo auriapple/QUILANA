@@ -7,9 +7,9 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 
 // Validate if necessary data is present
-if (isset($data['administer_id']) && isset($data['tab_switches'])) {
+if (isset($data['administer_id']) && isset($data['suspicious_act'])) {
     $administer_id = $conn->real_escape_string($data['administer_id']);
-    $tab_switches = (int)$data['tab_switches'];
+    $suspicious_act = (int)$data['suspicious_act'];
     
     // Validate that 'student_id' exists in the session
     if (isset($_SESSION['login_id'])) {
@@ -18,12 +18,12 @@ if (isset($data['administer_id']) && isset($data['tab_switches'])) {
         // Update status in join_assessment table using a prepared statement
         $stmt = $conn->prepare("
             UPDATE join_assessment
-            SET tab_switches = ?, if_display = true
+            SET suspicious_act = ?, if_display = true
             WHERE administer_id = ? AND student_id = ?
         ");
         
         if ($stmt) {
-            $stmt->bind_param("iii", $tab_switches, $administer_id, $student_id);
+            $stmt->bind_param("iii", $suspicious_act, $administer_id, $student_id);
 
             if ($stmt->execute()) {
                 echo json_encode(['success' => true]);

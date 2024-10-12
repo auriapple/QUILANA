@@ -13,7 +13,7 @@ $student_id = $_SESSION['login_id'];
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings
+    SELECT aa.administer_id, a.max_warnings, aa.class_id
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
@@ -24,6 +24,7 @@ if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
+    $class_id = $administer_row['class_id'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
@@ -125,7 +126,7 @@ $time_limit = $assessment['time_limit'];
     <div id="timer-runout-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
             <h2 class="popup-title">The timer ran out! You must submit your answers now!</p>
-            <button id="submit-answers" class="secondary-button" onclick="handleSubmit()">Submit</button>
+            <button id="submit-answers" class="secondary-button" onclick="submitForm()">Submit</button>
         </div>
     </div>
 
@@ -232,32 +233,24 @@ $time_limit = $assessment['time_limit'];
     </div>
 
     <script>
-        var timerInterval;
-        var timerExpired = false; // Flag to track if timer has expired
-        var maxWarningReached = false; // Flag to track if maximum warnings have been reached
+        // Global variables
+        let timerInterval;
+        let timerExpired = false;
+        let warningCount = 0;
+        let isSubmitting = false;
+        let hasSubmitted = false;
+        const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
 
         // Timer functionality
-        var timerInterval;
-        var timerExpired = false;
-        var maxWarningReached = false;
-
         function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
+            var now = Date.now();
+            var endTime = now + (duration * 1000);
+            localStorage.setItem('endTime', endTime);
 
-            var storedEndTime = localStorage.getItem('endTime');
-            if (storedEndTime) {
+            function updateTimer() {
                 var now = Date.now();
-                timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
-            } else {
-                var endTime = Date.now() + (timer * 1000);
-                localStorage.setItem('endTime', endTime);
-            }
-
-            updateDisplay(timer, display);
-
-            timerInterval = setInterval(function () {
-                var now = Date.now();
-                var remainingTime = Math.max(0, Math.floor((localStorage.getItem('endTime') - now) / 1000));
+                var remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
 
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
@@ -266,9 +259,11 @@ $time_limit = $assessment['time_limit'];
                     localStorage.removeItem('endTime');
                 } else {
                     updateDisplay(remainingTime, display);
-                    localStorage.setItem('remainingTime', remainingTime);
                 }
-            }, 1000);
+            }
+
+            updateTimer(); 
+            timerInterval = setInterval(updateTimer, 1000);
         }
 
         function updateDisplay(remainingTime, display) {
@@ -278,12 +273,6 @@ $time_limit = $assessment['time_limit'];
             seconds = seconds < 10 ? "0" + seconds : seconds;
             display.textContent = minutes + ":" + seconds;
         }
-
-        window.onload = function () {
-            var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
-                display = document.querySelector('#timer');
-            startTimer(timeLimit, display);
-        };
 
         // Popup handling
         function showPopup(popupId) {
@@ -301,23 +290,44 @@ $time_limit = $assessment['time_limit'];
 
         function closeErrorPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
-            handleSubmit();
+            isSubmitting = false;
         }
 
-        // Screen capture detection
-        let screenCaptureCount = 0;
-        const MAX_SCREEN_CAPTURES = 5;
+        // Warning system
+        function handleWarning(method) {
+            warningCount++;
+            console.log(`Warning triggered via ${method}. Total warnings: ${warningCount}`);
 
-        function handleScreenCapture(method) {
-            screenCaptureCount++;
-            console.log(`Screen capture attempt detected via ${method}`);
+            temporarilyHideOverlay();
 
-            temporarilyHideOverlay(); 
+            const administerId = parseInt(document.getElementById('administerId_container').value);
 
-            if (screenCaptureCount >= MAX_SCREEN_CAPTURES) {
+            fetch('switchTab_update.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    suspicious_act: warningCount, 
+                    administer_id: administerId,
+
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && warningCount >= max_warnings) {
+                    clearInterval(timerInterval);
+                    handleSubmit();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            if (warningCount >= max_warnings) {
                 Swal.fire({
-                    title: 'Warning!',
-                    text: 'Multiple screen capture attempts detected. Your quiz will be submitted automatically.',
+                    title: 'Maximum Warnings Reached!',
+                    text: 'Your assessment will be submitted automatically.',
                     icon: 'error',
                     confirmButtonText: 'OK',
                     allowOutsideClick: false,
@@ -336,7 +346,7 @@ $time_limit = $assessment['time_limit'];
             } else {
                 Swal.fire({
                     title: 'Warning!',
-                    text: `Screen capture attempt detected. You have ${MAX_SCREEN_CAPTURES - screenCaptureCount} warnings left.`,
+                    text: `${method} attempt detected. You have ${max_warnings - warningCount} warnings left.`,
                     icon: 'warning',
                     confirmButtonText: 'OK',
                     customClass: {
@@ -350,7 +360,7 @@ $time_limit = $assessment['time_limit'];
             }
         }
 
-        // Create a full-screen overlay to prevent screenshots
+        // Screen capture detection
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
@@ -362,28 +372,25 @@ $time_limit = $assessment['time_limit'];
         overlay.style.zIndex = '9999';
         document.body.appendChild(overlay);
 
-        // Function to temporarily hide the overlay
         function temporarilyHideOverlay() {
             overlay.style.display = 'none';
             setTimeout(() => {
                 overlay.style.display = 'block';
-            }, 1000); 
+            }, 1000);
         }
 
-        // Detect print event 
+        // Event listeners for various capture methods
         window.addEventListener('beforeprint', (e) => {
             e.preventDefault();
-            handleScreenCapture('print event');
+            handleWarning('Print event');
         });
 
-        // Detect visibility change 
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                handleScreenCapture('visibility change');
+                handleWarning('Tab switching');
             }
         });
 
-        // keyboard shortcut detection
         let altKeyPressed = false;
         let winKeyPressed = false;
 
@@ -391,48 +398,46 @@ $time_limit = $assessment['time_limit'];
             if (e.key === 'Alt') altKeyPressed = true;
             if (e.key === 'Meta') winKeyPressed = true;
 
-            // Detect various screenshot shortcuts
             if ((e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
                 (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
                 (winKeyPressed && e.shiftKey && e.key === 'S') ||
                 e.key === 'PrintScreen') {
                 e.preventDefault();
-                handleScreenCapture('keyboard shortcut');
-                temporarilyHideOverlay();
+                handleWarning('Screen capture');
+                return false;
             }
-            // Detect Windows+Alt+R (Windows 10 screen recording)
             if (winKeyPressed && altKeyPressed && e.key === 'r') {
                 e.preventDefault();
-                handleScreenCapture('Windows+Alt+R');
+                handleWarning('Windows+Alt+R');
+                return false;
             }
         });
 
         document.addEventListener('keyup', (e) => {
             if (e.key === 'Alt') altKeyPressed = false;
             if (e.key === 'Meta') winKeyPressed = false;
-
-            // Check for Print Screen key release
             if (e.key === 'PrintScreen') {
-                handleScreenCapture('Print Screen key');
-                temporarilyHideOverlay();
+                e.preventDefault();
+                handleWarning('Print screen key');
+                return false;
             }
         });
 
-        // Detect screen recording attempts using getDisplayMedia
+        // Detect screen recording attempts
         if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
             const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
             navigator.mediaDevices.getDisplayMedia = function(constraints) {
-                handleScreenCapture('getDisplayMedia');
+                handleWarning('getDisplayMedia');
                 return originalGetDisplayMedia.call(this, constraints);
             }
         }
 
-        // Additional measures to discourage screen capture
+        // Additional security measures
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
 
-        // Detect if DevTools is opened (which could be used to disable JavaScript)
+        // DevTools detection
         let devToolsOpened = false;
         setInterval(() => {
             const widthThreshold = window.outerWidth - window.innerWidth > 160;
@@ -440,20 +445,20 @@ $time_limit = $assessment['time_limit'];
             if (widthThreshold || heightThreshold) {
                 if (!devToolsOpened) {
                     devToolsOpened = true;
-                    handleScreenCapture('DevTools opened');
+                    handleWarning('DevTools usage');
                 }
             } else {
                 devToolsOpened = false;
             }
         }, 1000);
 
-        // Detect and block browser's screenshot functionality
+        // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {
             e.preventDefault();
-            handleScreenCapture('browser screenshot event');
+            handleWarning('Screen capture');
         });
 
-        // check if a screenshot was taken
+        // Pixel change detection
         let lastPixel = null;
         setInterval(() => {
             const canvas = document.createElement('canvas');
@@ -463,110 +468,39 @@ $time_limit = $assessment['time_limit'];
             ctx.drawWindow(window, 0, 0, 1, 1, "rgb(255,255,255)");
             const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
             if (lastPixel !== null && pixel !== lastPixel) {
-                handleScreenCapture('pixel change detected');
-                temporarilyHideOverlay();
+                handleWarning('Pixel change');
             }
             lastPixel = pixel;
         }, 1000);
 
         // Tab switching detection
-        let tabSwitched = false;
-        let counter = 0;
-        let max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
-
         window.addEventListener("blur", () => {
-            counter++;
-            console.log("switch");
-            tabSwitched = true;
-
-            const administerId = parseInt(document.getElementById('administerId_container').value);
-            fetch('switchTab_update.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ tab_switches: counter, administer_id: administerId})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if(counter == max_warnings) {
-                        clearInterval(timerInterval);
-                        maxWarningReached = true;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            handleWarning('Tab switching');
         });
 
-        window.addEventListener("focus", () => {
-            if (tabSwitched) {
-                tabSwitched = false;
-                if (counter >= max_warnings) {
-                    maxWarningReached = true;
-                    temporarilyHideOverlay(); 
-                    Swal.fire({
-                        title: 'napakagaling!',
-                        text: 'at inulit-ulit mo pa talagang pasaway ka',
-                        icon: 'warning',
-                        confirmButtonText: 'i-submit mo na yan!!!',
-                        allowOutsideClick: false,
-                        customClass: {
-                            popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
-                            confirmButton: 'secondary-button'
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            handleSubmit();
-                        }
-                    });
-                } else {
-                    temporarilyHideOverlay(); 
-                    Swal.fire({
-                        title: 'Hoi huli ka boi akala mo ha!',
-                        text: 'nako kang bata ka, sige isa pa at makikita mo hinahanap mo',
-                        icon: 'warning',
-                        confirmButtonText: 'sorry po di na mauulit >_< ',
-                        allowOutsideClick: false,
-                        customClass: {
-                            popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
-                            confirmButton: 'secondary-button'
-                        }
-                    });
-                }
+        // Form submission handling
+        function handleSubmit(event) {
+            if (event) {
+                event.preventDefault();
             }
-        });
+            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
+            isSubmitting = true;
 
-        // Handle form submission
-        function handleSubmit() {
-            if (timerExpired) {
-                closePopup('timer-runout-popup');
-                submitForm();
-            } else if (maxWarningReached || screenCaptureCount >= MAX_SCREEN_CAPTURES) {
-                submitForm();
-            } else {
-                closePopup('confirmation-popup');
-                submitForm();
-            }
+            submitForm();
         }
 
         function submitForm() {
+            if (hasSubmitted) return; 
+
             var formData = new FormData(document.getElementById('quiz-form'));
-            formData.append('screenCaptureAttempts', screenCaptureCount);
-            formData.append('tabSwitches', counter);
+            formData.append('warningCount', warningCount);
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'submit_quiz.php', true);
 
             xhr.onload = function () {
+                isSubmitting = false;
+                hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
                     localStorage.removeItem('endTime');
                     localStorage.removeItem('remainingTime');
@@ -577,11 +511,90 @@ $time_limit = $assessment['time_limit'];
                 }
             };
             xhr.send(formData);
+
+            // Close any open popups
+            closePopup('timer-runout-popup');
+            closePopup('confirmation-popup');
         }
 
         function viewResult() {
             window.location.href = 'results.php';
         }
+
+        function disablePrintScreen(e) {
+            const keyCode = e.keyCode || e.which;
+            if (keyCode === 44 || (e.ctrlKey && e.key === 'PrintScreen')) {
+                e.preventDefault();
+                handleWarning('Print screen');
+                flashScreen();
+                return false;
+            }
+        }
+
+        function setupAntiScreenshotOverlay() {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'transparent';
+            overlay.style.zIndex = '9999';
+            overlay.style.pointerEvents = 'none';
+            document.body.appendChild(overlay);
+
+            setInterval(() => {
+                const marker = document.createElement('div');
+                marker.style.position = 'absolute';
+                marker.style.width = '5px';
+                marker.style.height = '5px';
+                marker.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                marker.style.top = Math.random() * 100 + '%';
+                marker.style.left = Math.random() * 100 + '%';
+                overlay.appendChild(marker);
+                setTimeout(() => marker.remove(), 500);
+            }, 100);
+        }
+
+        function flashScreen() {
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'white';
+            flash.style.zIndex = '10000';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 50);
+        }
+
+        // Initialize timer and set up event listeners
+        window.onload = function () {
+            var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
+                display = document.querySelector('#timer');
+            startTimer(timeLimit, display);
+
+            document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
+
+            // Disable print screen functionality
+            document.addEventListener('keyup', disablePrintScreen);
+            document.addEventListener('keydown', disablePrintScreen);
+
+            
+            setupAntiScreenshotOverlay();
+        };
+
+        // Disable right-click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key == 'p') {
+                e.preventDefault();
+                handleWarning('Print event');
+            }
+        });
     </script>
 </body>
 </html>
