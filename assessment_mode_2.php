@@ -70,35 +70,6 @@ while ($question = $questions_query->fetch_assoc()) {
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .secondary-button {
-            padding: 10px 30px;
-            outline: none;
-        }
-
-        .popup-content .swal2-title,
-        .popup-content .swal2-html-container,
-        .popup-content .swal2-actions {
-            margin: 5px 0;
-            padding-top: 0;
-            padding-bottom: 0;
-
-        }
-
-        .popup-content .swal2-icon {
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        .popup-content {
-            display: flex;
-            flex-direction: column;
-            height: 350px;
-            padding: 20px;
-            justify-content: center !important;
-            align-items: center !important;
-        }
-    </style>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -139,7 +110,7 @@ while ($question = $questions_query->fetch_assoc()) {
         <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
         <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
 
-        <form id="quiz-form" action="submit_quiz.php" method="POST">
+        <form id="quiz-form" action="submit_assessment.php" method="POST">
             <!-- Header with timer -->
             <div class="header-container">
                 <p>Time Left: <span id="timer" class="timer">00:00</span></p>
@@ -326,7 +297,7 @@ while ($question = $questions_query->fetch_assoc()) {
 
             // Create an XMLHttpRequest object
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_quiz.php', true);
+            xhr.open('POST', 'submit_assessment.php', true);
 
             // Set up a handler for when the request completes
             xhr.onload = function () {
@@ -422,9 +393,6 @@ while ($question = $questions_query->fetch_assoc()) {
                         allowOutsideClick: false,
                         customClass: {
                             popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
                     }).then((result) => {
@@ -443,9 +411,6 @@ while ($question = $questions_query->fetch_assoc()) {
                         allowOutsideClick: false,
                         customClass: {
                             popup: 'popup-content',
-                            icon: 'popup-icon',
-                            title: 'popup-title',
-                            text: 'popup-message',
                             confirmButton: 'secondary-button'
                         }
                     });

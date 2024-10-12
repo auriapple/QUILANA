@@ -40,11 +40,11 @@ body {
     justify-content: space-between;
     flex-direction: column;
     border-radius: 20px;
-    border: 1px solid #d1d1d1;
+    border: 1px solid #EEEEEE;
     box-sizing: border-box;
     margin: 10px;
     padding: 25px;
-    box-shadow: 0px 4px 20px 0px rgba(238, 238, 238, 0.50);
+    box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.15);
 }
 .dashboard-requests h1,
 .dashboard-summary h1,
@@ -224,48 +224,25 @@ td .btns,
 /* RECENT ASSESSMENTS */
 .recent-scrollable {
     overflow-y: scroll;
+    flex-grow: 1;
+    height: 100%;
 }
-/* Recent assessments separator (date and line) */
-.assessment-separator {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    text-align: left;
-    position: relative;
-}
-.date {
-    flex: 0 0 auto;
-    margin-right: 20px;
-    color: #CDCDCD;
-}
-.separator-line {
-    flex: 1;
-    border: none;
-    border-top: 1px solid #CDCDCD;;
-    margin: 0;
-}
+
 /* Recent Card */
-#recents {
-    margin-bottom: 15px;
-    border-radius: 16px;
-}
-#recent-card {
-    padding: 10px;
-}
-/* Recent Data */
-#recent-data {
-    display:flex;
-    align-items: center;
-    width: 100%;
+#recents #recent-card {
     flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    height: 90px;
 }
-.recent-icon .icons{
-    justify-content: center;
-    margin: 0 20px;
-    flex-shrink: 0;
-}
-.recent-details {
-    margin: 10px 0 0 10px;
+
+#recent-card .icons,
+#recent-card h3,
+#recent-card label {
+    margin: 0;
 }
 
 /* DASHBOARD CALENDAR */

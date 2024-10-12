@@ -35,7 +35,7 @@ if (isset($_POST['class_id'])) {
 
     // Check if all assessments have been taken
     if ($total_assessments == $taken_assessments) {
-        echo '<p class="no-assessments">No assessments available for this class.</p>';
+        echo '<p class="no-records">No assessments available for this class.</p>';
     } else {
         echo '<div class="assessment-container">';
         // Display assessment details
@@ -52,24 +52,24 @@ if (isset($_POST['class_id'])) {
                 // Determine button text based on assessment type
                 $button_text = $row['assessment_type'] == 1 ? 'Take Quiz' : 'Take Exam';
 
-                // Determine redirection URL based on assessment mode and set the assessment mode text
-                $redirect_url = '';
+                // Set the assessment mode text
                 $assessment_mode = '';
-
+                $assessment_mode = $row['assessment_mode'] == 1 ? 'Normal Mode' : ($row['assessment_mode'] == 2 ? 'Quiz Bee Mode' : 'Speed Mode');
+                
+                // Determine redirection URL based on assessment mode
+                $redirect_url = '';
                 if ($row['status'] == 0) {
                     // Redirect to waiting room if status is 0
                     $redirect_url = 'waiting_room.php';
-                    $assessment_mode = $row['assessment_mode'] == 1 ? 'Normal Mode' : ($row['assessment_mode'] == 2 ? 'Quiz Bee Mode' : 'Speed Mode');
                 } elseif ($row['status'] == 1) {
                     // Redirect to respective assessment page based on mode
                     if ($row['assessment_mode'] == 1) {
-                        $redirect_url = 'quiz.php'; //assessment_mode_1.php
+                        $redirect_url = 'assessment_mode_1.php';
                     } elseif ($row['assessment_mode'] == 2) {
                         $redirect_url = 'assessment_mode_2.php';
                     } elseif ($row['assessment_mode'] == 3) {
                         $redirect_url = 'assessment_mode_3.php';
                     }
-                    $assessment_mode = $row['assessment_mode'] == 1 ? 'Normal Mode' : ($row['assessment_mode'] == 2 ? 'Quiz Bee Mode' : 'Speed Mode');
                 }
 
                 // Display assessment card information

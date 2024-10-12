@@ -76,37 +76,36 @@
                                 </div>
                                 <div class="assessment-container">
                             <?php 
-                                $current_subject = $subject_name;
-                            } ?>
-                                    <div class="assessment-card">
-                                        <div class="assessment-card-body">
-                                            <div class="meatball-menu-container">
-                                                <button class="meatball-menu-btn">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <div class="meatball-menu">
-                                                    <div class="arrow-up"></div>
-                                                    <a href="#" class="edit_assessment" 
-                                                        data-id="<?php echo $assessment_id ?>">
-                                                        <span class="material-symbols-outlined">Edit</span>
-                                                        Edit</a>
-                                                    <a href="#" class="delete_assessment" 
-                                                        data-id="<?php echo $assessment_id ?>">
-                                                        <span class="material-symbols-outlined">delete</span>
-                                                        Delete</a>
-                                                </div>
-                                            </div>
-                                            <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
-                                            <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
-                                            <div class="assessment-actions">
-                                                <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
-                                                <button id="administer" class="main-button" 
-                                                    data-course-id="<?php echo $row['course_id']; ?>" 
-                                                    data-course-name="<?php echo $row['course_name']; ?>" 
-                                                    data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
-                                                    data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
-                                                    data-id="<?php echo $row['assessment_id']; ?>"
-                                                    data-assessment-name="<?php echo htmlspecialchars($row['assessment_name']); ?>">Administer</button>
+                                $current_course = $course_name;
+                                $current_subject = '';
+                            }
+
+                        if ($subject_name !== $current_subject) {
+                            if ($current_subject !== '') { ?></div><?php } ?>
+                            <div class="content-separator">
+                                <span class="content-name"><?php echo $subject_name; ?></span>
+                                <hr class="separator-line">
+                            </div>
+                            <div class="assessment-container">
+                            <?php 
+                            $current_subject = $subject_name;
+                        } ?>
+                                <div class="assessment-card">
+                                    <div class="assessment-card-body">
+                                        <div class="meatball-menu-container">
+                                            <button class="meatball-menu-btn">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="meatball-menu">
+                                                <div class="arrow-up"></div>
+                                                <a href="#" class="edit_assessment" 
+                                                    data-id="<?php echo $assessment_id ?>">
+                                                    <span class="material-symbols-outlined">Edit</span>
+                                                    Edit</a>
+                                                <a href="#" class="delete_assessment" 
+                                                    data-id="<?php echo $assessment_id ?>">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                    Delete</a>
                                             </div>
                                         </div>
                                     </div>
@@ -305,7 +304,8 @@
             </div>
         </div>
 
-            <script>
+
+        <script>
           $(document).ready(function() {
             // Hide Administer tab link initially
             $('#administer-tab-link').hide();
