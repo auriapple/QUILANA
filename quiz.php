@@ -380,13 +380,36 @@ $time_limit = $assessment['time_limit'];
             }, 1000);
         }
 
-        // Enhanced key event listeners
+        // Black screen overlay
+        const blackScreen = document.createElement('div');
+        blackScreen.style.position = 'fixed';
+        blackScreen.style.top = '0';
+        blackScreen.style.left = '0';
+        blackScreen.style.width = '100%';
+        blackScreen.style.height = '100%';
+        blackScreen.style.backgroundColor = 'black';
+        blackScreen.style.zIndex = '10000';
+        blackScreen.style.display = 'none';
+        document.body.appendChild(blackScreen);
+
+        // Function to show black screen
+        function showBlackScreen() {
+            blackScreen.style.display = 'block';
+            setTimeout(() => {
+                blackScreen.style.display = 'none';
+            }, 2000); // Hide after 2 seconds
+        }
+
+        // Key event listeners
         document.addEventListener('keydown', (e) => {
             // List of restricted keys
             const restrictedKeys = ['PrintScreen', 'Meta', 'Win', 'Windows', 'F12'];
             
             if (e.key === 'Alt') altKeyPressed = true;
-            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = true;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') {
+                winKeyPressed = true;
+                showBlackScreen();
+            }
 
             // Detect various screen capture attempts or restricted keys
             if (restrictedKeys.includes(e.key) ||
@@ -414,7 +437,8 @@ $time_limit = $assessment['time_limit'];
                 e.stopPropagation();
                 
                 handleWarning('Print Screen use');
-                flashScreen();            
+                flashScreen();
+                showBlackScreen();
                 return false;
             }
         }, true); 
@@ -453,6 +477,7 @@ $time_limit = $assessment['time_limit'];
         window.addEventListener('beforeprint', (e) => {
             e.preventDefault();
             handleWarning('Print event');
+            showBlackScreen();
         });
 
         // Additional security measures
@@ -468,6 +493,7 @@ $time_limit = $assessment['time_limit'];
                 if (!devToolsOpened) {
                     devToolsOpened = true;
                     handleWarning('DevTools usage');
+                    showBlackScreen();
                 }
             } else {
                 devToolsOpened = false;
@@ -478,6 +504,7 @@ $time_limit = $assessment['time_limit'];
         window.addEventListener('screenshot', (e) => {
             e.preventDefault();
             handleWarning('Screen capture');
+            showBlackScreen();
         });
 
         // Pixel change detection
@@ -491,6 +518,7 @@ $time_limit = $assessment['time_limit'];
             const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
             if (lastPixel !== null && pixel !== lastPixel) {
                 handleWarning('Pixel change');
+                showBlackScreen();
             }
             lastPixel = pixel;
         }, 1000);
@@ -498,6 +526,7 @@ $time_limit = $assessment['time_limit'];
         // Tab switching detection
         window.addEventListener("blur", () => {
             handleWarning('Tab switching');
+            showBlackScreen();
         });
 
         // Form submission handling
