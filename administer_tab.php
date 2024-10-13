@@ -397,7 +397,7 @@
                                 <tr>
                                     <th class="studentNumber-column">Student Number</th>
                                     <th>Student Name</th>
-                                    <th>Number of Tab Switches</th>
+                                    <th>Number of Suspicious Activities</th>
                                     <th class="status-column">Status</th>
                                 </tr>
                             </thead>
@@ -408,7 +408,7 @@
                     </div>
                         
                     <div class="notification-container" id="notification-container">
-                        <!-- Notifications for switching tabs will be displayed here -->
+                        <!-- Notifications for suspicious acts will be displayed here -->
                     </div>
                 </div>
                  <?php
@@ -454,7 +454,7 @@
                         row.innerHTML = `
                             <td class="studentNumber-column">${item.student_number}</td>
                             <td>${item.student_name}</td>
-                            <td>${item.tab_switches}</td>
+                            <td>${item.suspicious_act}</td>
                         `;
 
                         // Conditionally add a <div> based on the status value
