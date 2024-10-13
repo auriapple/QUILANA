@@ -92,7 +92,7 @@ if ($assessment_query->num_rows > 0) {
                     }
 
                     // Redirect to the correct assessment page
-                    header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id));
+                    header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id) . "&class_id=" . urlencode($class_id));
                     exit();
                 }
             }

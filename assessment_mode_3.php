@@ -313,7 +313,7 @@ while ($question = $questions_query->fetch_assoc()) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ tab_switches: counter, administer_id: administerId})
+                body: JSON.stringify({ suspicious_act: counter, administer_id: administerId})
             })
             .then(response => response.json())
             .then(data => {

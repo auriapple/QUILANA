@@ -112,7 +112,7 @@
                                     </div>
                     <?php } ?>
                                 </div> <!-- Close the last subject card container -->
-                            </di> <!-- Close the last course section -->
+                            </div> <!-- Close the last course section -->
                     </div>
                 </div>
 

@@ -10,6 +10,7 @@ if (!isset($_GET['assessment_id'])) {
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
+$class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
@@ -17,6 +18,7 @@ $administer_query = $conn->query("
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
+    AND class_id = '$class_id'
 ");
 
 // Check if there is administer assessment details
@@ -24,7 +26,6 @@ if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
-    $class_id = $administer_row['class_id'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
