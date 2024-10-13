@@ -29,7 +29,8 @@
 }
 
 /* Join Class Popup */
-#join-modal-content {
+#join-modal-content,
+#unenroll-modal-content {
     width: 450px;
     height: 350px;
     padding: 20px;
@@ -37,6 +38,14 @@
 #join-class-title {
     margin-bottom: 20px;
     font-size: 36px;
+}
+#unenroll-message {
+    margin: 0;
+    padding: 20px 0;
+    font-size: 20px;
+}
+#unenroll_class_name {
+    color: #1E1A43;
 }
 
 /* Class Code Input Field */
@@ -73,11 +82,25 @@
         margin: 20px;
     }
 
-    .popup-content #join-class-title {
-        font-size: 30px;
+    #join-modal-content,
+    #unenroll-modal-content {
+        height: auto;
+        width: 100%;
+        padding: 30px;
     }
 
-    .popup-content #join {
-        font-size: 18px;
+    .popup-content #join-class-title,
+    .popup-content #unenroll-title {
+        font-size: 30px;
+        margin-bottom: 0;
+        margin-top: 15px;
+    }
+
+    .popup-content #join,
+    .popup-content #cancel,
+    .popup-content #confirm {
+        font-size: 16px;
+        margin-top: 0;
+        margin-bottom: 15px;
     }
 }
