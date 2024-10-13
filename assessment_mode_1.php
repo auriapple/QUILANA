@@ -195,36 +195,48 @@ $time_limit = $assessment['time_limit'];
         // Global variables
         let timerInterval;
         let timerExpired = false;
-        let warningCount = 0;
+        let warningCount = parseInt(localStorage.getItem('warningCount')) || 0;
         let isSubmitting = false;
         let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
+        let altKeyPressed = false;
+        let winKeyPressed = false;
+        let ctrlKeyPressed = false;
+        let warningTracker = false;
 
         // TIMER FUNCTIONALITY
         function startTimer(duration, display) {
             var timer = duration, minutes, seconds;
-            var now = Date.now();
-            var endTime = now + (duration * 1000);
-            localStorage.setItem('endTime', endTime);
 
-            function updateTimer() {
+            // Get stored end time
+            var storedEndTime = localStorage.getItem('endTime');
+            if (storedEndTime) {
                 var now = Date.now();
-                var remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
+                timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
+            } else {
+                var endTime = Date.now() + (timer * 1000);
+                localStorage.setItem('endTime', endTime);
+            }
+
+            updateDisplay(timer, display); // Initialize display immediately
+
+            timerInterval = setInterval(function () {
+                var now = Date.now();
+                var remainingTime = Math.max(0, Math.floor((localStorage.getItem('endTime') - now) / 1000));
 
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
-                    timerExpired = true;
+                    timerExpired = true; // Set flag to true when timer runs out
                     showPopup('timer-runout-popup');
                     localStorage.removeItem('endTime');
                 } else {
                     updateDisplay(remainingTime, display);
+                    localStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
                 }
-            }
-
-            updateTimer(); 
-            timerInterval = setInterval(updateTimer, 1000);
+            }, 1000);
         }
 
+        // Function to update display
         function updateDisplay(remainingTime, display) {
             var minutes = Math.floor(remainingTime / 60);
             var seconds = remainingTime % 60;
@@ -278,6 +290,7 @@ $time_limit = $assessment['time_limit'];
                 if (xhr.status === 200) {
                     localStorage.removeItem('endTime');
                     localStorage.removeItem('remainingTime');
+                    localStorage.removeItem('warningCount');
                     clearInterval(timerInterval);
                     showPopup('success-popup');
                 } else {
@@ -295,6 +308,7 @@ $time_limit = $assessment['time_limit'];
         // Warning system
         function handleWarning(method) {
             warningCount++;
+            localStorage.setItem('warningCount', warningCount);
             console.log(`Warning triggered via ${method}. Total warnings: ${warningCount}`);
 
             temporarilyHideOverlay();
@@ -338,6 +352,7 @@ $time_limit = $assessment['time_limit'];
                     if (result.isConfirmed) {
                         handleSubmit();
                     }
+                    warningTracker = false;
                 });
             } else {
                 Swal.fire({
@@ -350,6 +365,8 @@ $time_limit = $assessment['time_limit'];
                         popup: 'popup-content',
                         confirmButton: 'secondary-button'
                     }
+                }).then(() => {
+                    warningTracker = false;
                 });
             }
         }
@@ -408,6 +425,25 @@ $time_limit = $assessment['time_limit'];
             setTimeout(() => flash.remove(), 300);
         }
 
+        // Black screen overlay
+        const blackScreen = document.createElement('div');
+        blackScreen.style.position = 'fixed';
+        blackScreen.style.top = '0';
+        blackScreen.style.left = '0';
+        blackScreen.style.width = '100%';
+        blackScreen.style.height = '100%';
+        blackScreen.style.backgroundColor = 'black';
+        blackScreen.style.zIndex = '10000';
+        blackScreen.style.display = 'none';
+        document.body.appendChild(blackScreen);
+
+        function showBlackScreen() {
+            blackScreen.style.display = 'block';
+            setTimeout(() => {
+                blackScreen.style.display = 'none';
+            }, 2000);
+        }
+
         // Screen capture detection
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
@@ -427,57 +463,102 @@ $time_limit = $assessment['time_limit'];
             }, 1000);
         }
 
-        // EVENT LISTENERS FOR VARIOUS SCREEN CAPTURE/PRINT METHODS
-        // Keyboard shortcuts detection
-        let altKeyPressed = false;
-        let winKeyPressed = false;
-
+        // EVENT LISTENERS FOR VARIOUS KEYBOARD SHORTCUTS
         document.addEventListener('keydown', (e) => {
+            const restrictedKeys = ['F12'];
             if (e.key === 'Alt') altKeyPressed = true;
-            if (e.key === 'Meta') winKeyPressed = true;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') {
+                winKeyPressed = true;
+                showBlackScreen();
+            }
+            if (e.ctrlKey) {
+                ctrlKeyPressed = true;
+                showBlackScreen();
+            }
 
-            if ((e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
-                (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
-                (winKeyPressed && e.shiftKey && e.key === 'S') || 
-                (winKeyPressed && e.key === 'g') ||
-                e.key === 'PrintScreen') {
+            //Screen Capture
+            if ((winKeyPressed && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+                (winKeyPressed && (e.shiftKey || e.key === 'S')) ||
+                (winKeyPressed && e.key === 'g')) {
                 e.preventDefault();
+                e.stopPropagation();
                 flashScreen();
                 handleWarning('Screen capture');
-                return false;
+                warningTracker = true;
+                return;      
             }
-            if (winKeyPressed && altKeyPressed && e.key === 'r') {
+
+            // Restricted Key
+            if (restrictedKeys.includes(e.key)) {
                 e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Restricted key use');
+                warningTracker = true;
+                return; 
+            }
+            
+            // Screen Record
+            if (winKeyPressed && (altKeyPressed || e.key === 'r')) {        
+                e.preventDefault();
+                e.stopPropagation();
                 flashScreen();
                 handleWarning('Screen recording');
-                return false;
+                return;
             }
-            if (e.ctrlKey && e.key == 'p') {
+
+            // Print Event
+            if (ctrlKeyPressed && e.key === 'p') {
                 e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
                 handleWarning('Print event');
-                return false;
+                warningTracker = true;
+                return;
             }
-            if (e.ctrlKey && e.key === 'v') {
+
+            // Save Event
+            if (ctrlKeyPressed && (e.key === 'S' || (e.shiftKey && e.key === 'S'))) {
                 e.preventDefault();
-                handleWarning('Paste event');
-                return false;
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('File saving');
+                warningTracker = true;
+                return;
             }
-        });
+        }, true);
 
         // Reset key state when released
         document.addEventListener('keyup', (e) => {
             if (e.key === 'Alt') altKeyPressed = false;
-            if (e.key === 'Meta') winKeyPressed = false;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = false;
+            if (e.ctrlKey) ctrlKeyPressed = false;
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+                e.stopPropagation();
+                showBlackScreen();
+                flashScreen(); 
+                handleWarning('Screen capture');
+                warningTracker = true;  
+                return false;
+            }
+        }, true);
+
+        // Event listeners for various capture methods
+        window.addEventListener('beforeprint', (e) => {
+            e.preventDefault();
+            showBlackScreen();
+            flashScreen();
+            handleWarning('Print event');
+            warningTracker = true;
         });
 
-        // Detect screen recording attempts
-        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-            const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
-            navigator.mediaDevices.getDisplayMedia = function(constraints) {
-                handleWarning('getDisplayMedia');
-                return originalGetDisplayMedia.call(this, constraints);
-            }
-        }
+        // TAB SWITCHING DETECTION
+        window.addEventListener("focus", () => {
+            if (!warningTracker) {
+                handleWarning('Tab switching');
+            } 
+        });
 
         // ADDITIONAL SECURITY MEASURES
         // Disables right-click, text selection, and copying of content
@@ -522,21 +603,6 @@ $time_limit = $assessment['time_limit'];
             lastPixel = pixel;
         }, 1000);
 
-        // Tab switching detection
-        window.addEventListener("blur", () => {
-            handleWarning('Tab switching');
-        });
-
-        function disablePrintScreen(e) {
-            const keyCode = e.keyCode || e.which;
-            if (keyCode === 44 || (e.ctrlKey && e.key === 'PrintScreen')) {
-                e.preventDefault();
-                flashScreen();
-                handleWarning('Print screen');
-                return false;
-            }
-        }
-
         // Initialize timer and set up event listeners
         window.onload = function () {
             var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
@@ -544,10 +610,6 @@ $time_limit = $assessment['time_limit'];
             startTimer(timeLimit, display);
 
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
-
-            // Disable print screen functionality
-            document.addEventListener('keyup', disablePrintScreen);
-            document.addEventListener('keydown', disablePrintScreen);
 
             setupAntiScreenshotOverlay();
         };

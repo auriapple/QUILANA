@@ -29,15 +29,12 @@ if ($assessment_query->num_rows > 0) {
     }
 
     // Fetch administer assessment details
-    $stmt = $conn->prepare("
+    $administer_query = $conn->query("
         SELECT administer_id, status
         FROM administer_assessment
         WHERE assessment_id = '$assessment_id'
         AND class_id = '$class_id'
     ");
-    $stmt->bind_param("ii", $assessment_id, $class_id);
-    $stmt->execute();
-    $administer_query = $stmt->get_result();
     $administer_row = $administer_query->fetch_assoc();
 
     if ($administer_row) {
