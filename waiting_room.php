@@ -92,11 +92,17 @@ if ($assessment_query->num_rows > 0) {
                     }
 
                     // Redirect to the correct assessment page
-                    header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id));
+                    header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id). "&class_id=" . urlencode($class_id));
                     exit();
                 }
             }
-        }     
+        } 
+        // Add reload script
+        echo "<script>
+        setInterval(function() {
+            location.reload();
+        }, 5000); // Reload every 5 seconds
+        </script>";    
     } else {
         echo "Error: No administer data found.";
         exit();
