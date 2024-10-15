@@ -72,11 +72,16 @@ if ($assessment_mode == 1) { // Normal Mode
     <title>View Assessment | Quilana</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <style>
         .back-arrow {
             font-size: 24px; 
             margin-top: 10px;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 30px;
         }
         .back-arrow a {
             color: #4A4CA6; 
@@ -171,6 +176,11 @@ if ($assessment_mode == 1) { // Normal Mode
         td:last-child, th:last-child {
             border-right: none;
         }
+        #download {
+            font-size: 16px;
+            padding: 8px;
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -180,6 +190,7 @@ if ($assessment_mode == 1) { // Normal Mode
             <a href="class_list.php?class_id=<?php echo htmlspecialchars($class_id); ?>&show_modal=true">
                 <i class="fa fa-arrow-left"></i>
             </a>
+            <button class="secondary-button" id="download" style="display:none;">Download Results</button>
         </div>
 
         <div class="tabs-container">
@@ -282,8 +293,11 @@ if ($assessment_mode == 1) { // Normal Mode
             $('.tab-link').removeClass('active');
             $(this).addClass('active');
 
+            $('#download').hide();
+
             if (tabId === 'scores') {
                 loadStudentScores();
+                $('#download').show();
             }
         });
 
@@ -327,8 +341,23 @@ if ($assessment_mode == 1) { // Normal Mode
                 }
             });
         }
+
+        $('#download').on('click', function () {
+            const assessmentId = <?php echo json_encode($assessment_id); ?>;
+            const classId = <?php echo json_encode($class_id); ?>; 
+
+            // Create a form to submit the request
+            const form = $('<form>', {
+                action: 'generate_report.php',
+                method: 'GET'
+            }).append($('<input>', { name: 'assessment_id', value: assessmentId }))
+            .append($('<input>', { name: 'class_id', value: classId }));
+
+            $('body').append(form);
+            form.submit();
+            form.remove();
+        });
     });
     </script>
-
 </body>
 </html>

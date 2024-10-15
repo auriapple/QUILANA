@@ -115,23 +115,15 @@
         </div>
     </div>
 
-    <!-- Modal for Unenrolling -->
-    <div class="modal fade" id="unenroll_modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Unenroll from Class</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger" id="confirm_unenroll_btn" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
-                </div>
+    <!-- Modal for unenrolling -->
+    <div id="unenroll-popup" class="popup-overlay">
+        <div id="unenroll-modal-content" class="popup-content">
+            <button class="popup-close">&times;</button>
+            <h2 id="unenroll-title" class="popup-title">Unenroll from Class</h2>
+            <p id="unenroll-message" class="popup-message">Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
+            <div class="popup-buttons">
+                <button id="cancel" type="submit" class="secondary-button">Cancel</button>
+                <button id="confirm" type="submit" class="secondary-button" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
             </div>
         </div>
     </div>
@@ -309,16 +301,18 @@
                 var classId = $(this).data('id');
                 var className = $(this).data('name');
 
-                $('#confirm_unenroll_btn').data('class-id', classId); // Set class ID on confirm button
+                $('#confirm').data('class-id', classId); // Set class ID on confirm button
                 $('#unenroll_class_name').text(className);
-                $('#unenroll_modal').modal('show'); // Show confirmation modal
+                showPopup('unenroll-popup');
             });
 
             // Confirm delete action
-            $('#confirm_unenroll_btn').click(function() {
+            $('#confirm').click(function() {
                 var classId = $(this).data('class-id');
                 var studentId = $(this).data('student-id');
                 var status = '2';
+
+                closePopup('unenroll-popup');
 
                 $.ajax({
                     url: 'status_update.php',
@@ -330,10 +324,33 @@
                     },
                     success: function(response) {
                         if (response == "success") {
-                            alert('You have successfully unenrolled from the class');
-                            location.reload(); // Reload the page to reflect changes
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'You have successfully unenrolled from the class',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         } else {
-                            alert('Error: Unable to unenroll from the class.');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Unable to enroll from the class. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            });
                         }
                     }, 
                 });
@@ -341,6 +358,10 @@
             // Close the join class popup when close button is clicked
             $('.popup-close').on('click', function() {
                 closePopup('join-class-popup');
+            });
+            // Close the unenroll popup when the close button or cancel button is clicked
+            $(document).on('click', '.popup-close, #cancel', function() {
+                closePopup('unenroll-popup');
             });
         });
     </script>
