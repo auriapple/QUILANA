@@ -10,13 +10,15 @@ if (!isset($_GET['assessment_id'])) {
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
+$class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings, aa.class_id
+    SELECT aa.administer_id, a.max_warnings
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
+    AND class_id = '$class_id'
 ");
 
 // Check if there is administer assessment details
@@ -24,7 +26,6 @@ if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
-    $class_id = $administer_row['class_id'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
@@ -106,7 +107,7 @@ $time_limit = $assessment['time_limit'];
         <div class="popup-content">
             <h2 class="popup-title">An error occurred while submitting the form. Please try again.</h2>
             <div class="popup-buttons">
-                <button id="error" class="secondary-button" onclick="closeErrorPopup('error-popup')">Try Again</button>
+                <button id="error" class="secondary-button" onclick="closeErrorPopup('error-popup')">OK</button>
             </div>
         </div>
     </div>
@@ -195,7 +196,7 @@ $time_limit = $assessment['time_limit'];
         // Global variables
         let timerInterval;
         let timerExpired = false;
-        let warningCount = parseInt(localStorage.getItem('warningCount')) || 0;
+        let warningCount = parseInt(sessionStorage.getItem('warningCount')) || 0;
         let isSubmitting = false;
         let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
@@ -209,29 +210,29 @@ $time_limit = $assessment['time_limit'];
             var timer = duration, minutes, seconds;
 
             // Get stored end time
-            var storedEndTime = localStorage.getItem('endTime');
+            var storedEndTime = sessionStorage.getItem('endTime');
             if (storedEndTime) {
                 var now = Date.now();
                 timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
             } else {
                 var endTime = Date.now() + (timer * 1000);
-                localStorage.setItem('endTime', endTime);
+                sessionStorage.setItem('endTime', endTime);
             }
 
             updateDisplay(timer, display); // Initialize display immediately
 
             timerInterval = setInterval(function () {
                 var now = Date.now();
-                var remainingTime = Math.max(0, Math.floor((localStorage.getItem('endTime') - now) / 1000));
+                var remainingTime = Math.max(0, Math.floor((sessionStorage.getItem('endTime') - now) / 1000));
 
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
                     timerExpired = true; // Set flag to true when timer runs out
                     showPopup('timer-runout-popup');
-                    localStorage.removeItem('endTime');
+                    sessionStorage.removeItem('endTime');
                 } else {
                     updateDisplay(remainingTime, display);
-                    localStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
+                    sessionStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
                 }
             }, 1000);
         }
@@ -288,9 +289,9 @@ $time_limit = $assessment['time_limit'];
                 isSubmitting = false;
                 hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
-                    localStorage.removeItem('endTime');
-                    localStorage.removeItem('remainingTime');
-                    localStorage.removeItem('warningCount');
+                    sessionStorage.removeItem('endTime');
+                    sessionStorage.removeItem('remainingTime');
+                    sessionStorage.removeItem('warningCount');
                     clearInterval(timerInterval);
                     showPopup('success-popup');
                 } else {
@@ -308,7 +309,11 @@ $time_limit = $assessment['time_limit'];
         // Warning system
         function handleWarning(method) {
             warningCount++;
-            localStorage.setItem('warningCount', warningCount);
+            if (warningCount > max_warnings) {
+                warningCount = max_warnings;
+            }
+           
+            sessionStorage.setItem('warningCount', warningCount);
             console.log(`Warning triggered via ${method}. Total warnings: ${warningCount}`);
 
             temporarilyHideOverlay();
@@ -330,7 +335,6 @@ $time_limit = $assessment['time_limit'];
             .then(data => {
                 if (data.success && warningCount >= max_warnings) {
                     clearInterval(timerInterval);
-                    handleSubmit();
                 }
             })
             .catch(error => {
