@@ -58,8 +58,9 @@ if ($all_completed) {
         include('get_ranking.php');
         $status = ob_get_clean();
 
-        if(trim($status) !== "success") {
-            $display = 'waiting';
+        if(trim($status) === "success") {
+            echo '<script>location.reload();</script>';
+            exit;
         }
         $display = 'waiting';
     // If the rank has been set already, display
