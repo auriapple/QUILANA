@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($response['status'] === 'success') {
         if ($user_type == 2) {
             // Faculty
-            $stmt = $conn->prepare("SELECT firstname, lastname, webmai, faculty_number, username FROM faculty WHERE (firstname=? AND lastname=?) OR webmail=? OR faculty_number=? OR username=?");
+            $stmt = $conn->prepare("SELECT firstname, lastname, webmail, faculty_number, username FROM faculty WHERE (firstname=? AND lastname=?) OR webmail=? OR faculty_number=? OR username=?");
             $stmt->bind_param("sssss", $firstname, $lastname, $webmail, $faculty_number, $username);
         } else {
             // Student
@@ -238,12 +238,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             function toggleSignUpButton() {
                 const isValid = webmailInput.hasClass('valid') && 
-                                studentNumberInput.hasClass('valid') && 
+                                (studentNumberInput.hasClass('valid') ||
+                                facultyNumberInput.hasClass('valid')) &&
                                 passwordInput.hasClass('valid') && 
                                 confirmPasswordInput.hasClass('valid') &&
                                 firstnameInput.val().trim() !== '' &&
                                 lastnameInput.val().trim() !== '' &&
                                 usernameInput.val().trim() !== '';
+
                 signUpButton.prop('disabled', !isValid);
             }
 
@@ -277,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 facultyNumberInput.toggleClass('valid', isValid).toggleClass('invalid', !isValid);
                 $('.faculty-number-note').remove();
                 if (!isValid) {
-                    facultyNumberInput.after('<div class="validation-note faculty-number-note">Invalid faculty number format. Must be xxxx-xxxxx-MN-0</div>'); // update alert as well
+                    facultyNumberInput.after('<div class="validation-note faculty-number-note">Invalid faculty number format. Must be xxxx-xxxxx-MN-0</div>');
                 }
                 toggleSignUpButton();
             });
@@ -309,6 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $('#signup-form').submit(function(e) {
                 if (!webmailInput.hasClass('valid') || 
                     !studentNumberInput.hasClass('valid') || 
+                    !facultyNumberInput.hasClass('valid') || 
                     !passwordInput.hasClass('valid') || 
                     !confirmPasswordInput.hasClass('valid') || 
                     firstnameInput.val().trim() === '' || 
