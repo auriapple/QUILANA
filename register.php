@@ -201,6 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $(document).ready(function() {
             const webmailInput = $('#webmail');
             const studentNumberInput = $('#student_number');
+            const facultyNumberInput = $('#faculty_number');
             const passwordInput = $('#password');
             const confirmPasswordInput = $('#confirm_password');
             const signUpButton = $('#signUpButton');
@@ -225,6 +226,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return regex.test(studentNumber);
             }
 
+            function validateFacultyNumber(facultyNumber) {
+                const regex = /^\d{4}-\d{5}-MN-0$/; // Update with actual faculty number format
+                return regex.test(facultyNumber);
+            }
+
             function validatePassword(password) {
                 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
                 return regex.test(password);
@@ -240,17 +246,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 usernameInput.val().trim() !== '';
                 signUpButton.prop('disabled', !isValid);
             }
-
-            webmailInput.on('input', function() {
-                const userType = userTypeDropdown.val();
-                const isValid = validateEmail(webmailInput.val(), userType);
-                webmailInput.toggleClass('valid', isValid).toggleClass('invalid', !isValid);
-                $('.webmail-note').remove();
-                if (!isValid) {
-                    webmailInput.after('<div class="validation-note webmail-note">Invalid webmail format. Must be xxxxxxxxx@iskolarngbayan.pup.edu.ph</div>');
-                }
-                toggleSignUpButton();
-            });
 
             webmailInput.on('input', function() {
                 const userType = userTypeDropdown.val(); // Get the current user type
@@ -273,6 +268,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $('.student-number-note').remove();
                 if (!isValid) {
                     studentNumberInput.after('<div class="validation-note student-number-note">Invalid student number format. Must be xxxx-xxxxx-MN-0</div>');
+                }
+                toggleSignUpButton();
+            });
+
+            facultyNumberInput.on('input', function() {
+                const isValid = validateFacultyNumber(facultyNumberInput.val());
+                facultyNumberInput.toggleClass('valid', isValid).toggleClass('invalid', !isValid);
+                $('.faculty-number-note').remove();
+                if (!isValid) {
+                    facultyNumberInput.after('<div class="validation-note faculty-number-note">Invalid faculty number format. Must be xxxx-xxxxx-MN-0</div>'); // update alert as well
                 }
                 toggleSignUpButton();
             });
