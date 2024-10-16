@@ -75,7 +75,7 @@
                         </div>
                         <?php }
                     } else {
-                        echo '<p class="no-records">You are not enrolled in any classes</p>';
+                        echo '<p class="no-records" style="grid-column: 1/-1;>You are not enrolled in any classes</p>';
                     }
                     ?>           
             </div>

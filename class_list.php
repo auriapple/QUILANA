@@ -4,12 +4,14 @@
     <?php include('header.php') ?>
     <?php include('auth.php') ?>
     <?php include('db_connect.php') ?>
-    <title>Courses | Quilana</title>
+    <title>Programs | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
+    <link rel="stylesheet" href="assets/css/classes.css">
+    <link rel="stylesheet" href="assets/css/bootstrap.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body>
     <?php include('nav_bar.php') ?>
 
@@ -26,7 +28,7 @@
 
         <div class="tabs-container">
             <ul class="tabs">
-                <li class="tab-link active" data-tab="courses-tab">Courses</li>
+                <li class="tab-link active" data-tab="courses-tab">Programs</li>
                 <li class="tab-link" id="classes-tab-link" style="display: none;" data-tab="classes-tab">Classes</li>
             </ul>
         </div>
@@ -72,6 +74,8 @@
                 </div>
                 <?php
                     }
+                } else {
+                    echo '<div class="no-records" style="grid-column: 1/-1;"> No programs has been added </div>';
                 }
                 ?>
             </div>
@@ -88,7 +92,7 @@
             <div class="modal-dialog modal-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="courseDetailsLabel">Course Details</h4>
+                        <h4 class="modal-title" id="courseDetailsLabel">Program Details</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body" id="courseDetailsBody">
@@ -121,70 +125,66 @@
         </div>
 
         <!-- Manage Course Modal -->
-        <div class="modal fade" id="manage_course" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Add New Course</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div id="add-program-popup" class="popup-overlay"> 
+            <div id="add-program-modal-content" class="popup-content" role="document">
+                <button class="popup-close">&times;</button>
+                <h2 id="add-program-title" class="popup-title">Add New Program</h2>
+
+                <!-- Form to add new program -->
+                <form id='course-form'>
+                    <div class="modal-body">
+                        <div id="msg"></div>
+                        <div class="form-group">
+                            <label>Program Name</label>
+                            <input type="hidden" name="course_id" />
+                            <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            <input type="text" name="course_name" required="required" class="popup-input" placeholder="Program Name"/>
+                        </div>
                     </div>
-                    <form id='course-frm'>
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <label>Course Name</label>
-                                <input type="hidden" name="course_id" />
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="course_name" required="required" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="modal-footer">
+                        <button id="add-program" class="secondary-button" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                    </div>
+                </form>
             </div>
         </div>
         
         <!-- Edit Course Modal -->
-        <div class="modal fade" id="manage_edit_course" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Edit Course</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div id="edit-program-popup" class="popup-overlay"> 
+            <div id="edit-program-modal-content" class="popup-content" role="document">
+                <button class="popup-close">&times;</button>
+                <h2 id="edit-program-title" class="popup-title">Edit Program</h2>
+
+                <!-- Form to edit program details -->
+                <form id='edit-course-form'>
+                    <div class="modal-body">
+                        <div id="msg"></div>
+                        <div class="form-group">
+                            <label>Program Name</label>
+                            <input type="hidden" name="course_id" id="course_id"/>
+                            <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            <input type="text" name="course_name" required="required" class="popup-input" value=""/>
+                        </div>
                     </div>
-                    <form id='edit-course-frm'>
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <label>Course Name</label>
-                                <input type="hidden" name="course_id" id="course_id"/>
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="course_name" required="required" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="modal-footer">
+                        <button class="secondary-button" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                    </div>
+                </form>
             </div>
         </div>
-
+                
         <!-- Delete Course Modal -->
         <div class="modal fade" id="manage_delete_course" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Delete Course</h4>
+                        <h4 class="modal-title" id="myModalLabel">Delete Program</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <form id='delete-course-frm'>
                         <div class="modal-body">
                             <div id="msg"></div>
                             <div class="form-group">
-                                <label> Are you sure you want to delete the course: <strong id="modal_course_name"></strong>?</label>
+                                <label> Are you sure you want to delete the program: <strong id="modal_course_name"></strong>?</label>
                                 <input type="hidden" name="course_id" id="course_id"/>
                                 <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
                             </div>
@@ -195,6 +195,29 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+
+        <div id="delete-program-popup" class="popup-overlay"> 
+            <div id="delete-program-modal-content" class="popup-content" role="document">
+                <button class="popup-close">&times;</button>
+                <h2 id="delete-program-title" class="popup-title">Edit Program</h2>
+
+                <!-- Form to delete the program-->
+                <form id='delete-course-form'>
+                    <div class="modal-body">
+                        <div id="msg"></div>
+                        <div class="form-group">
+                            <p id="delete-message" class="popup-message"> Are you sure you want to delete  <strong id="modal_course_name"></strong>?</p>
+                            <input type="hidden" name="course_id" id="course_id"/>
+                            <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button class="tertiary-button" data-dismiss="modal">Cancel</button>
+                    <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -307,6 +330,26 @@
 
         <script>
         $(document).ready(function() {
+            // Handles Popups
+            function showPopup(popupId) {
+                $('#' + popupId).css('display', 'flex');
+            }
+
+            function closePopup(popupId) {
+                $('#' + popupId).css('display', 'none');
+            }
+
+            // Close the popup when close button is clicked
+            $('.popup-close').on('click', function() {
+                var activePopup = this.parentElement.parentElement.id;
+                closePopup(activePopup);
+            });
+
+            // Close the popup when the close button or cancel button is clicked
+            $(document).on('click', '.popup-close, #cancel', function() {
+                closePopup('unenroll-popup');
+            });
+
             // Initialize meatball menu
             initializeMeatballMenu();
 
@@ -349,9 +392,8 @@
             // When add new course button is clicked
             $('#addCourse').click(function() {
                 $('#msg').html('');
-                $('#manage_course .modal-title').html('Add New Course');
-                $('#manage_course #course-frm').get(0).reset();
-                $('#manage_course').modal('show');
+                $('#add-program-popup #course-form').get(0).reset();
+                showPopup('add-program-popup');
             });
 
             // When edit button (course) is clicked
@@ -360,11 +402,15 @@
                 var courseName = $(this).data('name');
 
                 $('#msg').html('');
-                $('#manage_edit_course .modal-title').html('Edit Course');
+/*                 $('#manage_edit_course .modal-title').html('Edit Program');
                 $('#manage_edit_course #edit-course-frm').get(0).reset();
                 $('#manage_edit_course #course_id').val(courseId);
                 $('#manage_edit_course input[name="course_name"]').val(courseName);
-                $('#manage_edit_course').modal('show');
+                $('#manage_edit_course').modal('show'); */
+                $('#edit-program-popup #course_id').val(courseId);
+                $('#edit-program-popup input[name="course_name"]').val(courseName);
+                $('#edit-program-popup #edit-course-form');
+                showPopup('edit-program-popup')
             });
 
                 //When delete button is clicked
@@ -372,13 +418,19 @@
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
 
+                    console.log(courseName)
+
                     // Open a modal for deleting
                     $('#msg').html('');
-                    $('#manage_delete_course .modal-title').html('Delete Course');
+/*                     $('#manage_delete_course .modal-title').html('Delete Program');
                     $('#manage_delete_course #delete-course-frm').get(0).reset();
                     $('#manage_delete_course #course_id').val(courseId);
                     $('#modal_course_name').text(courseName);
-                    $('#manage_delete_course').modal('show');
+                    $('#manage_delete_course').modal('show'); */
+                    $('#delete-program-popup #delete-course-form').get(0).reset();
+                    $('#delete-program-popup #course_id').val(courseId);
+                    $('#delete-program-popup #modal_course_name').text(courseName);
+                    showPopup('delete-program-popup');
                 });
 
             // When add new class button is clicked
@@ -452,7 +504,7 @@
                 });
 
             // Handle Edit Form (Course)
-            $('#edit-course-frm').submit(function(event) {
+            $('#edit-course-form').submit(function(event) {
                 event.preventDefault();
 
                 $.ajax({
@@ -462,21 +514,53 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.status == 1) {
-                            alert('Course saved successfully.');
-                            $('#manage_edit_course').modal('hide');
-                            location.reload();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'The program was successfully editted!',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         } else {
-                            alert('Failed to save course: ' + response.msg);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to save course: ' + response.msg,
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            });
                         }
                     },
                     error: function() {
-                        alert('An error occurred while saving course details.');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while saving course details.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        });
                     }
                 });
             });
 
             // Handle Delete Form (Course)
-            $('#delete-course-frm').submit(function(event) {
+            $('#delete-course-form').submit(function(event) {
                 event.preventDefault();
 
                 $.ajax({
@@ -486,16 +570,47 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.status == 1) {
-                            alert('Course deleted successfully.');
-                            $('#manage_delete_course').modal('hide');
-                            location.reload(); // Reload the page to see the updated course list
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'The program was successfully deleted!',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         } else {
-                            alert('Failed to delete course: ' + response.msg);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to delete course: ' + response.msg,
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            });
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        console.log("Request failed: " + textStatus + ", " + errorThrown);
-                        alert('An error occurred while deleting the course.');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while deleting the program.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        });
                     }
                 });
             });
@@ -649,7 +764,7 @@
             });
 
             // Saving new course
-            $('#course-frm').submit(function(e) {
+            $('#course-form').submit(function(e) {
                 e.preventDefault();
                 $('#course-frm [name="save"]').attr('disabled', true).html('Saving...');
                 $('#msg').html('');
@@ -667,16 +782,26 @@
                         if (typeof resp != undefined) {
                             resp = JSON.parse(resp);
                             if (resp.status == 1) {
-                                alert('Data successfully saved');
-                                location.reload();
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'The program was successfully added!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    allowOutsideClick: false,
+                                    customClass: {
+                                        popup: 'popup-content',
+                                        confirmButton: 'secondary-button'
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        location.reload(); 
+                                    }
+                                });
                             } else {
                                 $('#msg').html('<div class="alert alert-danger">' + resp.msg + '</div>');
                             }
                         }
-                    }, error: function(jqXHR, textStatus, errorThrown) {
-                            console.log("Request failed: " + textStatus + ", " + errorThrown);
-                            alert('An error occurred while saving the course.');
-                        }
+                    }
                 });
             });
 

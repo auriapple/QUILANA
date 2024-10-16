@@ -13,37 +13,42 @@ $qry = $conn->query("
 
 $current_class = '';
 
-while ($row = $qry->fetch_assoc()) {
-    $student_id = htmlspecialchars($row['student_id']);
-    $student_name = htmlspecialchars($row['student_name']);
-    $class_id = htmlspecialchars($row['class_id']);
-    $class_name = htmlspecialchars($row['class_name']);
-    $subject = htmlspecialchars($row['subject']);
-    $status = htmlspecialchars($row['status']);
-    
-    if ($class_name !== $current_class) {
-        if ($current_class !== '') {
-            echo "</div>"; // End of previous class section
+if ($qry->num_rows > 0) {
+    while ($row = $qry->fetch_assoc()) {
+        $student_id = htmlspecialchars($row['student_id']);
+        $student_name = htmlspecialchars($row['student_name']);
+        $class_id = htmlspecialchars($row['class_id']);
+        $class_name = htmlspecialchars($row['class_name']);
+        $subject = htmlspecialchars($row['subject']);
+        $status = htmlspecialchars($row['status']);
+        
+        if ($class_name !== $current_class) {
+            if ($current_class !== '') {
+                echo "</div>"; // End of previous class section
+            }
+            $current_class = $class_name;
+            echo '<div class="class-header">';
+            echo '<span>' . $class_name . ' ( ' . $subject . ' )</span>';
+            echo '<div class="line"></div>';
+            echo '</div><div class="student-list">';
         }
-        $current_class = $class_name;
-        echo '<div class="class-header">';
-        echo '<span>' . $class_name . ' ( ' . $subject . ' )</span>';
-        echo '<div class="line"></div>';
-        echo '</div><div class="student-list">';
+
+        // Student Items 
+        echo '<div class="student-item">';
+        echo '<label>' . $student_name . '</label>';
+        echo '<div class="btns">';
+        echo '<button class="btn btn-primary btn-sm accept-btn accept" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="1" type="button">
+            <span class="material-symbols-outlined btn-icon">check</span><span class="label">Accept</span></button>';
+        echo '<button class="btn btn-primary btn-sm reject-btn reject" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="2" type="button">
+            <span class="material-symbols-outlined btn-icon">close</span><span class="label">Reject</span></button>';
+        echo '</div></div>';
     }
 
-    // Student Items 
-    echo '<div class="student-item">';
-    echo '<label>' . $student_name . '</label>';
-    echo '<div class="btns">';
-    echo '<button class="btn btn-primary btn-sm accept-btn accept" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="1" type="button">
-          <span class="material-symbols-outlined btn-icon">check</span><span class="label">Accept</span></button>';
-    echo '<button class="btn btn-primary btn-sm reject-btn reject" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="2" type="button">
-          <span class="material-symbols-outlined btn-icon">close</span><span class="label">Reject</span></button>';
-    echo '</div></div>';
+    if ($current_class !== '') {
+        echo '</div>'; // Close the last student-list div
+    }
+} else {
+    echo '<div class="no-records"> No pending requests. </div>';
 }
 
-if ($current_class !== '') {
-    echo '</div>'; // Close the last student-list div
-}
 ?>
