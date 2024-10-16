@@ -82,7 +82,6 @@ body {
 }
 /* END */
 
-/* HEADER STYLE */
 /* Search Bar Style */
 .search-bar {
     display: flex;
@@ -167,7 +166,6 @@ body {
 /* END */
 
 /* POPUP STYLES */
-/* Popup Styles */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -182,12 +180,7 @@ body {
 }
 .popup-content {
     background: #FFFFFF;
-    /*padding-left: 45px;
-    padding-right:45px;
-    padding-top: 60px;*/
     border-radius: 25px;
-    /*width: 500px;
-    height: 300px;*/
     text-align: center;
     justify-content: center;
     position: relative;
@@ -218,6 +211,17 @@ body {
 .popup-close:focus{
     outline: none;
 }
+.popup-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 15px;
+}
+.popup-buttons button {
+    flex: 1;
+    max-width: 200px;
+}
 /* END */
 
 /* LANDING PAGE */
@@ -229,13 +233,18 @@ body {
     padding: 0;
     height: 100vh;
     width: 100vw;
-    background-image: url('http://localhost/QUILANA/image/HomePage.png');
-    background-size: 1200px 800px;
-    background-size: contain;
-    background-position: right center;
-    background-repeat: no-repeat;
     position: relative;
-    z-index: 1;
+    z-index: 0;
+}
+.landing-image {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 0;
 }
 .landing-page h1 {
     position: absolute;
@@ -247,7 +256,7 @@ body {
     background-clip: text;
     top: 20px;
     left: 20px;
-    z-index: 2;
+    z-index: 1;
 }
 
 /* About/Contact/Privacy Links Style */
@@ -260,6 +269,7 @@ body {
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
+    z-index: 1;
 }
 .footer span {
     margin: 0 15px;
@@ -279,6 +289,8 @@ body {
     border-radius: 15px;
     padding: 10px 30px;
     font-size: 20px;
+    z-index: 1;
+    position: relative;
 }
 /* END */
 
@@ -313,12 +325,14 @@ body {
     width: 100%;
     height: 400px;
     max-width: 600px;
-    /* Uncomment to use static image
-    background-image: url('http://localhost/QUILANA/image/Lana.png');*/
-    background-image: url('http://localhost/QUILANA/image/FloatingLana.gif');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.illustration img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 /* Right Section */
@@ -336,15 +350,19 @@ body {
 
 /* Return Button */
 .return{
-    background-image: url('http://localhost/QUILANA/image/Return.png');
-    background-repeat: no-repeat;
-    background-size: contain;
     width:40px;
     height:40px;
     position:absolute;
     top:20px;
     left:20px;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.return img {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 /* Sign In and Sign Up Form Styles */
@@ -420,6 +438,18 @@ body {
     border-color: #4A4CA6;
     box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
     outline: none;
+}
+/* Invalid State */
+.form input[type="text"].invalid,
+.form input[type="email"].invalid,
+.form input[type="password"].invalid {
+    border-color: red;
+}
+/* Note Styles */
+.validation-note {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 /* Buttons */

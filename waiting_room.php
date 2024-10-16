@@ -96,7 +96,13 @@ if ($assessment_query->num_rows > 0) {
                     exit();
                 }
             }
-        }     
+        } 
+        // Add reload script
+        echo "<script>
+        setInterval(function() {
+            location.reload();
+        }, 5000); // Reload every 5 seconds
+        </script>";    
     } else {
         echo "Error: No administer data found.";
         exit();

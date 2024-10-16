@@ -8,17 +8,6 @@
     justify-content: center;
     align-items: center;
 }
-.popup-buttons {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    padding: 0 15px;
-}
-.popup-buttons button {
-    flex: 1;
-    max-width: 200px;
-}
 #confirm,
 #cancel,
 #result,
@@ -34,6 +23,7 @@
 .secondary-button {
     padding: 10px 30px;
     outline: none;
+    border: none;
 }
 .swal2-title,
 .popup-content .swal2-html-container,
@@ -54,6 +44,9 @@
 .question {
     margin-bottom: 10px;
     color: #1E1A43;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .question p {
     margin: 0px;
@@ -99,7 +92,6 @@
 }
 
 /*** QUIZ BEE MODE AND SPEED MODE STYLES ***/
-/* INCOMPLETE STYLES */
 /* Quiz Bee Mode and Speed Mode Questions Container */
 #quiz-modes-container {
     display: flex;
@@ -134,21 +126,33 @@
     margin: 0 15px;
 }
 
-/* OPTIONS */
-/* Style for the option buttons container */
-.option-buttons {
+/* Options and Answer Boxes Styles */
+#quiz-modes-container .option-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
     width: 100%;
     margin-top: 20px;
-    align-items: center;
-    justify-content: center;
-    position: relative;
     font-size: 25px;
 }
-/* Style for individual option buttons */
-.option-buttons button {
+#quiz-modes-container .form-check {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #DDE3FF;
+    color: #1E1A43;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+#quiz-modes-container .form-check input:hover + label:hover {
+    background-color: #A9B7FD;
+    color: #FFFFFF;
+}
+#quiz-modes-container .form-check input {
+    display: none;
+}
+#quiz-modes-container .form-check label {
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -159,17 +163,8 @@
     width: 100%;
     height: 100%;
 }
-.option-buttons button:hover {
-    background-color: #A9B7FD;
-    color: #FFFFFF;
-}
-.option-buttons button:focus {
-    background-color: #7B92FF;
-    color: #FFFFFF;
-    outline: none;
-}
-/* Style for the selected button */
-.option-buttons button.selected {
+#quiz-modes-container .form-check input:checked + label,
+#quiz-modes-container .form-check input:checked:hover + label {
     background-color: #7B92FF;
     color: #FFFFFF;
     outline: none;
@@ -203,14 +198,6 @@
     color: #FFFFFF;
     border: 1px solid #7B92FF;
 }
-        
-#quiz-modes-container .form-check-group {
-    padding-left: 0;
-}
-
-#quiz-modes-container .form-check-label {
-    text-align: left;
-}
 
 @media screen and (max-width: 1200px) {
     #quiz-modes-container .question-text {
@@ -230,7 +217,7 @@
         padding: 15px;
     }
 
-    .option-buttons {
+    #quiz-modes-container .option-buttons {
         gap: 15px;
         font-size: 16px;
         grid-template-columns: 1fr;
@@ -247,8 +234,8 @@
         padding: 10px;
     }
 
-    .option-buttons {
-        gap: 15px;
+    #quiz-modes-container .option-buttons {
+        gap: 10px;
         font-size: 14px;
         grid-template-columns: 1fr;
     }
@@ -259,7 +246,7 @@
     #error-popup .popup-content,
     #final-confirmation-popup .popup-content {
         margin: 20px;
-        padding: 15px;
+        padding: 20px;
         height: 275px;
     }
 

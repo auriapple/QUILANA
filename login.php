@@ -3,16 +3,21 @@
 <head>
     <?php include('header.php') ?>
     <title>Login | Quilana</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <div id="container">
         <div id="left-section">
             <div class="logo">QUILANA</div>
-            <div class="illustration"></div>
+            <div class="illustration">
+                <img src="/QUILANA/image/FloatingLana.gif" alt="Floating Lana">
+            </div>
         </div>
         <div id="right-section">
             <a href="welcome.php" class="return-button">
-                <div class="return"></div>
+                <div class="return">
+                    <img src="/QUILANA/image/Return.png" alt="Return Button">
+                </div>
             </a>
             <div class="form">
                 <h2>SIGN IN</h2>

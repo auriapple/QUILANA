@@ -10,6 +10,7 @@ if (!isset($_GET['assessment_id'])) {
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
+$class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
@@ -17,6 +18,7 @@ $administer_query = $conn->query("
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
+    AND class_id = '$class_id'
 ");
 
 // Check if there is administer assessment details
@@ -150,33 +152,39 @@ while ($question = $questions_query->fetch_assoc()) {
                         if ($question_type == 1) { // Single choice
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
+                            echo "<div class='option-buttons'>";
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
                                 echo "<div class='form-check'>";
-                                echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
-                                echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
+                                echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                                 echo "</div>";
                             }
+                            echo "</div>";
                         } elseif ($question_type == 2) { // Multiple choice
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
+                            echo "<div class='option-buttons'>";
                             $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                             while ($choice = $choices_query->fetch_assoc()) {
                                 echo "<div class='form-check'>";
-                                echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
-                                echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
+                                echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                                 echo "</div>";
                             }
+                            echo "</div>";
                         } elseif ($question_type == 3) { // True/False
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
-                            echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
-                            echo "<label class='form-check-label'>True</label>";
-                            echo "</div>";
-                            echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
-                            echo "<label class='form-check-label'>False</label>";
+                            echo "<div class='option-buttons'>";
+                                echo "<div class='form-check'>";
+                                echo "<input id='true' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
+                                echo "<label for='true' class='form-check-label'>True</label>";
+                                echo "</div>";
+                                echo "<div class='form-check'>";
+                                echo "<input id='false' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
+                                echo "<label for='false' class='form-check-label'>False</label>";
+                                echo "</div>";
                             echo "</div>";
                         } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification
                             echo "<div class='form-check-group'>";
@@ -192,15 +200,15 @@ while ($question = $questions_query->fetch_assoc()) {
         </form>
 
     <script>
+        // Global Variables
         let stopwatchInterval;
         let elapsedTime = 0;
-        let isPaused = false; // Tracks whether the timer is paused
         const questions = document.querySelectorAll('.questions-container .question');
         let currentQuestionIndex = 0;
-        var maxWarningReached = false; // Flag to track if maximum warnings have been reached
 
         let questionTimes = Array(questions.length).fill(0);
 
+        // Show Question
         function showQuestion(index) {
             questions.forEach((question, i) => {
                 question.style.display = i === index ? 'block' : 'none';
@@ -208,14 +216,13 @@ while ($question = $questions_query->fetch_assoc()) {
             if (index === 0) startStopwatch();
         }
 
+        // Timer Functionality
         function startStopwatch() {
             clearInterval(stopwatchInterval);
             elapsedTime = 0;
             stopwatchInterval = setInterval(() => {
-                if (!isPaused) { // Only update if not paused
-                    elapsedTime += 100;
-                    updateStopwatchDisplay();
-                }
+                elapsedTime += 100;
+                updateStopwatchDisplay();
             }, 100);
         }
 
@@ -226,6 +233,7 @@ while ($question = $questions_query->fetch_assoc()) {
                 `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
+        // Next Question
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
@@ -236,6 +244,7 @@ while ($question = $questions_query->fetch_assoc()) {
             }
         }
 
+        // Answer Submission
         function submitAnswer() {
             questionTimes[currentQuestionIndex] = elapsedTime;
             console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
@@ -249,7 +258,12 @@ while ($question = $questions_query->fetch_assoc()) {
             closePopup('final-confirmation-popup');
             submitForm();
         }
+        
+        function handleSubmit() {
+            submitForm();
+        }
 
+        // Form Submission
         function submitForm() {
             const formData = new FormData(document.getElementById('quiz-form'));
 
@@ -268,17 +282,12 @@ while ($question = $questions_query->fetch_assoc()) {
             xhr.send(formData);
         }
 
+        // Popup Handling
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
-            if (popupId === 'confirmation-popup') {
-                isPaused = true; // Set paused state
-            }
         }
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
-            if (popupId === 'confirmation-popup') {
-                isPaused = false; // Resume updating
-            }
         }
 
         // When the window loads
@@ -286,89 +295,13 @@ while ($question = $questions_query->fetch_assoc()) {
             showQuestion(currentQuestionIndex); // Show the first question
             startStopwatch();
         };
-
+        
+        // View Result
         function viewResult() {
             const assessmentId = document.querySelector('input[name="assessment_id"]').value;
             const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
             window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
-        }
-
-        function handleSubmit() {
-            submitForm();
-        }
-        
-        let tabSwitched = false; // tracker for switching tab
-        let counter = 0;
-        let max_warnings = parseInt(document.getElementById('maxWarnings_container').value); 
-
-        // Listen for the "blur" event on the window (when the tab loses focus)
-        window.addEventListener("blur", () => {
-            counter++;
-            console.log("switch");
-            tabSwitched = true;
-
-            const administerId = parseInt(document.getElementById('administerId_container').value);
-            fetch('switchTab_update.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ suspicious_act: counter, administer_id: administerId})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if(counter == max_warnings) {
-                        maxWarningReached = true;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-
-        // Show warning for focus event on the window (when the tab regains focus after being blurred)
-        window.addEventListener("focus", () => {
-            if (tabSwitched) {
-                tabSwitched = false;
-                if (counter >= max_warnings) {
-                    maxWarningReached = true;
-                    Swal.fire({
-                        //title: 'Warning!',
-                        title: 'napakagaling!',
-                        //text: 'You have reached the maximum amount of warnings!',
-                        text: 'at inulit-ulit mo pa talagang pasaway ka',
-                        icon: 'warning',
-                        confirmButtonText: 'i-submit mo na yan!!!',
-                        allowOutsideClick: false,
-                        customClass: {
-                            popup: 'popup-content',
-                            confirmButton: 'secondary-button'
-                        }
-                        
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            handleSubmit();
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        //title: 'Warning!',
-                        title: 'Hoi huli ka boi akala mo ha!',
-                        //text: 'You only have ' + (max_warnings - counter) + ' warning/s left before disqualification.',
-                        text: 'nako kang bata ka, sige isa pa at makikita mo hinahanap mo',
-                        icon: 'warning',
-                        confirmButtonText: 'sorry po di na mauulit >_< ',
-                        allowOutsideClick: false,
-                        customClass: {
-                            popup: 'popup-content',
-                            confirmButton: 'secondary-button'
-                        }
-                    });
-                }
-            }
-        });
+        }    
     </script>
 </body>
 </html>
