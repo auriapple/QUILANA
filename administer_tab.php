@@ -144,7 +144,7 @@
 
         .table-wrapper th, 
         .table-wrapper td {
-            width: calc(100% / 4);
+            width: calc(100% / 5);
             text-align: center;
             border-bottom: 1px solid rgba(59, 39, 110, 0.80);
             border-right: 1px solid rgba(59, 39, 110, 0.80);
@@ -240,10 +240,9 @@
 
         .notification-card span.notif-close:hover {
             position: absolute;
-            top: 5px;
+            top: 7px;
             right: 7px;
             cursor: pointer;
-            font-size: 16px;
             color: #888;
             background-color: #eee;
         }
@@ -258,7 +257,7 @@
             color: #999;
         }
 
-        @media screen and (max-width: 850px) {
+        @media screen and (max-width: 1020px) {
             .main-container .table-wrapper {
                 margin: 10px 0;
             }
@@ -268,7 +267,7 @@
             }
         }
 
-        @media screen and (max-width: 750px) {
+        @media screen and (max-width: 920px) {
             .studentNumber-column {
                 transition: ease-out 300ms;
                 display: none;
@@ -276,7 +275,7 @@
 
             .table-wrapper th, 
             .table-wrapper td {
-                width: calc(100% / 3);
+                width: calc(100% / 4);
                 min-width: 93px;
             }
 
@@ -287,7 +286,7 @@
             }
         }
 
-        @media screen and (max-width: 550px) {
+        @media screen and (max-width: 720px) {
             .main-container .table-wrapper {
                 margin: 0;
             }
@@ -388,6 +387,7 @@
                                 onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
                                 Stop</button-->
                         </div>
+                        <input type="hidden" id="administerId-container" value="<?php echo $administer['administer_id']; ?>" />
                     </div>
 
                     <div class='table-wrapper'>
@@ -399,6 +399,7 @@
                                     <th>Student Name</th>
                                     <th>Number of Suspicious Activities</th>
                                     <th class="status-column">Status</th>
+                                    <th>Score</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -466,8 +467,15 @@
                             row.innerHTML += '<td class="status-column"> <div class="finished">Finished</div> </td>';
                         } else {
                             // Append an empty cell if the status is not 0
-                            row.innerHTML += '<td class="status-column"> No Status</td>';
+                            row.innerHTML += '<td class="status-column">No Status</td>';
                         }
+
+                        if (item.score !== null && item.score !== undefined) {
+                            row.innerHTML += `<td>${item.score}/${item.total_score}</td>`;
+                        } else {
+                            row.innerHTML += '<td>N/A</td>';
+                        }
+                            
 
                         tbody.appendChild(row);
                         // Update row count
@@ -475,12 +483,12 @@
                     });
                 } else if (data.error) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="3" style="text-align: center;">${data.error}</td>`;
+                    row.innerHTML = `<td colspan="5" style="text-align: center;">${data.error}</td>`;
                     tbody.appendChild(row);
                     document.getElementById('rowCount').innerText = `Number of Students: 0`;
                 } else {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="3" style="text-align: center;">No Students have joined</td>`;
+                    row.innerHTML = `<td colspan="5" style="text-align: center;">No Students have joined</td>`;
                     tbody.appendChild(row);
                     document.getElementById('rowCount').innerText = `Number of Students: 0`;
                 }
@@ -506,7 +514,7 @@
             });
         }
 
-        setInterval(updateNotifs, 3000);
+        let updateNotifsInterval = setInterval(updateNotifs, 3000);
 
         updateNotifs();
 
@@ -515,9 +523,9 @@
             document.querySelectorAll('.notif-close').forEach(closeButton => {
                 closeButton.addEventListener('click', function() {
                     // Get the notification card and retrieve the necessary data
-                    const notificationCard = this.parentElement;
-                    const administerId = notificationCard.getAttribute('data-administer-id');
-                    const studentId = notificationCard.getAttribute('data-student-id');
+                    var notificationCard = this.parentElement;
+                    var administerId = notificationCard.getAttribute('data-administer-id');
+                    var studentId = notificationCard.getAttribute('data-student-id');
 
                     // Hide the notification card visually
                     notificationCard.style.display = 'none';
@@ -575,7 +583,8 @@
             });
         }
 
-        //$('#stopAssessment').hide();
+        let interval;  // For the interval for the timer
+        let ifStopAssessmentInterval; // For the interval for if to stop the assessment
 
         document.getElementById('startAssessment').addEventListener('click', function() {
             $('#startAssessment').hide();
@@ -621,10 +630,51 @@
             }, 1000);
         });
 
-        /*document.getElementById('stopAssessment').addEventListener('click', function() {
-            clearInterval(interval);
-            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
-        });*/
+        function ifStopAssessment() {
+            var administerId = document.getElementById('administerId-container').value;
+            console.log(administerId);
+
+            fetch('if_done.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ administer_id: administerId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetch('update_status.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ administer_id: administerId})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Assessment stopped successfully!');
+                            clearInterval(interval);
+                            clearInterval(ifStopAssessmentInterval);
+                            clearInterval(updateNotifs);
+                            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
+                        } else if (!data.success) {
+                            alert('Failed to stop assessment: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        ifStopAssessmentInterval = setInterval(ifStopAssessment, 3000);
+
     </script>
 </body>
 </html>
