@@ -181,7 +181,7 @@ td .btns,
     gap: 10px;
 }
 /* Accept and Reject Button */
-.btns .accept,
+.btn-container .accept,
 .btns .reject {
     width: 90px;
     height: 40px;
@@ -197,8 +197,10 @@ td .btns,
     overflow: hidden;
     cursor: pointer;
 }
-.btns .reject {
+.btn-container .reject {
     background-color: #ff8585;
+    border: none;
+    color: white;
 }
 .accept .label,
 .reject .label{
@@ -213,13 +215,14 @@ td .btns,
 .reject .btn-icon {
     display: none;
 }
-.accpet :hover {
+.accpet:hover {
     background-color: #682892;
 }
 .accept:focus, 
 .reject:focus {
     outline: none;
 }
+
 
 /* RECENT ASSESSMENTS */
 .recent-scrollable {

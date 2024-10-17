@@ -54,7 +54,7 @@ if (isset($_GET['class_id'])) {
 <div id="Assessments" class="tabcontent">
     <?php
     if (isset($qry_assessments)) {
-        echo '<div class="course-details-table">
+        echo '<div class="table-wrapper">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -93,7 +93,7 @@ if (isset($_GET['class_id'])) {
 
 <!-- Tab content for Students -->
 <div id="Students" class="tabcontent" style="display: none;">
-    <div class="course-details-table">
+    <div class="table-wrapper">
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -113,7 +113,7 @@ if (isset($_GET['class_id'])) {
                                 <td>' . (($student['status'] == 0) ? 'Pending' : 'Enrolled') . '</td>
                                 <td>';
                         if ($student['status'] == 0) {
-                            echo '<div class="btns">
+                            echo '<div class="btn-container">
                                     <button class="btn btn-primary btn-sm accept-btn accept" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
@@ -151,7 +151,7 @@ if (isset($_GET['class_id'])) {
 
 <!-- Tab content for Student Scores -->
 <div id="StudentScores" class="tabcontent" style="display: none;">
-    <div class="course-details-table">
+    <div class="table-wrapper">
         <h6 id="studentScoresTitle"></h6>
         <table class="table table-bordered">
             <thead>

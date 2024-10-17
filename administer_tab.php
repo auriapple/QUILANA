@@ -516,8 +516,6 @@
 
         let updateNotifsInterval = setInterval(updateNotifs, 3000);
 
-        updateNotifs();
-
         // Function to add click listeners to all close buttons
         function addCloseListeners() {
             document.querySelectorAll('.notif-close').forEach(closeButton => {

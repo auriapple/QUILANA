@@ -24,7 +24,7 @@
         ?>  
                         <div class="notification-card" data-administer-id="<?php echo $row['administer_id']; ?>" data-student-id="<?php echo $row['student_id']; ?>">
                             <span class="notif-close" class="popup-close">&times;</span>
-                            <div> <?php echo htmlspecialchars($row['student_name']); ?> has performed a suspicious activity. They have <?php echo $row['max_warnings'] - $row['suspicious_act']?> warnings left. </div>
+                            <div> <?php echo htmlspecialchars($row['student_name']); ?> has performed a suspicious activity (<?php echo htmlspecialchars($row['method']);?>). They have <?php echo $row['max_warnings'] - $row['suspicious_act']?> warning(s) left. </div>
                             <div class="timeStamp"> <?php echo date("h:ia", strtotime($row['time_updated'])); ?> </div>
                         </div>
         <?php 
