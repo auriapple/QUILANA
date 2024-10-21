@@ -18,7 +18,7 @@ $administer_query = $conn->query("
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
-    AND class_id = '$class_id'
+    AND aa.class_id = '$class_id'
 ");
 
 // Check if there is administer assessment details
@@ -181,6 +181,7 @@ while ($question = $questions_query->fetch_assoc()) {
                 <?php endforeach; ?>
                 <input type="hidden" name="assessment_id" value="<?php echo htmlspecialchars($assessment_id); ?>">
                 <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
+                <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($class_id); ?>">
             </div>
         </form>
     </div>

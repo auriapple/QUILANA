@@ -131,7 +131,7 @@
             $classes_query = $conn->query("SELECT c.class_id, c.subject 
                                             FROM class c 
                                             JOIN student_enrollment s ON c.class_id = s.class_id 
-                                            WHERE s.student_id = '$student_id'");
+                                            WHERE s.student_id = '$student_id' AND s.status='1'");
 
             if ($classes_query->num_rows > 0) {
                 while ($class = $classes_query->fetch_assoc()) {

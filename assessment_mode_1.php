@@ -18,7 +18,7 @@ $administer_query = $conn->query("
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
-    AND class_id = '$class_id'
+    AND aa.class_id = '$class_id'
 ");
 
 // Check if there is administer assessment details
@@ -188,6 +188,7 @@ $time_limit = $assessment['time_limit'];
                 ?>
                 <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
                 <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
+                <input type="hidden" name="class_id" value="<?php echo $class_id; ?>">
             </div>
         </form>
     </div>

@@ -16,9 +16,9 @@
         <!-- Header Container -->
         <div class="join-class-container">
             <button class="secondary-button" id="joinClass">Join Class</button>
-            <form class="search-bar" action="#" method="GET">
-                <input type="text" name="query" placeholder="Search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
+            <form class="search-bar">
+                <input id="search-input" type="text" name="query" placeholder="Search" required>
+                <button><i class="fa fa-search"></i></button>
             </form>
         </div>
 
@@ -50,7 +50,7 @@
                     ?>        
                         
                         <!-- Display class details -->
-                        <div class="class-card">
+                        <div class="class-card" id="class_<?php echo $row['class_id']; ?>">
                             <div class="meatball-menu-container">
                             <button class="meatball-menu-btn">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -75,7 +75,7 @@
                         </div>
                         <?php }
                     } else {
-                        echo '<p class="no-records">You are not enrolled in any classes</p>';
+                        echo '<div class="no-records">You are not enrolled in any classes</div>';
                     }
                     ?>           
             </div>

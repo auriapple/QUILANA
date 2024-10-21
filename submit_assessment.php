@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Fetch details from the form submitted
     $assessment_id = $conn->real_escape_string($_POST['assessment_id']);
+    $class_id = $conn->real_escape_string($_POST['class_id']);
     $answers = $_POST['answers'];
     $time_elapsed = isset($_POST['time_elapsed']) ? json_decode($_POST['time_elapsed'], true) : [];
     
@@ -22,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             FROM administer_assessment aa
             JOIN assessment a ON a.assessment_id = aa.assessment_id
             WHERE a.assessment_id = '$assessment_id'
+            AND aa.class_id = '$class_id'
         ");
 
         // Check if there is administer assessment details

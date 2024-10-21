@@ -42,11 +42,11 @@
 /*** NORMAL MODE STYLES ***/
 /* Question Styles */
 .question {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #1E1A43;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
 }
 .question p {
     margin: 0px;
@@ -54,9 +54,7 @@
 
 /* Options and Answer Boxes Styles */
 .form-check {
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 35px;
+    padding-left: 35px !important;
     color: #8F8F9D;
 }
 .form-check:hover {
@@ -66,9 +64,7 @@
     accent-color: #4A4CA6;
 }
 .form-check-group {
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 15px;
+    padding-left: 15px !important;
     color: rgba(143, 143, 157, 0.75);
     color: #8F8F9D;
 }
@@ -162,6 +158,9 @@
     transition: background-color 0.3s;
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 #quiz-modes-container .form-check input:checked + label,
 #quiz-modes-container .form-check input:checked:hover + label {
