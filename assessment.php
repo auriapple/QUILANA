@@ -160,7 +160,7 @@
                                     </select>
                                     <label>Select Course</label>
                                     <select name="course_id" id="course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
+                                        <option value="" disabled selected>Select Course</option>
                                         <?php
                                         $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                         while($course_row = $course_qry->fetch_assoc()) {
@@ -170,7 +170,7 @@
                                     </select>
                                     <label>Select Course Subject</label>
                                     <select name="subject" id="subject" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
+                                        <option value="" disabled selected>Select Subject</option>
                                     </select>
                                     <label>Topic</label>
                                     <input type="text" name="topic" required="required" class="form-control" />
@@ -218,7 +218,7 @@
                                 <div class="form-group">
                                     <label for="administer_class_id">Select Class</label>
                                     <select name="class_id" id="administer_class_id" required class="form-control">
-                                        <option value="">Select Class</option>
+                                        <option value="" disabled selected>Select Class</option>
                                     </select>
                                 </div>
                                 <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
@@ -264,7 +264,7 @@
                                     </select>
                                     <label>Select Course</label>
                                     <select name="course_id" id="edit_course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
+                                        <option value="" disabled selected>Select Course</option>
                                         <?php
                                         $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                         while($course_row = $course_qry->fetch_assoc()) {
@@ -274,7 +274,7 @@
                                     </select>
                                     <label>Select Course Subject</label>
                                     <select name="subject" id="edit_subject" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
+                                        <option value="" disabled selected>Select Subject</option>
                                     </select>
                                     <label>Topic</label>
                                     <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />
