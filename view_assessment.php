@@ -154,7 +154,7 @@ if ($assessment_mode == 1) { // Normal Mode
         }
         table {
             width: 100%;
-            border-collapse: separate;
+            border-collapse: separate !important;
             border-radius: 15px;
             border: 2px solid rgba(59, 39, 110, 0.80);
             overflow: hidden;
@@ -162,11 +162,13 @@ if ($assessment_mode == 1) { // Normal Mode
         }
         th, td {
             padding: 12px;
-            text-align: center;
+            text-align: center !important;
             border: none;
             color: #4a4a4a;
             border-right: 1px solid rgba(59, 39, 110, 0.80);
-            width: 25%;
+            width: 20%;
+            border-bottom: none !important;
+            border-top: none !important;
         }
         thead th {
             background-color: #E0E0EC;
@@ -271,10 +273,7 @@ if ($assessment_mode == 1) { // Normal Mode
                     <table id="scores-table" style="display:none;" class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Last Name</th>
-                                <th>First Name</th>
-                                <th>Score</th>
-                                <th>Remarks</th>
+                                <!-- Table Headers -->
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -304,6 +303,7 @@ if ($assessment_mode == 1) { // Normal Mode
         function loadStudentScores() {
             const assessmentId = <?php echo $assessment_id; ?>;
             const classId = <?php echo $class_id; ?>;
+            const assessmentMode = <?php echo $assessment_mode; ?>;
 
             $('#loading-scores').show();
             $('#scores-table').hide();
@@ -314,20 +314,77 @@ if ($assessment_mode == 1) { // Normal Mode
                 data: { assessment_id: assessmentId, class_id: classId },
                 dataType: 'json',
                 success: function(data) {
+                    const thead = $('#scores-table thead');
                     const tbody = $('#scores-table tbody');
+                    
+                    thead.empty();
                     tbody.empty();
 
                     if (data.scores && data.scores.length > 0) {
-                        data.scores.forEach(score => {
-                            tbody.append(`
-                                <tr>
-                                    <td>${score.lastname}</td>
-                                    <td>${score.firstname}</td>
-                                    <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not taken'}</td>
-                                    <td>${score.remarks}</td>
+                        if (assessmentMode == 1) {
+                            thead.append(
+                                `<tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Score</th>
+                                    <th>Remarks</th>
                                 </tr>
                             `);
-                        });
+
+                            data.scores.forEach(score => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${score.lastname}</td>
+                                        <td>${score.firstname}</td>
+                                        <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not Taken'}</td>
+                                        <td>${score.remarks}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else if (assessmentMode == 2) {
+                            thead.append(`
+                                <tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Score</th>
+                                    <th>Rank</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            `);
+
+                            data.scores.forEach(score => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${score.lastname}</td>
+                                        <td>${score.firstname}</td>
+                                        <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not Taken'}</td>
+                                        <td>${score.rank}</td>
+                                        <td>${score.remarks}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else if (assessmentMode == 3) {
+                            thead.append(`
+                                <tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Score</th>
+                                    <th>Rank</th>
+                                </tr>
+                            `);
+
+                            data.scores.forEach(score => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${score.lastname}</td>
+                                        <td>${score.firstname}</td>
+                                        <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not Taken'}</td>
+                                        <td>${score.rank}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                        
                     } else {
                         tbody.append('<tr><td colspan="4">No scores available.</td></tr>');
                     }
