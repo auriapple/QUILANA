@@ -70,14 +70,9 @@ if ($stmt = $conn->prepare($query)) {
     <title>Manage Assessment | Quilana</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    
-
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f4f4;
-            overflow: hidden;
+        .assessment {
+            padding: 10px;
         }
         .assessment-details {
             background-color: #fff;
@@ -85,7 +80,6 @@ if ($stmt = $conn->prepare($query)) {
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            margin-right: 26px;
         }
         .assessment-details h2 {
             font-size: 1.5em;
@@ -98,18 +92,47 @@ if ($stmt = $conn->prepare($query)) {
             font-size: 1em;
             color: #666;
         }
+
         .card-full-width {
-            width: 98%;
+            width: 100%;
             margin-bottom: 20px;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            border: none !important;
+        }
+        .card-header {
+            background-color: #E0E0EC !important;
+            font-weight: bold;
+            border-bottom: none !important;
         }
         .card-body {
             max-height: 45vh;
             overflow-y: auto;
         }
-        .list-group-item {
-            margin-top: 10px;
-            border-left: 4px solid #4A4CA6;
+        .card-body::-webkit-scrollbar {
+            display: none;
         }
+
+        .list-group {
+            gap: 15px;
+        }
+        .list-group-item {
+            border-left: 4px solid #4A4CA6 !important;
+            background-color: #f9f9f9 !important;
+        }
+        .list-group-item h6 {
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .list-group-item p {
+            margin: 0;
+        }
+        .list-group-item .question-number {
+            font-weight: bold;
+            color: #4A4CA6;
+            margin-bottom: 10px;
+        }
+
         .back-arrow {
             font-size: 24px; 
             margin-top: 10px;
@@ -122,6 +145,7 @@ if ($stmt = $conn->prepare($query)) {
         .back-arrow a:hover {
             color: #0056b3; 
         }
+
         .btn-primary {
             background-color: #4A4CA6;
             border-color: #4A4CA6;
@@ -129,6 +153,15 @@ if ($stmt = $conn->prepare($query)) {
         .btn-primary:hover {
             background-color: #3a3b8c;
             border-color: #3a3b8c;
+        }
+
+        .float-right {
+            display: flex;
+            gap: 8px;
+        }
+        .mt-3 {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
@@ -142,100 +175,102 @@ if ($stmt = $conn->prepare($query)) {
             </a>
         </div>
 
-        <div class="assessment-details">
-            <h2><?php echo $assessment_name; ?></h2>
-            <p><strong>Assessment Mode:</strong> <?php echo $assessment_mode; ?></p>
-            <p><strong>Course and Subject:</strong> <?php echo $course_name; ?> - <?php echo $subject_name; ?></p>
-            <?php if ($assessment_mode_code == 1): ?>
-                <p><strong>Time Limit:</strong> 
-                    <span id="current-time-limit"><?php echo isset($assessment_time_limit) && $assessment_time_limit > 0 ? $assessment_time_limit : 'Not set'; ?></span> minutes
-                </p>
-                <p><strong>Passing Rate:</strong> 
-                    <span id="current-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
-                </p>
-                <p><strong>Maximum Warnings:</strong> 
-                    <span id="current-max-warnings"><?php echo $assessment_max_warnings; ?></span>
-                </p>
-            <?php endif; ?>
-            <?php if ($assessment_mode_code == 2): ?>
-                <p><strong>Passing Rate:</strong> 
-                    <span id="quizbee-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
-                </p>
-                <p><strong>Maximum Warnings:</strong> 
-                    <span id="quizbee-max-warnings"><?php echo $assessment_max_warnings; ?></span>
-                </p>
-            <?php endif; ?>
-            <?php if ($assessment_mode_code == 3): ?>
-                <p><strong>Passing Rate:</strong> 
-                    <span id="speedmode-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
-                </p>
-                <p><strong>Maximum Warnings:</strong> 
-                    <span id="speedmode-max-warnings"><?php echo $assessment_max_warnings; ?></span>
-                </p>
-                <div class="d-flex align-items-center">
-                    <p class="mb-0" style="margin-right: 15px;"><strong>Max Points:</strong> <span id="current-max-points"><?php echo isset($assessment_max_points) ? $assessment_max_points : 'Not set'; ?></span></p>
-                    <p class="mb-0"><strong>Student Count:</strong> <span id="current-student-count"><?php echo isset($assessment_student_count) ? $assessment_student_count : 'Not set'; ?></span></p>
-                </div>
-
-                <p><strong>Remaining Points:</strong> 
-                    <span id="current-remaining-points"><?php echo isset($assessment_remaining_points) ? $assessment_remaining_points : 'Not set'; ?></span></p>                
-                </p>
-            <?php endif; ?>
-            <div class="mt-3">
+        <div class="assessment">
+            <div class="assessment-details">
+                <h2><?php echo $assessment_name; ?></h2>
+                <p><strong>Assessment Mode:</strong> <?php echo $assessment_mode; ?></p>
+                <p><strong>Course and Subject:</strong> <?php echo $course_name; ?> - <?php echo $subject_name; ?></p>
                 <?php if ($assessment_mode_code == 1): ?>
-                    <button class="btn btn-secondary me-2" id="edit_time_limit_btn"><i class="fa fa-plus"></i> Edit Time Limit, Passing Rate, and Maximum Warnings</button>
+                    <p><strong>Time Limit:</strong> 
+                        <span id="current-time-limit"><?php echo isset($assessment_time_limit) && $assessment_time_limit > 0 ? $assessment_time_limit : 'Not set'; ?></span> minutes
+                    </p>
+                    <p><strong>Passing Rate:</strong> 
+                        <span id="current-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                    </p>
+                    <p><strong>Maximum Warnings:</strong> 
+                        <span id="current-max-warnings"><?php echo $assessment_max_warnings; ?></span>
+                    </p>
                 <?php endif; ?>
                 <?php if ($assessment_mode_code == 2): ?>
-                    <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Maximum Warnings</button>
+                    <p><strong>Passing Rate:</strong> 
+                        <span id="quizbee-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                    </p>
                 <?php endif; ?>
                 <?php if ($assessment_mode_code == 3): ?>
-                    <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate, Points, and Maximum Warnings</button>
+                    <p><strong>Passing Rate:</strong> 
+                        <span id="speedmode-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate : 'Not set'; ?></span>%
+                    </p>
+                    <p><strong>Max Points:</strong> 
+                        <span id="current-max-points"><?php echo isset($assessment_max_points) ? $assessment_max_points : 'Not set'; ?></span>
+                    </p>
+                    <p><strong>Student Count:</strong> 
+                        <span id="current-student-count"><?php echo isset($assessment_student_count) ? $assessment_student_count : 'Not set'; ?></span>
+                    </p>
+
+                    <p><strong>Remaining Points:</strong> 
+                        <span id="current-remaining-points"><?php echo isset($assessment_remaining_points) ? $assessment_remaining_points : 'Not set'; ?></span></p>                
+                    </p>
                 <?php endif; ?>
-                <button class="btn btn-primary" id="add_question_btn">
-                    <i class="fa fa-plus"></i> Add Question
-                </button>
+                <div class="mt-3">
+                    <?php if ($assessment_mode_code == 1): ?>
+                        <button class="btn btn-secondary me-2" id="edit_time_limit_btn"><i class="fa fa-plus"></i> Edit Time Limit, Passing Rate, and Maximum Warnings</button>
+                    <?php endif; ?>
+                    <?php if ($assessment_mode_code == 2): ?>
+                        <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Maximum Warnings</button>
+                    <?php endif; ?>
+                    <?php if ($assessment_mode_code == 3): ?>
+                        <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate, Points, and Maximum Warnings</button>
+                    <?php endif; ?>
+                    <button class="btn btn-primary" id="add_question_btn">
+                        <i class="fa fa-plus"></i> Add Question
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <?php
-        $questions_query = "SELECT * FROM questions WHERE assessment_id = ? ORDER BY order_by ASC";
-        if ($stmt = $conn->prepare($questions_query)) {
-            $stmt->bind_param("i", $assessment_id);
-            $stmt->execute();
-            $questions_result = $stmt->get_result();
+            <?php
+            $questions_query = "SELECT * FROM questions WHERE assessment_id = ? ORDER BY order_by ASC";
+            $question_number = 1;
+            
+            if ($stmt = $conn->prepare($questions_query)) {
+                $stmt->bind_param("i", $assessment_id);
+                $stmt->execute();
+                $questions_result = $stmt->get_result();
 
-            if ($questions_result->num_rows > 0) {
-                echo '<div class="card card-full-width">';
-                echo '<div class="card-header">Questions</div>';
-                echo '<div class="card-body">';
-                echo '<ul class="list-group">';
-                
-                while ($row = $questions_result->fetch_assoc()) {
-                    echo '<li class="list-group-item">';
-                    echo htmlspecialchars($row['question']);
-                    echo '<p><strong>Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
-                    if ($assessment_mode_code == 2) {
-                        echo '<p><strong>Time Limit:</strong> ' . htmlspecialchars($row['time_limit']) . ' seconds</p>';
+                if ($questions_result->num_rows > 0) {
+                    echo '<div class="card card-full-width">';
+                    echo '<div class="card-header">Questions</div>';
+                    echo '<div class="card-body">';
+                    echo '<ul class="list-group">';
+                    
+                    while ($row = $questions_result->fetch_assoc()) {
+                        echo '<li class="list-group-item">';
+                        echo '<div class="question-number">Question ' . $question_number . ':</div>';
+                        echo '<h6>' . htmlspecialchars($row['question']) . '</h6>';
+                        echo '<p><strong>Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
+                        if ($assessment_mode_code == 2) {
+                            echo '<p><strong>Time Limit:</strong> ' . htmlspecialchars($row['time_limit']) . ' seconds</p>';
+                        }
+                        echo '<div class="float-right">';
+                        echo '<button class="btn btn-sm btn-outline-primary edit_question me-2" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-edit"></i></button>';
+                        echo '<button class="btn btn-sm btn-outline-danger remove_question" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-trash"></i></button>';
+                        echo '</div>';
+                        echo '</li>';
+                        
+                        $question_number++;
                     }
-                    echo '<div class="float-right">';
-                    echo '<button class="btn btn-sm btn-outline-primary edit_question me-2" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-edit"></i></button>';
-                    echo '<button class="btn btn-sm btn-outline-danger remove_question" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-trash"></i></button>';
+                    echo '</ul>';
                     echo '</div>';
-                    echo '</li>';
+                    echo '</div>';
+                } else {
+                    echo '<p class="alert alert-info" style="margin-right: 20px;">No questions found for this assessment. Start by adding some questions!</p>';
                 }
-                
-                echo '</ul>';
-                echo '</div>';
-                echo '</div>';
-            } else {
-                echo '<p class="alert alert-info" style="margin-right: 20px;">No questions found for this assessment. Start by adding some questions!</p>';
-            }
 
-            $stmt->close();
-        } else {
-            echo '<p class="alert alert-danger" style="margin-right: 20px;">Error preparing the SQL query for questions.</p>';
-        }
-        ?>
+                $stmt->close();
+            } else {
+                echo '<p class="alert alert-danger" style="margin-right: 20px;">Error preparing the SQL query for questions.</p>';
+            }
+            ?>
+        </div>
     </div>
 
     <!-- Modal for Adding/Editing Questions -->
