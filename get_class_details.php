@@ -15,7 +15,12 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the assessments with related details
     $qry_assessments = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, aa.date_administered, SUM(q.total_points) AS total_points
+        SELECT a.assessment_id, a.assessment_name, aa.date_administered,
+            CASE 
+                WHEN a.assessment_mode IN (1, 2) THEN SUM(q.total_points)
+                WHEN a.assessment_mode = 3 THEN COUNT(q.question_id) * a.max_points
+                ELSE 0
+            END AS total_points
         FROM administer_assessment aa
         JOIN assessment a ON aa.assessment_id = a.assessment_id
         JOIN questions q ON q.assessment_id = a.assessment_id
