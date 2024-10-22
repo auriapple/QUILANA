@@ -22,10 +22,10 @@
         }
 
         // Fetch the class details associated with the course
-        $qry_class = $conn->query("SELECT * FROM class WHERE course_id = '$course_id'");
+        $qry_class = $conn->query("SELECT * FROM class WHERE course_id = '$course_id' ORDER BY class_name");
 
         // Display the table
-        echo '<div class="course-details-table">
+        echo '<div class="table-wrapper">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -42,7 +42,7 @@
                 echo '<tr>
                         <td>' . $class['class_name'] . '</td>
                         <td>' . $class['subject'] . '</td>
-                        <td>' ?> <button id="viewClassDetails" class="btn btn-primary btn-sm view_class_details action_vcd" data-id="<?php echo $class['class_id']?>"  type="button">View Class</button> <?php '</td>
+                        <td>' ?> <button id="viewClassDetails" class="main-button view_class_details action_vcd" data-id="<?php echo $class['class_id']?>"  type="button">View Class</button> <?php '</td>
                     </tr>';
             }
         } else {

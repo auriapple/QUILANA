@@ -329,7 +329,7 @@ $time_limit = $assessment['time_limit'];
                 body: JSON.stringify({ 
                     suspicious_act: warningCount, 
                     administer_id: administerId,
-
+                    method: method
                 })
             })
             .then(response => response.json())

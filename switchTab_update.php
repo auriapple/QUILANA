@@ -10,6 +10,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 if (isset($data['administer_id']) && isset($data['suspicious_act'])) {
     $administer_id = $conn->real_escape_string($data['administer_id']);
     $suspicious_act = (int)$data['suspicious_act'];
+    $method = $conn->real_escape_string($data['method']);
     
     // Validate that 'student_id' exists in the session
     if (isset($_SESSION['login_id'])) {
@@ -18,15 +19,15 @@ if (isset($data['administer_id']) && isset($data['suspicious_act'])) {
         // Update status in join_assessment table using a prepared statement
         $stmt = $conn->prepare("
             UPDATE join_assessment
-            SET suspicious_act = ?, if_display = true
+            SET suspicious_act = ?, method = ?, if_display = true
             WHERE administer_id = ? AND student_id = ?
         ");
         
         if ($stmt) {
-            $stmt->bind_param("iii", $suspicious_act, $administer_id, $student_id);
+            $stmt->bind_param("isii", $suspicious_act, $method, $administer_id, $student_id);
 
             if ($stmt->execute()) {
-                echo json_encode(['success' => true]);
+                echo json_encode(['success' => true, 'message' => 'Warning triggered via ' . $method . '.']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Error executing the update: ' . $stmt->error]);
             }

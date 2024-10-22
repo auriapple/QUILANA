@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<di>
+<div>
     <?php include('nav_bar.php'); ?>
 
     <div class="content-wrapper"> 
@@ -118,14 +118,15 @@
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
                 </div>
-
-                <div id="details-tab" class="tab-content">
-                    <h1></h1>
-                </div>
-
-                <div id="administer-tab" class="tab-content"> 
-                    <div id="administer-container">
+            </div>
                     </div>
+
+            <div id="details-tab" class="tab-content">
+                <h1></h1>
+            </div>
+
+            <div id="administer-tab" class="tab-content"> 
+                <div id="administer-container">
                 </div>
             </div>
         </div>

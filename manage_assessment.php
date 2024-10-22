@@ -423,6 +423,10 @@ if ($stmt = $conn->prepare($query)) {
                             <label for="quizbee_passing_rate">Passing Rate (%)</label>
                             <input type="number" id="quizbee_passing_rate" name="passing_rate" class="form-control" min="0" max="100" required>
                         </div>
+                        <div class="form-group">
+                            <label for="quizbee_max_warnings">Maximum Warnings</label>
+                            <input type="number" id="quizbee_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -854,9 +858,14 @@ if ($stmt = $conn->prepare($query)) {
         // Save passing rate button handler
         $('#save_passing_rate').click(function() {
             var newPassingRate = $('#quizbee_passing_rate').val();
+            var newMaxWarnings = $('#quizbee_max_warnings').val();
 
             if (newPassingRate === '') {
                 alert('Please enter a valid passing rate.');
+                return;
+            }
+            if (newMaxWarnings === '') {
+                alert('Please enter a valid maximum warning.');
                 return;
             }
 
@@ -865,7 +874,8 @@ if ($stmt = $conn->prepare($query)) {
                 url: 'update_assessment_passing_rate.php', 
                 data: {
                     assessment_id: <?php echo $assessment_id; ?>, 
-                    passing_rate: newPassingRate
+                    passing_rate: newPassingRate,
+                    max_warnings: newMaxWarnings
                 },
                 dataType: 'json',
                 success: function(response) {

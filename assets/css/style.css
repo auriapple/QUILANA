@@ -130,6 +130,9 @@ body {
 /* END */
 
 /* TABS STYLE */
+.content-wrapper {
+    height: 100vh;
+}
 .tabs-container {
     margin-bottom: 20px;
 }
@@ -382,6 +385,8 @@ body {
     display: block;
     font-size: medium;
     font-weight: lighter;
+    text-align: left;
+    margin-bottom: 2px;
 }
 .form-group.row {
     display: flex;
@@ -779,9 +784,8 @@ td #viewClassDetails {
     margin-bottom: 5px;
     color: #1E1A43;
 }
-
 .scrollable-content {
-    max-height: 68vh; 
+    height: calc(100% - 160px); 
     overflow-y: auto;
 }
 /* END */
