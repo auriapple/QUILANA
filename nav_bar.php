@@ -77,6 +77,25 @@
                     $(this).addClass('active');
                 }
             });
+
+            // Add delay before redirecting
+            $('#sidebar a').on('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                // Remove 'active' class from all sidebar items and add to the clicked one
+                $('#sidebar a').removeClass('active');
+                $(this).addClass('active');
+
+                var href = $(this).attr('href');
+
+                setTimeout(function() {
+                    $('#sidebar, .content-wrapper').removeClass('active');
+                }, 300);
+
+                setTimeout(function() {
+                    window.location.href = href; 
+                }, 500)   
+            });
         });
     </script>
 </body>
