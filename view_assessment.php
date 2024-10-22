@@ -90,14 +90,16 @@ if ($assessment_mode == 1) { // Normal Mode
         .back-arrow a:hover {
             color: #0056b3; 
         }
+
+        .tab-content {
+            padding: 10px;
+        }
         .assessment-details {
-            background-color: #fff;
+            background-color: #FFFFFF;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            margin-right: 35px;
-            margin-left: 13px;
         }
         .assessment-details h2 {
             font-size: 1.5em;
@@ -111,13 +113,14 @@ if ($assessment_mode == 1) { // Normal Mode
             color: #555;
         }
         .questions-container {
-            background-color: #fff;
+            background-color: #FFFFFF !important;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
             max-height: 50vh;
             overflow-y: auto;
-            width: 100%;
+            width: 100% !important;
+            margin: 0 !important;
         }
         .question {
             margin-bottom: 25px;
@@ -134,6 +137,9 @@ if ($assessment_mode == 1) { // Normal Mode
             margin-left: 20px;
             margin-bottom: 8px;
         }
+        .checked {
+            margin-left: -5px;
+        }
         .option label {
             display: flex;
             align-items: center;
@@ -141,6 +147,7 @@ if ($assessment_mode == 1) { // Normal Mode
         .option input[type="radio"],
         .option input[type="checkbox"] {
             margin-right: 10px;
+            accent-color: #4A4CA6;
         }
         .time-limit {
             margin-top: 10px;
@@ -207,7 +214,8 @@ if ($assessment_mode == 1) { // Normal Mode
             <div class="assessment-details">
                 <h2><?php echo htmlspecialchars($assessment_details[0]['assessment_name']); ?></h2>
                 <p><strong>Topic:</strong> <?php echo htmlspecialchars($assessment_details[0]['topic']); ?></p>
-                <p><strong>Overall Time Limit:</strong> <?php echo htmlspecialchars($overall_time_limit_minutes) . ' minutes (' . ($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode)'; ?></p>
+                <p><strong>Mode:</strong> <?php echo htmlspecialchars($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode'; ?></p-->
+                <!--p><strong>Overall Time Limit:</strong> <?php echo htmlspecialchars($overall_time_limit_minutes) . ' minutes (' . ($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode)'; ?></p-->
             </div>
 
             <div class="questions-container">
@@ -246,7 +254,7 @@ if ($assessment_mode == 1) { // Normal Mode
                             
                             echo '<div class="option">';
                             echo '<label class="' . $checked_class . '">'; 
-                            echo '<input type="' . $input_type . '" name="question_' . ($question_number - 1) . '" ' . $checked_attr . '>' . htmlspecialchars($detail['option_txt']);
+                            echo '<input type="' . $input_type . '" class="non-interactive" name="question_' . ($question_number - 1) . '" ' . $checked_attr . '>' . htmlspecialchars($detail['option_txt']);
                             echo '</label>';
                             echo '</div>';
                             break;
@@ -413,6 +421,10 @@ if ($assessment_mode == 1) { // Normal Mode
             $('body').append(form);
             form.submit();
             form.remove();
+        });
+
+        $('.non-interactive').on('click', function(event) {
+            event.preventDefault(); // Prevent default action
         });
     });
     </script>
