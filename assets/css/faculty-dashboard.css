@@ -181,42 +181,13 @@ td .btns,
     gap: 10px;
 }
 /* Accept and Reject Button */
-.btn-container .accept,
-.btns .reject {
-    width: 90px;
-    height: 40px;
-    border-radius: 5px;
-    border: none;
-    background-color: #87ffb0;
-    padding: 5px;
-    height: 30px;
-    font-size: 16px;
-    font-weight: 500;
-    text-align: center;
-    transition: ease-in 200ms;
-    overflow: hidden;
-    cursor: pointer;
-}
-.btn-container .reject {
-    background-color: #ff8585;
-    border: none;
-    color: white;
-}
-.accept .label,
-.reject .label{
-    position: relative;
-    top: -3px;
-    color: #2f8113;
-}
-.reject .label {
-    color: #e00f0f;
+.equal-size {
+    width: 75px;
+    height: 32px;
 }
 .accept .btn-icon,
 .reject .btn-icon {
     display: none;
-}
-.accpet:hover {
-    background-color: #682892;
 }
 .accept:focus, 
 .reject:focus {
@@ -333,9 +304,6 @@ td .btns,
     .accept .btn-icon,
     .reject .btn-icon {
         display: block;
-        color: #2f8113;
-    }
-    .reject span {
-        color: #e00f0f;
+        color: white;
     }
 }

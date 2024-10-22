@@ -674,14 +674,19 @@ body {
 }
 
 td #viewClassDetails {
-    height: auto;
     width: 100px;
+    height: 32px;
     margin: 0;
     bottom: 0px;
     position: relative;
-    font-size: small;
+    font-size: 14px;
+    font-weight: normal;
     padding: 5px;
     text-align: center;
+}
+
+#studentScoresTitle {
+    font-weight: bold;
 }
 
 #administer,
