@@ -24,19 +24,23 @@
                                     <div class="meatball-menu">
                                         <div class="arrow-up"></div>
                                         <a href="#" class="edit_class" 
+                                            data-course-id= <?php echo $course_id ?>
                                             data-class-id="<?php echo $row['class_id'] ?>" 
                                             data-class-name="<?php echo $row['class_name']?>" 
                                             data-subject="<?php echo $row['subject']?>">
                                             <span class="material-symbols-outlined">Edit</span>
                                             Edit</a>
                                         <a href="#" class="delete_class" 
+                                            data-course-id= <?php echo $course_id ?>
                                             data-class-id="<?php echo $row['class_id'] ?>" 
                                             data-class-name="<?php echo $row['class_name'] ?>" 
                                             data-subject="<?php echo $row['subject']?>">
                                             <span class="material-symbols-outlined">delete</span>
                                             Delete</a>
                                         <a href="#" class="get_code" 
-                                            data-class-id="<?php echo $row['class_id'] ?>">
+                                            data-class-id="<?php echo $row['class_id'] ?>"
+                                            data-class-name="<?php echo $row['class_name'] ?>" 
+                                            data-subject="<?php echo $row['subject']?>">
                                             <span class="material-symbols-outlined">key</span>
                                             Get Code</a>
                                     </div>
@@ -51,7 +55,7 @@
         <?php 
                     }
                 } else {
-                    echo '<div class="alert alert-info">No classes found for this course.</div>';
+                    echo '<div class="alert alert-info" style="grid-column: 1/-1; text-align: center;">No classes found for this course.</div>';
                 }
 
                 // Close the connection
@@ -82,7 +86,7 @@
             </div>
         </div>
 
-        <script>
+<!--         <script>
             // Handle "Get Code" clicks
             document.querySelectorAll('.get_code').forEach(function(link) {
                 link.addEventListener('click', function(event) {
@@ -114,6 +118,6 @@
                     });
                 });
             });
-        </script>
+        </script> -->
     </body>
 </html>

@@ -124,7 +124,7 @@ if (!isset($_SESSION['login_user_type'])) {
             fetchPendingRequests();
 
             // Refresh every 5 seconds
-            setInterval(fetchPendingRequests, 3000);
+            setInterval(fetchPendingRequests, 10000);
         </script>
     </body>
 </html>

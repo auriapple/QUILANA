@@ -63,7 +63,7 @@
 .meatball-menu a {
     color: white;
     padding: 8px 12px;
-    text-decoration: none;
+    text-decoration: unset;
     display: flex;
     gap: 10px;
     white-space: nowrap;
@@ -74,6 +74,8 @@
     background-color: #6e72c1;
     border-left: 2px solid white;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-decoration: unset;
+    color: white;
 }
 
 /* Show the menu when the button is clicked */

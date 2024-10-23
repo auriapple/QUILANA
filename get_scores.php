@@ -18,12 +18,12 @@ if ($assessment_id <= 0 || $class_id <= 0) {
 // Prepare the SQL query
 $scores_query = "
     SELECT s.student_id, s.firstname, s.lastname, 
-           sr.score, sr.total_score, sr.remarks
+           sr.score, sr.total_score, sr.remarks, sr.rank, se.status
     FROM student_enrollment se
     JOIN student s ON se.student_id = s.student_id
     LEFT JOIN student_results sr ON s.student_id = sr.student_id 
         AND sr.assessment_id = ?
-    WHERE se.class_id = ?
+    WHERE se.class_id = ? AND se.status = 1
     ORDER BY s.lastname ASC, s.firstname ASC";
 
 $stmt = $conn->prepare($scores_query);
@@ -47,7 +47,8 @@ while ($row = $scores_result->fetch_assoc()) {
         'firstname' => $row['firstname'],
         'score' => isset($row['score']) ? $row['score'] : null,
         'total_score' => isset($row['total_score']) ? $row['total_score'] : null,
-        'remarks' => isset($row['remarks']) ? $row['remarks'] : 'Not taken'
+        'remarks' => isset($row['remarks']) ? $row['remarks'] : 'Not Taken',
+        'rank' => isset($row['rank']) ? $row['rank'] : 'Not Taken'
     ];
 }
 

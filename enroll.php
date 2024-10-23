@@ -6,6 +6,7 @@
     <?php include('db_connect.php') ?>
     <title>Classes | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="assets/css/classes.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -15,9 +16,9 @@
         <!-- Header Container -->
         <div class="join-class-container">
             <button class="secondary-button" id="joinClass">Join Class</button>
-            <form class="search-bar" action="#" method="GET">
-                <input type="text" name="query" placeholder="Search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
+            <form class="search-bar">
+                <input id="search-input" type="text" name="query" placeholder="Search" required>
+                <button><i class="fa fa-search"></i></button>
             </form>
         </div>
 
@@ -29,6 +30,7 @@
             </ul>
         </div>
 
+        <!-- Scrollable Content -->
         <div class="scrollable-content">
             <!-- Classes Tab -->
             <div id="classes-tab" class="tab-content active">
@@ -48,7 +50,7 @@
                     ?>        
                         
                         <!-- Display class details -->
-                        <div class="class-card">
+                        <div class="class-card" id="class_<?php echo $row['class_id']; ?>">
                             <div class="meatball-menu-container">
                             <button class="meatball-menu-btn">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -73,7 +75,7 @@
                         </div>
                         <?php }
                     } else {
-                        echo '<p class="no-assessments">You are not enrolled in any classes</p>';
+                        echo '<div class="no-records">You are not enrolled in any classes</div>';
                     }
                     ?>           
             </div>
@@ -93,14 +95,14 @@
         </div>
     </div>
 
-    <!-- Modal for entering class code to join a class-->
-    <div id="join-class-popup" class="popup-overlay">
+    <!-- Modal for entering class code to join a class -->
+    <div id="join-class-popup" class="popup-overlay"> 
         <div id="join-modal-content" class="popup-content">
-            <span id="modal-close" class="popup-close">&times;</span>
+            <button class="popup-close">&times;</button>
             <h2 id="join-class-title" class="popup-title">Join Class</h2>
 
             <!-- Form to submit the class code -->
-            <form id='code-frm' action="" method="POST">
+            <form id='code-form' action="" method="POST">
                 <div class="modal-body">
                     <div class="class-code">
                         <input type="text" name="get_code" required="required" class="code" placeholder="Class Code" />
@@ -113,48 +115,29 @@
         </div>
     </div>
 
-    <!-- Modal for Unenrolling -->
-    <div class="modal fade" id="unenroll_modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Unenroll from Class</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger" id="confirm_unenroll_btn" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
-                </div>
+    <!-- Modal for unenrolling -->
+    <div id="unenroll-popup" class="popup-overlay">
+        <div id="unenroll-modal-content" class="popup-content">
+            <button class="popup-close">&times;</button>
+            <h2 id="unenroll-title" class="popup-title">Unenroll from Class</h2>
+            <p id="unenroll-message" class="popup-message">Are you sure you want to unenroll from <strong id="unenroll_class_name" style="font-weight: bold;"></strong>?</p>
+            <div class="popup-buttons">
+                <button id="cancel" type="submit" class="secondary-button">Cancel</button>
+                <button id="confirm" type="submit" class="secondary-button" data-student-id="<?php echo $_SESSION['login_id'] ?>">Unenroll</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal for success/error message -->
-    <div id="message-popup" class="popup-overlay" style="display: none;">
-        <div id="message-modal-content" class="popup-content">
-            <span id="message-modal-close" class="popup-close">&times;</span>
-            <h2 id="message-popup-title" class="popup-title">Message</h2>
-            <div id="message-body" class="modal-body">
-                <!-- Message will be dynamically inserted here -->
-            </div>
-        </div>
-    </div>
-
-    <script>
+    <script>  
         $(document).ready(function() {
             // Button Visibility
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
         
                 if (activeTab === 'assessments-tab') {
-                    $('#join_class').hide();
+                    $('#joinClass').hide();
                 } else {
-                    $('#join_class').show();
+                    $('#joinClass').show();
                 }
             }
 
@@ -169,7 +152,7 @@
                 // If the "Classes" tab is clicked, hide the assessment tab
                 if (tab_id === 'classes-tab') {
                     $('#class-name-tab').hide();
-                    $('#assessments-tab').removeClass('active').empty(); // Optionally empty the content
+                    $('#assessments-tab').removeClass('active').empty();
                 }
                 updateButtons();
             });
@@ -177,70 +160,84 @@
             // Initialize button visibility
             updateButtons();
 
+            // Handles Popups
+            function showPopup(popupId) {
+                $('#' + popupId).css('display', 'flex');
+            }
+            function closePopup(popupId) {
+                $('#' + popupId).css('display', 'none');
+            }
+
+            // Join class button functionality
             $('#joinClass').click(function() {
                 $('#msg').html('');
-                $('#join-class-popup #code-frm').get(0).reset();
-                $('#join-class-popup').show();
-            });
-
-            // Close the popup
-            $('#modal-close').click(function() {
-                $('#join-class-popup').hide(); 
-            });
-
-            // Close the message popup
-            $('#message-modal-close').click(function() {
-                $('#message-popup').hide();
+                $('#join-class-popup #code-form').get(0).reset();
+                showPopup('join-class-popup');
             });
 
             // Handles code submission
-            $('#code-frm').submit(function(event) {
-            event.preventDefault();
-            console.log("Form submitted");
+            $('#code-form').submit(function(event) {
+                event.preventDefault();
+                console.log("Form submitted");
 
-            $.ajax({
-                type: 'POST',
-                url: 'join_class.php',
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                    console.log("AJAX call successful", response);
-                    
-                    // Close the join class popup
-                    $('#join-class-popup').hide(); 
+                $.ajax({
+                    type: 'POST',
+                    url: 'join_class.php',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log("AJAX call successful", response);
+                        
+                        // Close the join class popup
+                        closePopup('join-class-popup');
 
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload(); 
-                            }
-                        });
-                    } else {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            });
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log("AJAX request failed", jqXHR.responseText, textStatus, errorThrown);
+                        
                         Swal.fire({
                             title: 'Error!',
-                            text: response.message,
+                            text: 'An error occurred while joining the class. Please try again.',
                             icon: 'error',
-                            confirmButtonText: 'OK'
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
                         });
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.log("AJAX request failed", jqXHR.responseText, textStatus, errorThrown);
-                    
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'An error occurred while joining the class. Please try again.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
+                });
             });
-        });
 
 
             // View Class Details
@@ -304,16 +301,18 @@
                 var classId = $(this).data('id');
                 var className = $(this).data('name');
 
-                $('#confirm_unenroll_btn').data('class-id', classId); // Set class ID on confirm button
+                $('#confirm').data('class-id', classId); // Set class ID on confirm button
                 $('#unenroll_class_name').text(className);
-                $('#unenroll_modal').modal('show'); // Show confirmation modal
+                showPopup('unenroll-popup');
             });
 
             // Confirm delete action
-            $('#confirm_unenroll_btn').click(function() {
+            $('#confirm').click(function() {
                 var classId = $(this).data('class-id');
                 var studentId = $(this).data('student-id');
                 var status = '2';
+
+                closePopup('unenroll-popup');
 
                 $.ajax({
                     url: 'status_update.php',
@@ -325,13 +324,44 @@
                     },
                     success: function(response) {
                         if (response == "success") {
-                            alert('You have successfully unenrolled from the class');
-                            location.reload(); // Reload the page to reflect changes
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'You have successfully unenrolled from the class',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         } else {
-                            alert('Error: Unable to unenroll from the class.');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Unable to enroll from the class. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            });
                         }
                     }, 
                 });
+            });
+            // Close the join class popup when close button is clicked
+            $('.popup-close').on('click', function() {
+                closePopup('join-class-popup');
+            });
+            // Close the unenroll popup when the close button or cancel button is clicked
+            $(document).on('click', '.popup-close, #cancel', function() {
+                closePopup('unenroll-popup');
             });
         });
     </script>

@@ -104,7 +104,9 @@
             table-layout: fixed;
             overflow: hidden;
             border-radius: 20px;
-            justify-self: center;
+            border-collapse: separate;
+            border: 2px solid rgba(59, 39, 110, 0.80);
+            border-spacing: 0;
         }
         
         .table-wrapper thead, 
@@ -113,6 +115,11 @@
             text-align: center;
             background-color: #f2f2f2;
             border-radius: 20px;
+        }
+
+        .table-wrapper thead th {
+            background-color: #E0E0EC;
+            font-size: 16px;
         }
 
         .table-wrapper tr {
@@ -137,16 +144,22 @@
 
         .table-wrapper th, 
         .table-wrapper td {
-            width: calc(100% / 4);
+            width: calc(100% / 5);
             text-align: center;
-            border-bottom: 1px solid #a494bc;
-            border-right: 2px solid #a494bc;
+            border-bottom: 1px solid rgba(59, 39, 110, 0.80);
+            border-right: 1px solid rgba(59, 39, 110, 0.80);
             justify-content: center;
+            padding: 12px;
+            color:#4a4a4a;
         }
 
         .table-wrapper td:last-child,
         .table-wrapper th:last-child {
             border-right: none;
+        }
+
+        .table-wrapper tr:last-child {
+            border-bottom: none;
         }
 
         .table-wrapper .joined,
@@ -201,13 +214,14 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 25px 25px 15px 15px;
+            padding: 25px;
             border: 1px solid #eee;
             background-color: #fff;
             box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
             font-size: 14px;
             color: #777;
             text-align: justify;
+
         }
 
         .notification-card span.notif-close {
@@ -226,10 +240,9 @@
 
         .notification-card span.notif-close:hover {
             position: absolute;
-            top: 5px;
+            top: 7px;
             right: 7px;
             cursor: pointer;
-            font-size: 16px;
             color: #888;
             background-color: #eee;
         }
@@ -244,17 +257,17 @@
             color: #999;
         }
 
-        @media screen and (max-width: 850px) {
+        @media screen and (max-width: 1020px) {
             .main-container .table-wrapper {
                 margin: 10px 0;
             }
 
             .scrollable-content::-webkit-scrollbar {
-                display: none;
+                display: none !important;
             }
         }
 
-        @media screen and (max-width: 750px) {
+        @media screen and (max-width: 920px) {
             .studentNumber-column {
                 transition: ease-out 300ms;
                 display: none;
@@ -262,7 +275,7 @@
 
             .table-wrapper th, 
             .table-wrapper td {
-                width: calc(100% / 3);
+                width: calc(100% / 4);
                 min-width: 93px;
             }
 
@@ -273,7 +286,7 @@
             }
         }
 
-        @media screen and (max-width: 550px) {
+        @media screen and (max-width: 720px) {
             .main-container .table-wrapper {
                 margin: 0;
             }
@@ -361,9 +374,7 @@
                                         <a> : </a>
                                         <a id="secondDisplay"> 00 </a>
                                     </h4>
-                                <?php } else { ?>
-                                    <h4 class='time'>Time Limit: no time limit set</h4>
-                                <?php } 
+                                <?php }
                             ?>
                             <button id="startAssessment" class='main-button button'
                                 style="width: 180px;"
@@ -371,11 +382,12 @@
                                 data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
                                 onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
                                 Start</button>
-                            <button id="stopAssessment" class='main-button button'
+                            <!--button id="stopAssessment" class='main-button button'
                                 data-status = 2
                                 onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Stop</button>
+                                Stop</button-->
                         </div>
+                        <input type="hidden" id="administerId-container" value="<?php echo $administer['administer_id']; ?>" />
                     </div>
 
                     <div class='table-wrapper'>
@@ -387,6 +399,7 @@
                                     <th>Student Name</th>
                                     <th>Number of Suspicious Activities</th>
                                     <th class="status-column">Status</th>
+                                    <th>Score</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -454,8 +467,15 @@
                             row.innerHTML += '<td class="status-column"> <div class="finished">Finished</div> </td>';
                         } else {
                             // Append an empty cell if the status is not 0
-                            row.innerHTML += '<td class="status-column"> No Status</td>';
+                            row.innerHTML += '<td class="status-column">No Status</td>';
                         }
+
+                        if (item.score !== null && item.score !== undefined) {
+                            row.innerHTML += `<td>${item.score}/${item.total_score}</td>`;
+                        } else {
+                            row.innerHTML += '<td>N/A</td>';
+                        }
+                            
 
                         tbody.appendChild(row);
                         // Update row count
@@ -463,12 +483,12 @@
                     });
                 } else if (data.error) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="3" style="text-align: center;">${data.error}</td>`;
+                    row.innerHTML = `<td colspan="5" style="text-align: center;">${data.error}</td>`;
                     tbody.appendChild(row);
                     document.getElementById('rowCount').innerText = `Number of Students: 0`;
                 } else {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="3" style="text-align: center;">No Students have joined</td>`;
+                    row.innerHTML = `<td colspan="5" style="text-align: center;">No Students have joined</td>`;
                     tbody.appendChild(row);
                     document.getElementById('rowCount').innerText = `Number of Students: 0`;
                 }
@@ -494,18 +514,16 @@
             });
         }
 
-        setInterval(updateNotifs, 3000);
-
-        updateNotifs();
+        let updateNotifsInterval = setInterval(updateNotifs, 3000);
 
         // Function to add click listeners to all close buttons
         function addCloseListeners() {
             document.querySelectorAll('.notif-close').forEach(closeButton => {
                 closeButton.addEventListener('click', function() {
                     // Get the notification card and retrieve the necessary data
-                    const notificationCard = this.parentElement;
-                    const administerId = notificationCard.getAttribute('data-administer-id');
-                    const studentId = notificationCard.getAttribute('data-student-id');
+                    var notificationCard = this.parentElement;
+                    var administerId = notificationCard.getAttribute('data-administer-id');
+                    var studentId = notificationCard.getAttribute('data-student-id');
 
                     // Hide the notification card visually
                     notificationCard.style.display = 'none';
@@ -563,11 +581,12 @@
             });
         }
 
-        $('#stopAssessment').hide();
+        let interval;  // For the interval for the timer
+        let ifStopAssessmentInterval; // For the interval for if to stop the assessment
 
         document.getElementById('startAssessment').addEventListener('click', function() {
             $('#startAssessment').hide();
-            $('#stopAssessment').show();
+            //$('#stopAssessment').show();
             const timeLimit = parseInt(this.getAttribute('data-time'));
             
             if (isNaN(timeLimit) || timeLimit <= 0) {
@@ -609,10 +628,51 @@
             }, 1000);
         });
 
-        document.getElementById('stopAssessment').addEventListener('click', function() {
-            clearInterval(interval);
-            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
-        });
+        function ifStopAssessment() {
+            var administerId = document.getElementById('administerId-container').value;
+            console.log(administerId);
+
+            fetch('if_done.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ administer_id: administerId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetch('update_status.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ administer_id: administerId})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Assessment stopped successfully!');
+                            clearInterval(interval);
+                            clearInterval(ifStopAssessmentInterval);
+                            clearInterval(updateNotifs);
+                            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
+                        } else if (!data.success) {
+                            alert('Failed to stop assessment: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        ifStopAssessmentInterval = setInterval(ifStopAssessment, 3000);
+
     </script>
 </body>
 </html>

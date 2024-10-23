@@ -12,119 +12,125 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<di>
+<div>
     <?php include('nav_bar.php'); ?>
 
     <div class="content-wrapper"> 
 
     
-            <!-- Header Container -->
-            <div class="add-assessment-container">
-                <button class="secondary-button" id="addAssessment">Add Assessment</button>
-                <form class="search-bar" action="#" method="GET">
-                    <input type="text" name="query" placeholder="Search" required>
-                    <button type="submit"><i class="fa fa-search"></i></button>
-                </form>
-            </div>
+        <!-- Header Container -->
+        <div class="add-assessment-container">
+            <button class="secondary-button" id="addAssessment">Add Assessment</button>
+            <form class="search-bar" action="#" method="GET">
+                <input type="text" name="query" placeholder="Search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
 
-            <div class="tabs-container">
-                <ul class="tabs">
-                    <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
-                    <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
-                    <li class="tab-link" id="administer-tab-link" style="display: none; white-space: nowrap" data-status="0" data-tab="administer-tab">Administer</li>
-                </ul>
-            </div>
+        <div class="tabs-container">
+            <ul class="tabs">
+                <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
+                <li class="tab-link" id="details-tab-link" style="display: none;" data-tab="details-tab">Assessment Details</li>
+                <li class="tab-link" id="administer-tab-link" style="display: none; white-space: nowrap" data-status="0" data-tab="administer-tab">Administer</li>
+            </ul>
+        </div>
 
-        <div class="scrollable-content"> 
-               
-                <div id="assessment-tab" class="tab-content active">
-                    <?php
-                    $qry = $conn->query("
-                        SELECT a.*, c.course_name
-                        FROM assessment a 
-                        JOIN course c ON a.course_id = c.course_id 
-                        WHERE a.faculty_id = '".$_SESSION['login_id']."'
-                        ORDER BY c.course_name, a.subject, a.assessment_name ASC
-                    ");
+        <div class="scrollable-content">  
+            <div id="assessment-tab" class="tab-content active">
+                <?php
+                $qry = $conn->query("
+                    SELECT a.*, c.course_name
+                    FROM assessment a 
+                    JOIN course c ON a.course_id = c.course_id 
+                    WHERE a.faculty_id = '".$_SESSION['login_id']."'
+                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
+                ");
+                
+                $current_course = '';
+                $current_subject = '';
+
+                while ($row = $qry->fetch_assoc()) {
+                    $course_name = htmlspecialchars($row['course_name']);
+                    $subject_name = htmlspecialchars($row['subject']);
+                    $assessment_name = htmlspecialchars($row['assessment_name']);
+                    $topic = htmlspecialchars($row['topic']);
+                    $assessment_id = $row['assessment_id'];
                     
-                    $current_course = '';
-                    $current_subject = '';
-
-                    while ($row = $qry->fetch_assoc()) {
-                        $course_name = htmlspecialchars($row['course_name']);
-                        $subject_name = htmlspecialchars($row['subject']);
-                        $assessment_name = htmlspecialchars($row['assessment_name']);
-                        $topic = htmlspecialchars($row['topic']);
-                        $assessment_id = $row['assessment_id'];
-                    
-                        if ($course_name !== $current_course) {
-                            if ($current_course !== '') { ?>
-                            </div> <?php 
-                            } ?>
-                                <div class="course-section">
-                                    <h2><?php echo $course_name; ?></h2>
-                                <?php 
-                                    $current_course = $course_name;
-                                    $current_subject = '';
-                                }
-
-                            if ($subject_name !== $current_subject) {
-                                if ($current_subject !== '') { ?></div><?php } ?>
-                                <div class="subject-separator">
-                                    <span class="subject-name"><?php echo $subject_name; ?></span>
-                                    <hr class="separator-line">
-                                </div>
-                                <div class="assessment-container">
+                    if ($course_name !== $current_course) {
+                        if ($current_course !== '') { ?>
+                            </div> 
+                        <?php } ?>
+                        <div class="course-section">
+                            <h2><?php echo $course_name; ?></h2>
                             <?php 
-                                $current_subject = $subject_name;
-                            } ?>
-                                    <div class="assessment-card">
-                                        <div class="assessment-card-body">
-                                            <div class="meatball-menu-container">
-                                                <button class="meatball-menu-btn">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <div class="meatball-menu">
-                                                    <div class="arrow-up"></div>
-                                                    <a href="#" class="edit_assessment" 
-                                                        data-id="<?php echo $assessment_id ?>">
-                                                        <span class="material-symbols-outlined">Edit</span>
-                                                        Edit</a>
-                                                    <a href="#" class="delete_assessment" 
-                                                        data-id="<?php echo $assessment_id ?>">
-                                                        <span class="material-symbols-outlined">delete</span>
-                                                        Delete</a>
-                                                </div>
-                                            </div>
-                                            <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
-                                            <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
-                                            <div class="assessment-actions">
-                                                <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>"> Manage</a>
-                                                <button id="administer" class="main-button" 
-                                                    data-course-id="<?php echo $row['course_id']; ?>" 
-                                                    data-course-name="<?php echo $row['course_name']; ?>" 
-                                                    data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
-                                                    data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
-                                                    data-id="<?php echo $row['assessment_id']; ?>"
-                                                    data-assessment-name="<?php echo htmlspecialchars($row['assessment_name']); ?>">Administer</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                    <?php } ?>
-                                </div> <!-- Close the last subject card container -->
-                            </di> <!-- Close the last course section -->
-                    </div>
-                </div>
+                            $current_course = $course_name;
+                            $current_subject = '';
+                        }
 
-                <div id="details-tab" class="tab-content">
-                    <h1></h1>
-                </div>
-
-                <div id="administer-tab" class="tab-content"> 
-                    <div id="administer-container">
+                        if ($subject_name !== $current_subject) {
+                            if ($current_subject !== '') { ?>
+                                </div>
+                            <?php } ?>
+                            <div class="content-separator">
+                                <span class="content-name"><?php echo $subject_name; ?></span>
+                                <hr class="separator-line">
+                            </div>
+                            <div class="assessment-container">
+                            <?php 
+                            $current_subject = $subject_name;
+                        } ?>
                         
-                    </div>
+                        <div class="assessment-card">
+                            <div class="assessment-card-body">
+                                <div class="meatball-menu-container">
+                                    <button class="meatball-menu-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="meatball-menu">
+                                        <div class="arrow-up"></div>
+                                        <a href="#" class="edit_assessment" data-id="<?php echo $assessment_id ?>">
+                                            <span class="material-symbols-outlined">Edit</span>
+                                            Edit
+                                        </a>
+                                        <a href="#" class="delete_assessment" data-id="<?php echo $assessment_id ?>">
+                                            <span class="material-symbols-outlined">delete</span>
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="assessment-card-title"><?php echo $assessment_name; ?></div>
+                                <div class="assessment-card-topic">Topic: <?php echo $topic; ?></div>
+                                <div class="assessment-actions">
+                                    <a id="manage" class="tertiary-button" href="manage_assessment.php?assessment_id=<?php echo $assessment_id ?>">Manage</a>
+                                    <button id="administer" class="main-button" 
+                                        data-course-id="<?php echo $row['course_id']; ?>" 
+                                        data-course-name="<?php echo $row['course_name']; ?>" 
+                                        data-subject="<?php echo htmlspecialchars($row['subject']); ?>" 
+                                        data-mode="<?php echo htmlspecialchars($row['assessment_mode']); ?>" 
+                                        data-id="<?php echo $row['assessment_id']; ?>"
+                                        data-assessment-name="<?php echo htmlspecialchars($row['assessment_name']); ?>">
+                                        Administer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                <?php } ?>
+                        </div> <!-- Close the last subject card container -->
+                    </div> <!-- Close the last course section -->
                 </div>
+            </div>
+                    </div>
+
+            <div id="details-tab" class="tab-content">
+                <h1></h1>
+            </div>
+
+            <div id="administer-tab" class="tab-content"> 
+                <div id="administer-container">
+                </div>
+            </div>
+        </div>
+
 
             <!-- Modal for managing assessments -->
             <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
@@ -155,7 +161,7 @@
                                     </select>
                                     <label>Select Course</label>
                                     <select name="course_id" id="course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
+                                        <option value="" disabled selected>Select Course</option>
                                         <?php
                                         $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                         while($course_row = $course_qry->fetch_assoc()) {
@@ -165,7 +171,7 @@
                                     </select>
                                     <label>Select Course Subject</label>
                                     <select name="subject" id="subject" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
+                                        <option value="" disabled selected>Select Subject</option>
                                     </select>
                                     <label>Topic</label>
                                     <input type="text" name="topic" required="required" class="form-control" />
@@ -213,7 +219,7 @@
                                 <div class="form-group">
                                     <label for="administer_class_id">Select Class</label>
                                     <select name="class_id" id="administer_class_id" required class="form-control">
-                                        <option value="">Select Class</option>
+                                        <option value="" disabled selected>Select Class</option>
                                     </select>
                                 </div>
                                 <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
@@ -259,7 +265,7 @@
                                     </select>
                                     <label>Select Course</label>
                                     <select name="course_id" id="edit_course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
+                                        <option value="" disabled selected>Select Course</option>
                                         <?php
                                         $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                         while($course_row = $course_qry->fetch_assoc()) {
@@ -269,7 +275,7 @@
                                     </select>
                                     <label>Select Course Subject</label>
                                     <select name="subject" id="edit_subject" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
+                                        <option value="" disabled selected>Select Subject</option>
                                     </select>
                                     <label>Topic</label>
                                     <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />

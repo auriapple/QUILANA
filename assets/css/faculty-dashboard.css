@@ -40,11 +40,11 @@ body {
     justify-content: space-between;
     flex-direction: column;
     border-radius: 20px;
-    border: 1px solid #d1d1d1;
+    border: 1px solid #EEEEEE;
     box-sizing: border-box;
     margin: 10px;
     padding: 25px;
-    box-shadow: 0px 4px 20px 0px rgba(238, 238, 238, 0.50);
+    box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.15);
 }
 .dashboard-requests h1,
 .dashboard-summary h1,
@@ -91,8 +91,8 @@ body {
 .card .card-data {
     display: flex;
     flex-direction: column;
-    gap: -10px;
     overflow: hidden;
+    width: 100%;
 }
 .cards .icons {
     width: 40px;
@@ -181,91 +181,42 @@ td .btns,
     gap: 10px;
 }
 /* Accept and Reject Button */
-.btns .accept,
-.btns .reject {
-    width: 90px;
-    height: 40px;
-    border-radius: 5px;
-    border: none;
-    background-color: #87ffb0;
-    padding: 5px;
-    height: 30px;
-    font-size: 16px;
-    font-weight: 500;
-    text-align: center;
-    transition: ease-in 200ms;
-    overflow: hidden;
-    cursor: pointer;
-}
-.btns .reject {
-    background-color: #ff8585;
-}
-.accept .label,
-.reject .label{
-    position: relative;
-    top: -3px;
-    color: #2f8113;
-}
-.reject .label {
-    color: #e00f0f;
+.equal-size {
+    width: 75px;
+    height: 32px;
 }
 .accept .btn-icon,
 .reject .btn-icon {
     display: none;
-}
-.accpet :hover {
-    background-color: #682892;
 }
 .accept:focus, 
 .reject:focus {
     outline: none;
 }
 
+
 /* RECENT ASSESSMENTS */
 .recent-scrollable {
     overflow-y: scroll;
+    flex-grow: 1;
+    height: 100%;
 }
-/* Recent assessments separator (date and line) */
-.assessment-separator {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    text-align: left;
-    position: relative;
-}
-.date {
-    flex: 0 0 auto;
-    margin-right: 20px;
-    color: #CDCDCD;
-}
-.separator-line {
-    flex: 1;
-    border: none;
-    border-top: 1px solid #CDCDCD;;
-    margin: 0;
-}
+
 /* Recent Card */
-#recents {
-    margin-bottom: 15px;
-    border-radius: 16px;
-}
-#recent-card {
-    padding: 10px;
-}
-/* Recent Data */
-#recent-data {
-    display:flex;
-    align-items: center;
-    width: 100%;
+#recents #recent-card {
     flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    height: 90px;
 }
-.recent-icon .icons{
-    justify-content: center;
-    margin: 0 20px;
-    flex-shrink: 0;
-}
-.recent-details {
-    margin: 10px 0 0 10px;
+
+#recent-card .icons,
+#recent-card h3,
+#recent-card label {
+    margin: 0;
 }
 
 /* DASHBOARD CALENDAR */
@@ -308,6 +259,9 @@ td .btns,
         white-space: wrap;
         max-height: none;
     }
+    #recents #recent-card {
+        height: 80px;
+    }
 }
 @media screen and (max-width: 550px) {
     .dashboard-summary .cards {
@@ -329,6 +283,12 @@ td .btns,
     .cards h3 {
         margin-bottom: 0;
     }
+    #recent-details h3 {
+        font-size: 18px;
+    }
+    #recent-details label {
+        font-size: 12px;
+    }
     .btns .accept,
     .btns .reject {
         display: flex;
@@ -344,9 +304,6 @@ td .btns,
     .accept .btn-icon,
     .reject .btn-icon {
         display: block;
-        color: #2f8113;
-    }
-    .reject span {
-        color: #e00f0f;
+        color: white;
     }
 }

@@ -1,5 +1,94 @@
-/* INCOMPLETE STYLES */
-/* Style for the questions container */
+/*** BASE POPUP STYLES ***/
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    width: 500px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+}
+#confirm,
+#cancel,
+#result,
+#result-2,
+#submit-answers,
+#error {
+    font-size: 14px;
+    outline: none;
+}
+
+
+/*** TAB SWITCHING WARNING POPUP ***/
+.secondary-button {
+    padding: 10px 30px;
+    outline: none;
+    border: none;
+}
+.swal2-title,
+.popup-content .swal2-html-container,
+.swal2-actions {
+    margin: 5px 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+}
+.swal2-icon {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+
+/*** NORMAL MODE STYLES ***/
+/* Question Styles */
+.question {
+    margin-bottom: 15px;
+    color: #1E1A43;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.question p {
+    margin: 0px;
+}
+
+/* Options and Answer Boxes Styles */
+.form-check {
+    padding-left: 35px !important;
+    color: #8F8F9D;
+}
+.form-check:hover {
+    color:#4a4a4a;
+}
+.form-check input{
+    accent-color: #4A4CA6;
+}
+.form-check-group {
+    padding-left: 15px !important;
+    color: rgba(143, 143, 157, 0.75);
+    color: #8F8F9D;
+}
+.form-check-group input {
+    color: rgba(143, 143, 157, 0.75);
+    border-color: #8F8F9D;
+}
+.form-check-group input:hover {
+    border-color:#4A4CA6;
+}
+.form-check-group input:focus {
+    color: rgba(143, 143, 157, 0.75);
+    border-color: #4A4CA6;
+    box-shadow: 0 0 5px rgba(74, 76, 166, 0.5);
+    outline: none;
+}
+.form-check input:checked + label,
+.form-check input:focus + label,
+.form-check-group input:valid {
+    color: #787878;
+}
+
+/*** QUIZ BEE MODE AND SPEED MODE STYLES ***/
+/* Quiz Bee Mode and Speed Mode Questions Container */
 #quiz-modes-container {
     display: flex;
     flex-direction: column;
@@ -8,18 +97,17 @@
     overflow: hidden;
     position: relative;
 }
-
+/* QUESTIONS */
 /* Style for each question */
-.question {
+#quiz-modes-container .question {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     text-align: center;
 }
-
 /* Style for the question number */
-.question-number {
+#quiz-modes-container .question-number {
     position: absolute;
     top: 25px;
     left: 25px;
@@ -27,39 +115,23 @@
     font-weight: bold;
     color: #4A4CA6;
 }
-
 /* Style for the question text */
-.question-text {
+#quiz-modes-container .question-text {
     margin-top: 0px;
-    font-size: 48px;
+    font-size: 45px;
+    margin: 0 15px;
 }
 
-/* Style for the option buttons container */
-.option-buttons {
+/* Options and Answer Boxes Styles */
+#quiz-modes-container .option-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
     width: 100%;
     margin-top: 20px;
-    align-items: center;
-    justify-content: center;
-    position: relative;
     font-size: 25px;
 }
-
-/*.option-buttons-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two columns for the buttons 
-    gap: 25px;
-    width: 100%;
-    margin-top: 20px;
-    align-items: center;
-    justify-content: center;
-    font-size: 25px;
-}*/
-
-/* Style for individual option buttons */
-.option-buttons button {
+#quiz-modes-container .form-check {
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -68,27 +140,36 @@
     cursor: pointer;
     transition: background-color 0.3s;
     width: 100%;
-    height: 100px;
 }
-
-.option-buttons button:hover {
+#quiz-modes-container .form-check input:hover + label:hover {
     background-color: #A9B7FD;
     color: #FFFFFF;
 }
-
-.option-buttons button:focus {
+#quiz-modes-container .form-check input {
+    display: none;
+}
+#quiz-modes-container .form-check label {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #DDE3FF;
+    color: #1E1A43;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#quiz-modes-container .form-check input:checked + label,
+#quiz-modes-container .form-check input:checked:hover + label {
     background-color: #7B92FF;
     color: #FFFFFF;
     outline: none;
 }
 
-/* Style for the selected button */
-.option-buttons button.selected {
-    background-color: #7B92FF;
-    color: #FFFFFF;
-    outline: none;
-}
-
+/* INPUT */
 #quiz-modes-input {
     margin-top: 20px;
     font-size: 25px;
@@ -99,28 +180,85 @@
     color: #8F8F9D;
     border-radius: 5px;
 }
-
 #quiz-modes-input::placeholder {
     color: rgba(143, 143, 157, 0.75);
 }
-
 #quiz-modes-input:hover {
     background-color: #A9B7FD;
     color: #FFFFFF;
 }
-
 #quiz-modes-input:focus {
     border: 1px solid #7B92FF;
     color: #FFFFFF;
     box-shadow: 0 0 5px rgba(123, 146, 255, 0.5);
 }
-
 #quiz-modes-input:active {
     background-color: #A9B7FD;
     color: #FFFFFF;
     border: 1px solid #7B92FF;
 }
-        
-.form-check-group {
-    padding-left: 0;
+
+@media screen and (max-width: 1200px) {
+    #quiz-modes-container .question-text {
+        font-size: 38px;
+        margin: 10px;
+    }
+}
+
+@media screen and (max-width: 775px) {
+    #quiz-modes-container .question-text {
+        font-size: 30px;
+        margin: 5px;
+    }
+
+    #quiz-modes-input {
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    #quiz-modes-container .option-buttons {
+        gap: 15px;
+        font-size: 16px;
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    #quiz-modes-container .question-text {
+        font-size: 20px;
+        margin: 0;
+    }
+    #quiz-modes-input {
+        font-size: 18px;
+        padding: 10px;
+    }
+
+    #quiz-modes-container .option-buttons {
+        gap: 10px;
+        font-size: 14px;
+        grid-template-columns: 1fr;
+    }
+
+    #confirmation-popup .popup-content,
+    #success-popup .popup-content,
+    #timer-runout-popup .popup-content,
+    #error-popup .popup-content,
+    #final-confirmation-popup .popup-content {
+        margin: 20px;
+        padding: 20px;
+        height: 275px;
+    }
+
+    #confirmation-popup .popup-title,
+    #success-popup .popup-title,
+    #timer-runout-popup .popup-title,
+    #error-popup .popup-title,
+    #final-confirmation-popup .popup-title {
+        font-size: 28px
+    }
+
+    #confirmation-popup .popup-message,
+    #final-confirmation-popup .popup-message {
+        font-size: 16px
+    }
 }
