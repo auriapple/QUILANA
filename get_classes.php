@@ -85,39 +85,5 @@
                 </div>
             </div>
         </div>
-
-<!--         <script>
-            // Handle "Get Code" clicks
-            document.querySelectorAll('.get_code').forEach(function(link) {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-
-                    const classId = this.getAttribute('data-class-id');
-
-                    fetch('generated_code.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'class_id=' + encodeURIComponent(classId)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update the modal content
-                            document.getElementById('modal_class_name').textContent = data.class_name;
-                            document.getElementById('modal_subject').textContent = data.subject;
-                            document.getElementById('modal_code').textContent = data.code;
-                            // Show the modal
-                            $('#manage_get_code').modal('show');
-                        } else {
-                            alert('Error generating code: ' + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('A network error occurred.');
-                    });
-                });
-            });
-        </script> -->
     </body>
 </html>

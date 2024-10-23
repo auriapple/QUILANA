@@ -6,11 +6,13 @@
     <?php include('db_connect.php'); ?>
     <title>Assessments | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
+    <link rel="stylesheet" href="assets/css/classes.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <div>
     <?php include('nav_bar.php'); ?>
@@ -92,7 +94,10 @@
                                             <span class="material-symbols-outlined">Edit</span>
                                             Edit
                                         </a>
-                                        <a href="#" class="delete_assessment" data-id="<?php echo $assessment_id ?>">
+                                        <a href="#" class="delete_assessment" 
+                                            data-id="<?php echo $assessment_id ?>"
+                                            data-name="<?php echo $assessment_name ?>"
+                                            data-subject="<?php echo $subject_name ?>">
                                             <span class="material-symbols-outlined">delete</span>
                                             Delete
                                         </a>
@@ -133,179 +138,179 @@
 
 
             <!-- Modal for managing assessments -->
-            <div class="modal fade" id="manage_assessment" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="myModalLabel">Add New Assessment</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div id="add-assessment-popup" class="popup-overlay"> 
+                <div id="add-assessment-modal-content" class="popup-content" role="document">
+                    <button class="popup-close">&times;</button>
+                    <h2 id="add-assessment-title" class="popup-title">Add Assessment</h2>
+
+                    <form id="assessment-form">
+                        <div class="modal-body">
+                            <div id="msg"></div>
+                            <div class="form-group">
+                                <label>Assessment Name</label>
+                                <input type="hidden" name="assessment_id" />
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                <input type="text" name="assessment_name" required="required" class="popup-input" />
+                            </div>
+                            <div class="form-group">
+                                <label>Assessment Type</label>
+                                <select name="assessment_type" id="assessment_type" required="required" class="popup-input">
+                                    <option value="1">Quiz</option>
+                                    <option value="2">Exam</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Assessment Mode</label>
+                                <select name="assessment_mode" id="assessment_mode" required="required" class="popup-input">
+                                    <option value="1">Normal Mode</option>
+                                    <option value="2">Quiz Bee Mode</option>
+                                    <option value="3">Speed Mode</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Course</label>
+                                <select name="course_id" id="course_id" required="required" class="popup-input">
+                                    <option value="">Select Course</option>
+                                    <?php
+                                    $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
+                                    while($course_row = $course_qry->fetch_assoc()) {
+                                        echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Course Subject</label>
+                                <select name="subject" id="subject" required="required" class="popup-input">
+                                    <option value="">Select Subject</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Topic</label>
+                                <input type="text" name="topic" required="required" class="popup-input" />
+                            </div>
                         </div>
-                        <form id="assessment-frm">
-                            <div class="modal-body">
-                                <div id="msg"></div>
-                                <div class="form-group">
-                                    <label>Assessment Name</label>
-                                    <input type="hidden" name="assessment_id" />
-                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                    <input type="text" name="assessment_name" required="required" class="form-control" />
-                                    <label>Assessment Type</label>
-                                    <select name="assessment_type" id="assessment_type" required="required" class="form-control">
-                                        <option value="1">Quiz</option>
-                                        <option value="2">Exam</option>
-                                    </select>
-                                    <label>Assessment Mode</label>
-                                    <select name="assessment_mode" id="assessment_mode" required="required" class="form-control">
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                    <label>Select Course</label>
-                                    <select name="course_id" id="course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
-                                        <?php
-                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                        while($course_row = $course_qry->fetch_assoc()) {
-                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                    <label>Select Course Subject</label>
-                                    <select name="subject" id="subject" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
-                                    </select>
-                                    <label>Topic</label>
-                                    <input type="text" name="topic" required="required" class="form-control" />
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="modal-footer">
+                            <button class="secondary-button" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Modal for administering assessments -->
-            <div class="modal fade" id="administer_assessment_modal" tabindex="-1">
-                <div class="modal-dialog modal-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="administerAssessmentLabel">Administer Assessment</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form id="administer-assessment-frm">
+            <div id="administer-assessment-popup" class="popup-overlay"> 
+                <div id="administer-assessment-modal-content" class="popup-content" role="document">
+                    <button class="popup-close">&times;</button>
+                    <h2 id="administer-assessment-title" class="popup-title">Administer Assessments</h2>
+
+                    <form id="administer-assessment-form">
                         <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
                         <input type="hidden" name="course_id" id="course_id_hidden" />
-                            <div class="modal-body">
-                                <div id="msg1"></div>
-                                <div class="form-group">
-                                    <label for="administer_course">Course</label>
-                                    <input type="text" id="administer_course" class="form-control" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_subject">Subject</label>
-                                    <input type="text" id="administer_subject" class="form-control" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_mode">Mode</label>
-                                    <select id="administer_mode" class="form-control" disabled>
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_class_id">Select Class</label>
-                                    <select name="class_id" id="administer_class_id" required class="form-control">
-                                        <option value="">Select Class</option>
-                                    </select>
-                                </div>
-                                <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
-                                <input type="hidden" id="assessment_name_hidden" name="assessment_name_hidden" />
+                        <div class="modal-body">
+                            <div id="msg1"></div>
+                            <div class="form-group">
+                                <label for="administer_course">Course</label>
+                                <input type="text" id="administer_course" class="popup-input" readonly />
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button id="administer_btn" type="submit" class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
+                            <div class="form-group">
+                                <label for="administer_subject">Subject</label>
+                                <input type="text" id="administer_subject" class="popup-input" readonly />
                             </div>
-                        </form>
-                    </div>
+                            <div class="form-group">
+                                <label for="administer_mode">Mode</label>
+                                <select id="administer_mode" class="popup-input" disabled>
+                                    <option value="1">Normal Mode</option>
+                                    <option value="2">Quiz Bee Mode</option>
+                                    <option value="3">Speed Mode</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="administer_class_id">Select Class</label>
+                                <select name="class_id" id="administer_class_id" required class="popup-input">
+                                    <option value="">Select Class</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
+                            <input type="hidden" id="assessment_name_hidden" name="assessment_name_hidden" />
+                        </div>
+                        <div class="modal-footer">
+                            <button id="administer_btn" type="submit" class="secondary-button" name="save"><span class="glyphicon glyphicon-save"></span> Administer</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Edit Assessment Modal -->
-            <div class="modal fade" id="edit_assessment_modal" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="editModalLabel">Edit Assessment</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+            <div id="edit-assessment-popup" class="popup-overlay"> 
+                <div id="edit-assessment-modal-content" class="popup-content" role="document">
+                    <button class="popup-close">&times;</button>
+                    <h2 id="edit-assessment-title" class="popup-title">Edit Assessment</h2>
+
+                    <form id="edit-assessment-frm">
+                        <div class="modal-body">
+                            <div id="edit-msg"></div>
+                            <div class="form-group">
+                                <label>Assessment Name</label>
+                                <input type="hidden" name="assessment_id" id="edit_assessment_id" />
+                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                                <input type="text" name="assessment_name" id="edit_assessment_name" required="required" class="popup-input" />
+                            </div>
+                            <div class="form-group">
+                                <label>Assessment Type</label>
+                                <select name="assessment_type" id="edit_assessment_type" required="required" class="popup-input">
+                                    <option value="1">Quiz</option>
+                                    <option value="2">Exam</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Assessment Mode</label>
+                                <select name="assessment_mode" id="edit_assessment_mode" required="required" class="popup-input">
+                                    <option value="1">Normal Mode</option>
+                                    <option value="2">Quiz Bee Mode</option>
+                                    <option value="3">Speed Mode</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Course</label>
+                                <select name="course_id" id="edit_course_id" required="required" class="popup-input">
+                                    <option value="">Select Course</option>
+                                    <?php
+                                    $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
+                                    while($course_row = $course_qry->fetch_assoc()) {
+                                        echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Course Subject</label>
+                                <select name="subject" id="edit_subject" required="required" class="popup-input">
+                                    <option value="">Select Subject</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Topic</label>
+                                <input type="text" name="topic" id="edit_topic" required="required" class="popup-input" />
+                            </div>
                         </div>
-                        <form id="edit-assessment-frm">
-                            <div class="modal-body">
-                                <div id="edit-msg"></div>
-                                <div class="form-group">
-                                    <label>Assessment Name</label>
-                                    <input type="hidden" name="assessment_id" id="edit_assessment_id" />
-                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                    <input type="text" name="assessment_name" id="edit_assessment_name" required="required" class="form-control" />
-                                    <label>Assessment Type</label>
-                                    <select name="assessment_type" id="edit_assessment_type" required="required" class="form-control">
-                                        <option value="1">Quiz</option>
-                                        <option value="2">Exam</option>
-                                    </select>
-                                    <label>Assessment Mode</label>
-                                    <select name="assessment_mode" id="edit_assessment_mode" required="required" class="form-control">
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                    <label>Select Course</label>
-                                    <select name="course_id" id="edit_course_id" required="required" class="form-control">
-                                        <option value="">Select Course</option>
-                                        <?php
-                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                        while($course_row = $course_qry->fetch_assoc()) {
-                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                    <label>Select Course Subject</label>
-                                    <select name="subject" id="edit_subject" required="required" class="form-control">
-                                        <option value="">Select Subject</option>
-                                    </select>
-                                    <label>Topic</label>
-                                    <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="modal-footer">
+                            <button class="secondary-button" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Delete Confirmation Modal -->
-            <div class="modal fade" id="delete_assessment_modal" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Delete Assessment</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Are you sure you want to delete this assessment?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
-                        </div>
+            <div id="delete-assessment-popup" class="popup-overlay"> 
+                <div id="delete-assessment-modal-content" class="popup-content" role="document">
+                    <button class="popup-close">&times;</button>
+                    <h2 id="delete-assessment-title" class="popup-title">Delete Assessment</h2>
+                    <div class="modal-body">
+                        <p class="popup-message" id="delete-message">Are you sure you want to delete <strong id="assessment_name"></strong> from <strong id="assessment_subject"></strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="tertiary-button" data-dismiss="modal">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn">Delete</button>
                     </div>
                 </div>
             </div>
@@ -313,6 +318,27 @@
 
             <script>
           $(document).ready(function() {
+            // Handles Popups
+            function showPopup(popupId) {
+                $('#' + popupId).css('display', 'flex');
+            }
+
+            function closePopup(popupId) {
+                $('#' + popupId).css('display', 'none');
+            }
+
+            // Close the popup when close button is clicked
+            $('.popup-close').on('click', function() {
+                var activePopup = this.parentElement.parentElement.id;
+                closePopup(activePopup);
+            });
+            
+            // For other close button
+            $('.close-popup').on('click', function() {
+                var activePopup = this.parentElement.parentElement.parentElement.id;
+                closePopup(activePopup);
+            });
+
             // Hide Administer tab link initially
             $('#administer-tab-link').hide();
 
@@ -340,7 +366,9 @@
 
             // Show modal when "Add Assessment" is clicked
             $('#addAssessment').click(function() {
-                $('#manage_assessment').modal('show');
+                // $('#manage_assessment').modal('show');
+                showPopup('add-assessment-popup');
+                $('#add-assessment-popup #assessment-form').get(0).reset();
             });
             
             // Handle assessment type change
@@ -371,7 +399,7 @@
                 }
             });
 
-            $('#assessment-frm').submit(function(e){
+            $('#assessment-form').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
                 $.ajax({
                     url: 'save_assessment.php', 
@@ -379,8 +407,21 @@
                     data: $(this).serialize(), // Serialize form data
                     success: function(resp){
                         if(resp == 1){
-                            alert('Assessment successfully added');
-                            location.reload(); // Refresh the page to show the newly added assessment
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'The assessment was successfully added!',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         } else {
                             $('#msg').html('<div class="alert alert-danger">An error occurred. Please try again.</div>');
                         }
@@ -408,15 +449,18 @@
                         if (response.trim() === 'no_questions') {
                             alert('Cannot administer this assessment. No questions have been added yet.');
                         } else {
+                            // Empty Messasge
+                            $('#msg1').html('');
+
                             // Set the hidden fields
-                            $('#assessment_id_hidden').val(assessmentId);
-                            $('#course_id_hidden').val(courseId);
-                            $('#assessment_name_hidden').val(assessmentName);
+                            $('#administer-assessment-popup #assessment_id_hidden').val(assessmentId);
+                            $('#administer-assessment-popup #course_id_hidden').val(courseId);
+                            $('#administer-assessment-popup #assessment_name_hidden').val(assessmentName);
 
                             // Set other fields
-                            $('#administer_course').val(courseName); // Display course name
-                            $('#administer_subject').val(subjectName);
-                            $('#administer_mode').val(mode);
+                            $('#administer-assessment-popup #administer_course').val(courseName); // Display course name
+                            $('#administer-assessment-popup #administer_subject').val(subjectName);
+                            $('#administer-assessment-popup #administer_mode').val(mode);
 
                             // Load classes based on selected course and subject
                             if (courseId && subjectName) {
@@ -425,7 +469,7 @@
                                     method: 'POST',
                                     data: { course_id: courseId, subject: subjectName },
                                     success: function(response) {
-                                        $('#administer_class_id').html(response); // Populate classes dropdown
+                                        $('#administer-assessment-popup #administer_class_id').html(response); // Populate classes dropdown
 
                                         // Reset previous class id
                                         previousClassId = null;
@@ -435,12 +479,13 @@
                                     }
                                 });
                             } else {
-                                $('#administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
+                                $('#administer-assessment-popup #administer_class_id').html('<option value="">Select Class</option>'); // Clear classes dropdown
                                 previousClassId = null;
                             }
 
                             // Show the modal
-                            $('#administer_assessment_modal').modal('show');
+                            // $('#administer_assessment_modal').modal('show');
+                            showPopup('administer-assessment-popup');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -470,7 +515,7 @@
             });
             
             // Handle administer form submission
-            $('#administer-assessment-frm').submit(function(e) {
+            $('#administer-assessment-form').submit(function(e) {
                 e.preventDefault();
                 var formData = $(this).serialize();
 
@@ -486,7 +531,7 @@
 
                             // Close the modal after 1 second
                             setTimeout(function() {
-                                $('#administer_assessment_modal').modal('hide');
+                                closePopup('administer-assessmnet-popup');
                             }, 100);
 
                             // Activate the Administer tab
@@ -515,6 +560,21 @@
                                 error: function(xhr, status, error) {
                                     $('#administer-container').html('<div class="alert alert-danger">Failed to load content. Please try again.</div>');
                                     console.error('Error in content load:', status, error); // Log error for debugging
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: 'An error occurred while trying to administer the assessment.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK',
+                                        allowOutsideClick: false,
+                                        customClass: {
+                                            popup: 'popup-content',
+                                            confirmButton: 'secondary-button'
+                                        }
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            location.reload(); 
+                                        }
+                                    });
                                 }
                             });
                         } else {
@@ -589,7 +649,7 @@
                         }
 
                         // Show the edit modal
-                        $('#edit_assessment_modal').modal('show');
+                        showPopup('edit-assessment-popup');
                     }
                 });
             });
@@ -616,7 +676,21 @@
                     data: formData,
                     success: function(response) {
                         if (response == 1) {
-                            alert('Assessment successfully updated');
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'The assessment was successfully editted!',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                             location.reload(); // Reload the page to show updated data
                         } else {
                             $('#edit-msg').html('<div class="alert alert-danger">An error occurred. Please try again.</div>');
@@ -628,8 +702,13 @@
             // Delete button functionality
             $(document).on('click', '.delete_assessment', function() {
                 var assessmentId = $(this).data('id');
+                var assessmentName = $(this).data('name');
+                var subject = $(this).data('subject');
+                
                 $('#confirm_delete_btn').data('id', assessmentId); // Set assessment ID on confirm button
-                $('#delete_assessment_modal').modal('show'); // Show confirmation modal
+                showPopup('delete-assessment-popup');
+                $('#delete-assessment-popup #assessment_name').html(assessmentName);
+                $('#delete-assessment-popup #assessment_subject').html(subject);
             });
 
             // Confirm delete action
@@ -640,12 +719,40 @@
                     url: 'delete_assessment.php',
                     method: 'POST',
                     data: { assessment_id: assessmentId },
+                    dataType: 'json',
                     success: function(response) {
-                        if (response == 1) {
-                            alert('Assessment successfully deleted');
-                            location.reload(); // Reload the page to reflect changes
+                        if (response.status == 'success') {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         } else {
-                            alert('Error: Unable to delete the assessment.');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Error: Unable to delete the assessment.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); 
+                                }
+                            });
                         }
                     }
                 });
