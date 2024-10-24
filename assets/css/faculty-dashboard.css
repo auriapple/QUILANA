@@ -174,6 +174,7 @@ body {
     overflow: hidden
 }
 td .btns, 
+.btn-container, 
 .student-item .btns {
     display: flex;
     min-width: fit-content;
@@ -181,9 +182,40 @@ td .btns,
     gap: 10px;
 }
 /* Accept and Reject Button */
-.equal-size {
-    width: 75px;
-    height: 32px;
+.btns .accept,
+.btns .reject,
+.btn-container .accept,
+.btn-container .reject,
+.btn-container .btn {
+    width: 90px;
+    height: 40px;
+    border-radius: 5px;
+    border: none;
+    padding: 5px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    transition: ease-in 200ms;
+    overflow: hidden;
+    cursor: pointer;
+}
+.btns .accept,
+.btn-container .accept {
+    background-color: #87ffb0;
+}
+.btn-container .reject,
+.btns .reject {
+    background-color: #ff8585;
+}
+.accept .label,
+.reject .label{
+    position: relative;
+    top: -3px;
+    color: #2f8113;
+}
+.reject .label {
+    color: #e00f0f;
 }
 .accept .btn-icon,
 .reject .btn-icon {

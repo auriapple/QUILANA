@@ -104,7 +104,7 @@ if (isset($_GET['class_id'])) {
                 <tr>
                     <th>Student Number</th>
                     <th>Student Name</th>
-                    <th>Status</th>
+                    <th class="status">Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -115,7 +115,7 @@ if (isset($_GET['class_id'])) {
                         echo '<tr>
                                 <td>' . htmlspecialchars($student['student_number']) . '</td>
                                 <td>' . htmlspecialchars($student['student_name']) . '</td>
-                                <td>' . (($student['status'] == 0) ? 'Pending' : 'Enrolled') . '</td>
+                                <td class="status">' . (($student['status'] == 0) ? 'Pending' : 'Enrolled') . '</td>
                                 <td>';
                         if ($student['status'] == 0) {
                             echo '<div class="btn-container">

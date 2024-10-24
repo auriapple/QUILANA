@@ -4,7 +4,7 @@
     flex-direction: column;
     height: fit-content;
     width: 450px;
-    padding: 50px 20px 50px 20px; 
+    padding: 50px 20px 30px 20px; 
 }
 .popup-title {
     margin-bottom: 20px;
@@ -29,9 +29,6 @@
     color: #888;
     background-color: #eee;
 }
-.popup-content strong {
-    white-space: nowrap;
-}
 .details-popup {
     height: calc(100vh - 100px);
     width: 1000px;
@@ -47,6 +44,9 @@
 .popup-content .modal-body {
     display: flex;
     flex-direction: column;
+}
+.form-group {
+    margin-bottom: 10px;
 }
 
 /* Success/Error Message Popup */
@@ -107,7 +107,7 @@
 }
 /* Hover State */
 .code:hover, 
-.popup-input:hover {
+.popup-input:hover:not([disabled]):not([readonly]) {
     border: 2px solid #4A4CA6;
 }
 /* Selected State */
@@ -119,12 +119,22 @@
 }
 
 /* Pop-up Buttons */
-.popup-content .secondary-button,
+.popup-content .secondary-button:not(.swal2-confirm),
 .popup-content .tertiary-button {
     font-size: 20px;
     outline: none;
     width: 200px;
     height: 45px;
+    line-height: 20px;
+    margin-top: 0;
+}
+.popup-content .secondary-button {
+    font-size: 20px;
+    outline: none;
+    width: 200px;
+    height: 45px;
+    line-height: 20px;
+    margin-top: 20px;
 }
 #join,
 #confirm,
@@ -134,12 +144,15 @@
 #delete-course-form .secondary-button,
 #delete-course-form .tertiary-button,
 #delete-class-form .secondary-button,
-#delete-class-form .tertiary-button {
+#delete-class-form .tertiary-button,
+#delete-assessment-popup .secondary-button,
+#delete-assessment-popup .tertiary-button {
     width: 150px;
     text-align: center;
 }
 #delete-course-form .modal-footer,
-#delete-class-form .modal-footer {
+#delete-class-form .modal-footer,
+#delete-assessment-popup .modal-footer {
     gap: 20px;
 }
 
@@ -197,7 +210,7 @@
 
 .table-wrapper th, 
 .table-wrapper td {
-    width: calc(100% / 5);
+    width: calc(100% / 4);
     text-align: center;
     vertical-align: middle !important;
     border-bottom: 1px solid rgba(59, 39, 110, 0.80);
@@ -249,6 +262,31 @@ td .btn-container {
     justify-content: center;
     align-items: center;
 }
+
+tr .status {
+    width: 100px;
+}
+
+/* Assessment Popups */
+#add-assessment-modal-content {
+    max-height: 90vh;
+}
+#assessment-form {
+    overflow-y: auto;
+}
+#add-assessment-popup .modal-footer,
+#administer-assessment-popup .modal-footer,
+#edit-assessment-popup .modal-footer,
+#delete-assessment-popup .modal-footer {
+    border: none !important;
+    padding: 0 !important;
+    justify-content: center !important;
+}
+.popup-input:disabled, .popup-input[readonly] {
+    background-color: #e9ecef;
+    opacity: 1;
+}
+
 /* Media Query for small screens */
 @media screen and (max-width: 490px) {
     .popup-content {

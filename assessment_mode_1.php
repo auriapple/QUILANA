@@ -203,8 +203,6 @@ $time_limit = $assessment['time_limit'];
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
         let altKeyPressed = false;
         let winKeyPressed = false;
-        let ctrlKeyPressed = false;
-        let warningTracker = false;
 
         // TIMER FUNCTIONALITY
         function startTimer(duration, display) {
@@ -468,106 +466,108 @@ $time_limit = $assessment['time_limit'];
             }, 1000);
         }
 
-        // EVENT LISTENERS FOR VARIOUS KEYBOARD SHORTCUTS
+        // Black screen overlay
+        const blackScreen = document.createElement('div');
+        blackScreen.style.position = 'fixed';
+        blackScreen.style.top = '0';
+        blackScreen.style.left = '0';
+        blackScreen.style.width = '100%';
+        blackScreen.style.height = '100%';
+        blackScreen.style.backgroundColor = 'black';
+        blackScreen.style.zIndex = '10000';
+        blackScreen.style.display = 'none';
+        document.body.appendChild(blackScreen);
+
+        // Function to show black screen
+        function showBlackScreen() {
+            blackScreen.style.display = 'block';
+            setTimeout(() => {
+                blackScreen.style.display = 'none';
+            }, 2000); // Hide after 2 seconds
+        }
+
+        // Key event listeners
         document.addEventListener('keydown', (e) => {
-            const restrictedKeys = ['F12'];
+            // List of restricted keys
+            const restrictedKeys = ['PrintScreen', 'Meta', 'Win', 'Windows', 'F12'];
+            
             if (e.key === 'Alt') altKeyPressed = true;
             if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') {
                 winKeyPressed = true;
                 showBlackScreen();
             }
-            if (e.ctrlKey) {
-                ctrlKeyPressed = true;
-                showBlackScreen();
-            }
 
-            //Screen Capture
-            if ((winKeyPressed && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
-                (winKeyPressed && (e.shiftKey || e.key === 'S')) ||
-                (winKeyPressed && e.key === 'g')) {
+            // Detect various screen capture attempts or restricted keys
+            if (restrictedKeys.includes(e.key) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
+                (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
+                (winKeyPressed && e.shiftKey && e.key === 'S') ||
+                (winKeyPressed && altKeyPressed && e.key === 'r') ||
+                (e.ctrlKey && e.key === 'p')) { 
+                
                 e.preventDefault();
                 e.stopPropagation();
-                flashScreen();
-                handleWarning('Screen capture');
-                warningTracker = true;
-                return;      
-            }
-
-            // Restricted Key
-            if (restrictedKeys.includes(e.key)) {
-                e.preventDefault();
-                e.stopPropagation();
-                flashScreen();
+                
                 handleWarning('Restricted key use');
-                warningTracker = true;
-                return; 
-            }
-            
-            // Screen Record
-            if (winKeyPressed && (altKeyPressed || e.key === 'r')) {        
-                e.preventDefault();
-                e.stopPropagation();
                 flashScreen();
-                handleWarning('Screen recording');
-                return;
-            }
 
-            // Print Event
-            if (ctrlKeyPressed && e.key === 'p') {
-                e.preventDefault();
-                e.stopPropagation();
-                flashScreen();
-                handleWarning('Print event');
-                warningTracker = true;
-                return;
+                return false;
             }
-
-            // Save Event
-            if (ctrlKeyPressed && (e.key === 'S' || (e.shiftKey && e.key === 'S'))) {
-                e.preventDefault();
-                e.stopPropagation();
-                flashScreen();
-                handleWarning('File saving');
-                warningTracker = true;
-                return;
-            }
-        }, true);
+        }, true); 
 
         // Reset key state when released
         document.addEventListener('keyup', (e) => {
             if (e.key === 'Alt') altKeyPressed = false;
             if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = false;
-            if (e.ctrlKey) ctrlKeyPressed = false;
             if (e.key === 'PrintScreen') {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                handleWarning('Print Screen use');
+                flashScreen();
                 showBlackScreen();
-                flashScreen(); 
-                handleWarning('Screen capture');
-                warningTracker = true;  
                 return false;
             }
+        }, true); 
+
+        // Prevent default behavior for specific keys
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.key === 'PrintScreen' || 
+                e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows' ||
+                (e.ctrlKey && e.key === 'p')) {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
+
+        // Additional measure to block right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showTemporaryMessage('Right-click is disabled');
+            return false;
+        }, true);
+
+        // Block tab visibility API
+        Object.defineProperty(document, 'hidden', {
+            value: false,
+            writable: false
+        });
+        Object.defineProperty(document, 'visibilityState', {
+            value: 'visible',
+            writable: false
+        });
+        document.addEventListener('visibilitychange', function(e) {
+            e.stopImmediatePropagation();
         }, true);
 
         // Event listeners for various capture methods
         window.addEventListener('beforeprint', (e) => {
             e.preventDefault();
-            showBlackScreen();
-            flashScreen();
             handleWarning('Print event');
-            warningTracker = true;
+            showBlackScreen();
         });
 
-        // TAB SWITCHING DETECTION
-        window.addEventListener("focus", () => {
-            if (!warningTracker) {
-                handleWarning('Tab switching');
-            } 
-        });
-
-        // ADDITIONAL SECURITY MEASURES
-        // Disables right-click, text selection, and copying of content
-        document.addEventListener('contextmenu', event => event.preventDefault());
+        // Additional security measures
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
 
@@ -580,6 +580,7 @@ $time_limit = $assessment['time_limit'];
                 if (!devToolsOpened) {
                     devToolsOpened = true;
                     handleWarning('DevTools usage');
+                    showBlackScreen();
                 }
             } else {
                 devToolsOpened = false;
@@ -591,6 +592,7 @@ $time_limit = $assessment['time_limit'];
             e.preventDefault();
             flashScreen();
             handleWarning('Screen capture');
+            showBlackScreen();
         });
 
         // Pixel change detection
@@ -604,9 +606,97 @@ $time_limit = $assessment['time_limit'];
             const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
             if (lastPixel !== null && pixel !== lastPixel) {
                 handleWarning('Pixel change');
+                showBlackScreen();
             }
             lastPixel = pixel;
         }, 1000);
+
+        // Tab switching detection
+        window.addEventListener("blur", () => {
+            handleWarning('Tab switching');
+            showBlackScreen();
+        });
+
+        // Form submission handling
+        function handleSubmit(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
+            isSubmitting = true;
+
+            submitForm();
+        }
+
+        function submitForm() {
+            if (hasSubmitted) return; 
+
+            var formData = new FormData(document.getElementById('quiz-form'));
+            formData.append('warningCount', warningCount);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'submit_quiz.php', true);
+
+            xhr.onload = function () {
+                isSubmitting = false;
+                hasSubmitted = true; // Mark as submitted
+                if (xhr.status === 200) {
+                    localStorage.removeItem('endTime');
+                    localStorage.removeItem('remainingTime');
+                    clearInterval(timerInterval);
+                    showPopup('success-popup');
+                } else {
+                    showPopup('error-popup');
+                }
+            };
+            xhr.send(formData);
+
+            // Close any open popups
+            closePopup('timer-runout-popup');
+            closePopup('confirmation-popup');
+        }
+
+        function viewResult() {
+            window.location.href = 'results.php';
+        }
+
+        function flashScreen() {
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'white';
+            flash.style.zIndex = '10000';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 50);
+        }
+
+        function setupAntiScreenshotOverlay() {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'transparent';
+            overlay.style.zIndex = '9999';
+            overlay.style.pointerEvents = 'none';
+            document.body.appendChild(overlay);
+
+            setInterval(() => {
+                const marker = document.createElement('div');
+                marker.style.position = 'absolute';
+                marker.style.width = '5px';
+                marker.style.height = '5px';
+                marker.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                marker.style.top = Math.random() * 100 + '%';
+                marker.style.left = Math.random() * 100 + '%';
+                overlay.appendChild(marker);
+                setTimeout(() => marker.remove(), 500);
+            }, 100);
+        }
 
         // Initialize timer and set up event listeners
         window.onload = function () {
@@ -615,13 +705,9 @@ $time_limit = $assessment['time_limit'];
             startTimer(timeLimit, display);
 
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
-
+            
             setupAntiScreenshotOverlay();
         };
-
-        function viewResult() {
-            window.location.href = 'results.php';
-        }
     </script>
 </body>
 </html>

@@ -220,33 +220,6 @@
         </div>
 
         <!-- Edit Class Modal -->
-<!--         <div class="modal fade" id="manage_edit_class" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Edit Class</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <form id='edit-class-form'>
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <label>Class Name</label>
-                                <input type="hidden" name="class_id" id="class_id"/>
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                <input type="text" name="class_name" required="required" class="form-control" value=""/>
-                                <label>Course Subject</label>
-                                <input type="text" name="subject" required="required" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span>Save</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
-
         <div id="edit-class-popup" class="popup-overlay"> 
             <div id="edit-class-modal-content" class="popup-content" role="document">
                 <button class="popup-close">&times;</button>
@@ -276,31 +249,6 @@
         </div>
 
         <!-- Delete Class Modal -->
-<!--         <div class="modal fade" id="manage_delete_class" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Delete Class</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <form id='delete-class-form'>
-                        <div class="modal-body">
-                            <div id="msg"></div>
-                            <div class="form-group">
-                                <label> Are you sure you want to delete the class: <strong id="modal_class_name"></strong> (<strong id="modal_subject"></strong>)?</label>
-                                <input type="hidden" name="class_id" id="class_id"/>
-                                <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" id="confirm_delete_btn">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
-
         <div id="delete-class-popup" class="popup-overlay"> 
             <div id="delete-class-modal-content" class="popup-content" role="document">
                 <button class="popup-close">&times;</button>
@@ -326,27 +274,6 @@
         </div>
 
         <!-- Get Code Modal -->
-<!--         <div class="modal fade" id="manage_get_code" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Join Code</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="msg"></div>
-                        <div class="form-group">
-                            <h3><a id="modal_class_name"></a> (<a id="modal_subject"></a>)</h3>
-                            <h1 id="modal_code"></h1>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal">Return</button>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
         <div id="class-code-popup" class="popup-overlay"> 
             <div id="class-code-modal-content" class="popup-content" role="document">
                 <button class="popup-close">&times;</button>
@@ -414,11 +341,6 @@
                     const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
                     history.replaceState(null, '', newUrl); // This will update the URL
                 }
-            });
-
-            // Close the popup when the close button or cancel button is clicked
-            $(document).on('click', '.popup-close, #cancel', function() {
-                closePopup('unenroll-popup');
             });
 
             // Initialize meatball menu
@@ -509,12 +431,6 @@
                 var subject = $(this).data('subject');
 
                 $('#msg').html('');
-/*                 $('#manage_edit_class .modal-title').html('Edit Class');
-                $('#manage_edit_class #edit-class-form').get(0).reset();
-                $('#manage_edit_class #class_id').val(classId);
-                $('#manage_edit_class input[name="class_name"]').val(className);
-                $('#manage_edit_class input[name="subject"]').val(subject);
-                $('#manage_edit_class').modal('show'); */
                 $('#edit-class-popup .modal-title').html('Edit Class');
                 $('#edit-class-popup #edit-class-form').get(0).reset();
                 $('#edit-class-popup #course_id').val(courseId);
@@ -533,12 +449,6 @@
 
                 //Open a modal for deleting
                 $('#msg').html('');
-/*                 $('#manage_delete_class .modal-title').html('Delete Course');
-                $('#manage_delete_class #delete-class-form').get(0).reset();
-                $('#manage_delete_class #class_id').val(classId);
-                $('#modal_class_name').text(className);
-                $('#modal_subject').text(subject);
-                $('#manage_delete_class').modal('show'); */
                 $('#delete-class-popup #delete-class-form').get(0).reset();
                 $('#delete-class-popup #course_id').val(courseId);
                 $('#delete-class-popup #class_id').val(classId);
@@ -553,9 +463,6 @@
                 var subject = $(this).data('subject');
 
                 $('#msg').html('');
-/*                 $('#manage_get_code .modal-title').html('Join Code');
-                $('#manage_get_code #modal_class_name').text(className);
-                $('#manage_get_code #modal_subject').text(subject); */
                 $('#class-code-popup #modal_class_name').text(className);
                 $('#class-code-popup #modal_subject').text(subject);
 
@@ -700,10 +607,10 @@
                                 confirmButton: 'secondary-button'
                             }
                         }).then((result) => {
-                                if (result.isConfirmed) {
-                                    location.reload(); 
-                                }
-                            });
+                            if (result.isConfirmed) {
+                                location.reload(); 
+                            }
+                        });
                     }
                 });
             });
