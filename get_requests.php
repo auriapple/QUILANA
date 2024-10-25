@@ -37,9 +37,9 @@ if ($qry->num_rows > 0) {
         echo '<div class="student-item">';
         echo '<label>' . $student_name . '</label>';
         echo '<div class="btns">';
-        echo '<button class="btn btn-primary btn-sm accept-btn accept" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="1" type="button">
+        echo '<button class="btn btn-success btn-sm accept equal-size" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="1" type="button">
             <span class="material-symbols-outlined btn-icon">check</span><span class="label">Accept</span></button>';
-        echo '<button class="btn btn-primary btn-sm reject-btn reject" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="2" type="button">
+        echo '<button class="btn btn-danger btn-sm reject equal-size" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="2" type="button">
             <span class="material-symbols-outlined btn-icon">close</span><span class="label">Reject</span></button>';
         echo '</div></div>';
     }

@@ -1,107 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <?php include('header.php') ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sidebar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-		body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        .navbar {
-            background-image: linear-gradient(to right, #1E1A43, #4A4CA6);
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            position: fixed;
-            width: 100%;
-            z-index: 1000;
-        }
-        .navbar-content {
-            display: flex;
-            flex-grow: 1;
-            align-items: center;
-        }
-        .navbar-left,
-        .navbar-title,
-        .navbar-right {
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-        .navbar-right {
-            justify-content: right;
-        }
-        .navbar-title {
-            justify-content: center;
-        }
-        .navbar h3 {
-            margin: 0;
-        }
-        #sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: -250px;
-            background-color: #f8f9fa;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 50px;
-            z-index: 999;
-        }
-        #sidebar.active {
-            left: 0;
-        }
-        .sidebar-item {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #818181;
-            display: block;
-            transition: 0.3s;
-        }
-        .sidebar-item:hover {
-            color: #4A4CA6;
-        }
-        .sidebar-icon {
-            margin-right: 10px;
-        }
-        .content-wrapper {
-            transition: margin-left 0.3s;
-            margin-left: 20px;
-            margin-right: 20px;
-            padding-top: 60px;
-        }
-        .content-wrapper.active {
-            margin-left: 270px;
-        }
-        #sidebarCollapse {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            outline: none;
-        }
-        @media screen and (max-width: 768px) {
-            #sidebar {
-                width: 100%;
-                left: -100%;
-            }
-            #sidebar.active {
-                width: 50%;
-            }
-            .content-wrapper.active {
-                margin-left: 0;
-            }
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -112,7 +16,7 @@
                 </button>
             </div>
             <div class="navbar-title">
-                <h3>QUILANA</h3>
+                <h3><strong>QUILANA</strong></h3>
             </div>
             <div class="navbar-right">
                 <a href="logout.php" style="color:white">
@@ -172,6 +76,25 @@
                 if ($(this).attr('href') == loc.substr(loc.lastIndexOf("/") + 1)) {
                     $(this).addClass('active');
                 }
+            });
+
+            // Add delay before redirecting
+            $('#sidebar a').on('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                // Remove 'active' class from all sidebar items and add to the clicked one
+                $('#sidebar a').removeClass('active');
+                $(this).addClass('active');
+
+                var href = $(this).attr('href');
+
+                setTimeout(function() {
+                    $('#sidebar, .content-wrapper').removeClass('active');
+                }, 300);
+
+                setTimeout(function() {
+                    window.location.href = href; 
+                }, 500)   
             });
         });
     </script>

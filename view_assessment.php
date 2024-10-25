@@ -90,14 +90,16 @@ if ($assessment_mode == 1) { // Normal Mode
         .back-arrow a:hover {
             color: #0056b3; 
         }
+
+        .tab-content {
+            padding: 10px;
+        }
         .assessment-details {
-            background-color: #fff;
+            background-color: #FFFFFF;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            margin-right: 35px;
-            margin-left: 13px;
         }
         .assessment-details h2 {
             font-size: 1.5em;
@@ -111,13 +113,14 @@ if ($assessment_mode == 1) { // Normal Mode
             color: #555;
         }
         .questions-container {
-            background-color: #fff;
+            background-color: #FFFFFF !important;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
             max-height: 50vh;
             overflow-y: auto;
-            width: 100%;
+            width: 100% !important;
+            margin: 0 !important;
         }
         .question {
             margin-bottom: 25px;
@@ -134,6 +137,9 @@ if ($assessment_mode == 1) { // Normal Mode
             margin-left: 20px;
             margin-bottom: 8px;
         }
+        .checked {
+            margin-left: -5px;
+        }
         .option label {
             display: flex;
             align-items: center;
@@ -141,6 +147,7 @@ if ($assessment_mode == 1) { // Normal Mode
         .option input[type="radio"],
         .option input[type="checkbox"] {
             margin-right: 10px;
+            accent-color: #4A4CA6;
         }
         .time-limit {
             margin-top: 10px;
@@ -154,7 +161,7 @@ if ($assessment_mode == 1) { // Normal Mode
         }
         table {
             width: 100%;
-            border-collapse: separate;
+            border-collapse: separate !important;
             border-radius: 15px;
             border: 2px solid rgba(59, 39, 110, 0.80);
             overflow: hidden;
@@ -162,11 +169,13 @@ if ($assessment_mode == 1) { // Normal Mode
         }
         th, td {
             padding: 12px;
-            text-align: center;
+            text-align: center !important;
             border: none;
             color: #4a4a4a;
             border-right: 1px solid rgba(59, 39, 110, 0.80);
-            width: 25%;
+            width: 20%;
+            border-bottom: none !important;
+            border-top: none !important;
         }
         thead th {
             background-color: #E0E0EC;
@@ -205,7 +214,8 @@ if ($assessment_mode == 1) { // Normal Mode
             <div class="assessment-details">
                 <h2><?php echo htmlspecialchars($assessment_details[0]['assessment_name']); ?></h2>
                 <p><strong>Topic:</strong> <?php echo htmlspecialchars($assessment_details[0]['topic']); ?></p>
-                <p><strong>Overall Time Limit:</strong> <?php echo htmlspecialchars($overall_time_limit_minutes) . ' minutes (' . ($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode)'; ?></p>
+                <p><strong>Mode:</strong> <?php echo htmlspecialchars($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode'; ?></p-->
+                <!--p><strong>Overall Time Limit:</strong> <?php echo htmlspecialchars($overall_time_limit_minutes) . ' minutes (' . ($assessment_mode == 1 ? 'Normal' : ($assessment_mode == 2 ? 'Quiz Bee' : 'Speed')) . ' Mode)'; ?></p-->
             </div>
 
             <div class="questions-container">
@@ -244,7 +254,7 @@ if ($assessment_mode == 1) { // Normal Mode
                             
                             echo '<div class="option">';
                             echo '<label class="' . $checked_class . '">'; 
-                            echo '<input type="' . $input_type . '" name="question_' . ($question_number - 1) . '" ' . $checked_attr . '>' . htmlspecialchars($detail['option_txt']);
+                            echo '<input type="' . $input_type . '" class="non-interactive" name="question_' . ($question_number - 1) . '" ' . $checked_attr . '>' . htmlspecialchars($detail['option_txt']);
                             echo '</label>';
                             echo '</div>';
                             break;
@@ -271,10 +281,7 @@ if ($assessment_mode == 1) { // Normal Mode
                     <table id="scores-table" style="display:none;" class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Last Name</th>
-                                <th>First Name</th>
-                                <th>Score</th>
-                                <th>Remarks</th>
+                                <!-- Table Headers -->
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -304,6 +311,7 @@ if ($assessment_mode == 1) { // Normal Mode
         function loadStudentScores() {
             const assessmentId = <?php echo $assessment_id; ?>;
             const classId = <?php echo $class_id; ?>;
+            const assessmentMode = <?php echo $assessment_mode; ?>;
 
             $('#loading-scores').show();
             $('#scores-table').hide();
@@ -314,20 +322,77 @@ if ($assessment_mode == 1) { // Normal Mode
                 data: { assessment_id: assessmentId, class_id: classId },
                 dataType: 'json',
                 success: function(data) {
+                    const thead = $('#scores-table thead');
                     const tbody = $('#scores-table tbody');
+                    
+                    thead.empty();
                     tbody.empty();
 
                     if (data.scores && data.scores.length > 0) {
-                        data.scores.forEach(score => {
-                            tbody.append(`
-                                <tr>
-                                    <td>${score.lastname}</td>
-                                    <td>${score.firstname}</td>
-                                    <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not taken'}</td>
-                                    <td>${score.remarks}</td>
+                        if (assessmentMode == 1) {
+                            thead.append(
+                                `<tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Score</th>
+                                    <th>Remarks</th>
                                 </tr>
                             `);
-                        });
+
+                            data.scores.forEach(score => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${score.lastname}</td>
+                                        <td>${score.firstname}</td>
+                                        <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not Taken'}</td>
+                                        <td>${score.remarks}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else if (assessmentMode == 2) {
+                            thead.append(`
+                                <tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Score</th>
+                                    <th>Rank</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            `);
+
+                            data.scores.forEach(score => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${score.lastname}</td>
+                                        <td>${score.firstname}</td>
+                                        <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not Taken'}</td>
+                                        <td>${score.rank}</td>
+                                        <td>${score.remarks}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else if (assessmentMode == 3) {
+                            thead.append(`
+                                <tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Score</th>
+                                    <th>Rank</th>
+                                </tr>
+                            `);
+
+                            data.scores.forEach(score => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${score.lastname}</td>
+                                        <td>${score.firstname}</td>
+                                        <td>${score.score !== null ? score.score + ' / ' + score.total_score : 'Not Taken'}</td>
+                                        <td>${score.rank}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                        
                     } else {
                         tbody.append('<tr><td colspan="4">No scores available.</td></tr>');
                     }
@@ -356,6 +421,10 @@ if ($assessment_mode == 1) { // Normal Mode
             $('body').append(form);
             form.submit();
             form.remove();
+        });
+
+        $('.non-interactive').on('click', function(event) {
+            event.preventDefault(); // Prevent default action
         });
     });
     </script>

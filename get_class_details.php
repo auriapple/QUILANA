@@ -15,7 +15,12 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the assessments with related details
     $qry_assessments = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, aa.date_administered, SUM(q.total_points) AS total_points
+        SELECT a.assessment_id, a.assessment_name, aa.date_administered,
+            CASE 
+                WHEN a.assessment_mode IN (1, 2) THEN SUM(q.total_points)
+                WHEN a.assessment_mode = 3 THEN COUNT(q.question_id) * a.max_points
+                ELSE 0
+            END AS total_points
         FROM administer_assessment aa
         JOIN assessment a ON aa.assessment_id = a.assessment_id
         JOIN questions q ON q.assessment_id = a.assessment_id
@@ -74,8 +79,8 @@ if (isset($_GET['class_id'])) {
                         <td>' . htmlspecialchars($assessment['total_points']) . '</td>
                         <td>
                             <div class="btn-container">
-                                <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm">View</a>
-                                <button class="btn btn-danger btn-sm" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ')">Remove</button>
+                                <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm equal-size">View</a>
+                                <button class="btn btn-danger btn-sm equal-size" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ')">Remove</button>
                             </div>
                         </td>
                     </tr>';
@@ -114,12 +119,12 @@ if (isset($_GET['class_id'])) {
                                 <td>';
                         if ($student['status'] == 0) {
                             echo '<div class="btn-container">
-                                    <button class="btn btn-primary btn-sm accept-btn accept" 
+                                    <button class="btn btn-success btn-sm equal-size" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="1" 
                                             type="button">Accept</button>
-                                    <button class="btn btn-primary btn-sm reject-btn reject" 
+                                    <button class="btn btn-danger btn-sm equal-size" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="2" 
@@ -127,10 +132,10 @@ if (isset($_GET['class_id'])) {
                                 </div>';
                         } else {
                             echo '<div class="btn-container">
-                                    <button class="btn btn-primary btn-sm" 
+                                    <button class="btn btn-primary btn-sm equal-size" 
                                             onclick="showStudentScores(' . $student['student_id'] . ', \'' . $student['student_name'] . '\')" 
                                             type="button">Scores</button>
-                                   <button class="btn btn-primary btn-sm reject-btn reject" 
+                                   <button class="btn btn-danger btn-sm equal-size" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="2" 
