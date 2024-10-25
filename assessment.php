@@ -766,7 +766,7 @@
                     performSearch();
                 });
 
-                // input event listener in search field
+                // input event listener
                 $('.search-bar input[name="query"]').on('input', function() {
                     performSearch();
                 });
