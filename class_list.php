@@ -1081,8 +1081,6 @@
                 });
             }
 
-
-
             $(document).ready(function() {
                 initializeSearch();
                 
