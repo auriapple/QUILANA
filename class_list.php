@@ -170,7 +170,7 @@
         <div id="delete-program-popup" class="popup-overlay"> 
             <div id="delete-program-modal-content" class="popup-content" role="document">
                 <button class="popup-close">&times;</button>
-                <h2 id="delete-program-title" class="popup-title">Edit Program</h2>
+                <h2 id="delete-program-title" class="popup-title">Delete Program</h2>
 
                 <!-- Form to delete the program-->
                 <form id='delete-course-form'>

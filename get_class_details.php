@@ -38,6 +38,7 @@ if (isset($_GET['class_id'])) {
         FROM student_enrollment se
         JOIN student s ON se.student_id = s.student_id
         WHERE se.class_id = '$class_id' AND se.status != 2
+        ORDER BY se.status ASC, student_name ASC
     ");
 
     if (!$qry_student) {
