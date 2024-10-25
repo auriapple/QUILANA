@@ -117,7 +117,7 @@ if ($assessment_mode == 1) { // Normal Mode
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-            max-height: 50vh;
+            max-height: 60vh;
             overflow-y: auto;
             width: 100% !important;
             margin: 0 !important;

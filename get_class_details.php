@@ -38,6 +38,7 @@ if (isset($_GET['class_id'])) {
         FROM student_enrollment se
         JOIN student s ON se.student_id = s.student_id
         WHERE se.class_id = '$class_id' AND se.status != 2
+        ORDER BY se.status ASC, student_name ASC
     ");
 
     if (!$qry_student) {
@@ -79,8 +80,8 @@ if (isset($_GET['class_id'])) {
                         <td>' . htmlspecialchars($assessment['total_points']) . '</td>
                         <td>
                             <div class="btn-container">
-                                <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm equal-size">View</a>
-                                <button class="btn btn-danger btn-sm equal-size" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ')">Remove</button>
+                                <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm">View</a>
+                                <button class="btn btn-danger btn-sm" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ')">Remove</button>
                             </div>
                         </td>
                     </tr>';
@@ -119,12 +120,12 @@ if (isset($_GET['class_id'])) {
                                 <td>';
                         if ($student['status'] == 0) {
                             echo '<div class="btn-container">
-                                    <button class="btn btn-success btn-sm equal-size" 
+                                    <button class="btn btn-success btn-sm" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="1" 
                                             type="button">Accept</button>
-                                    <button class="btn btn-danger btn-sm equal-size" 
+                                    <button class="btn btn-danger btn-sm" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="2" 
@@ -132,10 +133,10 @@ if (isset($_GET['class_id'])) {
                                 </div>';
                         } else {
                             echo '<div class="btn-container">
-                                    <button class="btn btn-primary btn-sm equal-size" 
+                                    <button class="btn btn-primary btn-sm" 
                                             onclick="showStudentScores(' . $student['student_id'] . ', \'' . $student['student_name'] . '\')" 
                                             type="button">Scores</button>
-                                   <button class="btn btn-danger btn-sm equal-size" 
+                                   <button class="btn btn-danger btn-sm" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="2" 

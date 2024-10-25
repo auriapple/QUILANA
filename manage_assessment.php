@@ -106,7 +106,8 @@ if ($stmt = $conn->prepare($query)) {
             border-bottom: none !important;
         }
         .card-body {
-            max-height: 45vh;
+            height: 45vh;
+            max-height: auto;
             overflow-y: auto;
         }
         .card-body::-webkit-scrollbar {
@@ -216,10 +217,10 @@ if ($stmt = $conn->prepare($query)) {
                         <button class="btn btn-secondary me-2" id="edit_time_limit_btn"><i class="fa fa-plus"></i> Edit Time Limit, Passing Rate, and Maximum Warnings</button>
                     <?php endif; ?>
                     <?php if ($assessment_mode_code == 2): ?>
-                        <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Maximum Warnings</button>
+                        <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate</button>
                     <?php endif; ?>
                     <?php if ($assessment_mode_code == 3): ?>
-                        <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate, Points, and Maximum Warnings</button>
+                        <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Pointing System</button>
                     <?php endif; ?>
                     <button class="btn btn-primary" id="add_question_btn">
                         <i class="fa fa-plus"></i> Add Question
@@ -228,7 +229,18 @@ if ($stmt = $conn->prepare($query)) {
             </div>
 
             <?php
-            $questions_query = "SELECT * FROM questions WHERE assessment_id = ? ORDER BY order_by ASC";
+            $questions_query = "
+                SELECT q.*, a.remaining_points,
+                    CASE 
+                        WHEN a.assessment_mode IN (1, 2) THEN q.total_points
+                        WHEN a.assessment_mode = 3 THEN a.max_points
+                        ELSE 0
+                    END AS total_points
+                FROM questions q
+                JOIN assessment a ON q.assessment_id = a.assessment_id
+                WHERE a.assessment_id = ? 
+                ORDER BY q.order_by ASC
+            ";
             $question_number = 1;
             
             if ($stmt = $conn->prepare($questions_query)) {
@@ -246,10 +258,16 @@ if ($stmt = $conn->prepare($query)) {
                         echo '<li class="list-group-item">';
                         echo '<div class="question-number">Question ' . $question_number . ':</div>';
                         echo '<h6>' . htmlspecialchars($row['question']) . '</h6>';
-                        echo '<p><strong>Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
-                        if ($assessment_mode_code == 2) {
+                        if ($assessment_mode_code == 1) {
+                            echo '<p><strong>Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
+                        } elseif ($assessment_mode_code == 2) {
+                            echo '<p><strong>Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
                             echo '<p><strong>Time Limit:</strong> ' . htmlspecialchars($row['time_limit']) . ' seconds</p>';
+                        } elseif ($assessment_mode_code == 3) {
+                            echo '<p><strong>Max Points:</strong> ' . htmlspecialchars($row['total_points']) . '</p>';
+                            echo '<p><strong>Min Points:</strong> ' . htmlspecialchars($row['remaining_points']) . '</p>';
                         }
+
                         echo '<div class="float-right">';
                         echo '<button class="btn btn-sm btn-outline-primary edit_question me-2" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-edit"></i></button>';
                         echo '<button class="btn btn-sm btn-outline-danger remove_question" data-id="' . htmlspecialchars($row['question_id']) . '"><i class="fa fa-trash"></i></button>';

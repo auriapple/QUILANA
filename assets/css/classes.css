@@ -274,6 +274,14 @@ tr .status {
 #assessment-form {
     overflow-y: auto;
 }
+#add-program-popup .modal-footer,
+#edit-program-popup .modal-footer,
+#delete-program-popup .modal-footer,
+#program-details-popup .modal-footer,
+#class-details-popup .modal-footer,
+#add-class-popup .modal-footer,
+#edit-class-popup .modal-footer,
+#delete-class-popup .modal-footer,
 #add-assessment-popup .modal-footer,
 #administer-assessment-popup .modal-footer,
 #edit-assessment-popup .modal-footer,

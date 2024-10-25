@@ -55,7 +55,7 @@
         <?php 
                     }
                 } else {
-                    echo '<div class="alert alert-info" style="grid-column: 1/-1; text-align: center;">No classes found for this course.</div>';
+                    echo '<div class="no-records" style="grid-column: 1/-1; text-align: center;">No classes found for this program</div>';
                 }
 
                 // Close the connection

@@ -674,12 +674,12 @@ body {
 }
 
 td #viewClassDetails {
-    width: 100px;
-    height: 32px;
+    width: 125px;
+    height: 30px;
     margin: 0;
     bottom: 0px;
     position: relative;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: normal;
     padding: 5px;
     text-align: center;
@@ -939,6 +939,10 @@ td #viewClassDetails {
         text-align: right;
         width: 100%;
         white-space: nowrap;
+    }
+
+    .sidebar-item {
+        padding: 10px 15px;
     }
 }
 

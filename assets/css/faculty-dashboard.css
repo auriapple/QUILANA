@@ -208,18 +208,29 @@ td .btns,
 .btns .reject {
     background-color: #ff8585;
 }
-.accept .label,
-.reject .label{
+.accept .label {
     position: relative;
     top: -3px;
     color: #2f8113;
 }
 .reject .label {
+    position: relative;
+    top: -3px;
     color: #e00f0f;
 }
 .accept .btn-icon,
 .reject .btn-icon {
     display: none;
+}
+.accept:hover {
+    background-color: #2f8113 !important;
+}
+.reject:hover {
+    background-color: #e00f0f !important;
+}
+.accept:hover .label,
+.reject:hover .label {
+    color: white;
 }
 .accept:focus, 
 .reject:focus {
@@ -333,9 +344,12 @@ td .btns,
     .reject .label {
         display: none;
     }
-    .accept .btn-icon,
+    .accept .btn-icon {
+        display: block;
+        color: #2f8113;
+    }
     .reject .btn-icon {
         display: block;
-        color: white;
+        color: #e00f0f;
     }
 }
