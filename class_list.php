@@ -75,7 +75,7 @@
                 <?php
                     }
                 } else {
-                    echo '<div class="no-records" style="grid-column: 1/-1;"> No programs has been added </div>';
+                    echo '<div class="no-records" style="grid-column: 1/-1;"> No programs have been created yet </div>';
                 }
                 ?>
             </div>

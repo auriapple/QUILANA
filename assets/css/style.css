@@ -919,6 +919,10 @@ td #viewClassDetails {
         width: 100%;
         white-space: nowrap;
     }
+
+    .sidebar-item {
+        padding: 10px 15px;
+    }
 }
 
 /* Search Bar Resposiveness */
