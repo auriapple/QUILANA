@@ -190,55 +190,10 @@
                                 <input type="text" name="topic" required="required" class="popup-input" />
                             </div>
                         </div>
-<<<<<<< HEAD
-                        <form id="assessment-frm">
-                            <div class="modal-body">
-                                <div id="msg"></div>
-                                <div class="form-group">
-                                    <label>Assessment Name</label>
-                                    <input type="hidden" name="assessment_id" />
-                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                    <input type="text" name="assessment_name" required="required" class="form-control" />
-                                    <label>Assessment Type</label>
-                                    <select name="assessment_type" id="assessment_type" required="required" class="form-control">
-                                        <option value="1">Quiz</option>
-                                        <option value="2">Exam</option>
-                                    </select>
-                                    <label>Assessment Mode</label>
-                                    <select name="assessment_mode" id="assessment_mode" required="required" class="form-control">
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                    <label>Select Course</label>
-                                    <select name="course_id" id="course_id" required="required" class="form-control">
-                                        <option value="" disabled selected>Select Course</option>
-                                        <?php
-                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                        while($course_row = $course_qry->fetch_assoc()) {
-                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                    <label>Select Course Subject</label>
-                                    <select name="subject" id="subject" required="required" class="form-control">
-                                        <option value="" disabled selected>Select Subject</option>
-                                    </select>
-                                    <label>Topic</label>
-                                    <input type="text" name="topic" required="required" class="form-control" />
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
-                            </div>
-                        </form>
-                    </div>
-=======
                         <div class="modal-footer">
                             <button class="secondary-button" name="save"><span class="glyphicon glyphicon-save"></span> Save</button>
                         </div>
                     </form>
->>>>>>> nathan
                 </div>
             </div>
 
@@ -251,40 +206,11 @@
                     <form id="administer-assessment-form">
                         <input type="hidden" name="assessment_id" id="assessment_id_hidden" />
                         <input type="hidden" name="course_id" id="course_id_hidden" />
-<<<<<<< HEAD
-                            <div class="modal-body">
-                                <div id="msg1"></div>
-                                <div class="form-group">
-                                    <label for="administer_course">Course</label>
-                                    <input type="text" id="administer_course" class="form-control" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_subject">Subject</label>
-                                    <input type="text" id="administer_subject" class="form-control" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_mode">Mode</label>
-                                    <select id="administer_mode" class="form-control" disabled>
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="administer_class_id">Select Class</label>
-                                    <select name="class_id" id="administer_class_id" required class="form-control">
-                                        <option value="" disabled selected>Select Class</option>
-                                    </select>
-                                </div>
-                                <input type="hidden" id="administer_class_name_hidden" name="class_name_hidden" />
-                                <input type="hidden" id="assessment_name_hidden" name="assessment_name_hidden" />
-=======
                         <div class="modal-body">
                             <div id="msg1"></div>
                             <div class="form-group">
                                 <label for="administer_course">Course</label>
                                 <input type="text" id="administer_course" class="popup-input" readonly />
->>>>>>> nathan
                             </div>
                             <div class="form-group">
                                 <label for="administer_subject">Subject</label>
@@ -367,55 +293,10 @@
                                 <input type="text" name="topic" id="edit_topic" required="required" class="popup-input" />
                             </div>
                         </div>
-<<<<<<< HEAD
-                        <form id="edit-assessment-frm">
-                            <div class="modal-body">
-                                <div id="edit-msg"></div>
-                                <div class="form-group">
-                                    <label>Assessment Name</label>
-                                    <input type="hidden" name="assessment_id" id="edit_assessment_id" />
-                                    <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                                    <input type="text" name="assessment_name" id="edit_assessment_name" required="required" class="form-control" />
-                                    <label>Assessment Type</label>
-                                    <select name="assessment_type" id="edit_assessment_type" required="required" class="form-control">
-                                        <option value="1">Quiz</option>
-                                        <option value="2">Exam</option>
-                                    </select>
-                                    <label>Assessment Mode</label>
-                                    <select name="assessment_mode" id="edit_assessment_mode" required="required" class="form-control">
-                                        <option value="1">Normal Mode</option>
-                                        <option value="2">Quiz Bee Mode</option>
-                                        <option value="3">Speed Mode</option>
-                                    </select>
-                                    <label>Select Course</label>
-                                    <select name="course_id" id="edit_course_id" required="required" class="form-control">
-                                        <option value="" disabled selected>Select Course</option>
-                                        <?php
-                                        $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
-                                        while($course_row = $course_qry->fetch_assoc()) {
-                                            echo "<option value='".$course_row['course_id']."'>".$course_row['course_name']."</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                    <label>Select Course Subject</label>
-                                    <select name="subject" id="edit_subject" required="required" class="form-control">
-                                        <option value="" disabled selected>Select Subject</option>
-                                    </select>
-                                    <label>Topic</label>
-                                    <input type="text" name="topic" id="edit_topic" required="required" class="form-control" />
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-=======
                         <div class="modal-footer">
                             <button class="secondary-button" id="edit_save_btn" name="save"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
                         </div>
                     </form>
->>>>>>> nathan
                 </div>
             </div>
 
@@ -875,6 +756,40 @@
                         }
                     }
                 });
+            });
+            
+            // Search Assessment
+            $(document).ready(function() {
+                // Search functionality
+                $('.search-bar').submit(function(e) {
+                    e.preventDefault();
+                    performSearch();
+                });
+
+                // input event listener in search field
+                $('.search-bar input[name="query"]').on('input', function() {
+                    performSearch();
+                });
+
+                // Function to perform the search
+                function performSearch() {
+                    var query = $('.search-bar input[name="query"]').val();
+                    
+                    $.ajax({
+                        url: 'search_assessment.php',
+                        method: 'GET',
+                        data: { 
+                            query: query,
+                            faculty_id: <?php echo $_SESSION['login_id']; ?>
+                        },
+                        success: function(response) {
+                            $('#assessment-tab').html(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Search failed:', error);
+                        }
+                    });
+                }
             });
         });
             </script>
