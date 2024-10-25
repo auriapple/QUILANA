@@ -43,7 +43,7 @@
                     FROM assessment a 
                     JOIN course c ON a.course_id = c.course_id 
                     WHERE a.faculty_id = '".$_SESSION['login_id']."'
-                    ORDER BY c.course_name, a.subject, a.assessment_name ASC
+                    ORDER BY c.course_name, a.subject ASC
                 ");
                 
                 $current_course = '';
