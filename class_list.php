@@ -132,7 +132,7 @@
                             <label>Program Name</label>
                             <input type="hidden" name="course_id" id="course_id_container"/>
                             <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                            <input type="text" name="course_name" required="required" class="popup-input" placeholder="Program Name"/>
+                            <input type="text" name="course_name" required="required" class="popup-input" />
                         </div>
                     </div>
                     <div class="modal-footer">
