@@ -1,11 +1,9 @@
 <?php
 include 'db_connect.php';
 
-// Get search query and faculty ID
 $query = isset($_GET['query']) ? $_GET['query'] : '';
 $faculty_id = isset($_GET['faculty_id']) ? $_GET['faculty_id'] : '';
 
-// Search in assessments
 $sql = "SELECT a.*, c.course_name 
         FROM assessment a 
         JOIN course c ON a.course_id = c.course_id 
