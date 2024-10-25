@@ -16,7 +16,7 @@ if (isset($_POST['assessment_id']) && isset($_POST['class_id'])) {
         LEFT JOIN student s ON ja.student_id = s.student_id
         LEFT JOIN administer_assessment aa ON ja.administer_id = aa.administer_id
         LEFT JOIN assessment a ON aa.assessment_id = a.assessment_id
-        LEFT JOIN student_results sr ON s.student_id = sr.student_id
+        LEFT JOIN student_results sr ON s.student_id = sr.student_id AND a.assessment_id = sr.assessment_id
         WHERE aa.assessment_id = ? AND aa.class_id = ?
         ORDER BY ja.status, student_name
     ";

@@ -190,7 +190,8 @@
         .table-wrapper tbody::-webkit-scrollbar {
             display: none;
         }
-        #startAssessment {
+        #startAssessment,
+        #closeAssessment {
             outline: none;
             border-radius: 5px;
         }
@@ -380,12 +381,10 @@
                                 style="width: 180px;"
                                 data-status = 1
                                 data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Start</button>
-                            <!--button id="stopAssessment" class='main-button button'
-                                data-status = 2
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Stop</button-->
+                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>, this.getAttribute('data-status'))">
+                                Start
+                            </button>
+                            <button id="closeAssessment" class="main-button button" style="width: 180px; display: none;"> Close </button>
                         </div>
                         <input type="hidden" id="administerId-container" value="<?php echo $administer['administer_id']; ?>" />
                     </div>
@@ -553,10 +552,7 @@
             });
         }
 
-        function updateStatus(administerId) {
-            const button = event.target;
-            const status = button.getAttribute('data-status');
-
+        function updateStatus(administerId, status) {
             fetch('update_status.php', {
                 method: 'POST',
                 headers: {
@@ -566,14 +562,14 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success && button.id === 'startAssessment') {
-                    alert('Assessment started successfully!');
-                } else if (data.success && button.id === 'stopAssessment') {
-                    alert('Assessment stopped successfully!');
-                } else if (!data.success &&button.id === 'stopAssessment') {
-                    alert('Failed to stop assessment: ' + data.message);
+                if (data.success) {
+                    if (status == 1) {
+                        alert('Assessment started successfully!');
+                    } else if (status == 2) {
+                        alert('Assessment stopped successfully!');
+                    }
                 } else {
-                    alert('Failed to start assessment: ' + data.message);
+                    alert('Failed to update assessment status: ' + data.message);
                 }
             })
             .catch(error => {
@@ -581,13 +577,13 @@
             });
         }
 
-        let interval;  // For the interval for the timer
-        let ifStopAssessmentInterval; // For the interval for if to stop the assessment
+        let interval;
+        let ifStopAssessmentInterval;
 
         document.getElementById('startAssessment').addEventListener('click', function() {
             $('#startAssessment').hide();
-            //$('#stopAssessment').show();
             const timeLimit = parseInt(this.getAttribute('data-time'));
+            const administerId = document.getElementById('administerId-container').value;
             
             if (isNaN(timeLimit) || timeLimit <= 0) {
                 alert('No valid time limit set for this assessment.');
@@ -620,10 +616,10 @@
                 // Check if time is up
                 if (countdownTime <= 0) {
                     clearInterval(interval);
-                    timerDisplay.textContent = "Time's up!";
+                    updateStatus(administerId, 2);
+                    $('#closeAssessment').show();
                 }
 
-                // Decrease countdown time by 1 second
                 countdownTime--;
             }, 1000);
         });
@@ -637,33 +633,16 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ administer_id: administerId})
+                body: JSON.stringify({administer_id: administerId})
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    fetch('update_status.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ administer_id: administerId})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Assessment stopped successfully!');
-                            clearInterval(interval);
-                            clearInterval(ifStopAssessmentInterval);
-                            clearInterval(updateNotifs);
-                            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
-                        } else if (!data.success) {
-                            alert('Failed to stop assessment: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                if (data.status === 'success') {   
+                    clearInterval(interval);      
+                    clearInterval(ifStopAssessmentInterval);
+                    clearInterval(updateNotifs); 
+                    updateStatus(administerId, 2);
+                    $('#closeAssessment').show();
                 }
             })
             .catch(error => {
@@ -673,6 +652,9 @@
 
         ifStopAssessmentInterval = setInterval(ifStopAssessment, 3000);
 
+        $('#closeAssessment').on('click', function() {
+            window.location.href = 'assessment.php';
+        });
     </script>
 </body>
 </html>
