@@ -197,7 +197,8 @@ $time_limit = $assessment['time_limit'];
         // Global variables
         let timerInterval;
         let timerExpired = false;
-        let warningCount = parseInt(sessionStorage.getItem('warningCount')) || 0;
+        const assessmentId = document.querySelector('input[name="assessment_id"]').value;
+        let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
         let isSubmitting = false;
         let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
@@ -211,29 +212,29 @@ $time_limit = $assessment['time_limit'];
             var timer = duration, minutes, seconds;
 
             // Get stored end time
-            var storedEndTime = sessionStorage.getItem('endTime');
+            const storedEndTime = sessionStorage.getItem(`endTime_${assessmentId}`);
             if (storedEndTime) {
                 var now = Date.now();
                 timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
             } else {
                 var endTime = Date.now() + (timer * 1000);
-                sessionStorage.setItem('endTime', endTime);
+                sessionStorage.setItem(`endTime_${assessmentId}`, endTime);
             }
 
             updateDisplay(timer, display); // Initialize display immediately
 
             timerInterval = setInterval(function () {
-                var now = Date.now();
-                var remainingTime = Math.max(0, Math.floor((sessionStorage.getItem('endTime') - now) / 1000));
+                const now = Date.now();
+                const remainingTime = Math.max(0, Math.floor((sessionStorage.getItem(`endTime_${assessmentId}`) - now) / 1000)); // Use unique key
 
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
                     timerExpired = true; // Set flag to true when timer runs out
                     showPopup('timer-runout-popup');
-                    sessionStorage.removeItem('endTime');
+                    sessionStorage.removeItem(`endTime_${assessmentId}`);
                 } else {
                     updateDisplay(remainingTime, display);
-                    sessionStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
+                    sessionStorage.setItem(`remainingTime_${assessmentId}`, remainingTime); // Update the stored remaining time
                 }
             }, 1000);
         }
@@ -251,16 +252,9 @@ $time_limit = $assessment['time_limit'];
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
         }
-
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
         }
-
-        function closeSuccessPopup(popupId) {
-            document.getElementById(popupId).style.display = 'none';
-            window.location.href = 'results.php';
-        }
-
         function closeErrorPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
             isSubmitting = false;
@@ -290,9 +284,9 @@ $time_limit = $assessment['time_limit'];
                 isSubmitting = false;
                 hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
-                    sessionStorage.removeItem('endTime');
-                    sessionStorage.removeItem('remainingTime');
-                    sessionStorage.removeItem('warningCount');
+                    sessionStorage.removeItem(`endTime_${assessmentId}`);
+                    sessionStorage.removeItem(`remainingTime_${assessmentId}`);
+                    sessionStorage.removeItem(`warningCount_${assessmentId}`);
                     clearInterval(timerInterval);
                     showPopup('success-popup');
                 } else {
@@ -314,7 +308,7 @@ $time_limit = $assessment['time_limit'];
                 warningCount = max_warnings;
             }
            
-            sessionStorage.setItem('warningCount', warningCount);
+            sessionStorage.setItem(`warningCount_${assessmentId}`, warningCount);
             console.log(`Warning triggered via ${method}. Total warnings: ${warningCount}`);
 
             temporarilyHideOverlay();

@@ -584,11 +584,6 @@
             $('#startAssessment').hide();
             const timeLimit = parseInt(this.getAttribute('data-time'));
             const administerId = document.getElementById('administerId-container').value;
-            
-            if (isNaN(timeLimit) || timeLimit <= 0) {
-                alert('No valid time limit set for this assessment.');
-                return;
-            }
 
             let countdownTime = timeLimit * 60; // Convert minutes to seconds
             const minuteDisplay = document.getElementById('minuteDisplay');

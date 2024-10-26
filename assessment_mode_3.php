@@ -103,7 +103,6 @@ while ($question = $questions_query->fetch_assoc()) {
     <!-- Success Popup -->
     <div id="success-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
-            <button class="popup-close" onclick="closeSuccessPopup('success-popup')">&times;</button>
             <h2 class="popup-title">Your answers have been submitted and recorded successfully!</h2>
             <div class="popup-buttons">
                 <button id="result" class="secondary-button" onclick="viewResult()">View Result</button>
@@ -206,6 +205,15 @@ while ($question = $questions_query->fetch_assoc()) {
         let elapsedTime = 0;
         const questions = document.querySelectorAll('.questions-container .question');
         let currentQuestionIndex = 0;
+        const assessmentId = document.querySelector('input[name="assessment_id"]').value;
+        let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
+        let isSubmitting = false;
+        let hasSubmitted = false;
+        const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
+        let altKeyPressed = false;
+        let winKeyPressed = false;
+        let ctrlKeyPressed = false;
+        let warningTracker = false;
 
         let questionTimes = Array(questions.length).fill(0);
 
@@ -253,19 +261,33 @@ while ($question = $questions_query->fetch_assoc()) {
             nextQuestion();
         }
 
-        function finalSubmit() {
+        function finalSubmit(event) {
             questionTimes[currentQuestionIndex] = elapsedTime;
             console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
             closePopup('final-confirmation-popup');
+            
+            if (event) {
+                event.preventDefault();
+            }
+            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
+            isSubmitting = true;
+
             submitForm();
         }
-        
-        function handleSubmit() {
+
+        // FORM SUBMISSION HANDLING
+        function handleSubmit(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
+            isSubmitting = true;
+
             submitForm();
         }
 
         // Form Submission
-        function submitForm() {
+        /*function submitForm() {
             const formData = new FormData(document.getElementById('quiz-form'));
 
             formData.append('time_elapsed', JSON.stringify(questionTimes));
@@ -281,6 +303,32 @@ while ($question = $questions_query->fetch_assoc()) {
                 }
             };
             xhr.send(formData);
+        }*/
+
+        function submitForm() {
+            if (hasSubmitted) return; 
+
+            var formData = new FormData(document.getElementById('quiz-form'));
+            formData.append('warningCount', warningCount);
+            formData.append('time_elapsed', JSON.stringify(questionTimes));
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'submit_assessment.php', true);
+
+            xhr.onload = function () {
+                isSubmitting = false;
+                hasSubmitted = true; // Mark as submitted
+                if (xhr.status === 200) {
+                    clearInterval(stopwatchInterval);
+                    showPopup('success-popup');
+                } else {
+                    showPopup('error-popup');
+                }
+            };
+            xhr.send(formData);
+
+            // Close any open popups
+            closePopup('final-confirmation-popup');
         }
 
         // Popup Handling
@@ -291,15 +339,320 @@ while ($question = $questions_query->fetch_assoc()) {
             document.getElementById(popupId).style.display = 'none';
         }
 
-        // When the window loads
+        // SUSPICIOUS ACTIVITIES HANDLING
+        // Warning system
+        function handleWarning(method) {
+            warningCount++;
+            if (warningCount > max_warnings) {
+                warningCount = max_warnings;
+            }
+           
+            sessionStorage.setItem(`warningCount_${assessmentId}`, warningCount);
+            console.log(`Warning triggered via ${method}. Total warnings: ${warningCount}`);
+
+            temporarilyHideOverlay();
+
+            const administerId = parseInt(document.getElementById('administerId_container').value);
+
+            fetch('switchTab_update.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    suspicious_act: warningCount, 
+                    administer_id: administerId,
+                    method: method
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && warningCount >= max_warnings) {
+                    clearInterval(timerInterval);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            if (warningCount >= max_warnings) {
+                Swal.fire({
+                    title: 'Maximum Warnings Reached!',
+                    text: 'Your assessment will be submitted automatically.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        handleSubmit();
+                    }
+                    warningTracker = false;
+                });
+            } else {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: `${method} attempt detected. You have ${max_warnings - warningCount} warnings left.`,
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                }).then(() => {
+                    warningTracker = false;
+                });
+            }
+        }
+
+        // USER VISUAL EXPERIENCE
+        // Displays random small markers on the entire screen to deter screen capture attempts
+        function setupAntiScreenshotOverlay() {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'transparent';
+            overlay.style.zIndex = '9999';
+            overlay.style.pointerEvents = 'none';
+            document.body.appendChild(overlay);
+
+            setInterval(() => {
+                const marker = document.createElement('div');
+                marker.style.position = 'absolute';
+                marker.style.width = '5px';
+                marker.style.height = '5px';
+                marker.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                marker.style.top = Math.random() * 100 + '%';
+                marker.style.left = Math.random() * 100 + '%';
+                overlay.appendChild(marker);
+                setTimeout(() => marker.remove(), 500);
+            }, 100);
+        }
+
+        // Trigger flash effect when a screen capture attempt is detected
+        function flashScreen() {
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            flash.style.zIndex = '10000';
+            flash.style.opacity = '0';
+            document.body.appendChild(flash);
+
+            // Animate the flash effect
+            flash.animate([
+                { opacity: '0' },
+                { opacity: '1' },
+                { opacity: '0' }
+            ], {
+                duration: 300,
+                easing: 'ease-in-out',
+                fill: 'forwards'
+            });
+
+            setTimeout(() => flash.remove(), 300);
+        }
+
+        // Black screen overlay
+        const blackScreen = document.createElement('div');
+        blackScreen.style.position = 'fixed';
+        blackScreen.style.top = '0';
+        blackScreen.style.left = '0';
+        blackScreen.style.width = '100%';
+        blackScreen.style.height = '100%';
+        blackScreen.style.backgroundColor = 'black';
+        blackScreen.style.zIndex = '10000';
+        blackScreen.style.display = 'none';
+        document.body.appendChild(blackScreen);
+
+        function showBlackScreen() {
+            blackScreen.style.display = 'block';
+            setTimeout(() => {
+                blackScreen.style.display = 'none';
+            }, 2000);
+        }
+
+        // Screen capture detection
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'transparent';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.zIndex = '9999';
+        document.body.appendChild(overlay);
+
+        function temporarilyHideOverlay() {
+            overlay.style.display = 'none';
+            setTimeout(() => {
+                overlay.style.display = 'block';
+            }, 1000);
+        }
+
+        // EVENT LISTENERS FOR VARIOUS KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', (e) => {
+            const restrictedKeys = ['F12'];
+            if (e.key === 'Alt') altKeyPressed = true;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') {
+                winKeyPressed = true;
+                showBlackScreen();
+            }
+            if (e.ctrlKey) {
+                ctrlKeyPressed = true;
+                showBlackScreen();
+            }
+
+            //Screen Capture
+            if ((winKeyPressed && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+                (winKeyPressed && (e.shiftKey || e.key === 'S')) ||
+                (winKeyPressed && e.key === 'g')) {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Screen capture');
+                warningTracker = true;
+                return;      
+            }
+
+            // Restricted Key
+            if (restrictedKeys.includes(e.key)) {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Restricted key use');
+                warningTracker = true;
+                return; 
+            }
+            
+            // Screen Record
+            if (winKeyPressed && (altKeyPressed || e.key === 'r')) {        
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Screen recording');
+                return;
+            }
+
+            // Print Event
+            if (ctrlKeyPressed && e.key === 'p') {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Print event');
+                warningTracker = true;
+                return;
+            }
+
+            // Save Event
+            if (ctrlKeyPressed && (e.key === 'S' || (e.shiftKey && e.key === 'S'))) {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('File saving');
+                warningTracker = true;
+                return;
+            }
+        }, true);
+
+        // Reset key state when released
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Alt') altKeyPressed = false;
+            if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = false;
+            if (e.ctrlKey) ctrlKeyPressed = false;
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+                e.stopPropagation();
+                showBlackScreen();
+                flashScreen(); 
+                handleWarning('Screen capture');
+                warningTracker = true;  
+                return false;
+            }
+        }, true);
+
+        // Event listeners for various capture methods
+        window.addEventListener('beforeprint', (e) => {
+            e.preventDefault();
+            showBlackScreen();
+            flashScreen();
+            handleWarning('Print event');
+            warningTracker = true;
+        });
+
+        // TAB SWITCHING DETECTION
+        window.addEventListener("focus", () => {
+            if (!warningTracker) {
+                handleWarning('Tab switching');
+            } 
+        });
+
+        // ADDITIONAL SECURITY MEASURES
+        // Disables right-click, text selection, and copying of content
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('selectstart', event => event.preventDefault());
+        document.addEventListener('copy', event => event.preventDefault());
+
+        // DevTools detection
+        let devToolsOpened = false;
+        setInterval(() => {
+            const widthThreshold = window.outerWidth - window.innerWidth > 160;
+            const heightThreshold = window.outerHeight - window.innerHeight > 160;
+            if (widthThreshold || heightThreshold) {
+                if (!devToolsOpened) {
+                    devToolsOpened = true;
+                    handleWarning('DevTools usage');
+                }
+            } else {
+                devToolsOpened = false;
+            }
+        }, 1000);
+
+        // Browser screenshot detection
+        window.addEventListener('screenshot', (e) => {
+            e.preventDefault();
+            flashScreen();
+            handleWarning('Screen capture');
+        });
+
+        // Pixel change detection
+        let lastPixel = null;
+        setInterval(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.drawWindow(window, 0, 0, 1, 1, "rgb(255,255,255)");
+            const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
+            if (lastPixel !== null && pixel !== lastPixel) {
+                handleWarning('Pixel change');
+            }
+            lastPixel = pixel;
+        }, 1000);
+
+        // Initialize timer and set up event listeners
         window.onload = function () {
             showQuestion(currentQuestionIndex); // Show the first question
             startStopwatch();
+
+            document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
+
+            setupAntiScreenshotOverlay();
         };
-        
+
         // View Result
         function viewResult() {
-            const assessmentId = document.querySelector('input[name="assessment_id"]').value;
             const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
             window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
         }    

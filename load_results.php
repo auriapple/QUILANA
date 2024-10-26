@@ -58,7 +58,9 @@ if (isset($_GET['assessment_id']) && filter_var($_GET['assessment_id'], FILTER_V
         echo json_encode(['error' => 'No results found for this assessment and student']);
     } else {
         $mode = '';
-        if ($assessment_data['assessment_mode'] == 2) {
+        if ($assessment_data['assessment_mode'] == 1) {
+            $mode = '(Normal Mode)';
+        } elseif ($assessment_data['assessment_mode'] == 2) {
             $mode = '(Quiz Bee Mode)';
         } elseif ($assessment_data['assessment_mode'] == 3) {
             $mode = '(Speed Mode)';
