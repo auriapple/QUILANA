@@ -48,7 +48,7 @@ if (isset($_POST['class_id'])) {
             ");
 
             // Show assessments that aren't taken yet
-            if ($assessment_query->num_rows == 0) {
+            if ($assessment_query->num_rows == 0 && $row['status'] != 2) {
                 // Determine button text based on assessment type
                 $button_text = $row['assessment_type'] == 1 ? 'Take Quiz' : 'Take Exam';
 
