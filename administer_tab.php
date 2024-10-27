@@ -380,8 +380,7 @@
                             <button id="startAssessment" class='main-button button'
                                 style="width: 180px;"
                                 data-status = 1
-                                data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>, this.getAttribute('data-status'))">
+                                data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>">
                                 Start
                             </button>
                             <button id="closeAssessment" class="main-button button" style="width: 180px; display: none;"> Close </button>
@@ -582,46 +581,79 @@
 
         document.getElementById('startAssessment').addEventListener('click', function() {
             $('#startAssessment').hide();
-            const timeLimit = parseInt(this.getAttribute('data-time'));
             const administerId = document.getElementById('administerId-container').value;
 
-            let countdownTime = timeLimit * 60; // Convert minutes to seconds
-            const minuteDisplay = document.getElementById('minuteDisplay');
-            const secondDisplay = document.getElementById('secondDisplay');
+            console.log('Starting assessment for administerId:', administerId);
 
+            fetch('store_startTime.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ administer_id: administerId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Start time updated:', data.start_time);
+                    sessionStorage.setItem(`start_time_${administerId}`, data.start_time);
+                    initializeTimer(data.start_time);
+                    updateStatus(administerId, 1);
+                } else {
+                    alert('Failed to start the assessment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        function checkTimeStarted() {
+            const administerId = document.getElementById('administerId-container').value;
+            const storedStartTime = sessionStorage.getItem(`start_time_${administerId}`);
+
+            if (storedStartTime) {
+                $('#startAssessment').hide();
+                initializeTimer(storedStartTime);
+            }
+        }
+
+        checkTimeStarted();
+
+        // Function to initialize the timer
+        function initializeTimer(startTime) {
+            const timeLimit = parseInt(document.getElementById('startAssessment').getAttribute('data-time'), 10);
+            const countdownTime = timeLimit * 60;
+
+            const startTimeDate = new Date(startTime + ' GMT+0800');
+            
             interval = setInterval(function() {
-                // Calculate minutes and seconds
-                const minutes = Math.floor(countdownTime / 60);
-                const seconds = countdownTime % 60;
+                const now = new Date();
+                const elapsedTime = Math.floor((now - startTimeDate) / 1000);
+                const remainingTime = countdownTime - elapsedTime;
+
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
 
                 // Update the timer display
-                if (minutes < 10) {
-                    minuteDisplay.textContent = '0' + `${minutes}`;
-                } else {
-                    minuteDisplay.textContent = `${minutes}`
-                }
+                const minuteDisplay = document.getElementById('minuteDisplay');
+                const secondDisplay = document.getElementById('secondDisplay');
 
-                if (seconds < 10) {
-                    secondDisplay.textContent = '0' + `${seconds}`;
-                } else {
-                    secondDisplay.textContent = `${seconds}`
-                }
-                
+                minuteDisplay.textContent = minutes < 10 ? '0' + minutes : minutes;
+                secondDisplay.textContent = seconds < 10 ? '0' + seconds : seconds;
 
                 // Check if time is up
-                if (countdownTime <= 0) {
+                if (remainingTime <= 0) {
                     clearInterval(interval);
+                    const administerId = document.getElementById('administerId-container').value;
                     updateStatus(administerId, 2);
                     $('#closeAssessment').show();
                 }
-
-                countdownTime--;
             }, 1000);
-        });
+        }
 
         function ifStopAssessment() {
             var administerId = document.getElementById('administerId-container').value;
-            console.log(administerId);
 
             fetch('if_done.php', {
                 method: 'POST',

@@ -14,7 +14,7 @@ $class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings
+    SELECT aa.administer_id, a.max_warnings, aa.start_time
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
@@ -26,6 +26,7 @@ if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
+    $start_time = $administer_row['start_time'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
@@ -119,7 +120,7 @@ $time_limit = $assessment['time_limit'];
         <form id="quiz-form" action="submit_assessment.php" method="POST">
             <!-- Header with submit button and timer -->
             <div class="header-container">
-                <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
+                <p>Time Left: <span id="timer" class="timer">Loading...</span></p>
                 <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
             </div>
 
@@ -187,7 +188,7 @@ $time_limit = $assessment['time_limit'];
                 }
                 ?>
                 <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
-                <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
+                <input type="hidden" id="time_limit" name="time_limit" value="<?php echo $time_limit; ?>">
                 <input type="hidden" name="class_id" value="<?php echo $class_id; ?>">
             </div>
         </form>
@@ -196,7 +197,6 @@ $time_limit = $assessment['time_limit'];
     <script>
         // Global variables
         let timerInterval;
-        let timerExpired = false;
         const assessmentId = document.querySelector('input[name="assessment_id"]').value;
         let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
         let isSubmitting = false;
@@ -206,47 +206,6 @@ $time_limit = $assessment['time_limit'];
         let winKeyPressed = false;
         let ctrlKeyPressed = false;
         let warningTracker = false;
-
-        // TIMER FUNCTIONALITY
-        function startTimer(duration, display) {
-            var timer = duration, minutes, seconds;
-
-            // Get stored end time
-            const storedEndTime = sessionStorage.getItem(`endTime_${assessmentId}`);
-            if (storedEndTime) {
-                var now = Date.now();
-                timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
-            } else {
-                var endTime = Date.now() + (timer * 1000);
-                sessionStorage.setItem(`endTime_${assessmentId}`, endTime);
-            }
-
-            updateDisplay(timer, display); // Initialize display immediately
-
-            timerInterval = setInterval(function () {
-                const now = Date.now();
-                const remainingTime = Math.max(0, Math.floor((sessionStorage.getItem(`endTime_${assessmentId}`) - now) / 1000)); // Use unique key
-
-                if (remainingTime <= 0) {
-                    clearInterval(timerInterval);
-                    timerExpired = true; // Set flag to true when timer runs out
-                    showPopup('timer-runout-popup');
-                    sessionStorage.removeItem(`endTime_${assessmentId}`);
-                } else {
-                    updateDisplay(remainingTime, display);
-                    sessionStorage.setItem(`remainingTime_${assessmentId}`, remainingTime); // Update the stored remaining time
-                }
-            }, 1000);
-        }
-
-        // Function to update display
-        function updateDisplay(remainingTime, display) {
-            var minutes = Math.floor(remainingTime / 60);
-            var seconds = remainingTime % 60;
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.textContent = minutes + ":" + seconds;
-        }
 
         // POPUP HANDLING
         function showPopup(popupId) {
@@ -284,7 +243,6 @@ $time_limit = $assessment['time_limit'];
                 isSubmitting = false;
                 hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
-                    sessionStorage.removeItem(`endTime_${assessmentId}`);
                     sessionStorage.removeItem(`remainingTime_${assessmentId}`);
                     sessionStorage.removeItem(`warningCount_${assessmentId}`);
                     clearInterval(timerInterval);
@@ -602,12 +560,42 @@ $time_limit = $assessment['time_limit'];
             lastPixel = pixel;
         }, 1000);
 
-        // Initialize timer and set up event listeners
-        window.onload = function () {
-            var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
-                display = document.querySelector('#timer');
-            startTimer(timeLimit, display);
+        // Set Timer Functionality and Event Listeners
+        window.onload = function() {
+            const maxTimeLimit = parseInt(document.getElementById('time_limit').value) * 60; // Convert minutes to seconds
+            const startTime = new Date("<?php echo $start_time; ?> GMT+0800").getTime();
 
+            function calculateRemainingTime() {
+                const now = Date.now();
+                const elapsedTime = Math.floor((now - startTime) / 1000); // Calculate elapsed time in seconds
+                const remainingTime = Math.max(0, maxTimeLimit - elapsedTime); // Calculate remaining time
+                return remainingTime;
+            }
+
+            function startTimer() {
+                const remainingTime = calculateRemainingTime();
+                updateDisplay(remainingTime); // Update display immediately
+
+                const timerInterval = setInterval(function () {
+                    const newRemainingTime = calculateRemainingTime();
+
+                    if (newRemainingTime <= 0) {
+                        clearInterval(timerInterval);
+                        showPopup('timer-runout-popup');
+                    } else {
+                        updateDisplay(newRemainingTime);
+                    }
+                }, 1000);
+            }
+
+            function updateDisplay(remainingTime) {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                document.getElementById('timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            }
+
+            startTimer(); // Start the timer
+            
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
 
             setupAntiScreenshotOverlay();
