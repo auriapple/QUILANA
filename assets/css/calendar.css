@@ -116,6 +116,12 @@ header .current-date{
     background: #9B59B6;
 }
 
+.days li.today::before {
+    border: 1px solid #9B59B6; /* Outline for today */
+    border-radius: 50%; /* Make the border circular */
+    color: #9B59B6; /* Change text color for today */
+}
+
 .days li:not(.active):hover::before{
-     background: #f2f2f2;
+    background: #f2f2f2;
 }

@@ -322,4 +322,8 @@ tr .status {
         margin-top: 0;
         margin-bottom: 15px;
     }
+
+    .scrollable-content {
+        height: calc(100% - 220px) !important;
+    }
 }
