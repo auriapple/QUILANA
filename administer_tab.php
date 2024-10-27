@@ -621,7 +621,6 @@
 
         function ifStopAssessment() {
             var administerId = document.getElementById('administerId-container').value;
-            console.log(administerId);
 
             fetch('if_done.php', {
                 method: 'POST',

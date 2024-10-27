@@ -128,19 +128,18 @@
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
                 </div>
-            
-                    
-
-                <div id="details-tab" class="tab-content">
-                    <h1></h1>
-                </div>
-
-                <div id="administer-tab" class="tab-content"> 
-                    <div id="administer-container">
-                    </div>
-                </div>
+            </div> 
+            </div>
+                   
+            <div id="details-tab" class="tab-content">
+                <h1></h1>
             </div>
 
+            <div id="administer-tab" class="tab-content"> 
+                <div id="administer-container">
+                </div>
+            </div>
+        </div>
 
             <!-- Modal for managing assessments -->
             <div id="add-assessment-popup" class="popup-overlay"> 
