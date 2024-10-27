@@ -589,6 +589,28 @@
             const minuteDisplay = document.getElementById('minuteDisplay');
             const secondDisplay = document.getElementById('secondDisplay');
 
+            const time = new Date();
+            console.log('Time Started: ' + time);
+
+            fetch('set_startTime.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ administer_id: administerId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('start_time updated.');
+                } else {
+                    console.log('Failed to update start_time.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
             interval = setInterval(function() {
                 // Calculate minutes and seconds
                 const minutes = Math.floor(countdownTime / 60);
