@@ -609,7 +609,7 @@ echo "<script> console.log('Start Time: " . $start_time_obj_formatted . "\\nCurr
             } else {
                 devToolsOpened = false;
             }
-        }, 1000);
+        }, 5000);
 
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {

@@ -183,8 +183,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                    <button class="tertiary-button" data-dismiss="modal">Cancel</button>
-                    <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                        <button class="tertiary-button close-popup" type="button">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -266,8 +266,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                    <button class="tertiary-button" data-dismiss="modal">Cancel</button>
-                    <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                    <button class="tertiary-button close-popup" type="button">Cancel</button>
+                    <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -331,7 +331,7 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup = this.parentElement.parentElement.parentElement.id;
+                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {

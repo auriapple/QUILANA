@@ -312,8 +312,8 @@
                         <p class="popup-message" id="delete-message">Are you sure you want to delete <strong id="assessment_name"></strong> from <strong id="assessment_subject"></strong>?</p>
                     </div>
                     <div class="modal-footer">
-                        <button class="tertiary-button" data-dismiss="modal">Cancel</button>
-                        <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                        <button class="tertiary-button close-popup" type="button">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </div>
             </div>
