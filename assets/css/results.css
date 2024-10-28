@@ -70,4 +70,8 @@
     #assessment-topic {
         font-size: 18px;
     }
+
+    .scrollable-content {
+        height: calc(100% - 220px) !important;
+    }
 }

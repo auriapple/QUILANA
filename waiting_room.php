@@ -2,7 +2,7 @@
 include('db_connect.php');
 include('auth.php');
 
-// Check if assessment_id and student_id are set in URL
+// Check if assessment_id, student_id, and class_id are set in URL
 if (!isset($_GET['assessment_id']) || !isset($_GET['student_id']) || !isset($_GET['class_id'])) {
     header('location: load_assessments.php');
     exit();
@@ -99,14 +99,6 @@ if ($assessment_query->num_rows > 0) {
                 exit();
             }
         }
-        
-        // Add reload script
-        echo "<script>
-        setInterval(function() {
-            location.reload();
-        }, 30000); // Reload every 5 seconds
-        </script>";
-
     } else {
         echo "Error: Assessment hasn't been administered yet.";
         exit();
@@ -324,7 +316,6 @@ if ($assessment_query->num_rows > 0) {
 </head>
 <body>
     <?php include('nav_bar.php') ?>
-
     <div class="content-wrapper">
         <div class="assessment-details">
             <div class="general-details">
@@ -483,7 +474,6 @@ if ($assessment_query->num_rows > 0) {
                         }
                         ?>
                     </div>
-
                     <h3 class="reminders" >Reminders</h3>
                     <div class="reminder-text">
                         <ul class="numbered-list">
@@ -503,14 +493,39 @@ if ($assessment_query->num_rows > 0) {
                     </div>
 
                 </div>
-
                 <div class="fade-bottom"></div>
-
             </div>
             <div class="message">
                 <h5>Get ready to show off those smarts! The <?php echo ($assessment['assessment_type'] == 1) ? 'quiz' : 'exam'; ?> will begin shortly!</h5>
             </div>
         </div>
     </div>
+    <script>
+        function check_status() {
+            const assessmentId = "<?php echo $assessment_id; ?>"; 
+            const classId = "<?php echo $class_id; ?>";
+
+            fetch(`check_status.php?assessment_id=${assessmentId}&class_id=${classId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+                    
+                    const currentStatus = data.status;
+                    console.log('Current Status:', currentStatus);
+                    
+                    // Reload page if the status is 1
+                    if (currentStatus == 1) {
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error fetching status:', error));
+        }
+
+        // Call check_status every 3 seconds
+        setInterval(check_status, 3000);
+    </script>
 </body>
 </html>

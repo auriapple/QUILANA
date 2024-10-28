@@ -173,7 +173,7 @@
                             <div class="form-group">
                                 <label>Select Course</label>
                                 <select name="course_id" id="course_id" required="required" class="popup-input">
-                                    <option value="" disabled>Select Course</option>
+                                    <option value="" disabled selected>Select Course</option>
                                     <?php
                                     $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                     while($course_row = $course_qry->fetch_assoc()) {
@@ -185,7 +185,7 @@
                             <div class="form-group">
                                 <label>Select Course Subject</label>
                                 <select name="subject" id="subject" required="required" class="popup-input">
-                                    <option value="" disabled>Select Subject</option>
+                                    <option value="" disabled selected>Select Subject</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -398,14 +398,13 @@
                         }
                     });
                 } else {
-                    $('#subject').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
+                    $('#subject').html('<option value="" disabled>Select Subject</option>'); // Clear subjects dropdown
                 }
             });
 
             $('#assessment-form').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
                 closePopup('add-assessment-popup');
-                
                 $.ajax({
                     url: 'save_assessment.php', 
                     method: 'POST', // Use POST to send form data

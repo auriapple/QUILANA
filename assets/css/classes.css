@@ -293,6 +293,7 @@ tr .status {
 .popup-input:disabled, .popup-input[readonly] {
     background-color: #e9ecef;
     opacity: 1;
+    color: #6d6d6d !important;
 }
 
 /* Media Query for small screens */
@@ -321,5 +322,9 @@ tr .status {
         font-size: 16px;
         margin-top: 0;
         margin-bottom: 15px;
+    }
+
+    .scrollable-content {
+        height: calc(100% - 220px) !important;
     }
 }

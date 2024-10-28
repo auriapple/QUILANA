@@ -624,6 +624,7 @@
             // Handle Edit Form (Class)
             $('#edit-class-form').submit(function(event) {
                 event.preventDefault();
+                closePopup('edit-class-popup');
                 var course_id = $('#edit-class-popup #course_id').val();
                 closePopup('edit-class-popup');
 
@@ -682,6 +683,7 @@
              // Handle Delete Form (Class)
              $('#delete-class-form').submit(function(event) {
                     event.preventDefault();
+                    closePopup('delete-class-popup');
                     var course_id = $('#delete-class-popup #course_id').val();
                     closePopup('delete-class-popup');
 
@@ -911,6 +913,7 @@
             // AJAX form submission for adding a class
             $('#class-form').submit(function(e) {
                 e.preventDefault();
+                closePopup('add-class-popup');
                 var course_id = $('#add-class-popup input[name="course_id"]').val();
                 closePopup('add-class-popup');
                 

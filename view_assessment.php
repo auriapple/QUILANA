@@ -149,11 +149,6 @@ if ($assessment_mode == 1) { // Normal Mode
             margin-right: 10px;
             accent-color: #4A4CA6;
         }
-        .time-limit {
-            margin-top: 10px;
-            font-style: italic;
-            color: #666;
-        }
         .checked {
             background-color: #e6e6fa;
             padding: 5px;
@@ -233,12 +228,6 @@ if ($assessment_mode == 1) { // Normal Mode
                         echo '<div class="question">';
                         echo '<div class="question-number">Question ' . $question_number . ':</div>';
                         echo '<p>' . htmlspecialchars($current_question) . '</p>';
-
-                        // Display time limit if applicable
-                        if ($assessment_mode == 2 || $assessment_mode == 3) {
-                            $question_time_limit = isset($detail['question_time_limit']) ? htmlspecialchars($detail['question_time_limit']) : 'Not specified';
-                            echo '<div class="time-limit">Time Limit: ' . $question_time_limit . ' seconds</div>';
-                        }
 
                         $question_number++;
                     }
