@@ -128,19 +128,17 @@
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
                 </div>
-            
-                    
-
-                <div id="details-tab" class="tab-content">
-                    <h1></h1>
-                </div>
-
-                <div id="administer-tab" class="tab-content"> 
-                    <div id="administer-container">
-                    </div>
-                </div>
+            </div> 
+                   
+            <div id="details-tab" class="tab-content">
+                <h1></h1>
             </div>
 
+            <div id="administer-tab" class="tab-content"> 
+                <div id="administer-container">
+                </div>
+            </div>
+        </div>
 
             <!-- Modal for managing assessments -->
             <div id="add-assessment-popup" class="popup-overlay"> 
@@ -407,7 +405,11 @@
             $('#assessment-form').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
                 closePopup('add-assessment-popup');
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> nathan
                 $.ajax({
                     url: 'save_assessment.php', 
                     method: 'POST', // Use POST to send form data

@@ -585,7 +585,14 @@
 
             console.log('Starting assessment for administerId:', administerId);
 
+<<<<<<< HEAD
             fetch('store_startTime.php', {
+=======
+            const time = new Date();
+            console.log('Time Started: ' + time);
+
+            fetch('set_startTime.php', {
+>>>>>>> nathan
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -595,17 +602,24 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+<<<<<<< HEAD
                     console.log('Start time updated:', data.start_time);
                     sessionStorage.setItem(`start_time_${administerId}`, data.start_time);
                     initializeTimer(data.start_time);
                     updateStatus(administerId, 1);
                 } else {
                     alert('Failed to start the assessment: ' + data.message);
+=======
+                    console.log('start_time updated.');
+                } else {
+                    console.log('Failed to update start_time.');
+>>>>>>> nathan
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+<<<<<<< HEAD
         });
 
         function checkTimeStarted() {
@@ -627,6 +641,9 @@
 
             const startTimeDate = new Date(startTime + ' GMT+0800');
             
+=======
+
+>>>>>>> nathan
             interval = setInterval(function() {
                 const now = new Date();
                 const elapsedTime = Math.floor((now - startTimeDate) / 1000);

@@ -266,8 +266,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="tertiary-button close-popup" type="button">Cancel</button>
-                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
+                    <button class="tertiary-button close-popup" type="button">Cancel</button>
+                    <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -622,6 +622,7 @@
                 event.preventDefault();
                 closePopup('edit-class-popup');
                 var course_id = $('#edit-class-popup #course_id').val();
+                closePopup('edit-class-popup');
 
                 $.ajax({
                     url: './save_editted_class.php',
@@ -680,6 +681,7 @@
                     event.preventDefault();
                     closePopup('delete-class-popup');
                     var course_id = $('#delete-class-popup #course_id').val();
+                    closePopup('delete-class-popup');
 
                     $.ajax({
                         url: './delete_class.php', 
@@ -909,6 +911,7 @@
                 e.preventDefault();
                 closePopup('add-class-popup');
                 var course_id = $('#add-class-popup input[name="course_id"]').val();
+                closePopup('add-class-popup');
                 
                 $.ajax({
                     url: 'save_class.php',
