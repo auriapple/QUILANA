@@ -405,6 +405,7 @@
             $('#assessment-form').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
                 closePopup('add-assessment-popup');
+                
                 $.ajax({
                     url: 'save_assessment.php', 
                     method: 'POST', // Use POST to send form data
@@ -719,6 +720,7 @@
             // Confirm delete action
             $('#confirm_delete_btn').click(function() {
                 var assessmentId = $(this).data('id');
+                closePopup('delete-assessment-popup');
 
                 $.ajax({
                     url: 'delete_assessment.php',

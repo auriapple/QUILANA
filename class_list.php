@@ -490,6 +490,7 @@
             // Handle Edit Form (Course)
             $('#edit-course-form').submit(function(event) {
                 event.preventDefault();
+                closePopup('edit-program-popup');
 
                 $.ajax({
                     url: './save_editted_course.php',
@@ -554,6 +555,7 @@
             // Handle Delete Form (Course)
             $('#delete-course-form').submit(function(event) {
                 event.preventDefault();
+                closePopup('delete-program-popup');
 
                 $.ajax({
                     url: 'delete_course.php', 
@@ -619,6 +621,7 @@
             $('#edit-class-form').submit(function(event) {
                 event.preventDefault();
                 var course_id = $('#edit-class-popup #course_id').val();
+                closePopup('edit-class-popup');
 
                 $.ajax({
                     url: './save_editted_class.php',
@@ -639,7 +642,6 @@
                                 }
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    closePopup('edit-class-popup');
                                     getClasses(course_id);
                                 }
                             });
@@ -677,6 +679,7 @@
              $('#delete-class-form').submit(function(event) {
                     event.preventDefault();
                     var course_id = $('#delete-class-popup #course_id').val();
+                    closePopup('delete-class-popup');
 
                     $.ajax({
                         url: './delete_class.php', 
@@ -697,7 +700,6 @@
                                     }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        closePopup('delete-class-popup');
                                         getClasses(course_id);
                                     }
                                 });
@@ -837,6 +839,7 @@
                 e.preventDefault();
                 $('#course-frm [name="save"]').attr('disabled', true).html('Saving...');
                 $('#msg').html('');
+                closePopup('add-program-popup');
 
                 $.ajax({
                     url: './save_course.php',
@@ -905,6 +908,7 @@
             $('#class-form').submit(function(e) {
                 e.preventDefault();
                 var course_id = $('#add-class-popup input[name="course_id"]').val();
+                closePopup('add-class-popup');
                 
                 $.ajax({
                     url: 'save_class.php',
@@ -925,7 +929,6 @@
                                 }
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    closePopup('add-class-popup');
                                     getClasses(course_id);
                                 }
                             });
