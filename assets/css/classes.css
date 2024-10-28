@@ -293,6 +293,7 @@ tr .status {
 .popup-input:disabled, .popup-input[readonly] {
     background-color: #e9ecef;
     opacity: 1;
+    color: #6d6d6d !important;
 }
 
 /* Media Query for small screens */

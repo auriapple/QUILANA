@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $options = '<option value="" disabled>Select Subject</option>';
+        $options = '<option value="" disabled selected>Select Subject</option>';
         while ($row = $result->fetch_assoc()) {
             $options .= "<option value='".$row['subject']."'>".$row['subject']."</option>";
         }
