@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 if (isset($data['administer_id'])) {
     $administer_id = $conn->real_escape_string($data['administer_id']);
-    $status = 1;
+    $status = $conn->real_escape_string($data['status']);
 
     // Update status in administer_assessment table
     $update_query = "
@@ -20,7 +20,7 @@ if (isset($data['administer_id'])) {
         echo json_encode(['success' => false, 'message' => $conn->error]);
     }
 } else {
-    echo json_encode(['success' => false, 'message' => 'administer_id is missing.']);
+    echo json_encode(['success' => false, 'message' => 'administer_id or status is missing.']);
 }
 
 $conn->close();

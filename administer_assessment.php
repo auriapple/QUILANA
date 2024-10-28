@@ -25,7 +25,14 @@ $result = $check_stmt->get_result();
 
 if ($result->num_rows > 0) {
     // Assessment already administered
-    echo json_encode(['status' => 'info', 'message' => 'Assessment already administered to this class.']);
+    $row = $result->fetch_assoc();
+    
+    if ($row['status'] == 2) {
+        echo json_encode(['status' => 'info', 'message' => 'Assessment already administered to this class.']);
+    } else {
+        echo json_encode(['status' => 'success', 'message' => 'Assessment is currently being administered.']);
+    }
+
 } else {
     // Insert new administration record without timelimit
     $insert_sql = "

@@ -35,7 +35,8 @@ body {
 .dashboard-summary,
 .dashboard-requests,
 .dashboard-calendar,
-.recent-assessments {
+.recent-assessments,
+.dashboard-schedule {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
@@ -48,12 +49,22 @@ body {
 }
 .dashboard-requests h1,
 .dashboard-summary h1,
-.recent-assessments h1 {
+.recent-assessments h1,
+.dashboard-schedule h1 {
     min-height: fit-content;
     font-size: 20px;
     font-weight: 600;
     color: #1e1a43;
     white-space: nowrap;
+    overflow: hidden;
+}
+
+.dashboard-schedule {
+    justify-content: flex-start;
+    align-content: space-between;
+    overflow-y: scroll;
+    grid-column: 2 / 3;
+    grid-row: 3 / 7;
     overflow: hidden;
 }
 
@@ -274,7 +285,7 @@ td .btns,
         display: flex;
         justify-content: flex-start;
         flex-direction: column;
-        height: 100%;
+        height: calc(100% - 60px) !important;
         overflow: scroll;
         overflow-y: scroll;
     }
@@ -290,7 +301,8 @@ td .btns,
     }
     .dashboard-calendar {
         min-height: 300px;
-        min-width: 370px;
+        min-width: 350px;
+        padding: 5px 15px
     }
     .dashboard-container::-webkit-scrollbar {
         display: none;

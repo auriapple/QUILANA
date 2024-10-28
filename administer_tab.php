@@ -190,7 +190,8 @@
         .table-wrapper tbody::-webkit-scrollbar {
             display: none;
         }
-        #startAssessment {
+        #startAssessment,
+        #closeAssessment {
             outline: none;
             border-radius: 5px;
         }
@@ -379,13 +380,10 @@
                             <button id="startAssessment" class='main-button button'
                                 style="width: 180px;"
                                 data-status = 1
-                                data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>" 
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Start</button>
-                            <!--button id="stopAssessment" class='main-button button'
-                                data-status = 2
-                                onclick="updateStatus(<?php echo $administer['administer_id']; ?>)">
-                                Stop</button-->
+                                data-time="<?php echo htmlspecialchars($administer['time_limit']) ?>">
+                                Start
+                            </button>
+                            <button id="closeAssessment" class="main-button button" style="width: 180px; display: none;"> Close </button>
                         </div>
                         <input type="hidden" id="administerId-container" value="<?php echo $administer['administer_id']; ?>" />
                     </div>
@@ -553,10 +551,7 @@
             });
         }
 
-        function updateStatus(administerId) {
-            const button = event.target;
-            const status = button.getAttribute('data-status');
-
+        function updateStatus(administerId, status) {
             fetch('update_status.php', {
                 method: 'POST',
                 headers: {
@@ -566,14 +561,14 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success && button.id === 'startAssessment') {
-                    alert('Assessment started successfully!');
-                } else if (data.success && button.id === 'stopAssessment') {
-                    alert('Assessment stopped successfully!');
-                } else if (!data.success &&button.id === 'stopAssessment') {
-                    alert('Failed to stop assessment: ' + data.message);
+                if (data.success) {
+                    if (status == 1) {
+                        alert('Assessment started successfully!');
+                    } else if (status == 2) {
+                        alert('Assessment stopped successfully!');
+                    }
                 } else {
-                    alert('Failed to start assessment: ' + data.message);
+                    alert('Failed to update assessment status: ' + data.message);
                 }
             })
             .catch(error => {
@@ -581,89 +576,100 @@
             });
         }
 
-        let interval;  // For the interval for the timer
-        let ifStopAssessmentInterval; // For the interval for if to stop the assessment
+        let interval;
+        let ifStopAssessmentInterval;
 
         document.getElementById('startAssessment').addEventListener('click', function() {
             $('#startAssessment').hide();
-            //$('#stopAssessment').show();
-            const timeLimit = parseInt(this.getAttribute('data-time'));
-            
-            if (isNaN(timeLimit) || timeLimit <= 0) {
-                alert('No valid time limit set for this assessment.');
-                return;
+            const administerId = document.getElementById('administerId-container').value;
+
+            console.log('Starting assessment for administerId:', administerId);
+
+            fetch('store_startTime.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ administer_id: administerId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Start time updated:', data.start_time);
+                    sessionStorage.setItem(`start_time_${administerId}`, data.start_time);
+                    initializeTimer(data.start_time);
+                    updateStatus(administerId, 1);
+                } else {
+                    alert('Failed to start the assessment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        function checkTimeStarted() {
+            const administerId = document.getElementById('administerId-container').value;
+            const storedStartTime = sessionStorage.getItem(`start_time_${administerId}`);
+
+            if (storedStartTime) {
+                $('#startAssessment').hide();
+                initializeTimer(storedStartTime);
             }
+        }
 
-            let countdownTime = timeLimit * 60; // Convert minutes to seconds
-            const minuteDisplay = document.getElementById('minuteDisplay');
-            const secondDisplay = document.getElementById('secondDisplay');
+        checkTimeStarted();
 
+        // Function to initialize the timer
+        function initializeTimer(startTime) {
+            const timeLimit = parseInt(document.getElementById('startAssessment').getAttribute('data-time'), 10);
+            const countdownTime = timeLimit * 60;
+
+            const startTimeDate = new Date(startTime + ' GMT+0800');
+            
             interval = setInterval(function() {
-                // Calculate minutes and seconds
-                const minutes = Math.floor(countdownTime / 60);
-                const seconds = countdownTime % 60;
+                const now = new Date();
+                const elapsedTime = Math.floor((now - startTimeDate) / 1000);
+                const remainingTime = countdownTime - elapsedTime;
+
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
 
                 // Update the timer display
-                if (minutes < 10) {
-                    minuteDisplay.textContent = '0' + `${minutes}`;
-                } else {
-                    minuteDisplay.textContent = `${minutes}`
-                }
+                const minuteDisplay = document.getElementById('minuteDisplay');
+                const secondDisplay = document.getElementById('secondDisplay');
 
-                if (seconds < 10) {
-                    secondDisplay.textContent = '0' + `${seconds}`;
-                } else {
-                    secondDisplay.textContent = `${seconds}`
-                }
-                
+                minuteDisplay.textContent = minutes < 10 ? '0' + minutes : minutes;
+                secondDisplay.textContent = seconds < 10 ? '0' + seconds : seconds;
 
                 // Check if time is up
-                if (countdownTime <= 0) {
+                if (remainingTime <= 0) {
                     clearInterval(interval);
-                    timerDisplay.textContent = "Time's up!";
+                    const administerId = document.getElementById('administerId-container').value;
+                    updateStatus(administerId, 2);
+                    $('#closeAssessment').show();
                 }
-
-                // Decrease countdown time by 1 second
-                countdownTime--;
             }, 1000);
-        });
+        }
 
         function ifStopAssessment() {
             var administerId = document.getElementById('administerId-container').value;
-            console.log(administerId);
 
             fetch('if_done.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ administer_id: administerId})
+                body: JSON.stringify({administer_id: administerId})
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    fetch('update_status.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ administer_id: administerId})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Assessment stopped successfully!');
-                            clearInterval(interval);
-                            clearInterval(ifStopAssessmentInterval);
-                            clearInterval(updateNotifs);
-                            document.getElementById("administer-tab-link").setAttribute('data-status', '1')
-                        } else if (!data.success) {
-                            alert('Failed to stop assessment: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                if (data.status === 'success') {   
+                    clearInterval(interval);      
+                    clearInterval(ifStopAssessmentInterval);
+                    clearInterval(updateNotifs); 
+                    updateStatus(administerId, 2);
+                    $('#closeAssessment').show();
                 }
             })
             .catch(error => {
@@ -673,6 +679,9 @@
 
         ifStopAssessmentInterval = setInterval(ifStopAssessment, 3000);
 
+        $('#closeAssessment').on('click', function() {
+            window.location.href = 'assessment.php';
+        });
     </script>
 </body>
 </html>

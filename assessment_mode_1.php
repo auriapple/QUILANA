@@ -14,7 +14,7 @@ $class_id = $conn->real_escape_string($_GET['class_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings
+    SELECT aa.administer_id, a.max_warnings, aa.start_time
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
     WHERE aa.assessment_id = '$assessment_id'
@@ -26,6 +26,7 @@ if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
     $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
+    $start_time = $administer_row['start_time'];
 
     // Check if there is a join assessment record
     $join_query = $conn->query("
@@ -119,7 +120,7 @@ $time_limit = $assessment['time_limit'];
         <form id="quiz-form" action="submit_assessment.php" method="POST">
             <!-- Header with submit button and timer -->
             <div class="header-container">
-                <p>Time Left: <span id="timer" class="timer"><?php echo htmlspecialchars($time_limit); ?>:00</span></p>
+                <p>Time Left: <span id="timer" class="timer">Loading...</span></p>
                 <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
             </div>
 
@@ -187,78 +188,32 @@ $time_limit = $assessment['time_limit'];
                 }
                 ?>
                 <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
-                <input type="hidden" name="time_limit" value="<?php echo $time_limit; ?>">
+                <input type="hidden" id="time_limit" name="time_limit" value="<?php echo $time_limit; ?>">
                 <input type="hidden" name="class_id" value="<?php echo $class_id; ?>">
             </div>
         </form>
     </div>
 
-   <script>
+    <script>
         // Global variables
         let timerInterval;
-        let timerExpired = false;
-        let warningCount = parseInt(sessionStorage.getItem('warningCount')) || 0;
+        const assessmentId = document.querySelector('input[name="assessment_id"]').value;
+        let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
         let isSubmitting = false;
         let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
         let altKeyPressed = false;
         let winKeyPressed = false;
-
-        // TIMER FUNCTIONALITY
-        function startTimer(duration, display) {
-            var timer = duration, minutes, seconds;
-
-            // Get stored end time
-            var storedEndTime = sessionStorage.getItem('endTime');
-            if (storedEndTime) {
-                var now = Date.now();
-                timer = Math.max(0, Math.floor((storedEndTime - now) / 1000));
-            } else {
-                var endTime = Date.now() + (timer * 1000);
-                sessionStorage.setItem('endTime', endTime);
-            }
-
-            updateDisplay(timer, display); // Initialize display immediately
-
-            timerInterval = setInterval(function () {
-                var now = Date.now();
-                var remainingTime = Math.max(0, Math.floor((sessionStorage.getItem('endTime') - now) / 1000));
-
-                if (remainingTime <= 0) {
-                    clearInterval(timerInterval);
-                    timerExpired = true; // Set flag to true when timer runs out
-                    showPopup('timer-runout-popup');
-                    sessionStorage.removeItem('endTime');
-                } else {
-                    updateDisplay(remainingTime, display);
-                    sessionStorage.setItem('remainingTime', remainingTime); // Update the stored remaining time
-                }
-            }, 1000);
-        }
-
-        // Function to update display
-        function updateDisplay(remainingTime, display) {
-            var minutes = Math.floor(remainingTime / 60);
-            var seconds = remainingTime % 60;
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.textContent = minutes + ":" + seconds;
-        }
+        let ctrlKeyPressed = false;
+        let warningTracker = false;
 
         // POPUP HANDLING
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
         }
-
         function closePopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
         }
-
-        function closeSuccessPopup(popupId) {
-            document.getElementById(popupId).style.display = 'none';
-            window.location.href = 'results.php';
-        }
-
         function closeErrorPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
             isSubmitting = false;
@@ -288,9 +243,8 @@ $time_limit = $assessment['time_limit'];
                 isSubmitting = false;
                 hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
-                    sessionStorage.removeItem('endTime');
-                    sessionStorage.removeItem('remainingTime');
-                    sessionStorage.removeItem('warningCount');
+                    sessionStorage.removeItem(`remainingTime_${assessmentId}`);
+                    sessionStorage.removeItem(`warningCount_${assessmentId}`);
                     clearInterval(timerInterval);
                     showPopup('success-popup');
                 } else {
@@ -312,7 +266,7 @@ $time_limit = $assessment['time_limit'];
                 warningCount = max_warnings;
             }
            
-            sessionStorage.setItem('warningCount', warningCount);
+            sessionStorage.setItem(`warningCount_${assessmentId}`, warningCount);
             console.log(`Warning triggered via ${method}. Total warnings: ${warningCount}`);
 
             temporarilyHideOverlay();
@@ -466,108 +420,106 @@ $time_limit = $assessment['time_limit'];
             }, 1000);
         }
 
-        // Black screen overlay
-        const blackScreen = document.createElement('div');
-        blackScreen.style.position = 'fixed';
-        blackScreen.style.top = '0';
-        blackScreen.style.left = '0';
-        blackScreen.style.width = '100%';
-        blackScreen.style.height = '100%';
-        blackScreen.style.backgroundColor = 'black';
-        blackScreen.style.zIndex = '10000';
-        blackScreen.style.display = 'none';
-        document.body.appendChild(blackScreen);
-
-        // Function to show black screen
-        function showBlackScreen() {
-            blackScreen.style.display = 'block';
-            setTimeout(() => {
-                blackScreen.style.display = 'none';
-            }, 2000); // Hide after 2 seconds
-        }
-
-        // Key event listeners
+        // EVENT LISTENERS FOR VARIOUS KEYBOARD SHORTCUTS
         document.addEventListener('keydown', (e) => {
-            // List of restricted keys
-            const restrictedKeys = ['PrintScreen', 'Meta', 'Win', 'Windows', 'F12'];
-            
+            const restrictedKeys = ['F12'];
             if (e.key === 'Alt') altKeyPressed = true;
             if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') {
                 winKeyPressed = true;
                 showBlackScreen();
             }
+            if (e.ctrlKey) {
+                ctrlKeyPressed = true;
+                showBlackScreen();
+            }
 
-            // Detect various screen capture attempts or restricted keys
-            if (restrictedKeys.includes(e.key) ||
-                (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 'PrintScreen')) ||
-                (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) ||
-                (winKeyPressed && e.shiftKey && e.key === 'S') ||
-                (winKeyPressed && altKeyPressed && e.key === 'r') ||
-                (e.ctrlKey && e.key === 'p')) { 
-                
+            //Screen Capture
+            if ((winKeyPressed && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+                (winKeyPressed && (e.shiftKey || e.key === 'S')) ||
+                (winKeyPressed && e.key === 'g')) {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                handleWarning('Restricted key use');
                 flashScreen();
-
-                return false;
+                handleWarning('Screen capture');
+                warningTracker = true;
+                return;      
             }
-        }, true); 
+
+            // Restricted Key
+            if (restrictedKeys.includes(e.key)) {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Restricted key use');
+                warningTracker = true;
+                return; 
+            }
+            
+            // Screen Record
+            if (winKeyPressed && (altKeyPressed || e.key === 'r')) {        
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Screen recording');
+                return;
+            }
+
+            // Print Event
+            if (ctrlKeyPressed && e.key === 'p') {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('Print event');
+                warningTracker = true;
+                return;
+            }
+
+            // Save Event
+            if (ctrlKeyPressed && (e.key === 'S' || (e.shiftKey && e.key === 'S'))) {
+                e.preventDefault();
+                e.stopPropagation();
+                flashScreen();
+                handleWarning('File saving');
+                warningTracker = true;
+                return;
+            }
+        }, true);
 
         // Reset key state when released
         document.addEventListener('keyup', (e) => {
             if (e.key === 'Alt') altKeyPressed = false;
             if (e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows') winKeyPressed = false;
+            if (e.ctrlKey) ctrlKeyPressed = false;
             if (e.key === 'PrintScreen') {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                handleWarning('Print Screen use');
-                flashScreen();
                 showBlackScreen();
+                flashScreen(); 
+                handleWarning('Screen capture');
+                warningTracker = true;  
                 return false;
             }
-        }, true); 
-
-        // Prevent default behavior for specific keys
-        window.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || e.key === 'PrintScreen' || 
-                e.key === 'Meta' || e.key === 'Win' || e.key === 'Windows' ||
-                (e.ctrlKey && e.key === 'p')) {
-                e.preventDefault();
-                return false;
-            }
-        }, true);
-
-        // Additional measure to block right-click context menu
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            showTemporaryMessage('Right-click is disabled');
-            return false;
-        }, true);
-
-        // Block tab visibility API
-        Object.defineProperty(document, 'hidden', {
-            value: false,
-            writable: false
-        });
-        Object.defineProperty(document, 'visibilityState', {
-            value: 'visible',
-            writable: false
-        });
-        document.addEventListener('visibilitychange', function(e) {
-            e.stopImmediatePropagation();
         }, true);
 
         // Event listeners for various capture methods
         window.addEventListener('beforeprint', (e) => {
             e.preventDefault();
-            handleWarning('Print event');
             showBlackScreen();
+            flashScreen();
+            handleWarning('Print event');
+            warningTracker = true;
         });
 
-        // Additional security measures
+        // TAB SWITCHING DETECTION
+        window.addEventListener("focus", () => {
+            if (!warningTracker) {
+                handleWarning('Tab switching');
+            } 
+        });
+
+        // ADDITIONAL SECURITY MEASURES
+        // Disables right-click, text selection, and copying of content
+        document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
 
@@ -580,7 +532,6 @@ $time_limit = $assessment['time_limit'];
                 if (!devToolsOpened) {
                     devToolsOpened = true;
                     handleWarning('DevTools usage');
-                    showBlackScreen();
                 }
             } else {
                 devToolsOpened = false;
@@ -592,7 +543,6 @@ $time_limit = $assessment['time_limit'];
             e.preventDefault();
             flashScreen();
             handleWarning('Screen capture');
-            showBlackScreen();
         });
 
         // Pixel change detection
@@ -606,108 +556,54 @@ $time_limit = $assessment['time_limit'];
             const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
             if (lastPixel !== null && pixel !== lastPixel) {
                 handleWarning('Pixel change');
-                showBlackScreen();
             }
             lastPixel = pixel;
         }, 1000);
 
-        // Tab switching detection
-        window.addEventListener("blur", () => {
-            handleWarning('Tab switching');
-            showBlackScreen();
-        });
+        // Set Timer Functionality and Event Listeners
+        window.onload = function() {
+            const maxTimeLimit = parseInt(document.getElementById('time_limit').value) * 60; // Convert minutes to seconds
+            const startTime = new Date("<?php echo $start_time; ?> GMT+0800").getTime();
 
-        // Form submission handling
-        function handleSubmit(event) {
-            if (event) {
-                event.preventDefault();
+            function calculateRemainingTime() {
+                const now = Date.now();
+                const elapsedTime = Math.floor((now - startTime) / 1000); // Calculate elapsed time in seconds
+                const remainingTime = Math.max(0, maxTimeLimit - elapsedTime); // Calculate remaining time
+                return remainingTime;
             }
-            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
-            isSubmitting = true;
 
-            submitForm();
-        }
+            function startTimer() {
+                const remainingTime = calculateRemainingTime();
+                updateDisplay(remainingTime); // Update display immediately
 
-        function submitForm() {
-            if (hasSubmitted) return; 
+                const timerInterval = setInterval(function () {
+                    const newRemainingTime = calculateRemainingTime();
 
-            var formData = new FormData(document.getElementById('quiz-form'));
-            formData.append('warningCount', warningCount);
+                    if (newRemainingTime <= 0) {
+                        clearInterval(timerInterval);
+                        showPopup('timer-runout-popup');
+                    } else {
+                        updateDisplay(newRemainingTime);
+                    }
+                }, 1000);
+            }
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_quiz.php', true);
+            function updateDisplay(remainingTime) {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                document.getElementById('timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            }
 
-            xhr.onload = function () {
-                isSubmitting = false;
-                hasSubmitted = true; // Mark as submitted
-                if (xhr.status === 200) {
-                    localStorage.removeItem('endTime');
-                    localStorage.removeItem('remainingTime');
-                    clearInterval(timerInterval);
-                    showPopup('success-popup');
-                } else {
-                    showPopup('error-popup');
-                }
-            };
-            xhr.send(formData);
+            startTimer(); // Start the timer
+            
+            document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
 
-            // Close any open popups
-            closePopup('timer-runout-popup');
-            closePopup('confirmation-popup');
-        }
+            setupAntiScreenshotOverlay();
+        };
 
         function viewResult() {
             window.location.href = 'results.php';
         }
-
-        function flashScreen() {
-            const flash = document.createElement('div');
-            flash.style.position = 'fixed';
-            flash.style.top = '0';
-            flash.style.left = '0';
-            flash.style.width = '100%';
-            flash.style.height = '100%';
-            flash.style.backgroundColor = 'white';
-            flash.style.zIndex = '10000';
-            document.body.appendChild(flash);
-            setTimeout(() => flash.remove(), 50);
-        }
-
-        function setupAntiScreenshotOverlay() {
-            const overlay = document.createElement('div');
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.backgroundColor = 'transparent';
-            overlay.style.zIndex = '9999';
-            overlay.style.pointerEvents = 'none';
-            document.body.appendChild(overlay);
-
-            setInterval(() => {
-                const marker = document.createElement('div');
-                marker.style.position = 'absolute';
-                marker.style.width = '5px';
-                marker.style.height = '5px';
-                marker.style.backgroundColor = 'rgba(0,0,0,0.1)';
-                marker.style.top = Math.random() * 100 + '%';
-                marker.style.left = Math.random() * 100 + '%';
-                overlay.appendChild(marker);
-                setTimeout(() => marker.remove(), 500);
-            }, 100);
-        }
-
-        // Initialize timer and set up event listeners
-        window.onload = function () {
-            var timeLimit = parseInt(document.querySelector('input[name="time_limit"]').value, 10) * 60,
-                display = document.querySelector('#timer');
-            startTimer(timeLimit, display);
-
-            document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
-            
-            setupAntiScreenshotOverlay();
-        };
     </script>
 </body>
 </html>

@@ -128,18 +128,18 @@
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
                 </div>
-            </div>
+            
+                    
+
+                <div id="details-tab" class="tab-content">
+                    <h1></h1>
+                </div>
+
+                <div id="administer-tab" class="tab-content"> 
+                    <div id="administer-container">
                     </div>
-
-            <div id="details-tab" class="tab-content">
-                <h1></h1>
-            </div>
-
-            <div id="administer-tab" class="tab-content"> 
-                <div id="administer-container">
                 </div>
             </div>
-        </div>
 
 
             <!-- Modal for managing assessments -->
@@ -175,7 +175,7 @@
                             <div class="form-group">
                                 <label>Select Course</label>
                                 <select name="course_id" id="course_id" required="required" class="popup-input">
-                                    <option value="">Select Course</option>
+                                    <option value="" disabled selected>Select Course</option>
                                     <?php
                                     $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                     while($course_row = $course_qry->fetch_assoc()) {
@@ -187,7 +187,7 @@
                             <div class="form-group">
                                 <label>Select Course Subject</label>
                                 <select name="subject" id="subject" required="required" class="popup-input">
-                                    <option value="">Select Subject</option>
+                                    <option value="" disabled selected>Select Subject</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -278,7 +278,7 @@
                             <div class="form-group">
                                 <label>Select Course</label>
                                 <select name="course_id" id="edit_course_id" required="required" class="popup-input">
-                                    <option value="">Select Course</option>
+                                    <option value="" disabled>Select Course</option>
                                     <?php
                                     $course_qry = $conn->query("SELECT * FROM course WHERE faculty_id = '".$_SESSION['login_id']."'");
                                     while($course_row = $course_qry->fetch_assoc()) {
@@ -290,7 +290,7 @@
                             <div class="form-group">
                                 <label>Select Course Subject</label>
                                 <select name="subject" id="edit_subject" required="required" class="popup-input">
-                                    <option value="">Select Subject</option>
+                                    <option value="" disabled>Select Subject</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -314,8 +314,8 @@
                         <p class="popup-message" id="delete-message">Are you sure you want to delete <strong id="assessment_name"></strong> from <strong id="assessment_subject"></strong>?</p>
                     </div>
                     <div class="modal-footer">
-                        <button class="tertiary-button" data-dismiss="modal">Cancel</button>
-                        <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                        <button class="tertiary-button close-popup" type="button">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </div>
             </div>
@@ -400,12 +400,14 @@
                         }
                     });
                 } else {
-                    $('#subject').html('<option value="">Select Subject</option>'); // Clear subjects dropdown
+                    $('#subject').html('<option value="" disabled>Select Subject</option>'); // Clear subjects dropdown
                 }
             });
 
             $('#assessment-form').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
+                closePopup('add-assessment-popup');
+
                 $.ajax({
                     url: 'save_assessment.php', 
                     method: 'POST', // Use POST to send form data
@@ -536,7 +538,7 @@
 
                             // Close the modal after 1 second
                             setTimeout(function() {
-                                closePopup('administer-assessmnet-popup');
+                                closePopup('administer-assessment-popup');
                             }, 100);
 
                             // Activate the Administer tab
@@ -673,6 +675,8 @@
             // Save the edited assessment
             $('#edit-assessment-frm').submit(function(e) {
                 e.preventDefault();
+                closePopup('edit-assessment-popup');
+
                 var formData = $(this).serialize();
 
                 $.ajax({
@@ -696,7 +700,6 @@
                                     location.reload(); 
                                 }
                             });
-                            location.reload(); // Reload the page to show updated data
                         } else {
                             $('#edit-msg').html('<div class="alert alert-danger">An error occurred. Please try again.</div>');
                         }
@@ -719,6 +722,7 @@
             // Confirm delete action
             $('#confirm_delete_btn').click(function() {
                 var assessmentId = $(this).data('id');
+                closePopup('delete-assessment-popup');
 
                 $.ajax({
                     url: 'delete_assessment.php',

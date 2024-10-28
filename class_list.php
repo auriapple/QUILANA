@@ -183,8 +183,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                    <button class="tertiary-button" data-dismiss="modal">Cancel</button>
-                    <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                        <button class="tertiary-button close-popup" type="button">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -266,8 +266,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                    <button class="tertiary-button" data-dismiss="modal">Cancel</button>
-                    <button class="secondary-button" id="confirm_delete_btn">Delete</button>
+                        <button class="tertiary-button close-popup" type="button">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -331,7 +331,7 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup = this.parentElement.parentElement.parentElement.id;
+                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {
@@ -490,6 +490,7 @@
             // Handle Edit Form (Course)
             $('#edit-course-form').submit(function(event) {
                 event.preventDefault();
+                closePopup('edit-program-popup');
 
                 $.ajax({
                     url: './save_editted_course.php',
@@ -554,6 +555,7 @@
             // Handle Delete Form (Course)
             $('#delete-course-form').submit(function(event) {
                 event.preventDefault();
+                closePopup('delete-program-popup');
 
                 $.ajax({
                     url: 'delete_course.php', 
@@ -618,6 +620,7 @@
             // Handle Edit Form (Class)
             $('#edit-class-form').submit(function(event) {
                 event.preventDefault();
+                closePopup('edit-class-popup');
                 var course_id = $('#edit-class-popup #course_id').val();
 
                 $.ajax({
@@ -639,7 +642,6 @@
                                 }
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    closePopup('edit-class-popup');
                                     getClasses(course_id);
                                 }
                             });
@@ -676,6 +678,7 @@
              // Handle Delete Form (Class)
              $('#delete-class-form').submit(function(event) {
                     event.preventDefault();
+                    closePopup('delete-class-popup');
                     var course_id = $('#delete-class-popup #course_id').val();
 
                     $.ajax({
@@ -697,7 +700,6 @@
                                     }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        closePopup('delete-class-popup');
                                         getClasses(course_id);
                                     }
                                 });
@@ -837,6 +839,7 @@
                 e.preventDefault();
                 $('#course-frm [name="save"]').attr('disabled', true).html('Saving...');
                 $('#msg').html('');
+                closePopup('add-program-popup');
 
                 $.ajax({
                     url: './save_course.php',
@@ -904,6 +907,7 @@
             // AJAX form submission for adding a class
             $('#class-form').submit(function(e) {
                 e.preventDefault();
+                closePopup('add-class-popup');
                 var course_id = $('#add-class-popup input[name="course_id"]').val();
                 
                 $.ajax({
@@ -925,7 +929,6 @@
                                 }
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    closePopup('add-class-popup');
                                     getClasses(course_id);
                                 }
                             });

@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 
 // Check for required fields
-if (isset($data['administer_id']) && isset($data['student_id']) && isset($data['class_id'])) {
+if (isset($data['administer_id']) && isset($data['student_id'])) {
     $administer_id = $conn->real_escape_string($data['administer_id']);
     $class_id = $conn->real_escape_string($data['class_id']);
     $student_id = $conn->real_escape_string($data['student_id']);
