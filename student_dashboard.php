@@ -8,6 +8,18 @@ if (!isset($_SESSION['login_user_type'])) {
     exit();
 }
 
+// Fetch scheduled assessments for calendar display
+$today = date('Y-m-d');
+$scheduleQuery = $conn->query("
+    SELECT sa.*
+    FROM schedule_assessments sa
+    JOIN student_enrollment se on sa.class_id = se.class_id
+    WHERE sa.date_scheduled >= '$today' AND se.student_id = '".$_SESSION['login_id']."' AND se.status = 1
+");
+$schedules = [];
+while ($schedule_row = $scheduleQuery->fetch_assoc()) {
+    $schedules[] = $schedule_row['date_scheduled'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,11 +31,14 @@ if (!isset($_SESSION['login_user_type'])) {
         <link rel="stylesheet" href="assets/css/calendar.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
         <script src="assets/js/calendar.js" defer></script>
+        <script>
+            const scheduledDates = <?php echo json_encode($schedules); ?>;
+        </script>
     </head>
     <body>
         <?php include 'nav_bar.php'; ?>
         <div class="content-wrapper dashboard-container">
-            <!-- Summary -->
+            <!-- Dashboard Summary -->
             <div class="dashboard-summary">
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
@@ -84,7 +99,7 @@ if (!isset($_SESSION['login_user_type'])) {
                 </div>
             </div>
 
-            <!-- Recents -->
+            <!-- Recent Assessments -->
             <div class="recent-assessments">
                 <h1> Recents </h1>
                 <div class="recent-scrollable">
@@ -134,16 +149,17 @@ if (!isset($_SESSION['login_user_type'])) {
                                 echo "</div>";
                             echo "</div>";
                         }
-                        } else {
-                            echo "<p class='no-records'>No recent assessments</p>";
-                        }
+                    } else {
+                        echo "<p class='no-records'>No recent assessments</p>";
+                    }
                     ?>
                 </div>
             </div>
 
-            <!-- Calendar -->
+            <!-- Dashboard Calendar -->
             <div class="dashboard-calendar">
                 <div class="wrapper">
+                    <!-- Calendar -->
                     <header>
                         <p class="current-date"></p>
                         <div class="icons">
@@ -163,6 +179,93 @@ if (!isset($_SESSION['login_user_type'])) {
                         </ul>
                         <ul class="days"></ul>
                     </div>
+                    <!-- Today's Schedule -->
+                    <footer>
+                        <div class="line"></div>
+                        <h1>Today</h1>
+                        <div class="today-schedule">
+                            <?php
+                            // Fetch today's date
+                            $today = date('Y-m-d');
+
+                            // Fetch today's scheduled assessment details
+                            $todayAssessments = $conn->query("
+                                SELECT a.assessment_name, c.class_name, a.subject
+                                FROM assessment a
+                                JOIN schedule_assessments sa ON a.assessment_id = sa.assessment_id
+                                JOIN class c ON sa.class_id = c.class_id
+                                JOIN student_enrollment se ON c.class_id = se.class_id
+                                WHERE se.student_id = '".$_SESSION['login_id']."' AND se.status = 1 AND sa.date_scheduled = '$today'
+                            ");
+
+                            // Count scheduled assessments today
+                            $todayCount = $todayAssessments->num_rows;
+
+                            // Check if there is/are assessment/s scheduled today
+                            if ($todayCount > 0) {
+                                // Display details if there is only one record
+                                if ($todayCount === 1) {
+                                    $row = $todayAssessments->fetch_assoc();
+                                    echo "<div class='schedule-item'>";
+                                    echo "<h3>" . htmlspecialchars($row['assessment_name']) . "</h3>";
+                                    echo "<p>" . htmlspecialchars($row['class_name']) . " (" . htmlspecialchars($row['subject']) . ")</p>";
+                                    echo "</div>";
+                                // If there are more than one assessment
+                                } else {
+                                    echo "<p class='no-records'>You have $todayCount assessments scheduled today.</p>";
+                                }
+                            } else {
+                                echo "<p class='no-records'>No assessments scheduled today</p>";
+                            }
+                            ?>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            <!-- Scheduled Assessments -->
+            <div class="dashboard-schedule">
+                <div class="schedule-label">
+                    <h1>Upcomming Assessments</h1>
+                    <img class="icons" src="image/Calendar.png" alt="Calendar Icon">  
+                </div>
+                <div id="schedules" class="schedules">
+                    <?php 
+                    // Fetch all scheduled assessments details
+                    $assessment = $conn->query("
+                        SELECT a.assessment_name, c.class_name, a.subject, sa.date_scheduled
+                        FROM assessment a
+                        JOIN schedule_assessments sa on a.assessment_id = sa.assessment_id
+                        JOIN class c ON sa.class_id = c.class_id
+                        JOIN student_enrollment se on c.class_id = se.class_id
+                        WHERE se.student_id = '".$_SESSION['login_id']."' AND se.status = 1 AND sa.date_scheduled >= '$today'
+                        ORDER BY date_scheduled ASC
+                    ");
+
+                    // Initialize current date for display
+                    $currentDate = '';
+
+                    // Check if there is/are any assessment/s scheduled
+                    if ($assessment->num_rows > 0) {
+                        // Display assessment details
+                        while ($row = $assessment->fetch_assoc()) {
+                            if ($row['date_scheduled'] !== $currentDate) {
+                                $currentDate = $row['date_scheduled'];
+                                echo "<div id='schedule-separator' class='content-separator'>";
+                                echo "<span id='date' class='content-name'> " . $currentDate . "</span>";
+                                echo "<hr class='separator-line'>";
+                                echo "</div>";
+                            }
+
+                            echo "<div class='schedule-item'>";
+                            echo "<h3>" . htmlspecialchars($row['assessment_name']) . "</h3>";
+                            echo "<p>" . htmlspecialchars($row['class_name']) . " (" . htmlspecialchars($row['subject']) . ")</p>";
+                            echo "</div>";
+                        }
+                    } else {
+                        echo "<p class='no-records'>No upcoming assessments</p>";
+                    }
+                ?>    
                 </div>
             </div>
         </div>
