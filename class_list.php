@@ -582,7 +582,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'Failed to delete course: ' + response.msg,
+                                text: 'Error: ' + response.msg,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
@@ -702,13 +702,13 @@
                                     }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        getClasses(course_id);
+                                        getClasses(class_id);
                                     }
                                 });
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: 'Failed to delete class: ' + response.msg,
+                                    text: 'Error: ' + response.msg,
                                     icon: 'error',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,

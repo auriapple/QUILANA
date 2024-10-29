@@ -37,7 +37,7 @@
             </ul>
         </div>
 
-        <div class="scrollable-content">  
+        <div class="scrollable-content1">  
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
@@ -405,11 +405,6 @@
             $('#assessment-form').submit(function(e){
                 e.preventDefault(); // Prevent the default form submission
                 closePopup('add-assessment-popup');
-<<<<<<< HEAD
-
-=======
-                
->>>>>>> nathan
                 $.ajax({
                     url: 'save_assessment.php', 
                     method: 'POST', // Use POST to send form data
@@ -767,40 +762,6 @@
                         }
                     }
                 });
-            });
-            
-            // Search Assessment
-            $(document).ready(function() {
-                // Search functionality
-                $('.search-bar').submit(function(e) {
-                    e.preventDefault();
-                    performSearch();
-                });
-
-                // input event listener
-                $('.search-bar input[name="query"]').on('input', function() {
-                    performSearch();
-                });
-
-                // Function to perform the search
-                function performSearch() {
-                    var query = $('.search-bar input[name="query"]').val();
-                    
-                    $.ajax({
-                        url: 'search_assessment.php',
-                        method: 'GET',
-                        data: { 
-                            query: query,
-                            faculty_id: <?php echo $_SESSION['login_id']; ?>
-                        },
-                        success: function(response) {
-                            $('#assessment-tab').html(response);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Search failed:', error);
-                        }
-                    });
-                }
             });
         });
             </script>
