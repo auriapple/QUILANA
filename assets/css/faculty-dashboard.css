@@ -384,8 +384,7 @@ footer h1 {
 .schedule-label {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    gap: 20px;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
     height: auto;

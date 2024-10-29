@@ -227,7 +227,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
             <div class="dashboard-schedule">
                 <div class="schedule-label">
                     <h1>Upcomming Assessments</h1>
-                    <img class="icons" src="image/Calendar.png" alt="Calendar Icon">  
+                    <img class="icons" src="image/DashboardCalendarIcon.png" alt="Calendar Icon">  
                 </div>
                 <div id="schedules" class="schedules">
                     <?php 
