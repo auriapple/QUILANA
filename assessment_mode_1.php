@@ -21,8 +21,6 @@ $administer_query = $conn->query("
     AND aa.class_id = '$class_id'
 ");
 
-$start_time = '';
-
 // Check if there is administer assessment details
 if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
@@ -59,36 +57,8 @@ $assessment = $assessment_query->fetch_assoc();
 $questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
 
 // Get the time limit for the assessment
-// Note: Those with formatted are just for the displays
-// Define timezone for consistency
-$timezone = new DateTimeZone('Asia/Manila');
-
-// Convert the start time to a DateTime object with the specified timezone
-$start_time_obj = new DateTime($start_time, $timezone);
-$start_time_obj_formatted = $start_time_obj->format('H:i:s');
-
-// Get the current time as a DateTime object in the same timezone
-$current_time_obj = new DateTime('now', $timezone);
-$current_time_obj_formatted = $current_time_obj->format('H:i:s');
-
-// Calculate the time difference (time passed) between start and current time
-$time_passed = $current_time_obj->diff($start_time_obj);
-$time_passed_formatted = $time_passed->format('%H:%I:%S');
-
-// Convert time limit to an interval if it's in minutes
-$temp_time_limit = $assessment['time_limit'];
-$temp_time_limit_interval = new DateInterval("PT{$temp_time_limit}M");
-
-// Calculate end time by adding time limit to start time
-$end_time_obj = clone $start_time_obj;
-$end_time_obj->add($temp_time_limit_interval);
-
-// Calculate remaining time by subtracting current time from end time
-$remaining_time = $current_time_obj->diff($end_time_obj);
-$time_limit = $remaining_time->format('%H:%I:%S');
-
-// Output the times to the console
-echo "<script> console.log('Start Time: " . $start_time_obj_formatted . "\\nCurrent Time: " . $current_time_obj_formatted . "\\nTime Passed: " . $time_passed_formatted . "\\nTime Limit: " . $time_limit. "'); </script>";?>
+$time_limit = $assessment['time_limit'];
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -566,7 +536,7 @@ echo "<script> console.log('Start Time: " . $start_time_obj_formatted . "\\nCurr
             } else {
                 devToolsOpened = false;
             }
-        }, 5000);
+        }, 1000);
 
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {

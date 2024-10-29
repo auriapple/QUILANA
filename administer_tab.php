@@ -585,14 +585,7 @@
 
             console.log('Starting assessment for administerId:', administerId);
 
-<<<<<<< HEAD
             fetch('store_startTime.php', {
-=======
-            const time = new Date();
-            console.log('Time Started: ' + time);
-
-            fetch('set_startTime.php', {
->>>>>>> nathan
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -602,14 +595,38 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('start_time updated.');
+                    console.log('Start time updated:', data.start_time);
+                    sessionStorage.setItem(`start_time_${administerId}`, data.start_time);
+                    initializeTimer(data.start_time);
+                    updateStatus(administerId, 1);
                 } else {
-                    console.log('Failed to update start_time.');
+                    alert('Failed to start the assessment: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+        });
+
+        function checkTimeStarted() {
+            const administerId = document.getElementById('administerId-container').value;
+            const storedStartTime = sessionStorage.getItem(`start_time_${administerId}`);
+
+            if (storedStartTime) {
+                $('#startAssessment').hide();
+                initializeTimer(storedStartTime);
+            }
+        }
+
+        checkTimeStarted();
+
+        // Function to initialize the timer
+        function initializeTimer(startTime) {
+            const timeLimit = parseInt(document.getElementById('startAssessment').getAttribute('data-time'), 10);
+            const countdownTime = timeLimit * 60;
+
+            const startTimeDate = new Date(startTime + ' GMT+0800');
+            
             interval = setInterval(function() {
                 const now = new Date();
                 const elapsedTime = Math.floor((now - startTimeDate) / 1000);

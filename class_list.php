@@ -104,9 +104,9 @@
 
         <!-- Class Details Modal -->
         <div id="class-details-popup" class="popup-overlay"> 
-            <div id="program-details-modal-content" class="popup-content details-popup" role="document">
+            <div id="class-details-modal-content" class="popup-content details-popup" role="document">
                 <button class="popup-close">&times;</button>
-                <h2 id="program-details-title" class="popup-title">Class Details</h2>
+                <h2 id="class-details-title" class="popup-title">Class Details</h2>
 
                 <div class="modal-body" id="classDetailsBody">
                     <!-- Class details will be dynamically loaded here -->
@@ -331,7 +331,13 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                var activePopup;
+                if (this.parentElement.parentElement.id == 'program-details-modal-content' || this.parentElement.parentElement.id == 'class-details-modal-content') {
+                    activePopup = this.parentElement.parentElement.parentElement.id;
+                } else {
+                    activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                }
+                
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {
@@ -405,8 +411,6 @@
                 $('.delete_course').click(function() {
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
-
-                    console.log(courseName)
 
                     // Open a modal for deleting
                     $('#msg').html('');
