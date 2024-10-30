@@ -793,6 +793,27 @@ td #viewClassDetails {
     height: calc(100% - 160px); 
     overflow-y: auto;
 }
+
+/*SEARCH*/
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    color: #666;
+    width: 100%;
+}
+
+.search-results h3 {
+    margin: 1.5rem 0 1rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.course-card-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
 /* END */
 
 /* Media Queries for Responsiveness */

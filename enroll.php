@@ -363,6 +363,37 @@
             $(document).on('click', '.popup-close, #cancel', function() {
                 closePopup('unenroll-popup');
             });
+
+            // Search functionality
+            $('.search-bar').submit(function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+
+            // input event listener in search field
+            $('.search-bar input[name="query"]').on('input', function() {
+                performSearch();
+            });
+
+                function performSearch() {
+                var query = $('.search-bar input[name="query"]').val();
+            
+                     $.ajax({
+                        url: 'search_classes.php',
+                        method: 'GET',
+                        data: { 
+                            query: query,
+                            student_id: <?php echo $_SESSION['login_id']; ?>
+                        },
+                        success: function(response) {
+                            $('#classes-tab').html(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Search failed:', error);
+                        }
+                    });
+                }
+            
         });
     </script>
 </body>

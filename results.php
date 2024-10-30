@@ -325,6 +325,62 @@
             $('.popup-close').on('click', function() {
                 closePopup('assessment-popup');
             });
+
+            //Search Functionality
+            function initializeSearch() {
+                const searchInput = $('.search-bar input[name="query"]');
+                
+                // Input event listener
+                searchInput.on('input', function() {
+                    const query = $(this).val().trim();
+                    const activeTab = $('.tab-link.active').data('tab');
+                    const searchType = activeTab === 'quizzes-tab' ? 'quizzes' : 'exams';
+                    
+                    // If search is empty, reload all items
+                    if (query === '') {
+                        $.get('search_results.php', {
+                            query: '',
+                            type: searchType
+                        }, function(response) {
+                            if (searchType === 'quizzes') {
+                                $('#quizzes-tab .assessments-container').html(response);
+                            } else {
+                                $('#exams-tab .assessments-container').html(response);
+                            }
+                        });
+                        return;
+                    }
+                    
+                    // Perform search
+                    $.get('search_results.php', {
+                        query: query,
+                        type: searchType
+                    }, function(response) {
+                        if (searchType === 'quizzes') {
+                            $('#quizzes-tab .assessments-container').html(response);
+                        } else {
+                            $('#exams-tab .assessments-container').html(response);
+                        }
+                    });
+                });
+                
+                // Handle search form submission
+                $('.search-bar').submit(function(e) {
+                    e.preventDefault();
+                });
+            }
+
+            $(document).ready(function() {
+                initializeSearch();
+                
+                $('.tab-link').click(function() {
+                    $('.tab-link').removeClass('active');
+                    $(this).addClass('active');
+                    
+                    $('.search-bar input[name="query"]').val('');
+                    $('.search-bar input[name="query"]').trigger('input');
+                });
+            });
         });
     </script>
 </body>
