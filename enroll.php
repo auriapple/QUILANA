@@ -7,8 +7,9 @@
     <title>Classes | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/classes.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
+    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
+    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
