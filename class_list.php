@@ -332,7 +332,7 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                var activePopup = this.parentElement.parentElement.parentElement.id;
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {
