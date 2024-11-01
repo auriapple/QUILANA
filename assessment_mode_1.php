@@ -68,7 +68,8 @@ $time_limit = $assessment['time_limit'];
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
+    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -522,21 +523,6 @@ $time_limit = $assessment['time_limit'];
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
-
-        // DevTools detection
-        let devToolsOpened = false;
-        setInterval(() => {
-            const widthThreshold = window.outerWidth - window.innerWidth > 160;
-            const heightThreshold = window.outerHeight - window.innerHeight > 160;
-            if (widthThreshold || heightThreshold) {
-                if (!devToolsOpened) {
-                    devToolsOpened = true;
-                    handleWarning('DevTools usage');
-                }
-            } else {
-                devToolsOpened = false;
-            }
-        }, 1000);
 
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {
