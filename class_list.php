@@ -567,7 +567,7 @@
                         if (response.status == 1) {
                             Swal.fire({
                                 title: 'Success!',
-                                text: 'The program was successfully deleted!',
+                                text: response.msg,
                                 icon: 'success',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
@@ -583,7 +583,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'Failed to delete course: ' + response.msg,
+                                text: response.msg,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
