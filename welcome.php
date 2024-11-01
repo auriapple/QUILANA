@@ -24,7 +24,7 @@
                 <li><a href="#">About</a></li>
                 <li><a href="#">Contact</a></li>
                 <li><a href="#">Privacy</a></li>
-                <li><a href="login.php" class="btn">Sign up</a></li>
+                <li><a href="register.php" class="btn">Sign up</a></li>
               </ul>
             </div>
 
