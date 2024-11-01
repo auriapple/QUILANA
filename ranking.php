@@ -14,7 +14,7 @@ $student_id = $_SESSION['login_id'];
 
 // Fetch assessment details
 $assessment_query = $conn->query("
-    SELECT a.assessment_mode, aa.administer_id, a.assessment_name, aa.ranks_status
+    SELECT a.assessment_mode, aa.administer_id, a.assessment_name, aa.status, aa.ranks_status, aa.class_id
     FROM assessment a
     JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
     WHERE a.assessment_id = '$assessment_id'
@@ -24,32 +24,14 @@ $assessment_name = $assessment['assessment_name'];
 $assessment_mode = $assessment['assessment_mode'];
 $administer_id = $assessment['administer_id'];
 $ranks_status = $assessment['ranks_status'];
-
-// Fetch all students' status
-$status_query = $conn->query("
-    SELECT status
-    FROM join_assessment
-    WHERE administer_id = '$administer_id'
-");
-
-// Count how many students have completed the quiz (status = 2)
-$total_students = $status_query->num_rows;
-$completed_count = 0;
-
-while ($row = $status_query->fetch_assoc()) {
-    if ($row['status'] == 2) {
-        $completed_count++;
-    }
-}
-
-// Check if all students are finished
-$all_completed = ($completed_count == $total_students);
+$status = $assessment['status'];
+$class_id = $assessment['class_id'];
 
 // Initialize display
 $display = '';
 
 // If all students have finished answering the quiz
-if ($all_completed) {
+if ($status == 2) {
     // If the rank hasn't been set yet
     if (!$ranks_status) {
         ob_start();
@@ -86,7 +68,6 @@ if ($all_completed) {
         // Check if student data was found
         if ($student_query && $student_query->num_rows > 0) {
             $student_data = $student_query->fetch_assoc();
-            error_log('Fetched student data: ' . print_r($student_data, true));
         } else {
             // Handle the case where no student data was found
             echo "<p>No results found for this assessment.</p>";
@@ -129,37 +110,6 @@ function getRankSuffix($rank) {
     }
     return "th";
 }
-
-// DUMMY DATA (Uncomment to use)
-/*$student_data = [
-    'firstname' => 'John',
-    'rank' => 1,
-    'score' => 95,
-    'student_id' => $student_id
-];
-
-// Dummy leaderboard data
-$grouped_data = [
-    1 => [
-        ['firstname' => 'John', 'lastname' => 'Doe', 'score' => 95, 'rank' => 1, 'student_id' => $student_id],
-        ['firstname' => 'Oliver', 'lastname' => 'Twist', 'score' => 95, 'rank' => 1, 'student_id' => 4]
-    ],
-    2 => [
-        ['firstname' => 'Jane', 'lastname' => 'Smith', 'score' => 90, 'rank' => 2, 'student_id' => 5]
-    ],
-    3 => [
-        ['firstname' => 'Michael', 'lastname' => 'Brown', 'score' => 85, 'rank' => 3, 'student_id' => 6],
-        ['firstname' => 'Emily', 'lastname' => 'Johnson', 'score' => 85, 'rank' => 3, 'student_id' => 7]
-    ],
-    4 => [
-        ['firstname' => 'Sophia', 'lastname' => 'Williams', 'score' => 82, 'rank' => 4, 'student_id' => 8],
-        ['firstname' => 'James', 'lastname' => 'Taylor', 'score' => 82, 'rank' => 4, 'student_id' => 9]
-    ],
-    5 => [
-        ['firstname' => 'Lucas', 'lastname' => 'Martinez', 'score' => 80, 'rank' => 5, 'student_id' => 10],
-        ['firstname' => 'Ava', 'lastname' => 'Garcia', 'score' => 80, 'rank' => 5, 'student_id' => 11]
-    ]
-];*/
 ?>
 
 <!DOCTYPE html>
@@ -345,5 +295,32 @@ $grouped_data = [
             </div>
         <?php endif; ?>
     </div>
+    <script>
+        function check_status() {
+            const assessmentId = "<?php echo $assessment_id; ?>"; 
+            const classId = "<?php echo $class_id; ?>";
+
+            fetch(`check_status.php?assessment_id=${assessmentId}&class_id=${classId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+                    
+                    const currentStatus = data.status;
+                    console.log('Current Status:', currentStatus);
+                    
+                    // Reload page if the status is 1
+                    if (currentStatus == 2) {
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error fetching status:', error));
+        }
+
+        // Call check_status every 3 seconds
+        setInterval(check_status, 3000);
+    </script>
 </body>
 </html>
