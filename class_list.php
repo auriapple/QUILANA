@@ -16,7 +16,7 @@
 <body>
     <?php include('nav_bar.php') ?>
 
-<div class="content-wrapper">
+    <div class="content-wrapper">
         <!-- Header Container -->
         <div class="add-course-container">
             <button class="secondary-button" id="addCourse">Add Program</button>
@@ -263,7 +263,7 @@
                             <p id="delete-message" class="popup-message"> Are you sure you want to delete <strong id="modal_class_name"></strong> (<strong id="modal_subject"></strong>)?</p>
                             <input type="hidden" id="course_id" />
                             <input type="hidden" name="class_id" id="class_id"/>
-                            <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            <input type="hidden" id="faculty_id" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -681,17 +681,23 @@
                     event.preventDefault();
                     closePopup('delete-class-popup');
                     var course_id = $('#delete-class-popup #course_id').val();
+                    var faculty_id = $('#delete-class-popup #faculty_id').val();
+                    var class_id = $('#delete-class-popup #class_id').val();
 
                     $.ajax({
-                        url: './delete_class.php', 
+                        url: 'delete_class.php', 
                         method: 'POST',
-                        data: $(this).serialize(),
+                        data: {
+                            course_id: course_id,
+                            class_id: class_id,
+                            faculty_id: faculty_id 
+                        },
                         dataType: 'json',
                         success: function(response) {
                             if (response.status == 1) {
                                 Swal.fire({
                                     title: 'Success!',
-                                    text: 'The program was successfully deleted!',
+                                    text: response.msg,
                                     icon: 'success',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,
@@ -707,7 +713,7 @@
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: 'Failed to delete class: ' + response.msg,
+                                    text: response.msg,
                                     icon: 'error',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,
