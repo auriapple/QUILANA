@@ -24,9 +24,8 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,200" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
+        <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
         <script src="assets/js/calendar.js" defer></script>
     </head>
     <body>
