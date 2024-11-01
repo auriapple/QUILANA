@@ -287,25 +287,6 @@ while ($question = $questions_query->fetch_assoc()) {
             submitForm();
         }
 
-        // Form Submission
-        /*function submitForm() {
-            const formData = new FormData(document.getElementById('quiz-form'));
-
-            formData.append('time_elapsed', JSON.stringify(questionTimes));
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_assessment.php', true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    clearInterval(stopwatchInterval);
-                    showPopup('success-popup');
-                } else {
-                    alert('Error submitting your answers. Please try again.');
-                }
-            };
-            xhr.send(formData);
-        }*/
-
         function submitForm() {
             if (hasSubmitted) return; 
 
@@ -604,7 +585,6 @@ while ($question = $questions_query->fetch_assoc()) {
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
-        
 
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {

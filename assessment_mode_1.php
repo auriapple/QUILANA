@@ -524,7 +524,6 @@ $time_limit = $assessment['time_limit'];
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
 
-
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {
             e.preventDefault();

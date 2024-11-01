@@ -3,7 +3,8 @@
     display: flex;
     flex-direction: column;
     text-align: center;
-    width: 60%;
+    width: 100%;
+    max-width: 700px;
     margin: 0 auto;
     padding: 25px;
     align-items: center;
@@ -30,7 +31,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /*width: 60%;*/
     height: 70vh;
     width: 100%;
     max-width: 700px;
@@ -40,18 +40,23 @@
     overflow: hidden;
 }
 /* Personal Ranking Flag */
+.ranking-flag-wrapper {
+    position: relative;
+    display: inline-block;
+}
 .ranking-flag-image {
-    background-image: url('http://localhost/QUILANA/image/RankingFlag.png');
-    background-size: contain; 
     width: 365px;
     height: 350px;
-    background-position: top center;
-    background-repeat: no-repeat;
-    z-index: 0;
+    object-fit: contain;
 }
 .ranking-flag-content {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
     z-index: 1;
-    padding-top: 100px;
 }
 .ranking-container .ranking-flag-content h3, 
 .ranking-container .ranking-flag-content h4 {
@@ -161,11 +166,9 @@
 .leaderboard-name {
     color: #FFFFFF;
     text-align: left;
-    /*min-width: 100px;*/
 }
 .leaderboard-score {
     text-align: right;
-    /*min-width: 80px;*/
     color: #BF88EC;
 }
 .rank-container {
@@ -192,16 +195,16 @@
 
 /* Base styles for top entries */
 .top-entry {
-    padding-top: 20px; /* Default padding */
-    text-align: center; /* Centered text */
+    padding-top: 20px;
+    text-align: center;
 }
 
 .top-name {
-    font-size: 18px; /* Default font size */
+    font-size: 18px;
 }
 
 .top-score {
-    font-size: 14px; /* Default font size */
+    font-size: 14px;
 }
 
 @media screen and (max-width: 768px) {
@@ -213,6 +216,10 @@
     #personal-ranking-container p {
         font-size: 22px;
     }
+
+    #waiting-container h3 {
+        font-size: 36px;
+    }
 }
 
 @media screen and (max-width: 480px) {
@@ -222,11 +229,16 @@
         font-size: 24px;
     }
 
+    #waiting-container h3 {
+        font-size: 30px;
+    }
+
     .ranking-flag-content {
         font-size: 26px;
         padding-top: 80px;
     }
-    #personal-ranking-container p {
+    #personal-ranking-container p,
+    #waiting-room h5 {
         font-size: 18px;
     }
 
@@ -238,12 +250,11 @@
         width: 100%;
     }
 
-    .leaderboard-entry {
-        font-size: 14px;
+    .ranking-flag-content {
+        top: 35%;
     }
 
-    .ranking-platform {
-        width: 90%;
-        height: 62%;
+    .leaderboard-entry {
+        font-size: 14px;
     }
 }
