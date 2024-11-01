@@ -15,7 +15,7 @@
         <header>
           <div class="container">
             <div class="logo">
-              <img src="image/logo.png" alt="Logo" />
+              <img src="image/lana.png" alt="Logo" />
               <h3>Quilana</h3>
             </div>
 
@@ -52,7 +52,7 @@
             </div>
 
             <div class="right">
-              <img src="image/person.png" alt="Person Image" class="person" />
+              <img src="image/lana.png" alt="Person Image" class="person" />
             </div>
           </div>
         </div>
