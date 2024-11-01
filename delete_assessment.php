@@ -8,6 +8,9 @@ if (isset($_POST['assessment_id'])) {
     $conn->begin_transaction();
 
     try {
+        // Disable foreign key checks if necessary
+        $conn->query("SET FOREIGN_KEY_CHECKS=0");
+
         // 1. Fetch associated question IDs
         $questions_query = "SELECT question_id FROM questions WHERE assessment_id = ?";
         $questions_stmt = $conn->prepare($questions_query);
@@ -46,12 +49,54 @@ if (isset($_POST['assessment_id'])) {
             $delete_questions_stmt->close();
         }
 
-        // 5. Delete the assessment itself
+        // 5. Delete the assessments uploaded in review website
+        $delete_uploads_query = "DELETE FROM assessment_uploads WHERE assessment_id = ?";
+        $delete_uploads_stmt = $conn->prepare($delete_uploads_query);
+        $delete_uploads_stmt->bind_param("i", $assessment_id);
+        $delete_uploads_stmt->execute();
+        $delete_uploads_stmt->close();
+
+        // 6. Fetch associated administer IDs
+        $administer_query = "SELECT administer_id FROM administer_assessment WHERE assessment_id = ?";
+        $administer_stmt = $conn->prepare($administer_query);
+        $administer_stmt->bind_param("i", $assessment_id);
+        $administer_stmt->execute();
+        $administer_result = $administer_stmt->get_result();
+
+        // Array to hold administer IDs
+        $administer_ids = [];
+        while ($row = $administer_result->fetch_assoc()) {
+            $administer_ids[] = $row['administer_id'];
+        }
+        $administer_stmt->close();
+
+        if (!empty($administer_ids)) {
+           // 7. Delete student join records
+           $delete_join_query = "DELETE FROM join_assessment WHERE administer_id IN (" . implode(',', array_fill(0, count($administer_ids), '?')) . ")";
+           $delete_join_stmt = $conn->prepare($delete_join_query);
+           $types = str_repeat('i', count($administer_ids));
+           $delete_join_stmt->bind_param($types, ...$administer_ids);
+           $delete_join_stmt->execute();
+           $delete_join_stmt->close();
+
+            // 8. Delete administer records
+            $delete_administer_query = "DELETE FROM administer_assessment WHERE administer_id IN (" . implode(',', array_fill(0, count($administer_ids), '?')) . ")";
+            $delete_administer_stmt = $conn->prepare($delete_administer_query);
+            $types = str_repeat('i', count($administer_ids));
+            $delete_administer_stmt->bind_param($types, ...$administer_ids);
+            $delete_administer_stmt->execute();
+            $delete_administer_stmt->close();
+        }
+
+        // 9. Delete the assessment itself
         $delete_assessment_query = "DELETE FROM assessment WHERE assessment_id = ?";
         $delete_assessment_stmt = $conn->prepare($delete_assessment_query);
         $delete_assessment_stmt->bind_param("i", $assessment_id);
         $delete_assessment_stmt->execute();
         $delete_assessment_stmt->close();
+
+        // Re-enable foreign key checks
+        $conn->query("SET FOREIGN_KEY_CHECKS=1");
 
         // Commit transaction
         $conn->commit();
