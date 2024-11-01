@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Landing Page With Light/Dark Mode</title>
+    <title>Quilana | Welcome</title>
     <link rel="stylesheet" href="assets/css/landing_page.css" />
   </head>
   <body>
@@ -39,8 +39,8 @@
           <div class="container">
             <div class="left">
               <div class="big-title">
-                <h1>Streamline Your,</h1>
-                <h1>Exam Administration with Quilana.</h1>
+                <h1>Streamline your</h1>
+                <h1>Assessment Administration with <div class="quilana">QUILANA</div></h1>
               </div>
               <p class="text">
                 Combining the best of traditional and online exam systems for efficient and secure assessments
@@ -51,7 +51,7 @@
             </div>
 
             <div class="right">
-              <img src="image/lana.png" alt="Person Image" class="person" />
+              <img src="image/lana.png" alt="Lana" class="person" />
             </div>
           </div>
         </div>

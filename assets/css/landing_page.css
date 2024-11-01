@@ -8,7 +8,9 @@
   --darkTwo: #45424b;
   --lightOne: #919191;
   --lightTwo: #aaa;
-  --lightThree: #fff;
+  --quilanaColor: #7F81C5;
+  --quilanaOutline: #312f3a;
+  ;
 }
 
 .dark {
@@ -19,6 +21,8 @@
   --darkTwo: #fff;
   --lightOne: #ccc;
   --lightTwo: #e7e3e3;
+  --quilanaColor: #7F81C5;
+  --quilanaOutline: white;
 }
 
 *,
@@ -194,8 +198,16 @@ header .container {
 .big-title {
   font-size: 1.4rem;
   color: var(--darkOne);
-  text-transform: capitalize;
   line-height: 1.4;
+}
+
+.quilana {
+  color: var(--quilanaColor);
+  text-shadow: 
+      -1px -1px 0 var(--quilanaOutline),
+      1px -1px 0 var(--quilanaOutline),
+      -1px 1px 0 var(--quilanaOutline),
+      1px 1px 0 var(--quilanaOutline);
 }
 
 .text {
