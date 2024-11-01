@@ -150,12 +150,13 @@ function getRankSuffix($rank) {
             </div>
         <?php elseif ($display === 'ranking'): ?>
             <div id="personal-ranking-container" class="ranking-container">
-                <div class="ranking-flag-image">
+                <div class="ranking-flag-wrapper">
+                    <img src="/QUILANA/image/RankingFlag.png" alt="Ranking Flag" class="ranking-flag-image" />
                     <div class="ranking-flag-content">
                         <h3><?php echo htmlspecialchars($student_data['firstname']); ?></h3>
                         <h4>Rank</h4>
-                        <h3><?php echo htmlspecialchars($student_data['rank']) ?></h3>               
-                    </div>   
+                        <h3><?php echo htmlspecialchars($student_data['rank']); ?></h3>               
+                    </div>  
                 </div>          
                 <h3>Congratulations! You ranked <?php echo htmlspecialchars($student_data['rank']) . $rank_suffix; ?> in this quiz</h3>
                 <p>Check out the leaderboard</p>

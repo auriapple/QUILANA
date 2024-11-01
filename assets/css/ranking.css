@@ -40,18 +40,23 @@
     overflow: hidden;
 }
 /* Personal Ranking Flag */
+.ranking-flag-wrapper {
+    position: relative;
+    display: inline-block;
+}
 .ranking-flag-image {
-    background-image: url('http://localhost/QUILANA/image/RankingFlag.png');
-    background-size: contain; 
     width: 365px;
     height: 350px;
-    background-position: top center;
-    background-repeat: no-repeat;
-    z-index: 0;
+    object-fit: contain;
 }
 .ranking-flag-content {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
     z-index: 1;
-    padding-top: 100px;
 }
 .ranking-container .ranking-flag-content h3, 
 .ranking-container .ranking-flag-content h4 {
@@ -243,6 +248,10 @@
 
     .ranking-flag-image {
         width: 100%;
+    }
+
+    .ranking-flag-content {
+        top: 35%;
     }
 
     .leaderboard-entry {
