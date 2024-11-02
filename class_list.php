@@ -16,7 +16,7 @@
 <body>
     <?php include('nav_bar.php') ?>
 
-<div class="content-wrapper">
+    <div class="content-wrapper">
         <!-- Header Container -->
         <div class="add-course-container">
             <button class="secondary-button" id="addCourse">Add Program</button>
@@ -105,9 +105,9 @@
 
         <!-- Class Details Modal -->
         <div id="class-details-popup" class="popup-overlay"> 
-            <div id="class-details-modal-content" class="popup-content details-popup" role="document">
+            <div id="program-details-modal-content" class="popup-content details-popup" role="document">
                 <button class="popup-close">&times;</button>
-                <h2 id="class-details-title" class="popup-title">Class Details</h2>
+                <h2 id="program-details-title" class="popup-title">Class Details</h2>
 
                 <div class="modal-body" id="classDetailsBody">
                     <!-- Class details will be dynamically loaded here -->
@@ -133,7 +133,7 @@
                             <label>Program Name</label>
                             <input type="hidden" name="course_id" id="course_id_container"/>
                             <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
-                            <input type="text" name="course_name" required="required" class="popup-input" placeholder="ex. BSIT"/>
+                            <input type="text" name="course_name" required="required" class="popup-input" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -263,12 +263,12 @@
                             <p id="delete-message" class="popup-message"> Are you sure you want to delete <strong id="modal_class_name"></strong> (<strong id="modal_subject"></strong>)?</p>
                             <input type="hidden" id="course_id" />
                             <input type="hidden" name="class_id" id="class_id"/>
-                            <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
+                            <input type="hidden" id="faculty_id" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
                         </div>
                     </div>
                     <div class="modal-footer">
-                    <button class="tertiary-button close-popup" type="button">Cancel</button>
-                    <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
+                        <button class="tertiary-button close-popup" type="button">Cancel</button>
+                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -332,13 +332,7 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup;
-                if (this.parentElement.parentElement.id == 'program-details-modal-content' || this.parentElement.parentElement.id == 'class-details-modal-content') {
-                    activePopup = this.parentElement.parentElement.parentElement.id;
-                } else {
-                    activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
-                }
-                
+                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {
@@ -412,6 +406,8 @@
                 $('.delete_course').click(function() {
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
+
+                    console.log(courseName)
 
                     // Open a modal for deleting
                     $('#msg').html('');
@@ -571,7 +567,7 @@
                         if (response.status == 1) {
                             Swal.fire({
                                 title: 'Success!',
-                                text: 'The program was successfully deleted!',
+                                text: response.msg,
                                 icon: 'success',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
@@ -587,7 +583,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'Error: ' + response.msg,
+                                text: response.msg,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
@@ -627,7 +623,6 @@
                 event.preventDefault();
                 closePopup('edit-class-popup');
                 var course_id = $('#edit-class-popup #course_id').val();
-                closePopup('edit-class-popup');
 
                 $.ajax({
                     url: './save_editted_class.php',
@@ -686,18 +681,23 @@
                     event.preventDefault();
                     closePopup('delete-class-popup');
                     var course_id = $('#delete-class-popup #course_id').val();
-                    closePopup('delete-class-popup');
+                    var faculty_id = $('#delete-class-popup #faculty_id').val();
+                    var class_id = $('#delete-class-popup #class_id').val();
 
                     $.ajax({
-                        url: './delete_class.php', 
+                        url: 'delete_class.php', 
                         method: 'POST',
-                        data: $(this).serialize(),
+                        data: {
+                            course_id: course_id,
+                            class_id: class_id,
+                            faculty_id: faculty_id 
+                        },
                         dataType: 'json',
                         success: function(response) {
                             if (response.status == 1) {
                                 Swal.fire({
                                     title: 'Success!',
-                                    text: 'The program was successfully deleted!',
+                                    text: response.msg,
                                     icon: 'success',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,
@@ -707,13 +707,13 @@
                                     }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        getClasses(class_id);
+                                        getClasses(course_id);
                                     }
                                 });
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: 'Error: ' + response.msg,
+                                    text: response.msg,
                                     icon: 'error',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,
@@ -916,7 +916,6 @@
                 e.preventDefault();
                 closePopup('add-class-popup');
                 var course_id = $('#add-class-popup input[name="course_id"]').val();
-                closePopup('add-class-popup');
                 
                 $.ajax({
                     url: 'save_class.php',
@@ -1014,120 +1013,6 @@
             // Ensure meatball menu is initialized after any dynamic content changes
             $(document).ajaxComplete(function() {
                 updateMeatballMenu();
-            });
-
-
-            // Search Functionality
-            function initializeSearch() {
-                const searchInput = $('.search-bar input[name="query"]');
-                
-                // Input event listener 
-                searchInput.on('input', function() {
-                    const query = $(this).val().trim();
-                    const activeTab = $('.tab-link.active').data('tab');
-                    const searchType = activeTab === 'courses-tab' ? 'courses' : 'classes';
-                    
-                    // If search is empty, reload all items
-                    if (query === '') {
-                        if (searchType === 'courses') {
-                            // Load all courses
-                            $.get('search.php', {
-                                query: '',
-                                type: 'courses'
-                            }, function(response) {
-                                $('.course-container').first().html(response);
-                                updateMeatballMenu();
-                            });
-                        } else {
-                            // Load classes
-                            if (currentCourseId) {
-                                $.get('search.php', {
-                                    query: '',
-                                    type: 'classes',
-                                    course_id: currentCourseId
-                                }, function(response) {
-                                    $('#class-container').html(response);
-                                    updateMeatballMenu();
-                                });
-                            }
-                        }
-                        return;
-                    }
-                    
-                    const searchParams = {
-                        query: query,
-                        type: searchType
-                    };
-                    
-                    if (searchType === 'classes' && currentCourseId) {
-                        searchParams.course_id = currentCourseId;
-                    }
-                    
-                    // Perform search
-                    $.get('search.php', searchParams, function(response) {
-                        if (searchType === 'courses') {
-                            $('.course-container').first().html(response);
-                        } else {
-                            $('#class-container').html(response);
-                        }
-                        updateMeatballMenu();
-                    });
-                });
-                
-                // Handle search form submission
-                $('.search-bar').submit(function(e) {
-                    e.preventDefault();
-                });
-            }
-
-            // Function to load classes for a course
-            function getClasses(courseId) {
-                $.get('search.php', {
-                    query: '',
-                    type: 'classes',
-                    course_id: courseId
-                }, function(response) {
-                    $('#class-container').html(response);
-                    updateMeatballMenu();
-                });
-            }
-
-            $(document).ready(function() {
-                initializeSearch();
-                
-                // Tab click handler
-                $('.tab-link').click(function() {
-                    $('.tab-link').removeClass('active');
-                    $(this).addClass('active');
-                    
-                    $('.search-bar input[name="query"]').val('');
-                    $('.search-bar input[name="query"]').trigger('input');
-                });
-                
-                // Classes button click handler
-                $(document).on('click', '.viewClasses', function() {
-                    currentCourseId = $(this).data('id');
-                    const courseName = $(this).data('name');
-                    
-                    $('#classes-tab-link')
-                        .show()
-                        .click()
-                        .text(courseName);
-                    
-                    // Load classes for the selected course
-                    getClasses(currentCourseId);
-                    
-                    $('#add-class-popup input[name="course_id"]').val(currentCourseId);
-                    $('.search-bar input[name="query"]').val('');
-                    
-                    // Update URL
-                    const urlParams = new URLSearchParams(window.location.search);
-                    urlParams.set('course_id', currentCourseId);
-                    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-                    history.replaceState(null, '', newUrl);
-                    
-                    initializeCourseSpecificHandlers(currentCourseId);
-                });
             });
         });
         </script>
