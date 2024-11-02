@@ -503,11 +503,11 @@ $time_limit = $assessment['time_limit'];
         }, true);
 
 
-        // Detect potential screenshot based on visibility change
+        // Detect potential screenshot/ app switching based on visibility change
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 flashScreen();
-                handleWarning('Potential Screenshot Detected');
+                handleWarning('App Switching / Screenshot');
             }
         });
 
