@@ -39,8 +39,10 @@
           <div class="container">
             <div class="left">
               <div class="big-title">
-                <h1>Streamline your</h1>
-                <h1>Assessment Administration with <div class="quilana">QUILANA</div></h1>
+                <h1><span class="quilana">QUILANA</span>: Where Tradition</h1>
+                <h1>Meets Technology For</h1>
+                <h1>Streamlined Assessment</h1>
+                <h1>Administration!</h1>
               </div>
               <p class="text">
                 Combining the best of traditional and online exam systems for efficient and secure assessments

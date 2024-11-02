@@ -10,7 +10,6 @@
   --lightTwo: #aaa;
   --quilanaColor: #7F81C5;
   --quilanaOutline: #312f3a;
-  ;
 }
 
 .dark {
@@ -224,7 +223,6 @@ header .container {
 
 .person {
   width: 123%;
-  transform: translate(15%, 25px);
 }
 
 .toggle-btn {
