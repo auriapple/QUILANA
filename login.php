@@ -38,7 +38,7 @@
                             <!-- Username Input -->
                             <div class="input-wrap">
                                 <input type="text" name="username" minlength="4" class="input-field" autocomplete="off" required />
-                                <label>Username</label>
+                                <label for="username">Username</label>
                             </div>
 
                             <!-- Password Input -->
@@ -156,7 +156,7 @@
                 <div class="carousel">
                     <div class="images-wrapper">
                         <img src="image/FloatingLana.gif" class="image img-1 show" alt="Lana" />
-                        <img src="image/image2.png" class="image img-2" alt="" />
+                        <img src="image/User.png" class="image img-2" alt="" />
                         <img src="image/image3.png" class="image img-3" alt="" />
                     </div>
 
