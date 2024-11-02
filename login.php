@@ -1,94 +1,186 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <?php include('header.php') ?>
-    <title>Login | Quilana</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in & Sign up Form</title>
+    <link rel="stylesheet" href="assets/css/login_signup.css">
 </head>
 <body>
-    <div id="container">
-        <div id="left-section">
-            <div class="logo">QUILANA</div>
-            <div class="illustration">
-                <img src="/QUILANA/image/FloatingLana.gif" alt="Floating Lana">
-            </div>
-        </div>
-        <div id="right-section">
-            <a href="welcome.php" class="return-button">
-                <div class="return">
-                    <img src="/QUILANA/image/Return.png" alt="Return Button">
-                </div>
-            </a>
-            <div class="form">
-                <h2>SIGN IN</h2>
-                <form id="signin-form" method="POST" action="login_auth.php">
-                    <div class="form-group">
-                        <label for="user_type">SIGN IN AS:</label>
-                        <select name="user_type" id="user_type" class="form-control" required>
-                            <option value="" disabled selected>Select User Type</option>
-                            <option value="2">Faculty</option>
-                            <option value="3">Student</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="username">USERNAME</label>
-                        <input type="text" id="username" name="username" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">PASSWORD</label>
-                        <input type="password" id="password" name="password" required>
-                        <a href=# class="fp">Forgot Password?</a>
-                    </div>
-                    
-                    <button type="submit" id="signInButton" class="main-button">Sign in</button>
+    <main>
+        <div class="box">
+            <div class="inner-box">
+                <div class="forms-wrap">
+                    <!-- Sign In Form -->
+                    <form id="signin-form" autocomplete="off" class="sign-in-form">
+                        <div class="logo">
+                            <img src="image/Lana.png" alt="quilana" />
+                            <h4>Quilana</h4>
+                        </div>
 
-                    <div class="form-group text-center">
-                        <span class="text-muted">Don't have an account? </span>
-                        <a href="register.php">Sign Up Here</a>
+                        <div class="heading">
+                            <h2>Welcome Back</h2>
+                            <h6>Not registered yet?</h6>
+                            <a href="#" class="toggle">Sign up</a>
+                        </div>
+
+                        <div class="actual-form">
+                            <!-- Sign As Selection -->
+                            <div class="input-wrap">
+                                <select id="user_type" class="input-field" name="user_type" required>
+                                    <option value="" disabled selected>Sign as</option>
+                                    <option value="2">Faculty</option>
+                                    <option value="3">Student</option>
+                                </select>
+                            </div>
+
+                            <!-- Username Input -->
+                            <div class="input-wrap">
+                                <input type="text" name="username" minlength="4" class="input-field" autocomplete="off" required />
+                                <label>Username</label>
+                            </div>
+
+                            <!-- Password Input -->
+                            <div class="input-wrap">
+                                <input type="password" name="password" minlength="4" class="input-field" autocomplete="off" required />
+                                <label>Password</label>
+                            </div>
+
+                            <input type="submit" value="Sign In" class="sign-btn" />
+                            <p class="text">
+                                Forgotten your password or login details?
+                                <a href="#">Get help</a> signing in
+                            </p>
+                        </div>
+                    </form>
+
+                    <!-- Sign Up Form -->
+                    <form id="signup-form" action="register.php" method="POST" autocomplete="off" class="sign-up-form">
+                        <div class="logo">
+                            <img src="image/Lana.png" alt="quilana" />
+                            <h4>Quilana</h4>
+                        </div>
+
+                        <div class="heading">
+                            <h2>Get Started</h2>
+                            <h6>Already have an account?</h6>
+                            <a href="#" class="toggle">Sign in</a>
+                        </div>
+
+                        <div class="actual-form">
+                            <div class="input-wrap">
+                                <select id="userType" class="input-field" onchange="toggleFormFields()" required>
+                                    <option value="" disabled selected>Sign up as</option>
+                                    <option value="student">Student</option>
+                                    <option value="faculty">Faculty</option>
+                                </select>
+                            </div>
+
+                            <!-- Student Form Fields -->
+                            <div id="studentFields" style="display: none;">
+                                <div class="input-wrap">
+                                    <input type="text" name="first_name" class="input-field" required />
+                                    <label>First Name</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="text" name="last_name" class="input-field" required />
+                                    <label>Last Name</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="email" name="webmail" class="input-field" required />
+                                    <label>Webmail</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="text" name="student_number" class="input-field" required />
+                                    <label>Student Number</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="text" name="username" class="input-field" required />
+                                    <label>Username</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="password" name="password" class="input-field" required />
+                                    <label>Password</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="password" name="confirm_password" class="input-field" required />
+                                    <label>Confirm Password</label>
+                                </div>
+                            </div>
+
+                            <!-- Faculty Form Fields -->
+                            <div id="facultyFields" style="display: none;">
+                                <div class="input-wrap">
+                                    <input type="text" name="first_name" class="input-field" required />
+                                    <label>First Name</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="text" name="last_name" class="input-field" required />
+                                    <label>Last Name</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="email" name="webmail" class="input-field" required />
+                                    <label>Webmail</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="text" name="faculty_number" class="input-field" required />
+                                    <label>Faculty Number</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="text" name="username" class="input-field" required />
+                                    <label>Username</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="password" name="password" class="input-field" required />
+                                    <label>Password</label>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="password" name="confirm_password" class="input-field" required />
+                                    <label>Confirm Password</label>
+                                </div>
+                            </div>
+
+                            <input type="submit" value="Sign Up" class="sign-btn" />
+
+                            <p class="text">
+                                By signing up, I agree to the
+                                <a href="#">Terms of Services</a> and
+                                <a href="#">Privacy Policy</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Carousel Section -->
+                <div class="carousel">
+                    <div class="images-wrapper">
+                        <img src="image/FloatingLana.gif" class="image img-1 show" alt="Lana" />
+                        <img src="image/image2.png" class="image img-2" alt="" />
+                        <img src="image/image3.png" class="image img-3" alt="" />
                     </div>
-                </form>
+
+                    <div class="text-slider">
+                        <div class="text-wrap">
+                            <div class="text-group">
+                                <h2>Create your own courses</h2>
+                                <h2>Customize as you like</h2>
+                                <h2>Invite students to your class</h2>
+                            </div>
+                        </div>
+
+                        <div class="bullets">
+                            <span class="active" data-value="1"></span>
+                            <span data-value="2"></span>
+                            <span data-value="3"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function(){
-            $('#signin-form').submit(function(e){
-                e.preventDefault();
-                $('#signin-form button').attr('disabled', true);
-                $('#signin-form button').html('Please wait...');
-
-                $.ajax({
-                    url: './login_auth.php',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    error: function(err) {
-                        console.log(err);
-                        alert('An error occurred');
-                        $('#signin-form button').removeAttr('disabled');
-                        $('#signin-form button').html('Sign in');
-                    },
-                    success: function(resp) {
-                        if (resp == 1) {
-                            var userType = $('#user_type').val();
-                            
-                            if (userType == '2') {
-                                location.replace('faculty_dashboard.php');
-                            } else {
-                                location.replace('student_dashboard.php');
-                            }
-                        } else {
-                            alert("Incorrect username or password.");
-                            $('#signin-form button').removeAttr('disabled');
-                            $('#signin-form button').html('Sign in');
-                        }
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="assets/js/sign_signup.js"></script>
 </body>
 </html>
