@@ -59,15 +59,6 @@ body {
     overflow: hidden;
 }
 
-.dashboard-schedule {
-    justify-content: flex-start;
-    align-content: space-between;
-    overflow-y: scroll;
-    grid-column: 2 / 3;
-    grid-row: 3 / 7;
-    overflow: hidden;
-}
-
 /* DASHBOARD SUMMARY */
 .dashboard-summary {
     justify-content: flex-start;
@@ -276,8 +267,168 @@ td .btns,
 /* DASHBOARD CALENDAR */
 .dashboard-calendar {
     grid-column: 2 / 3;
-    grid-row: 1 / 3;
-    padding: 5px 25px;
+    grid-row: 1 / 4;
+    padding: 25px;
+}
+footer {
+    display: flex;
+    position: relative;
+}
+footer .line {
+    height: 1px;
+    background-color: #8f8f9d;
+    margin: 10px 0;
+}
+footer h1 {
+    font-size: 14px;
+    font-weight: bold;
+}
+.today-schedule {
+    background-color: #FFEEB2;
+    margin: 5px 10px 10px;
+    border-radius: 10px;
+    height: 65px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+.today-schedule p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(66, 81, 102, 0.75);
+}
+.today-schedule .schedule-item {
+    padding: 0;
+    text-align: center;
+}
+/* Faculty Add Schedule Button */
+.add-button {
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+}
+.add-schedule {
+    width: 40px;
+    height: 40px;
+    background-color: #E8C340;
+    color: white;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.add-schedule i {
+    font-size: 18px;
+}
+.add-schedule:hover {
+    background-color: #dbad07;
+}
+.add-schedule:focus,
+.add-schedule:active {
+    border: none;
+    outline: none;
+}
+
+/* ADD SCHEDULE POPUP */
+#add-schedule-popup .popup-content {
+    display: flex;
+    flex-direction: column;
+    height: 450px;
+    width: 400px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+}
+#add-schedule-popup .popup-title {
+    margin: 0;
+    padding: 0 30px;
+}
+#schedule-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+#schedule-form label {
+    margin: 0;
+}
+#save-button {
+    padding: 8px 12px;
+    outline: none;
+    border: none;
+    background-image: linear-gradient(to right, #e9cb60, #e6be2f);
+    background-color: #dbad07; 
+}
+#save-button:hover {
+    background-color: #dbad07;
+    background-image: none;
+}
+
+/* DASHBOARD SCHEDULES */
+.dashboard-schedule {
+    justify-content: flex-start;
+    align-content: space-between;
+    overflow-y: scroll;
+    grid-column: 2 / 3;
+    grid-row: 4 / 7;
+    overflow: hidden;
+}
+
+.schedule-label {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    height: auto;
+}
+.schedule-label h1 {
+    margin: 0;
+}
+.schedule-label .icons {
+    height: 40px;
+    width: 40px;
+}
+
+.schedules {
+    overflow: auto;
+}
+.schedules::-webkit-scrollbar {
+    display: none;
+}
+#schedule-separator {
+    margin: 5px 5px 5px 0;
+}
+#schedule-separator .content-name {
+
+    font-size: 14px;
+}
+
+.schedule-item {
+    padding: 0 0 10px 20px;
+}
+.schedule-item h3,
+.schedule-item p {
+    margin: 0;
+}
+.schedule-item h3 {
+    font-weight: bold;
+    font-size: 18px;
+    color: #1E1A43;
+}
+.schedule-item p {
+    font-size: 14px;
+    color: #8F8F9D;
+}
+.dashboard-schedule .no-records {
+    font-size: 14px;
 }
 
 @media screen and (max-width: 850px) {
@@ -292,7 +443,8 @@ td .btns,
     .dashboard-summary,
     .dashboard-requests,
     .recent-assessments,
-    .dashboard-calendar {
+    .dashboard-calendar,
+    .dashboard-schedule {
         margin: 10px 0;
     }
     .dashboard-requests,
@@ -300,9 +452,13 @@ td .btns,
         min-height: 300px;
     }
     .dashboard-calendar {
-        min-height: 300px;
+        min-height: 450px;
         min-width: 350px;
         padding: 5px 15px
+    }
+    .dashboard-schedule {
+        min-height: 300px;
+        min-width: 350px;
     }
     .dashboard-container::-webkit-scrollbar {
         display: none;
@@ -342,7 +498,7 @@ td .btns,
         font-size: 18px;
     }
     #recent-details label {
-        font-size: 12px;
+        font-size: 14px;
     }
     .btns .accept,
     .btns .reject {

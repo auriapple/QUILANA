@@ -71,7 +71,8 @@ while ($question = $questions_query->fetch_assoc()) {
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
+    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -285,25 +286,6 @@ while ($question = $questions_query->fetch_assoc()) {
 
             submitForm();
         }
-
-        // Form Submission
-        /*function submitForm() {
-            const formData = new FormData(document.getElementById('quiz-form'));
-
-            formData.append('time_elapsed', JSON.stringify(questionTimes));
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'submit_assessment.php', true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    clearInterval(stopwatchInterval);
-                    showPopup('success-popup');
-                } else {
-                    alert('Error submitting your answers. Please try again.');
-                }
-            };
-            xhr.send(formData);
-        }*/
 
         function submitForm() {
             if (hasSubmitted) return; 
@@ -603,21 +585,6 @@ while ($question = $questions_query->fetch_assoc()) {
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
-
-        // DevTools detection
-        let devToolsOpened = false;
-        setInterval(() => {
-            const widthThreshold = window.outerWidth - window.innerWidth > 160;
-            const heightThreshold = window.outerHeight - window.innerHeight > 160;
-            if (widthThreshold || heightThreshold) {
-                if (!devToolsOpened) {
-                    devToolsOpened = true;
-                    handleWarning('DevTools usage');
-                }
-            } else {
-                devToolsOpened = false;
-            }
-        }, 1000);
 
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {

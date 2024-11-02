@@ -1,7 +1,6 @@
 /* Import Google font - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-*{
-    margin: 0;
+.dashboard-calendar *{
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
@@ -55,8 +54,7 @@ header .current-date{
 .calendar {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-width: 320px;
+    height: 60%; /* 100% min-width:320px */
     white-space: nowrap;
 }
 
@@ -113,13 +111,13 @@ header .current-date{
 }
 
 .days li.active::before{
-    background: #9B59B6;
+    background: #E8C340;
 }
 
 .days li.today::before {
-    border: 1px solid #9B59B6; /* Outline for today */
-    border-radius: 50%; /* Make the border circular */
-    color: #9B59B6; /* Change text color for today */
+    border: 1px solid #E8C340;
+    border-radius: 50%;
+    color: #E8C340;
 }
 
 .days li:not(.active):hover::before{
