@@ -14,12 +14,16 @@
     <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
     <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
+<style>
+    .scrollable-content {
+    height: calc(100% - 160px); 
+    overflow-y: auto;
+}
+</style>
 <div>
     <?php include('nav_bar.php'); ?>
 
     <div class="content-wrapper"> 
-
-    
         <!-- Header Container -->
         <div class="add-assessment-container">
             <button class="secondary-button" id="addAssessment">Add Assessment</button>
@@ -29,6 +33,7 @@
             </form>
         </div>
 
+        <!-- Tabs Navigation -->
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
@@ -37,7 +42,8 @@
             </ul>
         </div>
 
-        <div class="scrollable-content1">  
+        <!-- Scrollable Content Container -->
+        <div class="scrollable-content">  
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
@@ -121,15 +127,13 @@
                                 </div>
                             </div>
                     <?php }
-                }  
-                else {
+                } else {
                     echo '<div class="no-records" style="grid-column: 1/-1;"> No assessments have been created yet </div>';
                 } ?>
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
-                </div>
             </div> 
-                   
+
             <div id="details-tab" class="tab-content">
                 <h1></h1>
             </div>
@@ -138,7 +142,10 @@
                 <div id="administer-container">
                 </div>
             </div>
-        </div>
+        </div> <!-- End of .scrollable-content -->
+    </div> <!-- End of .content-wrapper -->
+</div>
+
 
             <!-- Modal for managing assessments -->
             <div id="add-assessment-popup" class="popup-overlay"> 
