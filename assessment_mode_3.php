@@ -45,6 +45,18 @@ if ($administer_query->num_rows>0) {
         if (!$insert_join_query) {
             echo "Error inserting record: " . $conn->error;
         }
+    } else {
+        // Update the join_assessment status to 1 (answering)
+        $update_join_query = $conn->query("
+            UPDATE join_assessment 
+            SET status = 1
+            WHERE administer_id = '$administer_id' 
+            AND student_id = '$student_id'
+        ");
+            
+        if (!$update_join_query) {
+            echo "Error updating record: " . $conn->error;
+        }
     }
 }
 

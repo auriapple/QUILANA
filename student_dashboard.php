@@ -41,6 +41,13 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <div class="content-wrapper dashboard-container">
             <!-- Dashboard Summary -->
             <div class="dashboard-summary">
+                <?php 
+                    $name_query = $conn->query("
+                        SELECT firstname FROM student WHERE student_id = '".$_SESSION['login_id']."'
+                    ");
+                    $name = $name_query->fetch_assoc();
+                    $firstname = $name['firstname'];
+                ?>
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards">
