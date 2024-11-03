@@ -338,7 +338,7 @@ footer h1 {
 }
 
 /* ADD SCHEDULE POPUP */
-.popup-content {
+#add-schedule-popup .popup-content {
     display: flex;
     flex-direction: column;
     height: 450px;
@@ -347,7 +347,7 @@ footer h1 {
     justify-content: center;
     align-items: center;
 }
-.popup-title {
+#add-schedule-popup .popup-title {
     margin: 0;
     padding: 0 30px;
 }

@@ -157,7 +157,7 @@ if ($assessment_query->num_rows > 0) {
 
         /* Fade Style */
         .fade-top {
-            height: 80px;
+            height: 50px;
             background: linear-gradient(to bottom, rgba(249, 249, 249, 0.9), rgba(249, 249, 249, 0));
             position: absolute;
             top: 0;
@@ -247,7 +247,7 @@ if ($assessment_query->num_rows > 0) {
 
         /* Fade Style */
         .fade-bottom {
-            height: 80px;
+            height: 50px;
             background: linear-gradient(to top, rgba(249, 249, 249, 0.9), rgba(249, 249, 249, 0));
             position: absolute;
             bottom: 0;

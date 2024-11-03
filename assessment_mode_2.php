@@ -580,7 +580,6 @@ while ($question = $questions_query->fetch_assoc()) {
         document.addEventListener('selectstart', event => event.preventDefault());
         document.addEventListener('copy', event => event.preventDefault());
 
-        
         // Browser screenshot detection
         window.addEventListener('screenshot', (e) => {
             e.preventDefault();

@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Landing Page With Light/Dark Mode</title>
-    <link rel="stylesheet" href="assets/css/landingpage.css" />
+    <title>Quilana | Welcome</title>
+    <link rel="stylesheet" href="assets/css/landing_page.css" />
   </head>
   <body>
     <main>
@@ -24,7 +24,6 @@
                 <li><a href="#">About</a></li>
                 <li><a href="#">Contact</a></li>
                 <li><a href="#">Privacy</a></li>
-                <li><a href="login.php" class="btn">Sign up</a></li>
               </ul>
             </div>
 
@@ -40,10 +39,13 @@
           <div class="container">
             <div class="left">
               <div class="big-title">
-                <h1>Quilana: Where Tradition Meets Technology for <br> Streamlined Exam Administration!</h1>
+                <h1><span class="quilana">QUILANA</span>: Where Tradition</h1>
+                <h1>Meets Technology For</h1>
+                <h1>Streamlined Assessment</h1>
+                <h1>Administration!</h1>
               </div>
               <p class="text">
-                Combining the best of traditional and online exam systems for efficient and secure assessments.
+                Combining the best of traditional and online exam systems for efficient and secure assessments
               </p>
               <div class="cta">
                 <a href="login.php" class="btn">Get started</a>
@@ -51,7 +53,7 @@
             </div>
 
             <div class="right">
-              <img src="image/lana.png" alt="Person Image" class="person" />
+              <img src="image/lana.png" alt="Lana" class="person" />
             </div>
           </div>
         </div>
@@ -59,8 +61,8 @@
         <div class="bottom-area">
           <div class="container">
             <button class="toggle-btn">
-              <i class="far fa-moon"></i>
-              <i class="far fa-sun"></i>
+              <i class="fas fa-moon"></i>
+              <i class="fas fa-sun fa-lg"></i>
             </button>
           </div>
         </div>
