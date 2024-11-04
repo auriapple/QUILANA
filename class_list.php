@@ -332,7 +332,13 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                var activePopup;
+                if (this.parentElement.parentElement.id == 'program-details-modal-content' || this.parentElement.parentElement.id == 'class-details-modal-content') {
+                    activePopup = this.parentElement.parentElement.parentElement.id;
+                } else {
+                    activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                }
+                
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {
@@ -583,7 +589,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: response.msg,
+                                text: 'Error: ' + response.msg,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
@@ -713,7 +719,7 @@
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: response.msg,
+                                    text: 'Error: ' + response.msg,
                                     icon: 'error',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,
