@@ -37,7 +37,7 @@
             </ul>
         </div>
 
-        <div class="scrollable-content1">  
+        <div class="scrollable-content">  
             <div id="assessment-tab" class="tab-content active">
                 <?php
                 $qry = $conn->query("
