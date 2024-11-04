@@ -502,6 +502,16 @@ $time_limit = $assessment['time_limit'];
             }
         }, true);
 
+
+        // Detect potential screenshot/ app switching based on visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                flashScreen();
+                handleWarning('App Switching / Screenshot');
+            }
+        });
+
+
         // Event listeners for various capture methods
         window.addEventListener('beforeprint', (e) => {
             e.preventDefault();
@@ -545,6 +555,19 @@ $time_limit = $assessment['time_limit'];
             }
             lastPixel = pixel;
         }, 1000);
+
+
+        //Screenshot andriod (?) yung three fingers
+        let touchCount = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchCount = event.touches.length;
+            
+            if (touchCount === 3) {
+                handleWarning('Screenshot');
+            }
+        }, true);
+
 
         // Set Timer Functionality and Event Listeners
         window.onload = function() {

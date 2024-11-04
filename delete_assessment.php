@@ -8,6 +8,9 @@ if (isset($_POST['assessment_id'])) {
     $conn->begin_transaction();
 
     try {
+        // Disable foreign key checks if necessary
+        $conn->query("SET FOREIGN_KEY_CHECKS=0");
+
         // 1. Fetch associated question IDs
         $questions_query = "SELECT question_id FROM questions WHERE assessment_id = ?";
         $questions_stmt = $conn->prepare($questions_query);
@@ -113,6 +116,9 @@ if (isset($_POST['assessment_id'])) {
         $delete_assessment_stmt->bind_param("i", $assessment_id);
         $delete_assessment_stmt->execute();
         $delete_assessment_stmt->close();
+
+        // Re-enable foreign key checks
+        $conn->query("SET FOREIGN_KEY_CHECKS=1");
 
         // Commit transaction
         $conn->commit();
