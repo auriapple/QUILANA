@@ -105,9 +105,9 @@
 
         <!-- Class Details Modal -->
         <div id="class-details-popup" class="popup-overlay"> 
-            <div id="program-details-modal-content" class="popup-content details-popup" role="document">
+            <div id="class-details-modal-content" class="popup-content details-popup" role="document">
                 <button class="popup-close">&times;</button>
-                <h2 id="program-details-title" class="popup-title">Class Details</h2>
+                <h2 id="class-details-title" class="popup-title">Class Details</h2>
 
                 <div class="modal-body" id="classDetailsBody">
                     <!-- Class details will be dynamically loaded here -->
@@ -267,8 +267,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="tertiary-button close-popup" type="button">Cancel</button>
-                        <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
+                    <button class="tertiary-button close-popup" type="button">Cancel</button>
+                    <button class="secondary-button" id="confirm_delete_btn" type="submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -332,7 +332,13 @@
             
             // For other close button
             $('.close-popup').on('click', function() {
-                var activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                var activePopup;
+                if (this.parentElement.parentElement.id == 'program-details-modal-content' || this.parentElement.parentElement.id == 'class-details-modal-content') {
+                    activePopup = this.parentElement.parentElement.parentElement.id;
+                } else {
+                    activePopup = this.parentElement.parentElement.parentElement.parentElement.id;
+                }
+                
                 closePopup(activePopup);
                 
                 if (activePopup == 'class-details-popup') {
@@ -406,8 +412,6 @@
                 $('.delete_course').click(function() {
                     var courseId = $(this).data('id');
                     var courseName = $(this).data('name');
-
-                    console.log(courseName)
 
                     // Open a modal for deleting
                     $('#msg').html('');
@@ -623,6 +627,7 @@
                 event.preventDefault();
                 closePopup('edit-class-popup');
                 var course_id = $('#edit-class-popup #course_id').val();
+                closePopup('edit-class-popup');
 
                 $.ajax({
                     url: './save_editted_class.php',
@@ -916,6 +921,7 @@
                 e.preventDefault();
                 closePopup('add-class-popup');
                 var course_id = $('#add-class-popup input[name="course_id"]').val();
+                closePopup('add-class-popup');
                 
                 $.ajax({
                     url: 'save_class.php',

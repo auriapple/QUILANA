@@ -24,6 +24,8 @@
     <?php include('nav_bar.php'); ?>
 
     <div class="content-wrapper"> 
+
+    
         <!-- Header Container -->
         <div class="add-assessment-container">
             <button class="secondary-button" id="addAssessment">Add Assessment</button>
@@ -33,7 +35,6 @@
             </form>
         </div>
 
-        <!-- Tabs Navigation -->
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-link active" data-tab="assessment-tab">Assessments</li>
@@ -42,7 +43,6 @@
             </ul>
         </div>
 
-        <!-- Scrollable Content Container -->
         <div class="scrollable-content">  
             <div id="assessment-tab" class="tab-content active">
                 <?php
@@ -127,13 +127,15 @@
                                 </div>
                             </div>
                     <?php }
-                } else {
+                }  
+                else {
                     echo '<div class="no-records" style="grid-column: 1/-1;"> No assessments have been created yet </div>';
                 } ?>
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
+                </div>
             </div> 
-
+                   
             <div id="details-tab" class="tab-content">
                 <h1></h1>
             </div>
@@ -142,10 +144,7 @@
                 <div id="administer-container">
                 </div>
             </div>
-        </div> <!-- End of .scrollable-content -->
-    </div> <!-- End of .content-wrapper -->
-</div>
-
+        </div>
 
             <!-- Modal for managing assessments -->
             <div id="add-assessment-popup" class="popup-overlay"> 
