@@ -204,9 +204,6 @@ if ($stmt = $conn->prepare($query)) {
                     <p><strong>Passing Rate:</strong> 
                         <span id="speedmode-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate . '%' : 'Not set'; ?></span>
                     </p>
-                    <p><strong>Maximum Warnings:</strong> 
-                        <span id="speedmode-max-warnings"><?php echo $assessment_max_warnings; ?></span>
-                    </p>
                     <p><strong>Max Points:</strong> 
                         <span id="current-max-points"><?php echo isset($assessment_max_points) ? $assessment_max_points : 'Not set'; ?></span>
                     </p>
@@ -215,6 +212,9 @@ if ($stmt = $conn->prepare($query)) {
                     </p>
                     <p><strong>Remaining Points:</strong> 
                         <span id="current-remaining-points"><?php echo isset($assessment_remaining_points) ? $assessment_remaining_points : 'Not set'; ?></span></p>                
+                    </p>
+                    <p><strong>Maximum Warnings:</strong> 
+                        <span id="speedmode-max-warnings"><?php echo $assessment_max_warnings; ?></span>
                     </p>
                 <?php endif; ?>
                 <div class="mt-3">
@@ -454,6 +454,10 @@ if ($stmt = $conn->prepare($query)) {
                         <div class="form-group">
                             <label for="assessment_remaining_points">Remaining Points (for those not eligible for maximum points):</label>
                             <input type="number" class="form-control" id="assessment_remaining_points" name="assessment_remaining_points" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_max_warnings">Maximum Warnings</label>
+                            <input type="number" class="form-control" id="speedmode_max_warnings" name="speedmode_max_warnings"  min="0" max="100" required>
                         </div>
                     </form>
                 </div>
@@ -868,8 +872,9 @@ if ($stmt = $conn->prepare($query)) {
             var maxPoints = $('#assessment_max_points').val();
             var studentCount = $('#assessment_student_count').val();
             var remainingPoints = $('#assessment_remaining_points').val();
+            var maxWarnings = $('#speedmode_max_warnings').val();
 
-            if (!passingRate || !maxPoints || !studentCount || !remainingPoints) {
+            if (!passingRate || !maxPoints || !studentCount || !remainingPoints || !maxWarnings) {
                 alert('Please fill in all fields correctly.');
                 return;
             }
@@ -883,7 +888,8 @@ if ($stmt = $conn->prepare($query)) {
                     passing_rate: passingRate,
                     max_points: maxPoints,
                     student_count: studentCount,
-                    remaining_points: remainingPoints
+                    remaining_points: remainingPoints,
+                    max_warnings: maxWarnings
                 },
                 dataType: 'json',
                 success: function(response) {
@@ -941,6 +947,7 @@ if ($stmt = $conn->prepare($query)) {
                         $('#quizbee-passing-rate').text(newPassingRate === '0' ? 'Not set' : newPassingRate);
                         $('#edit_passing_rate_modal').modal('hide');
                         alert('Quiz bee mode details updated successfully.');
+                        location.reload();
                     } else {
                         alert('Error: ' + response.message);
                     }

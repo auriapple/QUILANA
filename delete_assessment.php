@@ -89,7 +89,6 @@ if (isset($_POST['assessment_id'])) {
             $delete_administer_stmt->close();
         }
 
-
         // 9. Delete student results associated with the assessment
         $delete_result_query = "DELETE FROM student_results WHERE assessment_id = ?";
         $delete_result_stmt = $conn->prepare($delete_result_query);

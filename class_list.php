@@ -587,7 +587,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: response.msg,
+                                text: 'Error: ' + response.msg,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
                                 allowOutsideClick: false,
@@ -718,7 +718,7 @@
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: response.msg,
+                                    text: 'Error: ' + response.msg,
                                     icon: 'error',
                                     confirmButtonText: 'OK',
                                     allowOutsideClick: false,

@@ -144,5 +144,4 @@ if(isset($_POST['class_id'])){
 
     $conn->close();
 }
-
 ?>

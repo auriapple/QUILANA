@@ -135,6 +135,7 @@
                     </div> <!-- Close the last course section -->
                 </div>
             </div> 
+            </div> <!-- For Nathan hahahahha -->
                    
             <div id="details-tab" class="tab-content">
                 <h1></h1>
@@ -565,7 +566,8 @@
                                 success: function(response) {
                                     $('#administer-container').html(response);
                                     $('.add-assessment-container').hide();
-                                    document.getElementById("administer-tab-link").setAttribute('data-status', '0')
+                                    document.getElementById("administer-tab-link").setAttribute('data-status', '0');
+                                    console.log('it should have worked');
                                 },
                                 error: function(xhr, status, error) {
                                     $('#administer-container').html('<div class="alert alert-danger">Failed to load content. Please try again.</div>');
