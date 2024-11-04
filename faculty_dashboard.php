@@ -47,7 +47,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalCourses ?> </h3>
-                            <label>Total Courses</label> 
+                            <label>Total Programs</label> 
                         </div>
                     </div>
                     <div class="card" style="background-color: #FADEFF"> 

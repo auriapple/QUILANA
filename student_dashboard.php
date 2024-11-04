@@ -162,10 +162,12 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="wrapper">
                     <!-- Calendar -->
                     <header>
+                        <div class="icons">
+                            <span id="prev" class="material-symbols-rounded">chevron_left</span>
+                        </div>
                         <p class="current-date"></p>
                         <div class="icons">
-                        <span id="prev" class="material-symbols-rounded">chevron_left</span>
-                        <span id="next" class="material-symbols-rounded">chevron_right</span>
+                            <span id="next" class="material-symbols-rounded">chevron_right</span>
                         </div>
                     </header>
                     <div class="calendar">
