@@ -29,8 +29,6 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
-        <link rel="stylesheet" href="material-symbols/css/material-symbols.css">
-        <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
         <script src="assets/js/calendar.js" defer></script>
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;

@@ -80,8 +80,6 @@ $time_limit = $assessment['time_limit'];
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>

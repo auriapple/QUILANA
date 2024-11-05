@@ -8,11 +8,6 @@
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
     <link rel="stylesheet" href="assets/css/classes.css">
-    <link rel="stylesheet" href="assets/css/bootstrap.css">
-    <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-    <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 <body>
     <?php include('nav_bar.php') ?>
 
