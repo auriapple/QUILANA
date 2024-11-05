@@ -239,6 +239,38 @@ td .btns,
     outline: none;
 }
 
+/* Enrollment Alerts */
+.alert-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    padding: 0 5px 5px 0;
+    gap: 10px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    height: 300px;
+    width: 300px;
+    background-color: transparent;
+    overflow-y: auto;
+}
+.alert-card {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #eee;
+    background-color: #fff;
+    box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
+    font-size: 14px;
+    color: #777;
+    text-align: justify;
+    transition: opacity 1s;
+}
+.fade {
+    opacity: 0;
+}
 
 /* RECENT ASSESSMENTS */
 .recent-scrollable {

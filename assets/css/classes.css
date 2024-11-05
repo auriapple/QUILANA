@@ -4,7 +4,7 @@
     flex-direction: column;
     height: fit-content;
     width: 450px;
-    padding: 50px 20px 30px 20px; 
+    padding: 50px 20px 40px 20px; 
 }
 .popup-title {
     margin-bottom: 20px;
@@ -44,6 +44,9 @@
 .popup-content .modal-body {
     display: flex;
     flex-direction: column;
+}
+#delete-modal-body {
+    padding: 0 10px;
 }
 .form-group {
     margin-bottom: 10px;
@@ -86,6 +89,9 @@
     margin: 0;
     padding: 20px 0;
     font-size: 20px;
+}
+#delete-message {
+    padding: 10px 0;
 }
 #unenroll_class_name {
     color: #1E1A43;

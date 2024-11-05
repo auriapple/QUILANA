@@ -186,11 +186,13 @@ body {
 }
 .popup-content {
     background: #FFFFFF;
+    min-height: 350px;
     border-radius: 25px;
     text-align: center;
     justify-content: center;
     position: relative;
     display: flex;
+    gap: 10px;
     flex-direction: column;
     z-index: 1001;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
@@ -204,9 +206,14 @@ body {
     color: #4a4a4a;
     text-align: center;
 }
+.popup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 .popup-close {
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 15px;
     background: transparent;
     border: none;
