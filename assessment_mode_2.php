@@ -170,22 +170,23 @@ while ($question = $questions_query->fetch_assoc()) {
                                 echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                                 echo "</div>";
                             }
+                            echo "</div>";
                         } elseif ($question_type == 3) { // True/False
                             echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
                             echo "<div class='option-buttons'>";
                                 echo "<div class='form-check'>";
-                                echo "<input id='true' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
-                                echo "<label for='true' class='form-check-label'>True</label>";
+                                echo "<input id='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
+                                echo "<label for='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>True</label>";
                                 echo "</div>";
                                 echo "<div class='form-check'>";
-                                echo "<input id='false' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
-                                echo "<label for='false' class='form-check-label'>False</label>";
+                                echo "<input id='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
+                                echo "<label for='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>False</label>";
                                 echo "</div>";
                             echo "</div>";
                         } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification
                             echo "<div class='form-check-group'>";
-                            echo "<input type='text' id='quiz-modes-input' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
+                            echo "<input type='text' id='answer_" . htmlspecialchars($question['question_id']) . "' class='quiz-modes-input' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                             echo "</div>";
                         }
                         ?>

@@ -271,24 +271,26 @@ function getRankSuffix($rank) {
                 echo "<div class='leaderboard-group-container'>";
                 foreach ($grouped_data as $rank => $students) {
                     
-                    // Rank Separator
-                    echo "<div class='rank-container'>";
-                    echo "<hr class='separator-line'>";
-                    echo "<span class='rank'>Rank $rank</span>";
-                    echo "<hr class='separator-line'>";
-                    echo "</div>";
+                    if ($rank <= 3) {
+                        // Rank Separator
+                        echo "<div class='rank-container'>";
+                        echo "<hr class='separator-line'>";
+                        echo "<span class='rank'>Rank $rank</span>";
+                        echo "<hr class='separator-line'>";
+                        echo "</div>";
 
-                    // Displays the name and score of students
-                    foreach ($students as $student) {
-                        $full_name = htmlspecialchars($student['firstname'] . ' ' . $student['lastname']);
-                        $score_display = htmlspecialchars($student['score']);
+                        // Displays the name and score of students
+                        foreach ($students as $student) {
+                            $full_name = htmlspecialchars($student['firstname'] . ' ' . $student['lastname']);
+                            $score_display = htmlspecialchars($student['score']);
 
-                        // Checks the student id and highlights the record
-                        $is_highlighted = ($student['student_id'] == $student_id) ? 'highlighted-entry' : '';
-                        echo "<div class='leaderboard-entry $is_highlighted'>
-                                <span class='leaderboard-name'>$full_name</span>
-                                <span class='leaderboard-score'>$score_display points</span>
-                        </div>";
+                            // Checks the student id and highlights the record
+                            $is_highlighted = ($student['student_id'] == $student_id) ? 'highlighted-entry' : '';
+                            echo "<div class='leaderboard-entry $is_highlighted'>
+                                    <span class='leaderboard-name'>$full_name</span>
+                                    <span class='leaderboard-score'>$score_display points</span>
+                            </div>";
+                        }
                     }
                 }
                 echo "</div>";
@@ -312,16 +314,29 @@ function getRankSuffix($rank) {
                     const currentStatus = data.status;
                     console.log('Current Status:', currentStatus);
                     
-                    // Reload page if the status is 1
+                    // Reload page if the status is 2 (finished)
                     if (currentStatus == 2) {
+                        clearInterval(checkInterval);
+                        sessionStorage.setItem('statusChecked', 'true');
                         location.reload();
                     }
                 })
                 .catch(error => console.error('Error fetching status:', error));
         }
 
-        // Call check_status every 3 seconds
-        setInterval(check_status, 3000);
+        // Initialize status checking if it hasn't already been checked
+        function startStatusCheck() {
+            // Check if we've already reloaded and checked the status
+            if (sessionStorage.getItem('statusChecked') === 'true') {
+                return;  // Don't start the interval again
+            }
+
+            // Start checking status every 3 seconds
+            checkInterval = setInterval(check_status, 3000);
+        }
+
+        // Call the startStatusCheck function
+        startStatusCheck();
     </script>
 </body>
 </html>
