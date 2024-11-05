@@ -120,12 +120,12 @@ if (isset($_GET['class_id'])) {
                                 <td>';
                         if ($student['status'] == 0) {
                             echo '<div class="btn-container">
-                                    <button class="btn btn-success btn-sm" 
+                                    <button class="btn btn-success btn-sm accept-btn" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="1" 
                                             type="button">Accept</button>
-                                    <button class="btn btn-danger btn-sm" 
+                                    <button class="btn btn-danger btn-sm reject-btn" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="2" 

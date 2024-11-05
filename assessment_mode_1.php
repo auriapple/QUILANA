@@ -46,6 +46,18 @@ if ($administer_query->num_rows>0) {
         if (!$insert_join_query) {
             echo "Error inserting record: " . $conn->error;
         }
+    } else {
+        // Update the join_assessment status to 1 (answering)
+        $update_join_query = $conn->query("
+            UPDATE join_assessment 
+            SET status = 1
+            WHERE administer_id = '$administer_id' 
+            AND student_id = '$student_id'
+        ");
+            
+        if (!$update_join_query) {
+            echo "Error updating record: " . $conn->error;
+        }
     }
 }
 
@@ -151,8 +163,8 @@ $time_limit = $assessment['time_limit'];
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
                             echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
-                            echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                            echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
+                            echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                             echo "</div>";
                         }
                     // Multiple choice (checkboxes)
@@ -162,8 +174,8 @@ $time_limit = $assessment['time_limit'];
                         $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
                         while ($choice = $choices_query->fetch_assoc()) {
                             echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
-                            echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                            echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
+                            echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
                             echo "</div>";
                         }
                     // True/False (radio buttons)
@@ -171,17 +183,17 @@ $time_limit = $assessment['time_limit'];
                         echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
                         
                         echo "<div class='form-check'>";
-                        echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
-                        echo "<label class='form-check-label'>True</label>";
+                        echo "<input id='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
+                        echo "<label for='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>True</label>";
                         echo "</div>";
                         echo "<div class='form-check'>";
-                        echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
-                        echo "<label class='form-check-label'>False</label>";
+                        echo "<input id='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
+                        echo "<label for='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>False</label>";
                         echo "</div>";
                     // Fill in the blank and identification (text input)
                     } elseif ($question_type == 4 || $question_type == 5) {
                         echo "<div class='form-check-group'>";
-                        echo "<input type='text' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
+                        echo "<input type='text' id='answer_" . htmlspecialchars($question['question_id']) . "' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                         echo "</div>";
                     }
                     echo "</div>";
