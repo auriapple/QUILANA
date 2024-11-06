@@ -233,7 +233,7 @@
             right: 7px;
             cursor: pointer;
             font-size: 16px;
-            color: #999;
+            color: #fff;
         }
 
         .notification-card span.notif-close:hover {
