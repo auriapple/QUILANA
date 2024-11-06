@@ -8,12 +8,6 @@
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/classes.css">
 </head>
-<style>
-    .scrollable-content {
-    height: calc(100% - 160px); 
-    overflow-y: auto;
-}
-</style>
 <div>
     <?php include('nav_bar.php'); ?>
 
@@ -129,7 +123,6 @@
                     </div> <!-- Close the last course section -->
                 </div>
             </div> 
-            </div> <!-- For Nathan hahahahha -->
                    
             <div id="details-tab" class="tab-content">
                 <h1></h1>
