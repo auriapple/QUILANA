@@ -68,8 +68,6 @@ if ($stmt = $conn->prepare($query)) {
 <html lang="en">
 <head>
     <title>Manage Assessment | Quilana</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .assessment {
             padding: 10px;
@@ -416,7 +414,7 @@ if ($stmt = $conn->prepare($query)) {
                             <input type="number" id="assessment_passing_rate" name="passing_rate"  min="0" max="100" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="assessment_max_warnings">Maximum Warnings</label>
+                            <label for="assessment_max_warnings">Maximum Warnings:</label>
                             <input type="number" id="assessment_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                     </form>
@@ -442,6 +440,10 @@ if ($stmt = $conn->prepare($query)) {
                         <div class="form-group">
                             <label for="speedmode_passing_rate">Passing Rate (%):</label>
                             <input type="number" class="form-control" id="speedmode_passing_rate" name="passing_rate"  min="0" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessment_max_warnings">Maximum Warnings:</label>
+                            <input type="number" id="assessment_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label for="assessment_max_points">Maximum Points:</label>
@@ -486,7 +488,7 @@ if ($stmt = $conn->prepare($query)) {
                             <input type="number" id="quizbee_passing_rate" name="passing_rate" class="form-control" min="0" max="100" required>
                         </div>
                         <div class="form-group">
-                            <label for="quizbee_max_warnings">Maximum Warnings</label>
+                            <label for="quizbee_max_warnings">Maximum Warnings:</label>
                             <input type="number" id="quizbee_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                     </form>

@@ -21,6 +21,7 @@ if ($qry->num_rows > 0) {
         $class_name = htmlspecialchars($row['class_name']);
         $subject = htmlspecialchars($row['subject']);
         $status = htmlspecialchars($row['status']);
+        $classSub = $class_name . '(' . $subject . ')';
         
         if ($class_name !== $current_class) {
             if ($current_class !== '') {
@@ -37,9 +38,21 @@ if ($qry->num_rows > 0) {
         echo '<div class="student-item">';
         echo '<label>' . $student_name . '</label>';
         echo '<div class="btns">';
-        echo '<button class="btn btn-primary btn-sm accept-btn accept" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="1" type="button">
+        echo '<button class="btn btn-primary btn-sm accept-btn accept" 
+            data-class-id="' . $class_id . '" 
+            data-student-id="' . $student_id . '" 
+            data-status="1" 
+            data-student-name="' . $student_name . '"
+            data-class-sub="' . $classSub . '" 
+            type="button">
             <span class="material-symbols-outlined btn-icon">check</span><span class="label">Accept</span></button>';
-        echo '<button class="btn btn-primary btn-sm reject-btn reject" data-class-id="' . $class_id . '" data-student-id="' . $student_id . '" data-status="2" type="button">
+        echo '<button class="btn btn-primary btn-sm reject-btn reject" 
+            data-class-id="' . $class_id . '" 
+            data-student-id="' . $student_id . '" 
+            data-status="2" 
+            data-student-name="' . $student_name . '"
+            date-class-sub="' . $classSub . '" 
+            type="button">
             <span class="material-symbols-outlined btn-icon">close</span><span class="label">Reject</span></button>';
         echo '</div></div>';
     }

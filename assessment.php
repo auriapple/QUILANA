@@ -7,12 +7,6 @@
     <title>Assessments | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/classes.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-    <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <style>
     .scrollable-content {

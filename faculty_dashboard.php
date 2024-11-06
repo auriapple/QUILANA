@@ -24,8 +24,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
-        <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-        <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
+        <link rel="stylesheet" href="assets/css/classes.css">
         <script src="assets/js/calendar.js" defer></script>
     </head>
     <body>
@@ -34,6 +33,13 @@ while ($row = $scheduleQuery->fetch_assoc()) {
 
             <!-- Dashboard Summary -->
             <div class="dashboard-summary">
+                <?php 
+                    $name_query = $conn->query("
+                        SELECT firstname FROM faculty WHERE faculty_id = '".$_SESSION['login_id']."'
+                    ");
+                    $name = $name_query->fetch_assoc();
+                    $firstname = $name['firstname'];
+                ?>
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards"> 
@@ -47,7 +53,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalCourses ?> </h3>
-                            <label>Total Courses</label> 
+                            <label>Total Programs</label> 
                         </div>
                     </div>
                     <div class="card" style="background-color: #FADEFF"> 
@@ -148,6 +154,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 </div>
             </div>
 
+            <div class="alert-container" id="alert-container">
+                <!-- Alert for Accepting/Rejecting Students will be displayed here -->
+            </div>
+
             <!-- Scheduled Assessments -->
             <div class="dashboard-schedule">
                 <div class="schedule-label">
@@ -243,6 +253,28 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;
 
+            function addChildElement(studentName, className, res) {
+                // Create a new div element
+                const alert = document.createElement('div');
+                alert.className = 'alert-card';
+                alert.textContent = studentName + ' has been ' + res + ' ' + className;
+
+                // Append the new child to the parent
+                const alertContainer = document.getElementById('alert-container');
+                alertContainer.appendChild(alert);
+
+                // Store a reference to the child element
+                const thisAlert = alert;
+
+                // Set a timeout to fade out the child after 5 seconds then removed
+                setTimeout(() => {
+                    thisAlert.classList.add('fade');
+                }, 5000);
+                setTimeout(() => {
+                    alertContainer.removeChild(thisAlert);
+                }, 6000);
+            }
+
             // Function to fetch pending requests from students
             function fetchPendingRequests() {
                 fetch('get_requests.php')
@@ -258,6 +290,9 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 var classId = $(this).data('class-id');
                 var studentId = $(this).data('student-id');
                 var status = $(this).data('status');
+                var classSub = $(this).data('class-sub');
+                var studentName = $(this).data('student-name');
+                var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : null;
 
                 $.ajax({
                     url: 'status_update.php',
@@ -269,10 +304,23 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     },
                     success: function(response) {
                         if (response == 'success') {
-                            alert('Student status updated.');
-                            location.reload();
+                            addChildElement(studentName, classSub, res);
+                            console.log(studentName + '\n' + classSub + '\n' + res);
+                            fetchPendingRequests();
                         } else {
-                            alert('Failed to update status.');
+                            Swal.fire({
+                            title: 'Warning!',
+                            text: 'An error occured in trying to reject/accept ' + studentName + ' to ' + classSub + '.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then(() => {
+                            warningTracker = false;
+                        });
                         }
                     } 
                 });

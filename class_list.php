@@ -8,11 +8,6 @@
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
     <link rel="stylesheet" href="assets/css/classes.css">
-    <link rel="stylesheet" href="assets/css/bootstrap.css">
-    <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-    <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 <body>
     <?php include('nav_bar.php') ?>
 
@@ -126,7 +121,7 @@
                 <h2 id="add-program-title" class="popup-title">Add New Program</h2>
 
                 <!-- Form to add new program -->
-                <form id='course-form'>
+                <form id='course-form' class="popup-form">
                     <div class="modal-body">
                         <div id="msg"></div>
                         <div class="form-group">
@@ -150,7 +145,7 @@
                 <h2 id="edit-program-title" class="popup-title">Edit Program</h2>
 
                 <!-- Form to edit program details -->
-                <form id='edit-course-form'>
+                <form id='edit-course-form' class="popup-form">
                     <div class="modal-body">
                         <div id="msg"></div>
                         <div class="form-group">
@@ -174,8 +169,8 @@
                 <h2 id="delete-program-title" class="popup-title">Delete Program</h2>
 
                 <!-- Form to delete the program-->
-                <form id='delete-course-form'>
-                    <div class="modal-body">
+                <form id='delete-course-form' class="popup-form">
+                    <div class="modal-body" id="delete-modal-body">
                         <div id="msg"></div>
                         <div class="form-group">
                             <p id="delete-message" class="popup-message"> Are you sure you want to delete  <strong id="modal_course_name"></strong>?</p>
@@ -198,7 +193,7 @@
                 <h2 id="add-class-title" class="popup-title">Add New Class</h2>
 
                 <!-- Form to add new class -->
-                <form id='class-form'>
+                <form id='class-form' class="popup-form">
                     <div class="modal-body">
                         <div id="msg"></div>
                         <input type="hidden" name="course_id" />
@@ -227,7 +222,7 @@
                 <h2 id="edit-class-title" class="popup-title">Edit Class</h2>
 
                 <!-- Form to edit class -->
-                <form id='edit-class-form'>
+                <form id='edit-class-form' class="popup-form">
                     <div class="modal-body">
                         <div id="msg"></div>
                         <div class="form-group">
@@ -256,7 +251,7 @@
                 <h2 id="delete-class-title" class="popup-title">Delete Class</h2>
 
                 <!-- Form to delete class -->
-                <form id='delete-class-form'>
+                <form id='delete-class-form' class="popup-form">
                     <div class="modal-body">
                         <div id="msg"></div>
                         <div class="form-group">

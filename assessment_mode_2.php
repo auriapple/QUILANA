@@ -45,6 +45,18 @@ if ($administer_query->num_rows>0) {
         if (!$insert_join_query) {
             echo "Error inserting record: " . $conn->error;
         }
+    } else {
+        // Update the join_assessment status to 1 (answering)
+        $update_join_query = $conn->query("
+            UPDATE join_assessment 
+            SET status = 1
+            WHERE administer_id = '$administer_id' 
+            AND student_id = '$student_id'
+        ");
+            
+        if (!$update_join_query) {
+            echo "Error updating record: " . $conn->error;
+        }
     }
 }
 
@@ -71,8 +83,6 @@ while ($question = $questions_query->fetch_assoc()) {
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <body>
     <?php include('nav_bar.php') ?>
@@ -174,7 +184,7 @@ while ($question = $questions_query->fetch_assoc()) {
                             echo "</div>";
                         } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification
                             echo "<div class='form-check-group'>";
-                            echo "<input type='text' id='quiz-modes-input' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
+                            echo "<input type='text' id='answer_" . htmlspecialchars($question['question_id']) . "' class='quiz-modes-input' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                             echo "</div>";
                         }
                         ?>

@@ -386,6 +386,7 @@
                             <button id="closeAssessment" class="main-button button" style="width: 180px; display: none;"> Close </button>
                         </div>
                         <input type="hidden" id="administerId-container" value="<?php echo $administer['administer_id']; ?>" />
+                        <input type="hidden" id="startTime-container" value="<?php echo $administer['start_time']; ?>" />
                     </div>
 
                     <div class='table-wrapper'>
@@ -615,6 +616,14 @@
             if (storedStartTime) {
                 $('#startAssessment').hide();
                 initializeTimer(storedStartTime);
+            } else {
+                const startTime = document.getElementById('startTime-container').value;
+
+                if(startTime) {
+                    $('#startAssessment').hide();
+                    sessionStorage.setItem(`start_time_${administerId}`, startTime);
+                    initializeTimer(startTime);
+                }
             }
         }
 

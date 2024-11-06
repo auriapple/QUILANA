@@ -29,8 +29,6 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
-        <link rel="stylesheet" href="material-symbols/css/material-symbols.css">
-        <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
         <script src="assets/js/calendar.js" defer></script>
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;
@@ -41,6 +39,13 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <div class="content-wrapper dashboard-container">
             <!-- Dashboard Summary -->
             <div class="dashboard-summary">
+                <?php 
+                    $name_query = $conn->query("
+                        SELECT firstname FROM student WHERE student_id = '".$_SESSION['login_id']."'
+                    ");
+                    $name = $name_query->fetch_assoc();
+                    $firstname = $name['firstname'];
+                ?>
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards">
@@ -162,10 +167,12 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="wrapper">
                     <!-- Calendar -->
                     <header>
+                        <div class="icons">
+                            <span id="prev" class="material-symbols-rounded">chevron_left</span>
+                        </div>
                         <p class="current-date"></p>
                         <div class="icons">
-                        <span id="prev" class="material-symbols-rounded">chevron_left</span>
-                        <span id="next" class="material-symbols-rounded">chevron_right</span>
+                            <span id="next" class="material-symbols-rounded">chevron_right</span>
                         </div>
                     </header>
                     <div class="calendar">
