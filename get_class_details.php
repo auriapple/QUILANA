@@ -1,3 +1,13 @@
+<style>
+    .swal2-actions {
+        gap: 10px;
+    }
+    .swal2-actions :is(.secondary-button, .tertiary-button) {
+        width: 150px;
+        margin-top: 20px;
+    } 
+</style>
+
 <?php
 include('db_connect.php');
 
@@ -110,52 +120,7 @@ if (isset($_GET['class_id'])) {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                if (isset($qry_student) && $qry_student->num_rows > 0) {
-                    while ($student = $qry_student->fetch_assoc()) {
-                        echo '<tr>
-                                <td>' . htmlspecialchars($student['student_number']) . '</td>
-                                <td>' . htmlspecialchars($student['student_name']) . '</td>
-                                <td class="status">' . (($student['status'] == 0) ? 'Pending' : 'Enrolled') . '</td>
-                                <td>';
-                        if ($student['status'] == 0) {
-                            echo '<div class="btn-container">
-                                    <button class="btn btn-success btn-sm accept-btn" 
-                                            data-class-id="' . $class_id . '" 
-                                            data-student-id="' . $student['student_id'] . '" 
-                                            data-status="1" 
-                                            data-student-name="' . $student['student_name'] . '"
-                                            data-class-sub="' . $class['class_name'] . ' (' . $class['subject'] . ')' . '"
-                                            type="button">Accept</button>
-                                    <button class="btn btn-danger btn-sm reject-btn" 
-                                            data-class-id="' . $class_id . '" 
-                                            data-student-id="' . $student['student_id'] . '" 
-                                            data-status="2" 
-                                            data-student-name="' . $student['student_name'] . '"
-                                            data-class-sub="' . $class['class_name'] . ' (' . $class['subject'] . ')' . '"
-                                            type="button">Reject</button>
-                                </div>';
-                        } else {
-                            echo '<div class="btn-container">
-                                    <button class="btn btn-primary btn-sm" 
-                                            onclick="showStudentScores(' . $student['student_id'] . ', \'' . $student['student_name'] . '\')" 
-                                            type="button">Scores</button>
-                                   <button class="btn btn-danger btn-sm" 
-                                            data-class-id="' . $class_id . '" 
-                                            data-student-id="' . $student['student_id'] . '" 
-                                            data-status="3" 
-                                            data-student-name="' . $student['student_name'] . '"
-                                            data-class-sub="' . $class['class_name'] . ' (' . $class['subject']   . ')' . '"
-                                            type="button"
-                                            onclick="confirmStudentRemoval(' . $student['student_id'] . ', ' . $class_id . ')">Remove</button>
-                                </div>';
-                        }
-                        echo '</td></tr>';
-                    }
-                } else {
-                    echo '<tr><td colspan="4" class="text-center">No students found.</td></tr>';
-                }
-                ?>
+                <!-- Student Record will be loaded here -->
             </tbody>
         </table>
     </div>
@@ -240,6 +205,7 @@ if (isset($_GET['class_id'])) {
         var classSub = $(this).data('class-sub');
         var studentName = $(this).data('student-name');
         var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : null;
+        console.log(classSub + '\n' + studentName + '\n' + res);
 
         $.ajax({
             url: 'status_update.php',
@@ -372,36 +338,50 @@ if (isset($_GET['class_id'])) {
         }
     }
 
-    function confirmStudentRemoval(studentId, classId) {
-        var userConfirmed = confirm("Are you sure you want to remove this student from the class?");
-        var classSub = $(this).data('class-sub');
-        var studentName = $(this).data('student-name');
-        var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : status == 3 ? 'removed from ' : null;
+    function confirmStudentRemoval(studentId, classId, studentName, className, subject) {
+        var res = ' has been removed from ';
+        var classSub = className + ' (' + subject + ')';
+        console.log(classSub + '\n' + studentName + '\n' + res);
 
-        if (userConfirmed) {
-            fetch('remove_student.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'student_id=' + studentId + '&class_id=' + classId
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    addChildElement(studentName, classSub, res);
-                    location.reload(); 
-                } else {
-                    alert("Failed to remove student: " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("An error occurred while removing the student.");
-            });
-        } else {
-            console.log("User canceled the removal action.");
-        }
+        Swal.fire({
+            title: 'Confirm Removal',
+            text: 'Are you sure you want to remove ' + studentName + ' from ' + className + ' (' + subject + ')?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Remove',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                popup: 'popup-content',
+                confirmButton: 'secondary-button',
+                cancelButton: 'tertiary-button'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('remove_student.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'student_id=' + studentId + '&class_id=' + classId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addChildElement(studentName, classSub, res);
+                        refreshStudentTable(<?php echo $class_id ?>)
+                    } else {
+                        alert("Failed to remove student: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while removing the student.");
+                });
+            } else if (result.isDismissed) {
+                console.log("User canceled the removal action.");
+            }
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function() {

@@ -51,7 +51,7 @@ if ($qry->num_rows > 0) {
             data-student-id="' . $student_id . '" 
             data-status="2" 
             data-student-name="' . $student_name . '"
-            date-class-sub="' . $classSub . '" 
+            data-class-sub="' . $classSub . '" 
             type="button">
             <span class="material-symbols-outlined btn-icon">close</span><span class="label">Reject</span></button>';
         echo '</div></div>';
