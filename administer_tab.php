@@ -215,14 +215,11 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 25px;
-            border: 1px solid #eee;
-            background-color: #fff;
-            box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
+            padding: 15px;
+            background-color: #6e72c1dd;
             font-size: 14px;
-            color: #777;
+            color: #fff;
             text-align: justify;
-
         }
 
         .notification-card span.notif-close {

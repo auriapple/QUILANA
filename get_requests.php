@@ -21,7 +21,7 @@ if ($qry->num_rows > 0) {
         $class_name = htmlspecialchars($row['class_name']);
         $subject = htmlspecialchars($row['subject']);
         $status = htmlspecialchars($row['status']);
-        $classSub = $class_name . '(' . $subject . ')';
+        $classSub = $class_name . ' (' . $subject . ')';
         
         if ($class_name !== $current_class) {
             if ($current_class !== '') {

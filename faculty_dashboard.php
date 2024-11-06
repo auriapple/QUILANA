@@ -272,7 +272,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 }, 5000);
                 setTimeout(() => {
                     alertContainer.removeChild(thisAlert);
-                }, 6000);
+                }, 7000);
             }
 
             // Function to fetch pending requests from students
@@ -330,7 +330,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             fetchPendingRequests();
 
             // Refresh every 5 seconds
-            setInterval(fetchPendingRequests, 10000);
+            setInterval(fetchPendingRequests, 5000);
 
             // Modal functionality
             const modal = document.getElementById("add-schedule-popup");

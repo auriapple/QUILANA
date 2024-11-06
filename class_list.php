@@ -100,9 +100,9 @@
 
         <!-- Class Details Modal -->
         <div id="class-details-popup" class="popup-overlay"> 
-            <div id="program-details-modal-content" class="popup-content details-popup" role="document">
+            <div id="class-details-modal-content" class="popup-content details-popup" role="document">
                 <button class="popup-close">&times;</button>
-                <h2 id="program-details-title" class="popup-title">Class Details</h2>
+                <h2 id="class-details-title" class="popup-title">Class Details</h2>
 
                 <div class="modal-body" id="classDetailsBody">
                     <!-- Class details will be dynamically loaded here -->
@@ -111,6 +111,10 @@
                     <div id="back-button-container"></div> <!-- If View Class from the View Course Details is clicked -->
                     <button class="tertiary-button close-popup back_vcd_false">Close</button>
                 </div>
+            </div>
+
+            <div class="alert-container" id="alert-container">
+                <!-- Alert for Accepting/Rejecting Students will be displayed here -->
             </div>
         </div>
 
@@ -816,30 +820,6 @@
                 } else {
                     $('#back-button-container').html('');
                 }
-            });
-
-            $(document).on('click', '.accept-btn, .reject-btn', function() {
-                var classId = $(this).data('class-id');
-                var studentId = $(this).data('student-id');
-                var status = $(this).data('status');
-
-                $.ajax({
-                    url: 'status_update.php',
-                    type: 'POST',
-                    data: {
-                        class_id: classId,
-                        student_id: studentId,
-                        status: status
-                    },
-                    success: function(response) {
-                        if (response == 'success') {
-                            alert('Student status updated.');
-                            location.reload();
-                        } else {
-                            alert('Failed to update status.');
-                        }
-                    } 
-                });
             });
 
             // Saving new course

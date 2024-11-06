@@ -124,11 +124,15 @@ if (isset($_GET['class_id'])) {
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="1" 
+                                            data-student-name="' . $student['student_name'] . '"
+                                            data-class-sub="' . $class['class_name'] . ' (' . $class['subject'] . ')' . '"
                                             type="button">Accept</button>
                                     <button class="btn btn-danger btn-sm reject-btn" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
                                             data-status="2" 
+                                            data-student-name="' . $student['student_name'] . '"
+                                            data-class-sub="' . $class['class_name'] . ' (' . $class['subject'] . ')' . '"
                                             type="button">Reject</button>
                                 </div>';
                         } else {
@@ -139,7 +143,9 @@ if (isset($_GET['class_id'])) {
                                    <button class="btn btn-danger btn-sm" 
                                             data-class-id="' . $class_id . '" 
                                             data-student-id="' . $student['student_id'] . '" 
-                                            data-status="2" 
+                                            data-status="3" 
+                                            data-student-name="' . $student['student_name'] . '"
+                                            data-class-sub="' . $class['class_name'] . ' (' . $class['subject']   . ')' . '"
                                             type="button"
                                             onclick="confirmStudentRemoval(' . $student['student_id'] . ', ' . $class_id . ')">Remove</button>
                                 </div>';
@@ -176,142 +182,236 @@ if (isset($_GET['class_id'])) {
 </div>
 
 <script>
-function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    
-    // Hide all tab contents
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-        tabcontent[i].classList.remove("active");
+    function refreshStudentTable(classId) {
+        $.ajax({
+            url: 'get_students.php', 
+            type: 'POST',
+            data: { class_id: classId },
+            success: function(response) {
+                // Update the table's <tbody> with the new HTML
+                $('#Students tbody').html('');
+                $('#Students tbody').html(response);
+            },
+            error: function() {
+                alert('Failed to refresh the student table.');
+            }
+        });
     }
-    
-    // Remove the 'active' class from all tab links
-    tablinks = document.getElementsByClassName("tab-link");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove("active");
+
+    let refreshStudentTableInterval;
+
+    function startAutoRefresh(classId) {
+        if (refreshStudentTableInterval) {
+            clearInterval(refreshInterval);
+        }
+        refreshStudentTable(classId);
+
+        refreshStudentTableInterval = setInterval(function() {
+            refreshStudentTable(classId);
+        }, 5000);
     }
 
-    // Display the selected tab content
-    document.getElementById(tabName).style.display = "block";
-    document.getElementById(tabName).classList.add("active");
-    
-    // Add the 'active' class to the clicked tab link
-    evt.currentTarget.classList.add("active");
+    function addChildElement(studentName, className, res) {
+        // Create a new div element
+        const alert = document.createElement('div');
+        alert.className = 'alert-card';
+        alert.textContent = studentName + ' has been ' + res + ' ' + className;
 
-    // Hide the 'Scores' tab if another tab is clicked
-    if (tabName !== 'StudentScores') {
-        document.getElementById('studentScoresTab').style.display = 'none';
+        // Append the new child to the parent
+        const alertContainer = document.getElementById('alert-container');
+        alertContainer.appendChild(alert);
+
+        // Store a reference to the child element
+        const thisAlert = alert;
+
+        // Set a timeout to fade out the child after 5 seconds then removed
+        setTimeout(() => {
+            thisAlert.classList.add('fade');
+        }, 5000);
+        setTimeout(() => {
+            alertContainer.removeChild(thisAlert);
+        }, 7000);
     }
-}
 
+    $(document).on('click', '.accept-btn, .reject-btn', function() {
+        var classId = $(this).data('class-id');
+        var studentId = $(this).data('student-id');
+        var status = $(this).data('status');
+        var classSub = $(this).data('class-sub');
+        var studentName = $(this).data('student-name');
+        var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : null;
 
-function showStudentScores(studentId, studentName) {
-    fetch(`get_student_scores.php?student_id=${studentId}&class_id=<?php echo $class_id; ?>`)
-        .then(response => response.json())
-        .then(data => {
-            const scoresContainer = document.getElementById('StudentScores');
-            const scoresTitle = document.getElementById('studentScoresTitle');
-            const scoresBody = document.getElementById('studentScoresBody');
-            
-            scoresTitle.textContent = ` ${studentName}`;
-            scoresBody.innerHTML = ''; 
-            
-            // Check if data has scores
-            if (data.length > 0) {
-                data.forEach(score => {
-                    scoresBody.innerHTML += `
-                        <tr>
-                            <td>${score.assessment_name}</td>
-                            <td>${score.score}</td>
-                            <td>${score.total_score}</td>
-                            <td>${score.date_updated}</td>
-                        </tr>
-                    `;
+        $.ajax({
+            url: 'status_update.php',
+            type: 'POST',
+            data: {
+                class_id: classId,
+                student_id: studentId,
+                status: status
+            },
+            success: function(response) {
+                if (response == 'success') {
+                    addChildElement(studentName, classSub, res);
+                    refreshStudentTable(classId);
+                } else {
+                    Swal.fire({
+                    title: 'Warning!',
+                    text: 'An error occured in trying to reject/accept ' + studentName + ' to ' + classSub + '.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                }).then(() => {
+                    warningTracker = false;
                 });
-            } else {
-                scoresBody.innerHTML = '<tr><td colspan="4" class="text-center">No scores found for this student.</td></tr>';
-            }
-            
-            document.getElementById('studentScoresTab').style.display = 'block'; 
-            openTab({currentTarget: document.getElementById('studentScoresTab')}, 'StudentScores');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while fetching student scores.');
+                }
+            } 
         });
-}
+    });
+ 
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        
+        // Hide all tab contents
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+        
+        // Remove the 'active' class from all tab links
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
 
+        // Display the selected tab content
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add("active");
+        
+        // Add the 'active' class to the clicked tab link
+        evt.currentTarget.classList.add("active");
 
-function removeAdministeredAssessment(assessmentId, classId, studentId, administerId) {
-    if (confirm("Are you sure you want to remove this administered assessment for this class and student?")) {
-        fetch('remove_administered_assessment.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'assessment_id=' + assessmentId + 
-                  '&class_id=' + classId + 
-                  '&student_id=' + studentId + 
-                  '&administer_id=' + administerId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Administered assessment removed successfully for this class and student");
-                location.reload();
-            } else {
-                alert("Failed to remove administered assessment: " + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("An error occurred while removing the administered assessment");
-        });
+        // Hide the 'Scores' tab if another tab is clicked
+        if (tabName !== 'StudentScores') {
+            document.getElementById('studentScoresTab').style.display = 'none';
+        }
+        if (tabName == 'Students') {
+            startAutoRefresh(<?php echo $class_id ?>);
+        }
     }
-}
 
-
-
-function confirmStudentRemoval(studentId, classId) {
-    var userConfirmed = confirm("Are you sure you want to remove this student from the class?");
-    
-
-    if (userConfirmed) {
-        fetch('remove_student.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'student_id=' + studentId + '&class_id=' + classId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Student removed successfully from the class.");
-                location.reload(); 
-            } else {
-                alert("Failed to remove student: " + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("An error occurred while removing the student.");
-        });
-    } else {
-        console.log("User canceled the removal action.");
+    function showStudentScores(studentId, studentName) {
+        fetch(`get_student_scores.php?student_id=${studentId}&class_id=<?php echo $class_id; ?>`)
+            .then(response => response.json())
+            .then(data => {
+                const scoresContainer = document.getElementById('StudentScores');
+                const scoresTitle = document.getElementById('studentScoresTitle');
+                const scoresBody = document.getElementById('studentScoresBody');
+                
+                scoresTitle.textContent = ` ${studentName}`;
+                scoresBody.innerHTML = ''; 
+                
+                // Check if data has scores
+                if (data.length > 0) {
+                    data.forEach(score => {
+                        scoresBody.innerHTML += `
+                            <tr>
+                                <td>${score.assessment_name}</td>
+                                <td>${score.score}</td>
+                                <td>${score.total_score}</td>
+                                <td>${score.date_updated}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    scoresBody.innerHTML = '<tr><td colspan="4" class="text-center">No scores found for this student.</td></tr>';
+                }
+                
+                document.getElementById('studentScoresTab').style.display = 'block'; 
+                openTab({currentTarget: document.getElementById('studentScoresTab')}, 'StudentScores');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while fetching student scores.');
+            });
     }
-}
 
+    $('.popup-close').on('click', function() {
+        clearInterval(refreshStudentTableInterval);
+    });
 
-document.addEventListener('DOMContentLoaded', function() {
-    var defaultTab = document.querySelector('.tab-link.active');
-    if (defaultTab) {
-        var defaultTabName = defaultTab.getAttribute('onclick').match(/'(.*?)'/)[1];
-        document.getElementById(defaultTabName).style.display = "block";
-        document.getElementById(defaultTabName).classList.add("active");
+    function removeAdministeredAssessment(assessmentId, classId, studentId, administerId) {
+        if (confirm("Are you sure you want to remove this administered assessment for this class and student?")) {
+            fetch('remove_administered_assessment.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'assessment_id=' + assessmentId + 
+                    '&class_id=' + classId + 
+                    '&student_id=' + studentId + 
+                    '&administer_id=' + administerId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Administered assessment removed successfully for this class and student");
+                    location.reload();
+                } else {
+                    alert("Failed to remove administered assessment: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while removing the administered assessment");
+            });
+        }
     }
-});
+
+    function confirmStudentRemoval(studentId, classId) {
+        var userConfirmed = confirm("Are you sure you want to remove this student from the class?");
+        var classSub = $(this).data('class-sub');
+        var studentName = $(this).data('student-name');
+        var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : status == 3 ? 'removed from ' : null;
+
+        if (userConfirmed) {
+            fetch('remove_student.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'student_id=' + studentId + '&class_id=' + classId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addChildElement(studentName, classSub, res);
+                    location.reload(); 
+                } else {
+                    alert("Failed to remove student: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while removing the student.");
+            });
+        } else {
+            console.log("User canceled the removal action.");
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var defaultTab = document.querySelector('.tab-link.active');
+        if (defaultTab) {
+            var defaultTabName = defaultTab.getAttribute('onclick').match(/'(.*?)'/)[1];
+            document.getElementById(defaultTabName).style.display = "block";
+            document.getElementById(defaultTabName).classList.add("active");
+        }
+    });
 </script>
 
 <?php $conn->close(); ?>
