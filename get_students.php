@@ -40,14 +40,17 @@ if (isset($qry_student) && $qry_student->num_rows > 0) {
             echo '<div class="btn-container">
                     <button class="btn btn-primary btn-sm" 
                             onclick="showStudentScores(' . $student['student_id'] . ', \'' . $student['student_name'] . '\')" 
-                            type="button">Scores</button>
+                            type="button">Scores</button>';
+            ?>
                    <button class="btn btn-danger btn-sm" 
-                            data-class-id="' . $class_id . '" 
-                            data-student-id="' . $student['student_id'] . '" 
-                            data-status="3" 
-                            type="button" 
-                            onclick="confirmStudentRemoval(' . $student['student_id'] . ', ' . $class_id . ')">Remove</button>
-                </div>';
+                        data-class-id="<?php echo $class_id; ?>" 
+                        data-student-id="<?php echo $student['student_id']; ?>" 
+                        data-status="3" 
+                        type="button" 
+                        onclick="confirmStudentRemoval('<?php echo $student['student_id']; ?>', '<?php echo $class_id; ?>', '<?php echo htmlspecialchars($student['student_name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($student['class_name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($student['subject'], ENT_QUOTES); ?>')">
+                    Remove</button>
+                    <?php 
+                echo '</div>';
         }
         echo '</td></tr>';
     }
