@@ -467,7 +467,7 @@ footer h1 {
         display: flex;
         justify-content: flex-start;
         flex-direction: column;
-        height: calc(100% - 60px) !important;
+        height: 100dvh !important;
         overflow: scroll;
         overflow-y: scroll;
     }
@@ -477,6 +477,7 @@ footer h1 {
     .dashboard-calendar,
     .dashboard-schedule {
         margin: 10px 0;
+        box-shadow: 0px 4px 4px rgba(150, 150, 150, 0.15);
     }
     .dashboard-requests,
     .recent-assessments {
