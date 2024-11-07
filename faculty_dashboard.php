@@ -343,7 +343,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 clearFormFields();
                 console.log(selectedDate);
                 // Set the selected date to the input field when the modal opens
-                selectedDateInput.value = selectedDate || `${currMonth + 1}/${date.getDate()}/${currYear}`; // Default to today's date if none selected
+                selectedDateInput.value = selectedDate || `${currYear}-${currMonth + 1}-${date.getDate()}`; // Default to today's date if none selected
                 modal.style.display = "flex";
             }
 
