@@ -367,7 +367,7 @@ if (isset($_GET['class_id'])) {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
+                    if (data.status) {
                         addChildElement(studentName, classSub, res);
                         refreshStudentTable(<?php echo $class_id ?>)
                     } else {
