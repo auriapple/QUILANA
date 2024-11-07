@@ -6,9 +6,10 @@ if (isset($_POST['student_id']) && isset($_POST['class_id'])) {
     $student_id = $_POST['student_id'];
     $class_id = $_POST['class_id'];
 
-    try {
-        $conn->begin_transaction();
+    // Start a transaction
+    $conn->begin_transaction();
 
+    try {
         // 1. Fetch the assessments administered in that class
         $administer_query = "SELECT assessment_id, administer_id FROM administer_assessment WHERE class_id = ?";
         $administer_stmt = $conn->prepare($administer_query);

@@ -25,7 +25,7 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the assessments with related details
     $qry_assessments = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, aa.date_administered,
+        SELECT a.assessment_id, a.assessment_name, aa.date_administered, aa.administer_id,
             CASE 
                 WHEN a.assessment_mode IN (1, 2) THEN SUM(q.total_points)
                 WHEN a.assessment_mode = 3 THEN COUNT(q.question_id) * a.max_points
@@ -91,7 +91,7 @@ if (isset($_GET['class_id'])) {
                         <td>
                             <div class="btn-container">
                                 <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm">View</a>
-                                <button class="btn btn-danger btn-sm" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ')">Remove</button>
+                                <button class="btn btn-danger btn-sm" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ', ' .htmlspecialchars($assessment['administer_id']) . ')">Remove</button>
                             </div>
                         </td>
                     </tr>';
@@ -310,7 +310,7 @@ if (isset($_GET['class_id'])) {
         clearInterval(refreshStudentTableInterval);
     });
 
-    function removeAdministeredAssessment(assessmentId, classId, studentId, administerId) {
+    function removeAdministeredAssessment(assessmentId, classId, administerId) {
         if (confirm("Are you sure you want to remove this administered assessment for this class and student?")) {
             fetch('remove_administered_assessment.php', {
                 method: 'POST',
@@ -319,12 +319,11 @@ if (isset($_GET['class_id'])) {
                 },
                 body: 'assessment_id=' + assessmentId + 
                     '&class_id=' + classId + 
-                    '&student_id=' + studentId + 
                     '&administer_id=' + administerId
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.status) {
                     alert("Administered assessment removed successfully for this class and student");
                     location.reload();
                 } else {
