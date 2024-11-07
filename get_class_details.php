@@ -25,7 +25,7 @@ if (isset($_GET['class_id'])) {
 
     // Fetch the assessments with related details
     $qry_assessments = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, aa.date_administered, aa.administer_id,
+        SELECT a.assessment_id, a.assessment_name, aa.date_administered, aa.administer_id, c.class_name,
             CASE 
                 WHEN a.assessment_mode IN (1, 2) THEN SUM(q.total_points)
                 WHEN a.assessment_mode = 3 THEN COUNT(q.question_id) * a.max_points
@@ -34,6 +34,7 @@ if (isset($_GET['class_id'])) {
         FROM administer_assessment aa
         JOIN assessment a ON aa.assessment_id = a.assessment_id
         JOIN questions q ON q.assessment_id = a.assessment_id
+        JOIN class c ON aa.class_id = c.class_id
         WHERE aa.class_id = '$class_id'
         GROUP BY a.assessment_id, a.assessment_name, aa.date_administered
     ");
@@ -68,43 +69,21 @@ if (isset($_GET['class_id'])) {
 
 <!-- Tab content for Assessments -->
 <div id="Assessments" class="tabcontent">
-    <?php
-    if (isset($qry_assessments)) {
-        echo '<div class="table-wrapper">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Assessment Name</th>
-                            <th>Date Administered</th>
-                            <th>Total Score</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>';
-
-        if ($qry_assessments->num_rows > 0) {
-            while ($assessment = $qry_assessments->fetch_assoc()) {
-                echo '<tr>
-                        <td>' . htmlspecialchars($assessment['assessment_name']) . '</td>
-                        <td>' . htmlspecialchars($assessment['date_administered']) . '</td>
-                        <td>' . htmlspecialchars($assessment['total_points']) . '</td>
-                        <td>
-                            <div class="btn-container">
-                                <a href="view_assessment.php?id=' . htmlspecialchars($assessment['assessment_id']) . '&class_id=' . htmlspecialchars($class_id) . '" class="btn btn-primary btn-sm">View</a>
-                                <button class="btn btn-danger btn-sm" onclick="removeAdministeredAssessment(' . htmlspecialchars($assessment['assessment_id']) . ', ' . htmlspecialchars($class_id) . ', ' .htmlspecialchars($assessment['administer_id']) . ')">Remove</button>
-                            </div>
-                        </td>
-                    </tr>';
-            }
-        } else {
-            echo '<tr>
-                    <td colspan="4" class="text-center">No assessments found.</td>
-                </tr>';
-        }
-
-        echo '</tbody></table></div>';
-    }
-    ?>
+<div class="table-wrapper">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Assessment Name</th>
+                    <th>Date Administered</th>
+                    <th>Total Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Assessments will be loaded here -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Tab content for Students -->
@@ -167,7 +146,7 @@ if (isset($_GET['class_id'])) {
 
     function startAutoRefresh(classId) {
         if (refreshStudentTableInterval) {
-            clearInterval(refreshInterval);
+            clearInterval(refreshStudentTableInterval);
         }
         refreshStudentTable(classId);
 
@@ -176,7 +155,7 @@ if (isset($_GET['class_id'])) {
         }, 5000);
     }
 
-    function addChildElement(studentName, className, res) {
+    function addChildAlert(studentName, className, res) {
         // Create a new div element
         const alert = document.createElement('div');
         alert.className = 'alert-card';
@@ -217,7 +196,7 @@ if (isset($_GET['class_id'])) {
             },
             success: function(response) {
                 if (response == 'success') {
-                    addChildElement(studentName, classSub, res);
+                    addStudentAlert(studentName, classSub, res);
                     refreshStudentTable(classId);
                 } else {
                     Swal.fire({
@@ -310,31 +289,91 @@ if (isset($_GET['class_id'])) {
         clearInterval(refreshStudentTableInterval);
     });
 
-    function removeAdministeredAssessment(assessmentId, classId, administerId) {
-        if (confirm("Are you sure you want to remove this administered assessment for this class and student?")) {
-            fetch('remove_administered_assessment.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'assessment_id=' + assessmentId + 
-                    '&class_id=' + classId + 
-                    '&administer_id=' + administerId
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    alert("Administered assessment removed successfully for this class and student");
-                    location.reload();
-                } else {
-                    alert("Failed to remove administered assessment: " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("An error occurred while removing the administered assessment");
-            });
-        }
+    function refreshAssessmentTable(classId) {
+        $.ajax({
+            url: 'get_class_assessments.php', 
+            type: 'POST',
+            data: { class_id: classId },
+            success: function(response) {
+                // Update the table's <tbody> with the new HTML
+                $('#Assessments tbody').html('');
+                $('#Assessments tbody').html(response);
+            },
+            error: function() {
+                alert('Failed to refresh the assessments table.');
+            }
+        });
+    }
+
+    refreshAssessmentTable(<?php echo $class_id ?>);
+
+    function removeAdministeredAssessment(assessmentId, classId, administerId, assessmentName, className) {
+        var res = ' removed from ';
+        Swal.fire({
+            title: 'Confirm Removal',
+            text: 'Are you sure you want to remove ' + assessmentName + ' from ' + className + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Remove',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,
+            customClass: {
+                popup: 'popup-content',
+                confirmButton: 'secondary-button',
+                cancelButton: 'tertiary-button'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('remove_administered_assessment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'assessment_id=' + assessmentId + 
+                        '&class_id=' + classId + 
+                        '&administer_id=' + administerId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        addChildAlert(assessmentName, className, res);
+                        refreshAssessmentTable(classId);
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: "Failed to remove administered assessment: " + data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then((result) => {
+
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while removing the administered assessment',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            confirmButton: 'secondary-button'
+                        }
+                    }).then((result) => {
+
+                    });
+                });
+            } else if (result.isDismissed) {
+                console.log("User canceled the removal action.");
+            }
+        });
     }
 
     function confirmStudentRemoval(studentId, classId, studentName, className, subject) {
@@ -367,15 +406,42 @@ if (isset($_GET['class_id'])) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status) {
-                        addChildElement(studentName, classSub, res);
+                        addStudentAlert(studentName, classSub, res);
                         refreshStudentTable(<?php echo $class_id ?>)
                     } else {
-                        alert("Failed to remove student: " + data.message);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: "Failed to remove student: " + data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then((result) => {
+
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert("An error occurred while removing the student.");
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while removing the student.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            confirmButton: 'secondary-button'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload(); 
+                        }
+                    });
                 });
             } else if (result.isDismissed) {
                 console.log("User canceled the removal action.");
