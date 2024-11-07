@@ -220,7 +220,7 @@ if (isset($_GET['class_id'])) {
             },
             success: function(response) {
                 if (response == 'success') {
-                    addStudentAlert(studentName, classSub, res);
+                    addChildAlert(studentName, classSub, res);
                     refreshStudentTable(classId);
                 } else {
                     Swal.fire({
@@ -417,7 +417,7 @@ if (isset($_GET['class_id'])) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status) {
-                        addStudentAlert(studentName, classSub, res);
+                        addChildAlert(studentName, classSub, res);
                         refreshStudentTable(<?php echo $class_id ?>)
                     } else {
                         Swal.fire({
