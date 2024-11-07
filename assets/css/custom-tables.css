@@ -4,15 +4,16 @@
     border-spacing: 0; /* Remove spacing between table cells */
     border-radius: 10px; /* Round the edges of the table */
     overflow: hidden; /* Ensure the rounded corners are visible */
-    background-color: #f9f9f9; /* Background color for the table */
+    background-color: #f9f9f9; 
     border-color: #1E1A43;
-    box-shadow: 0 2px 5px #1E1A43; /* Optional: Add a slight shadow */
+    box-shadow: 0 2px 5px #1E1A43;
 }
 
 .course-details-table th, .course-details-table td {
     padding: 10px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #ddd; /* Add a light bottom border */
+    justify-content: center;
 }
 
 .course-details-table th {
@@ -37,4 +38,10 @@
 .course-details-table tr:last-child td {
     border-bottom: none; /* Remove border from the last row */
 }
+
+.btn-container {
+    display: flex; 
+    gap: 5px;      
+ }
+
 
