@@ -252,7 +252,7 @@
             text-align: right;
             font-size: 10px;
             letter-spacing: 1px;
-            color: #999;
+            color: white;
         }
 
         @media screen and (max-width: 1020px) {

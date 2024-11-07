@@ -11,11 +11,11 @@ if (isset($_POST['class_id'])) {
         SELECT a.assessment_id, a.assessment_name, a.time_limit, a.topic, a.assessment_mode, a.assessment_type, aa.status
         FROM assessment a
         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
-        WHERE aa.class_id = '$class_id'
+        WHERE aa.class_id = '$class_id' AND aa.status != 2
     ");
 
     // Count total assessments
-    $total_assessments = $total_assessments_query->num_rows;
+    /*$total_assessments = $total_assessments_query->num_rows;
 
     // Query to get assessments taken by the student
     $taken_assessments_query = $conn->query("
@@ -31,12 +31,15 @@ if (isset($_POST['class_id'])) {
     ");
 
     // Count taken assessments
-    $taken_assessments = $taken_assessments_query->num_rows;
+    $taken_assessments = $taken_assessments_query->num_rows;*/
 
     // Check if all assessments have been taken
-    if ($total_assessments == $taken_assessments) {
+    /*if ($total_assessments == $taken_assessments) {
         echo '<p class="no-records">No assessments available for this class.</p>';
-    } else {
+    } else {*/
+
+
+    if ($total_assessments_query->num_rows > 0) {
         echo '<div class="assessment-container">';
         // Display assessment details
         while ($row = $total_assessments_query->fetch_assoc()) {
@@ -86,6 +89,8 @@ if (isset($_POST['class_id'])) {
             }
         }
         echo '</div>';
+    } else {
+        echo '<p class="no-records">No assessments available for this class</p>';
     }
 }
 ?>
