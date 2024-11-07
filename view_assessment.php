@@ -71,6 +71,16 @@ if ($assessment_mode == 1) { // Normal Mode
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Assessment | Quilana</title>
     <style>
+        #scores {
+            height: calc(100% - 140px);
+        }
+        .scores-container {
+            height: 100%;
+        }
+        .table-responsive {
+            height: 100%;
+            overflow: hidden;
+        }
         .back-arrow {
             font-size: 24px; 
             margin-top: 10px;
@@ -151,11 +161,27 @@ if ($assessment_mode == 1) { // Normal Mode
         }
         table {
             width: 100%;
+            height: 100%;
+            margin-bottom: 0 !important; 
             border-collapse: separate !important;
             border-radius: 15px;
             border: 2px solid rgba(59, 39, 110, 0.80);
             overflow: hidden;
             border-spacing: 0;
+            table-layout: fixed;
+        }
+        thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            padding-right: 8px;
+            background: #E0E0EC;
+        }
+        tbody {
+            display: block;
+            height: calc(100% - 45px);
+            overflow-y: auto;
+            scrollbar-gutter: stable;
         }
         th, td {
             padding: 12px;
@@ -174,6 +200,14 @@ if ($assessment_mode == 1) { // Normal Mode
         }
         td:last-child, th:last-child {
             border-right: none;
+        }
+        tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed; /* Ensure tbody rows align with header */
+        }
+        tbody::-webkit-scrollbar {
+            width: 8px; /* or smaller width */
         }
         #download {
             font-size: 16px;
