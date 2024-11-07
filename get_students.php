@@ -4,7 +4,7 @@ include('db_connect.php');
 $class_id = $_POST['class_id'];
 
 $qry_student = $conn->query("
-    SELECT s.student_id, s.student_number, CONCAT(s.lastname, ', ', s.firstname) AS student_name, se.status, c.class_name, c.subject
+    SELECT s.student_id, s.student_number, CONCAT(s.lastname, ', ', s.firstname) AS student_name, c.class_name, c.subject, se.status
     FROM student_enrollment se
     JOIN student s ON se.student_id = s.student_id
     JOIN class c ON se.class_id = c.class_id
