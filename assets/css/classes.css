@@ -167,7 +167,7 @@
     height: 90%;
 }
 .table-wrapper {
-    height: 95%;
+    height: 100% !important;
 }
 
 .table-wrapper table {
