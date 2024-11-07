@@ -1,0 +1,336 @@
+/* Base Popup Style */
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    width: 450px;
+    padding: 50px 20px 40px 20px; 
+}
+.popup-title {
+    margin-bottom: 20px;
+    font-size: 36px;
+}
+.popup-close {
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 9px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 28px;
+    color: #999;
+}
+.popup-close:hover {
+    position: absolute;
+    cursor: pointer;
+    color: #888;
+    background-color: #eee;
+}
+.details-popup {
+    height: calc(100vh - 100px);
+    width: 1000px;
+}
+.details-popup h2,
+.details-popup h4 {
+    text-align: left;
+}
+.popup-content h2 {
+    margin-bottom: 0;
+    padding-left: 15px;
+}
+.popup-content .modal-body {
+    display: flex;
+    flex-direction: column;
+}
+#delete-modal-body {
+    padding: 0 10px;
+}
+.form-group {
+    margin-bottom: 10px;
+}
+
+/* Success/Error Message Popup */
+.swal2-popup {
+    align-items: center;
+}
+.swal2-title,
+.popup-content .swal2-html-container,
+.swal2-actions {
+    margin: 5px 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.swal2-icon {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+.secondary-button {
+    padding: 10px 30px;
+    outline: none !important;
+    border: none !important;
+}
+
+/* Join Class Popup */
+#join-modal-content,
+#unenroll-modal-content {
+    width: 450px;
+    height: 350px;
+    padding: 20px;
+}
+#join-class-title {
+    margin-bottom: 20px;
+    font-size: 36px;
+}
+#unenroll-message,
+#delete-message {
+    margin: 0;
+    padding: 20px 0;
+    font-size: 20px;
+}
+#delete-message {
+    padding: 10px 0;
+}
+#unenroll_class_name {
+    color: #1E1A43;
+}
+
+/* Get Code Popup */
+#class-code-popup #modal_code {
+    margin-bottom: 0;
+}
+/* Class Code Input Field */
+/* Default State */
+.code, 
+.popup-input {
+    width: 100%;
+    height: 45px;
+    border-radius: 10px;
+    padding: 8px;
+    border: 1px solid #3b276e;
+}
+/* Hover State */
+.code:hover, 
+.popup-input:hover:not([disabled]):not([readonly]) {
+    border: 2px solid #4A4CA6;
+}
+/* Selected State */
+.code:focus,
+.popup-input:focus {
+    border-color: #4A4CA6;
+    box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
+    outline: none;
+}
+
+/* Pop-up Buttons */
+.popup-content .secondary-button:not(.swal2-confirm),
+.popup-content .tertiary-button {
+    font-size: 20px;
+    outline: none;
+    width: 200px;
+    height: 45px;
+    line-height: 20px;
+    margin-top: 0;
+}
+.popup-content .secondary-button {
+    font-size: 20px;
+    outline: none;
+    width: 200px;
+    height: 45px;
+    line-height: 20px;
+    margin-top: 20px;
+}
+#join,
+#confirm,
+#cancel {
+    margin-top: 20px;
+}
+#delete-course-form .secondary-button,
+#delete-course-form .tertiary-button,
+#delete-class-form .secondary-button,
+#delete-class-form .tertiary-button,
+#delete-assessment-popup .secondary-button,
+#delete-assessment-popup .tertiary-button {
+    width: 150px;
+    text-align: center;
+}
+#delete-course-form .modal-footer,
+#delete-class-form .modal-footer,
+#delete-assessment-popup .modal-footer {
+    gap: 20px;
+}
+
+/* Table Design */
+.modal-body .tabcontent {
+    height: 90%;
+}
+.table-wrapper {
+    height: 95%;
+}
+
+.table-wrapper table {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 20px;
+    border-collapse: separate;
+    border: 2px solid rgba(59, 39, 110, 0.80);
+    box-shadow: none;
+    border-spacing: 0;
+}
+
+.table-wrapper thead, 
+.table-wrapper tr {
+    width: 100%;
+    text-align: center;
+    background-color: #f2f2f2;
+    border-radius: 20px;
+}
+
+.table-wrapper thead th {
+    background-color: #E0E0EC;
+    font-size: 16px;
+}
+
+.table-wrapper tr {
+    display: table;
+    height: 20px;
+    background-color: #ffffff;
+    border-radius: 0px;
+    box-sizing: border-box;
+}
+
+#rowCount {
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.table-wrapper tbody {
+    display: block;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.table-wrapper th, 
+.table-wrapper td {
+    width: calc(100% / 4);
+    text-align: center;
+    vertical-align: middle !important;
+    border-bottom: 1px solid rgba(59, 39, 110, 0.80);
+    border-right: 1px solid rgba(59, 39, 110, 0.80);
+    justify-content: center;
+    padding: 12px;
+    color:#4a4a4a;
+}
+
+.table-wrapper td:last-child,
+.table-wrapper th:last-child {
+    border-right: none;
+}
+
+.table-wrapper tr:last-child {
+    border-bottom: none;
+}
+
+.table-wrapper .joined,
+.table-wrapper .answering,
+.table-wrapper .finished {
+    background-color: #a3a3a338;
+    width: 150px;
+    height: auto;
+    padding: 3px 0px;
+    border-radius: 5px;
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    color: #8a8a8a;
+    transition: ease-in 300ms;
+}
+
+.table-wrapper .answering {
+    background-color: #fef86e38;
+    color: #a7a701;
+}
+
+.table-wrapper .finished {
+    background-color: #00b4d838;
+    color: #0077B6;
+}
+
+.table-wrapper tbody::-webkit-scrollbar {
+    display: none;
+}
+
+td .btn-container {
+    justify-content: center;
+    align-items: center;
+}
+
+tr .status {
+    width: 100px;
+}
+
+/* Assessment Popups */
+#add-assessment-modal-content {
+    max-height: 90vh;
+}
+#assessment-form {
+    overflow-y: auto;
+}
+#add-program-popup .modal-footer,
+#edit-program-popup .modal-footer,
+#delete-program-popup .modal-footer,
+#program-details-popup .modal-footer,
+#class-details-popup .modal-footer,
+#add-class-popup .modal-footer,
+#edit-class-popup .modal-footer,
+#delete-class-popup .modal-footer,
+#add-assessment-popup .modal-footer,
+#administer-assessment-popup .modal-footer,
+#edit-assessment-popup .modal-footer,
+#delete-assessment-popup .modal-footer {
+    border: none !important;
+    padding: 0 !important;
+    justify-content: center !important;
+}
+.popup-input:disabled, .popup-input[readonly] {
+    background-color: #e9ecef;
+    opacity: 1;
+    color: #6d6d6d !important;
+}
+
+/* Media Query for small screens */
+@media screen and (max-width: 490px) {
+    .popup-content {
+        margin: 20px;
+    }
+
+    #join-modal-content,
+    #unenroll-modal-content {
+        height: auto;
+        width: 100%;
+        padding: 30px;
+    }
+
+    .popup-content #join-class-title,
+    .popup-content #unenroll-title {
+        font-size: 30px;
+        margin-bottom: 0;
+        margin-top: 15px;
+    }
+
+    .popup-content #join,
+    .popup-content #cancel,
+    .popup-content #confirm {
+        font-size: 16px;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    .scrollable-content {
+        height: calc(100% - 220px) !important;
+    }
+}

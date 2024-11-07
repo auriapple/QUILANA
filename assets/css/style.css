@@ -1,5 +1,7 @@
 /* BODY */
 body {
+    margin: 0;
+    padding: 0;
     overflow: hidden;
 }
 
@@ -72,9 +74,16 @@ body {
     transform: scale(1.02);
     transition: transform 0.1s ease;
 }
+
+.course-actions .main-button,
+.course-actions .tertiary-button,
+.assessment-actions .main-button,
+.assessment-actions .tertiary-button {
+    width: 100%;
+    flex-grow: 1;
+}
 /* END */
 
-/* HEADER STYLE */
 /* Search Bar Style */
 .search-bar {
     display: flex;
@@ -85,6 +94,7 @@ body {
     color:rgb(115, 119, 145, 0.75);
     width: 295px;
     padding: 0 10px 0 10px;
+    transition: ease-in-out 300ms;
 }
 .search-bar:hover {
     box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
@@ -122,6 +132,10 @@ body {
 /* END */
 
 /* TABS STYLE */
+.content-wrapper {
+    height: 100vh;
+}
+
 .tabs-container {
     margin-bottom: 20px;
 }
@@ -129,6 +143,7 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
+    margin-right: 0;
     display: flex;
     border-bottom: 2px solid #CDCDCD;
 }
@@ -149,10 +164,14 @@ body {
 .tab-content.active {
     display: block;
 }
+.tab-link:hover:not(.active)  {
+    background: linear-gradient(0deg, rgba(238,238,238,1) 0%, rgba(238,238,238,0) 100%);
+    border-bottom: 2px solid gray;
+    color: #9ba4dd;
+}
 /* END */
 
 /* POPUP STYLES */
-/* Popup Styles */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -167,29 +186,34 @@ body {
 }
 .popup-content {
     background: #FFFFFF;
-    padding-left: 45px;
-    padding-right:45px;
-    padding-top: 60px;
+    min-height: 350px;
     border-radius: 25px;
-    width: 500px;
-    height: 300px;
     text-align: center;
+    justify-content: center;
     position: relative;
-    z-index: 1001 !important;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    z-index: 1001;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
 .popup-title {
     font-weight: bold;
     color: #1E1A43;
+    text-align: center;
 }
 .popup-message {
-    margin: 10px 0;
-    font-size: 14px;
     color: #4a4a4a;
+    text-align: center;
+}
+.popup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .popup-close {
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 15px;
     background: transparent;
     border: none;
@@ -199,6 +223,17 @@ body {
 }
 .popup-close:focus{
     outline: none;
+}
+.popup-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 15px;
+}
+.popup-buttons button {
+    flex: 1;
+    max-width: 200px;
 }
 /* END */
 
@@ -211,12 +246,29 @@ body {
     padding: 0;
     height: 100vh;
     width: 100vw;
-    background-image: url('http://localhost/QUILANA/image/HomePage.png');
-    background-size: 1200px 800px;
-    background-size: contain;
-    background-position: right center;
-    background-repeat: no-repeat;
     position: relative;
+    z-index: 0;
+    overflow: hidden; 
+}
+
+.landing-image {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.landing-text {
+    width: 60vw; 
+    height: auto; 
+    background-size: cover;
+    background-position: right; 
+    object-fit: contain; 
+    position: relative; 
     z-index: 1;
 }
 .landing-page h1 {
@@ -230,19 +282,24 @@ body {
     top: 20px;
     left: 20px;
     z-index: 2;
+    margin: 0;
 }
 
 /* About/Contact/Privacy Links Style */
 .footer {
-    text-align:left;
-    margin-top: 75px;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    text-align: left;
     font-size: 20px;
     font-weight: bold;
     color: #1E1A43;
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
+    z-index: 2;
 }
+
 .footer span {
     margin: 0 15px;
     text-decoration: none;
@@ -255,20 +312,23 @@ body {
 
 /* Get Started Button */
 #getStartedButton {
-    margin-right: 300px;
-    margin-top: 600px;
+    position: absolute;
+    right: 300px;
+    bottom: 100px;
     outline: none;
     border-radius: 15px;
     padding: 10px 30px;
     font-size: 20px;
+    z-index: 2;
 }
+
 /* END */
 
 /* SIGN IN/SIGN UP/REGISTER PAGES */
 /* Container for Left and Right Sections */
 #container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     background-image: linear-gradient(#1E1A43, #4A4CA6);
 }
@@ -288,18 +348,24 @@ body {
     color: white;
     font-size: 90px;
     font-weight: bold;
-    margin-top: 50px;
+    text-align: center;
 }
 
 /* Illustration in Left Section */
 .illustration {
     width: 100%;
-    height: 100%;
+    height: 400px;
     max-width: 600px;
-    background-image: url('http://localhost/QUILANA/image/User.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.illustration img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 /* Right Section */
@@ -317,15 +383,19 @@ body {
 
 /* Return Button */
 .return{
-    background-image: url('http://localhost/QUILANA/image/Return.png');
-    background-repeat: no-repeat;
-    background-size: contain;
     width:40px;
     height:40px;
     position:absolute;
     top:20px;
     left:20px;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.return img {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 /* Sign In and Sign Up Form Styles */
@@ -345,6 +415,8 @@ body {
     display: block;
     font-size: medium;
     font-weight: lighter;
+    text-align: left;
+    margin-bottom: 2px;
 }
 .form-group.row {
     display: flex;
@@ -400,6 +472,18 @@ body {
     box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
     outline: none;
 }
+/* Invalid State */
+.form input[type="text"].invalid,
+.form input[type="email"].invalid,
+.form input[type="password"].invalid {
+    border-color: red;
+}
+/* Note Styles */
+.validation-note {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+}
 
 /* Buttons */
 #signInButton, #signUpButton {
@@ -408,69 +492,6 @@ body {
     border-radius: 15px;
     padding: 10px 30px;
     font-size: 20px;
-}
-/* END */
-
-/* NAVIGATION BAR STYLES */
-div#sidebar {
-    width: 250px;
-    height: 100vh;
-    position: absolute;
-    background-image: linear-gradient(#1E1A43, #4A4CA6);
-}
-#sidebar .sidebar-item {
-    position: relative;
-    height: 50px;
-    padding: 10px;
-    display: inline-flex;
-    font-size: 15px;
-    align-items: center;
-    /* border-bottom: 1px solid #007bff6b; */
-    width: 100%;
-    color: white !important;
-    font-weight: 700
-}
-.page-item.active .page-link{
-    background-color: #1E1A43;
-    border-color: #1E1A43;
-}
-#sidebar .sidebar-item:hover{
-    text-decoration: unset;
-    background: #fffdfd;
-    color: #353535 !important;
-}
-#sidebar .sidebar-item.active {
-    text-decoration: unset;
-    background: #fffdfd !important;
-    color: rgb(0, 0, 0) !important;
-}
-#sidebar .sidebar-item.active .sidebar-icon {
-    color: #000 !important;
-}
-#sidebar .sidebar-item:hover .sidebar-icon {
-    color: #000 !important;
-}
-#sidebar .sidebar-item .sidebar-icon {
-	width:11%;
-	padding: auto;
-    color: white;
-}
-div#main{
-	margin-top: 10px;
-	margin-left:250px;
-	padding: 20px
-}
-.admin{
-    margin-top: 10px;
-    margin-left:250px;
-    padding: 20px;
-    width:82% !important;
-}
-.pull-right{
-	float: right;
-}
-button.btn-rounded{
-	border-radius: 50% !important;
 }
 /* END */
 
@@ -492,58 +513,117 @@ button.btn-rounded{
 #joinClass,
 #addCourse,
 #addAssessment,
-#addClass,
-#add_reviewer_button,
-#get_code { 
-    padding: auto 10px;
+#addClass { 
+    padding: 10px;
     font-size: 14px;
     width: 180px;
     height: 40px;
     outline: none;
 }
 
-/* CLASSES AND RESULTS - STUDENT */
-/* JOIN CLASS POPUP */
-#join-modal-content {
-    width: 450px;
-    height: 350px;
-    margin: 10% auto;
+/* NAVIGATION STYLES */
+.navbar {
+    background-image: linear-gradient(to right, #1E1A43, #4A4CA6);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
     align-items: center;
-    z-index: 1005;
-}
-#join-class-title {
-    margin-bottom: 20px;
-    font-size: 36px;
-}
-/* Class Code Input Field */
-/* Default State */
-.code {
+    position: fixed;
     width: 100%;
-    height: 45px;
+    z-index: 1000;
+}
+.navbar-content {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+}
+.navbar-left,
+.navbar-title,
+.navbar-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.navbar-right {
+    justify-content: right;
+}
+.navbar-title {
+    justify-content: center;
+}
+.navbar h3 {
+    margin: 0;
+}
+
+#sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    left: -250px;
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 60px;
+    z-index: 999;
+    background-image: linear-gradient(#1E1A43, #4A4CA6);
+}
+#sidebar.active {
+    left: 0;
+}
+.sidebar-item {
+    position: relative;
+    padding: 10px 15px 10px 30px;
+    font-size: 15px;
+    height: 50px;
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    width: 91%;
+    color: white;
+    font-weight: 700;
+    margin: 5px 10px;
     border-radius: 10px;
-    padding: 8px;
-    border: 1px solid #3b276e
+    transition: background 0.3s, box-shadow 0.3s;
 }
-/* Hover State */
-.code:hover {
-    border: 2px solid #4A4CA6;
+.sidebar-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-decoration: unset;
 }
-/* Selected State */
-.code:focus {
-    border-color: #4A4CA6;
-    box-shadow: 0 0 8px rgba(74, 76, 166, 0.5);
+.sidebar-item.active {
+    text-decoration: unset;
+    background-image: linear-gradient(#8794F2, #6A7AC7);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.sidebar-item.active:hover {
+    text-decoration: unset;
+    background-image: linear-gradient(#8794F2, #6A7AC7);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.sidebar-icon {
+    margin-right: 10px;
+    padding: auto;
+    width: 10%;
+}
+
+.content-wrapper {
+    transition: margin-left 0.3s;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding-top: 60px;
+}
+.content-wrapper.active {
+    margin-left: 270px;
+}
+
+#sidebarCollapse {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
     outline: none;
 }
-/* Join Class Button */
-#join {
-    margin-top: 20px;
-    padding: auto 45px;
-    font-size: 20px;
-    outline: none;
-    width: 200px;
-    height: 45px;
-    margin-bottom: 50px;
-}
+/* END */
 
 /* CONTAINERS AND CARDS STYLES */
 /* Containers */
@@ -552,23 +632,22 @@ button.btn-rounded{
 .quizzes-container,
 .exams-container,
 .assessment-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: start;
+    width: 100%;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
 }
 
 /* Cards */
 .course-card,
 .class-card,
 .assessment-card {
-    width: 330px;
     height: 208px;
     background-color: #FFFFFF;
-    border: 1px solid #F8F9FA;
-    border-radius: 8px;
+    border: 1px solid #EEEEEE;
+    border-radius: 20px;
     margin: 10px; 
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.15);
     padding: 20px;
     box-sizing: border-box;
     position: relative;
@@ -581,7 +660,9 @@ button.btn-rounded{
     color: #1E1A43;
     font-size: 20px;
     font-weight: bold;
+    margin-right: 15px;
 }
+
 .class-card-text,
 .course-card-text,
 .course-card-topic,
@@ -590,7 +671,7 @@ button.btn-rounded{
     color: #8F8F9D;
     margin: 10px 0 0 0;
 }
-.assessment-card-duration {
+.assessment-card-mode {
     font-size: 16px;
     color: #8F8F9D;
     margin-top: 0;
@@ -600,18 +681,18 @@ button.btn-rounded{
 .course-actions,
 .assessment-actions {
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
+    gap: 20px;
     position: absolute;
-    bottom: 20px; 
-    left: 20px; 
-    right: 20px;
-    align-items: center; 
+    bottom: 20px;
+    width: calc(100% - 40px);
 }
+
 
 /* Buttons */
 [id^=viewResult_],
 [id^=viewClassDetails_],
-#view_class_details,
+[id^=takeAssessment_],
 #viewClassDetails {
     width: calc(100% - 40px);
     border-radius: 5px;
@@ -619,51 +700,34 @@ button.btn-rounded{
     font-size: 14px;
     position: absolute;
     bottom: 20px;
-    outline: none !important; 
+    outline: none !important;
 }
-[id^=takeAssessment_] {
-    width: calc(100% - 40px);
-    border-radius: 5px;
-    padding: 12px 30px;
-    font-size: 14px;
-    position: absolute;
-    bottom: 25px;
-    outline: none;
+
+td #viewClassDetails {
+    width: 125px;
+    height: 30px;
+    margin: 0;
+    bottom: 0px;
+    position: relative;
+    font-size: 16px;
+    font-weight: normal;
+    padding: 5px;
     text-align: center;
 }
+
+#studentScoresTitle {
+    font-weight: bold;
+}
+
 #administer,
 #manage,
 #viewClasses,
-#viewCourseDetails,
-#view_reviewer_details,
-#take_reviewer {
+#viewCourseDetails {
     outline: none;
     border-radius: 5px;
     font-size: 14px;
     padding: 12px 15px;
     width: 135px;
-}
-/* END */
-
-/* POPUPS */
-/* Popup Buttons */
-/* Buttons */
-#confirm,
-#cancel {
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 12px 60px;
-    font-size: 14px;
-    outline: none;
-}
-#result,
-#submit-answers,
-#error {
-    margin-top: 10px;
-    padding: 12px 60px;
-    font-size: 14px;
-    outline: none;
 }
 /* END */
 
@@ -676,7 +740,6 @@ button.btn-rounded{
     justify-content: flex-end;
     position: relative;
     margin-top: 20px;
-    margin-right: 23px;
 }
 .header-container p {
     margin: 0 20px 0 0;
@@ -693,79 +756,37 @@ button.btn-rounded{
 }
 
 /* Questions Container */
-.questions-container {
+.questions-container,
+.personal-ranking-container,
+.leaderboards-container,
+.ranking-container {
     background-color: #FFFFFF;
     border: 1px solid #F8F9FA;
     border-radius: 8px;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
     overflow: auto;
     width: 97.5%;
-    height: 72vh;
-    margin: 10px;
+    height: 68vh;
+    margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
 }
 
-
-/* Question Styles */
-.question {
-    margin-bottom: 10px;
-    color: #1E1A43;
-}
-.question p {
-    margin: 0px;
-}
-
-/* Options and Answer Boxes Styles */
-.form-check {
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 35px;
-    color: #8F8F9D;
-}
-.form-check:hover {
-    color:#4a4a4a;
-}
-.form-check input{
-    accent-color: #4A4CA6;
-}
-.form-check-group {
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 15px;
-    color: rgba(143, 143, 157, 0.75);
-    color: #8F8F9D;
-}
-.form-check-group input {
-    color: rgba(143, 143, 157, 0.75);
-    border-color: #8F8F9D;
-}
-.form-check-group input:hover {
-    border-color:#4A4CA6;
-}
-.form-check-group input:focus {
-    color: rgba(143, 143, 157, 0.75);
-    border-color: #4A4CA6;
-    box-shadow: 0 0 5px rgba(74, 76, 166, 0.5);
-    outline: none;
-}
-.form-check input:checked + label,
-.form-check input:focus + label,
-.form-check-group input:valid {
-    color: #787878;
+.questions-container::-webkit-scrollbar {
+    display: none;
 }
 /* END */
 
 /* RESULTS - STUDENT AND ASSESSMENTS - FACULTY */
 /* Class Name, Separator, and Label */
-.subject-separator {
+.content-separator {
     display: flex;
     align-items: center;
-    margin: 20px 0;
+    margin: 10px 10px 10px 0;
     text-align: left;
     position: relative;
 }
-.subject-name {
+.content-name {
     flex: 0 0 auto;
     margin-right: 20px;
     font-weight: bold;
@@ -777,49 +798,12 @@ button.btn-rounded{
     border-top: 2px solid #CDCDCD;;
     margin: 0;
 }
-.no-assessments {
+.no-records {
     color: #CDCDCD;
     text-align: center;
     font-style: italic;
     width: 100%;
-}
-
-/* RESULTS - STUDENT */
-/* Popup Styles */
-#modal-content {
-    width: 600px;
-    height: 350px;
-    margin: 10% auto;
-    align-items: center;
-}
-#assessment-title {
-    font-size: 36px;
-    margin-bottom: 10px;
-    text-align: center;
-}
-#assessment-topic {
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 20px;
-}
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-radius: 15px;
-    border: 2px solid rgba(59, 39, 110, 0.80);
-    overflow: hidden;
-    border-spacing: 0;
-}
-th, td {
-    padding: 12px;
-    text-align: center;
-    border: none;
-    color:#4a4a4a;
-}
-thead th {
-    background-color: #E0E0EC;
-    color: #474747;
-    font-size: 16px;
+    grid-column: 1 / -1;
 }
 /* END */
 
@@ -835,129 +819,589 @@ thead th {
     margin-bottom: 5px;
     color: #1E1A43;
 }
-
 .scrollable-content {
-    max-height: 73vh; 
+    height: calc(100% - 160px); 
     overflow-y: auto;
-    padding-right: 15px; 
+}
+
+/*SEARCH*/
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    color: #666;
+    width: 100%;
+}
+
+.search-results h3 {
+    margin: 1.5rem 0 1rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.course-card-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
 }
 /* END */
 
-/* Media Queries for Responsiveness */
 
+/* Large Screens (1400px and above) */
+@media (min-width: 1401px) {
+    #getStartedButton {
+        right: 200px;
+        bottom: 120px;
+        padding: 15px 40px;
+        font-size: 22px;
+    }
+
+    .landing-page h1 {
+        font-size: 5vw;
+    }
+}
+/* Medium-Large Screens (between 992px and 1400px) */
+@media (max-width: 1400px) and (min-width: 993px) {
+    #getStartedButton {
+        right: 15%;
+        bottom: 10%;
+        padding: 1.2vw 2vw;
+        font-size: 1.5vw;
+    }
+
+    .landing-page h1 {
+        font-size: 5vw;
+        top: 5%;
+        left: 5%;
+    }
+
+    .landing-text {
+        width: 90vw;
+    }
+}
+
+@media (max-width: 1200px) {
+    #getStartedButton {
+        right: 300px;
+        bottom: 100px;
+        padding: 12px 30px;
+        font-size: 18px;
+    }
+
+    .landing-page h1 {
+        font-size: 56px;
+        top: 25px;
+        left: 25px;
+    }
+    .landing-text {
+        width: 80vw;
+        height: auto;
+        object-position: center;
+    }
+
+    .footer {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 1280px) {
+    #getStartedButton {
+        right: 250px;
+        bottom: 100px;
+        padding: 12px 30px;
+        font-size: 18px;
+    }
+
+    .landing-page h1 {
+        font-size: 56px;
+        top: 25px;
+        left: 25px;
+    }
+    .landing-text {
+        width: 80vw;
+        height: auto;
+        object-position: center;
+    }
+
+    .footer {
+        font-size: 14px;
+    }
+}
+/* END */
+
+@media (max-width: 1024px) {
+    .landing-page {
+        align-items: center;
+        background-image: url('/QUILANA/image/BG.png');
+        background-size: cover;
+        background-position: right;
+    }
+
+    .landing-image{
+        display: none;
+    }
+
+    #getStartedButton {
+        right: 40%;
+        bottom: 25%;
+        padding: 1.8vw 2.5vw;
+        font-size: 3vw;
+    }
+
+    .landing-page h1 {
+        font-size: 10vw;
+        text-align: center;
+        width: 100%;
+        left: 0;
+        top: 5%;
+    }
+
+    .landing-text {
+        width: 150vw;
+        right: 25%;
+    }
+    .footer {
+        text-align: center;
+        font-size: 20px;
+        color: white;
+    }
+}
+@media (max-width: 992px) {
+    .landing-page {
+        align-items: center;
+        background-image: url('/QUILANA/image/BG.png');
+        background-size: cover;
+        background-position: right;
+    }
+
+    .landing-image{
+        display: none;
+    }
+
+    #getStartedButton {
+        right: 35%;
+        bottom: 20%;
+        padding: 1.8vw 2.5vw;
+        font-size: 3vw;
+    }
+
+    .landing-page h1 {
+        font-size: 10vw;
+        text-align: center;
+        width: 100%;
+        left: 0;
+        top: 5%;
+    }
+
+    .landing-text {
+        width: 150vw;
+        right: 25%;
+    }
+    .footer {
+        text-align: center;
+        font-size: 20px;
+        color: white;
+    }
+}
+
+@media (max-width: 828px) {
+    .landing-page {
+        align-items: center;
+        background-image: url('/QUILANA/image/BG.png');
+        background-size: cover;
+        background-position: right;
+    }
+
+    .landing-image{
+        display: none;
+    }
+
+    #getStartedButton {
+        right: 40%;
+        bottom: 25%;
+        padding: 1.8vw 2.5vw;
+        font-size: 3vw;
+    }
+
+    .landing-page h1 {
+        font-size: 10vw;
+        text-align: center;
+        width: 100%;
+        left: 0;
+        top: 5%;
+    }
+
+    .landing-text {
+        width: 150vw;
+        right: 25%;
+    }
+    .footer {
+        text-align: center;
+        font-size: 20px;
+        color: white;
+    }
+}
 /* For tablets and smaller devices (width 768px and below) */
 @media (max-width: 768px) {
-    /* Left Section Adjustments */
-    #left-section h1 {
-        font-size: 50px;
-        margin-left: 80px;
+    #container {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    #left-section {
+        padding: 20px;
+        min-height: auto;
     }
 
     .logo {
-        font-size: 50px;
-        top: 10%;
-        left: 18%;
+        font-size: 36px;
+        margin-bottom: 10px;
     }
 
     .illustration {
-        max-width: 400px;
-        max-height: 500px;
-        background-size: 400px 550px;
+        height: 200px;
+        margin: 10px 0;
     }
 
-    /* Right Section Adjustments */
     #right-section {
-        margin-left: -2rem;
+        flex: auto;
+        border-radius: 30px 30px 0 0;
+        padding: 25px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .sign-in-form h2 {
-        font-size: 1.5rem;
-        margin-left: 6rem;
+    .form {
+        max-width: 100%;
+        width: 100%;
     }
 
+    .form h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .form-group.row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .col-half {
+        width: 100%;
+    }
+    
     .custom-button {
         font-size: 16px;
         padding: 8px 20px;
         margin-right: 100px;
         margin-bottom: 50px;
     }
-
     #getStartedButton {
-        margin-top: 300px;
+        bottom: 25%;
+        right: 50%;
+        transform: translateX(50%);
+        padding: 2vw 7vw;
+        font-size: 3vw;
     }
 
-    /* Course Container Adjustments */
-    .course-card {
-        width: 45%;
+    .landing-page h1 {
+        font-size: 10vw;
+        text-align: center;
+        width: 100%;
+        left: 0;
+    }
+
+    .landing-text {
+        width: 150vw;
+        bottom: 5%;
+    }
+    
+
+    .footer {
+        text-align: center;
+        font-size: 15px;
+        color: white;
+    }
+
+    .scrollable-content::-webkit-scrollbar {
+        display: none;
+    }
+
+    #sidebar {
+        width: 100%;
+        left: -100%;
+    }
+    
+    #sidebar.active {
+        width: 50%;
+    }
+    
+    .content-wrapper.active {
+        margin-left: 0;
     }
 }
 
 /* For mobile devices (width 576px and below) */
 @media (max-width: 576px) {
-    /* Container Adjustments */
-    #login-container {
-        flex-direction: column;
+    #container {
+        height: auto;
+        min-height: 100vh;
     }
 
-    /* Left Section Adjustments */
     #left-section {
-        height: 50vh;
-        padding: 1rem;
-    }
-
-    #left-section h1 {
-        font-size: 40px;
-        margin-left: 40px;
+        padding: 15px;
     }
 
     .logo {
-        font-size: 40px;
-        top: 5%;
-        left: 15%;
+        font-size: 50px;
     }
 
     .illustration {
-        max-width: 300px;
-        max-height: 400px;
-        background-size: 300px 400px;
+        height: 250px;
     }
 
-    /* Right Section Adjustments */
     #right-section {
-        margin-left: 0;
-        border-radius: 0;
+        padding: 20px;
     }
 
-    .sign-in-form {
-        margin: 2rem 1rem;
+    .form h2 {
+        font-size: 24px;
     }
 
-    .sign-in-form h2 {
-        font-size: 1.2rem;
-        margin-left: 4rem;
-    }
-
-    .custom-button {
+    .form-group label {
         font-size: 14px;
-        padding: 6px 16px;
-        margin-right: 50px;
-        margin-bottom: 30px;
+    }
+
+    .form input[type="text"],
+    .form input[type="email"],
+    .form input[type="password"],
+    .form select {
+        height: 36px;
+    }
+      #getStartedButton {
+        bottom: 36%;
+        right: 50%;
+        transform: translateX(50%);
+        padding: 2vw 7vw;
+        font-size: 3vw;
+    }
+
+    .landing-page h1 {
+        font-size: 12vw;
+        text-align: center;
+        width: 100%;
+        left: 0;
+    }
+
+    .landing-text {
+        width: 150vw;
+        height: auto;
+    }
+    
+    .footer {
+        text-align: center;
+        font-size: 12px;
+        color: white;
+    }
+    /* Topbar Adjustments */
+    .navbar .navbar-content {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 20px;
+    }
+    .navbar-content .navbar-left,
+    .navbar-content .navbar-title {
+        align-items: center;
+        justify-content: left;
+        max-width: fit-content;
+    }
+    .navbar-title strong{
+        font-size: 25px;
+    }
+
+    .navbar-content .navbar-right {
+        flex-grow: 1;
+        width: 100%;
+    }
+    .navbar-right a {
+        text-align: right;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .sidebar-item {
+        padding: 10px 15px;
+    }
+}
+
+
+@media (max-width: 400px) {
+    .logo {
+        font-size: 30px;
+    }
+
+    .illustration {
+        height: 140px;
+    }
+
+    #right-section {
+        padding: 15px;
+    }
+
+    .form h2 {
+        font-size: 22px;
+    }
+    
+    #getStartedButton {
+        bottom: 30%;
+        right: 50%;
+        transform: translateX(50%);
+        padding: 2vw 7vw;
+        font-size: 4vw;
+    }
+
+    .landing-page h1 {
+        font-size: 10vw;
+        text-align: center;
+        width: 100%;
+        left: 0;
+    }
+
+    .landing-text {
+        width: 150vw;
+        height: auto;
+    }
+
+    .footer {
+        text-align: center;
+        font-size: 12px;
+        color: white;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 320px) {
+
+    #container {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    #left-section {
+        padding: 15px;
+    }
+
+    .logo {
+        font-size: 32px;
+    }
+
+    .illustration {
+        height: 150px;
+    }
+
+    #right-section {
+        padding: 20px;
+    }
+
+    .form h2 {
+        font-size: 24px;
+    }
+
+    .form-group label {
+        font-size: 10px;
+    }
+
+    .form-group.text-center{
+        font-size: 15px;
+    }
+
+    #signInButton{
+        padding: 2vw 7vw;
+        font-size: 15px;
+        margin-top: 0%;
     }
 
     #getStartedButton {
-        margin-top: 200px;
+        bottom: 35%;
+        right: 50%;
+        transform: translateX(50%);
+        padding: 2vw 7vw;
+        font-size: 4vw;
     }
 
-    /* Course Container Adjustments */
-    .course-card {
+    .landing-page h1 {
+        font-size: 11vw;
+        text-align: center;
         width: 100%;
+        left: 0;
     }
 
-    @media (max-width: 768px) {
-        .course-card,
-        .class-card,
-        .assessment-card {
-            width: 100%; /* Adjust for smaller screens */
-        }
+    .landing-text {
+        width: 150vw;
     }
+
+    .footer {
+        text-align: center;
+        font-size: 8px;
+        color: white;
+    }
+}
+
+
+/* Search Bar Resposiveness */
+@media (max-width: 550px) {
+    .search-bar {
+        position: relative;
+        width: 41px;
+        border-radius: 20px;
+    }
+    #search-input {
+        display: hide;
+    }
+    .search-bar button {
+        position: absolute;
+        right: 21px;
+    }
+    .search-bar:focus-within {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .search-bar:focus-within button  {
+        position: relative;
+        right: 0px;
+    }
+    .search-bar input::placeholder {
+        color: transparent;
+    }
+
+    #joinClass, 
+    #addCourse,
+    #addAssessment,
+    #addClass {
+        padding: 2px;
+    }
+}
+/* Scroll Bar Design */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 20px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 20px;
+    background-clip: padding-box;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
 }

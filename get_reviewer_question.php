@@ -40,14 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['rw_question_id'])) {
         switch ($question_type) {
             case 'multiple_choice':
             case 'checkbox':
-                $options_query = "SELECT * FROM rw_question_opt WHERE rw_question_id = ?";
+                $options_query = "SELECT * FROM question_options WHERE question_id = ?";
                 $options_stmt = $conn->prepare($options_query);
-                $options_stmt->bind_param("i", $rw_question_id);
+                $options_stmt->bind_param("i", $question_id);
                 $options_stmt->execute();
                 $options_result = $options_stmt->get_result();
                 while ($option = $options_result->fetch_assoc()) {
                     $response['data']['options'][] = [
-                        'option_txt' => $option['option_text'],
+                        'option_txt' => $option['option_txt'],
                         'is_right' => $option['is_right']
                     ];
                 }

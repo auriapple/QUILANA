@@ -1,8 +1,7 @@
-/* width */
+/* Width */
 ::-webkit-scrollbar {
     width: 10px;
 }
-
 /* Track */
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
@@ -10,23 +9,15 @@
     border-bottom: 15px solid transparent;
     background-clip: padding-box;
 }
-
 /* Handle */
 ::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 10px;
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
     background-clip: padding-box;
 }
-
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #aaa;
-}
-
-* {
-    box-sizing: border-box;
 }
 
 body {
@@ -34,58 +25,55 @@ body {
     overflow-y: hidden;
 }
 
+/* DASHBOARD */
 .dashboard-container {
     display: grid; 
-    grid-template-columns: repeat(8, 1fr) 375px;
-    grid-template-rows: 300px 1fr 1fr 1fr 1fr 1fr; 
-    height: 90%;
-    width: 100%;
+    grid-template-columns: calc(100% - 375px) 375px;
+    grid-template-rows: 300px 1fr 1fr 1fr 1fr 1fr;
+    height: 95%;
     overflow-y: hidden;
 }
 
+/* Dashboard Containers */
 .dashboard-summary,
 .dashboard-requests,
-.dashboard-calendar {
+.dashboard-calendar,
+.recent-assessments,
+.dashboard-schedule {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
     border-radius: 20px;
-    border: 1px solid #dadada;
+    border: 1px solid #EEEEEE;
     box-sizing: border-box;
     margin: 10px;
     padding: 25px;
-    overflow: hidden;
-    box-shadow: 0px 4px 20px 0px rgba(238, 238, 238, 0.50);
-    border: 1px solid #F8F9FA;
+    box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.15);
 }
-
-.dashboard-summary {
-    justify-content: flex-start;
-    grid-column: 1 / 9;
-    grid-row: 1 / 2;
-}
-
-.dashboard-summary {
-    justify-content: flex-start;
-    grid-column: 1 / 9;
-    grid-row: 1 / 2;
-}
-
 .dashboard-requests h1,
-.dashboard-summary h1 {
-    height: fit-content;
+.dashboard-summary h1,
+.recent-assessments h1,
+.dashboard-schedule h1 {
+    min-height: fit-content;
     font-size: 20px;
     font-weight: 600;
     color: #1e1a43;
     white-space: nowrap;
+    overflow: hidden;
 }
 
+/* DASHBOARD SUMMARY */
+.dashboard-summary {
+    justify-content: flex-start;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    margin-left: 0; /* */
+}
 .dashboard-summary h2 {
     font-size: 16px;
     font-weight: 500;
     color: #8f8f9d;
 }
-
 .dashboard-summary .cards {
     height: fit-content;
     width: 100%;
@@ -94,41 +82,35 @@ body {
     gap: 20px;
     box-sizing: border-box;
 }
-
 .cards .card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
     height: fit-content;
-    padding: 5px;
     border-radius: 16px;
     border: none;
     padding: 20px;
-    background-color: #fadeff;
     overflow: hidden;
     white-space: nowrap;
 }
-
 .card .card-data {
     display: flex;
     flex-direction: column;
-    gap: -10px;
+    overflow: hidden;
+    width: 100%;
 }
-
 .cards .icons {
     width: 40px;
     height: 40px;
     margin-bottom: 20px;
 }
-
 .cards h3 {
     font-size: 20px;
     width: 40px;
     color: #151d48;
     font-weight: bold;
 }
-
 .card-data label {
     color: #415165;
     font-size: 14px;
@@ -138,48 +120,52 @@ body {
     text-overflow: ellipsis;
 }
 
+/* Dashboard Requests and Recent Assessments */
 .dashboard-requests,
 .recent-assessments {
     justify-content: flex-start;
     align-content: space-between;
     overflow-y: scroll;
-    grid-column: 1 / 9;
+    grid-column: 1 / 2;
     grid-row: 2 / 7;
+    margin-left: 0px;
+    overflow: hidden;
 }
-
 .dashboard-requests::-webkit-scrollbar,
-.recent-assessments::-webkit-scrollbar {
+.recent-scrollable::-webkit-scrollbar,
+.requests::-webkit-scrollbar {
     display: none;
 }
 
+/* DASHBOARD REQUESTS */
+.requests {
+    overflow-y: scroll;
+}
 .dashboard-requests .class-header {
     display: flex;
     align-items: center;
     margin: 10px 0px;
     gap: 10px;
 }
-
 .class-header span {
     font-size: 16px;
     color: #8f8f9d;
-    white-space: nowrap;
 }
-
 .class-header .line {
     flex: 1;
     border-bottom: 1.5px solid #8f8f9d7e;
 }
-
+/* Student Details */
 .student-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-
 .student-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: fit-content;
     width: 100%;
     min-width: fit-content;
     border-radius: 10px;
@@ -188,109 +174,385 @@ body {
     height: fit-content;
     padding: 5px 15px;
 }
-
 .student-item label {
-    max-height: 18px;
+    margin-bottom: 0px;
+    max-height: 22px;
     overflow: hidden
 }
-
+td .btns, 
+.btn-container, 
 .student-item .btns {
     display: flex;
     min-width: fit-content;
     height: fit-content;
     gap: 10px;
 }
-
+/* Accept and Reject Button */
 .btns .accept,
-.btns .reject {
-    width: 80px;
-    height: fit-content;
+.btns .reject,
+.btn-container .accept,
+.btn-container .reject,
+.btn-container .btn {
+    width: 90px;
+    height: 40px;
     border-radius: 5px;
     border: none;
-    background-color: #87ffb0;
+    padding: 5px;
     height: 30px;
     font-size: 16px;
     font-weight: 500;
-    color: #2f8113;
     text-align: center;
+    transition: ease-in 200ms;
+    overflow: hidden;
+    cursor: pointer;
 }
-
-.accept :hover,
+.btns .accept,
+.btn-container .accept {
+    background-color: #87ffb0;
+}
+.btn-container .reject,
 .btns .reject {
     background-color: #ff8585;
-    color: #de1616;
+}
+.accept .label {
+    position: relative;
+    top: -3px;
+    color: #2f8113;
+}
+.reject .label {
+    position: relative;
+    top: -3px;
+    color: #e00f0f;
+}
+.accept .btn-icon,
+.reject .btn-icon {
+    display: none;
+}
+.accept:hover {
+    background-color: #2f8113 !important;
+}
+.reject:hover {
+    background-color: #e00f0f !important;
+}
+.accept:hover .label,
+.reject:hover .label {
+    color: white;
+}
+.accept:focus, 
+.reject:focus {
+    outline: none;
 }
 
-.dashboard-calendar {
-    grid-column: 9 / 10;
-    grid-row: 1 / 3;
-    padding: 5px 25px
-}
-
-.assessment-separator {
+/* Enrollment Alerts */
+.alert-container {
     display: flex;
+    flex-direction: column;
+    justify-content: end;
+    padding: 0 5px 5px 0;
+    gap: 10px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    height: 300px;
+    width: 300px;
+    background-color: transparent;
+    overflow-y: auto;
+}
+.alert-card {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #6e72c1dd;
+    font-size: 14px;
+    color: #fff;
+    text-align: justify;
+    transition: opacity 2s;
+    z-index: 1001;
+}
+.fade {
+    opacity: 0;
+}
+
+/* RECENT ASSESSMENTS */
+.recent-scrollable {
+    overflow-y: scroll;
+    flex-grow: 1;
+    height: 100%;
+}
+
+/* Recent Card */
+#recents #recent-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
     align-items: center;
-    margin: 10px 0;
-    text-align: left;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    height: 90px;
+}
+
+#recent-card .icons,
+#recent-card h3,
+#recent-card label {
+    margin: 0;
+}
+
+/* DASHBOARD CALENDAR */
+.dashboard-calendar {
+    grid-column: 2 / 3;
+    grid-row: 1 / 4;
+    padding: 25px;
+}
+footer {
+    display: flex;
     position: relative;
 }
-.date {
-    flex: 0 0 auto;
-    margin-right: 20px;
-    color: #CDCDCD;
+footer .line {
+    height: 1px;
+    background-color: #8f8f9d;
+    margin: 10px 0;
 }
-.separator-line {
-    flex: 1;
-    border: none;
-    border-top: 1px solid #CDCDCD;;
+footer h1 {
+    font-size: 14px;
+    font-weight: bold;
+}
+.today-schedule {
+    background-color: #FFEEB2;
+    margin: 5px 10px 10px;
+    border-radius: 10px;
+    height: 65px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+.today-schedule p {
     margin: 0;
+    font-size: 14px;
+    color: rgba(66, 81, 102, 0.75);
 }
-
-#recents {
-    margin-bottom: 20px;
+.today-schedule .schedule-item {
+    padding: 0;
+    text-align: center;
 }
-
-#recent-card {
-    border-radius: 16px;
+/* Faculty Add Schedule Button */
+.add-button {
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+}
+.add-schedule {
+    width: 40px;
+    height: 40px;
+    background-color: #E8C340;
+    color: white;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
-    padding: 10px;
+    justify-content: center;
+}
+.add-schedule i {
+    font-size: 18px;
+}
+.add-schedule:hover {
+    background-color: #dbad07;
+}
+.add-schedule:focus,
+.add-schedule:active {
+    border: none;
+    outline: none;
 }
 
-#recents .icons {
-    margin-right: 20px;
-    flex-shrink: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    width: 50px;
-    height: 50px;
-}
-
-#recent-data {
-    display:flex;
+/* ADD SCHEDULE POPUP */
+#add-schedule-popup .popup-content {
+    display: flex;
+    flex-direction: column;
+    height: 450px;
+    width: 400px;
+    padding: 20px;
+    justify-content: center;
     align-items: center;
-    margin-left: 10px;
-    width: 100%;
-    flex-direction: row;
-    padding: 10px;
 }
-
-#recent-icon{
-    float: left;
-    width: 30%;
-    margin-right: 15px;
-}
-
-#recent-details{
-    float: left;
-    width:70%;
+#add-schedule-popup .popup-title {
     margin: 0;
-    padding: 0;
-    flex-grow: 1;
+    padding: 0 30px;
+}
+#schedule-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+#schedule-form label {
+    margin: 0;
+}
+#save-button {
+    padding: 8px 12px;
+    outline: none;
+    border: none;
+    background-image: linear-gradient(to right, #e9cb60, #e6be2f);
+    background-color: #dbad07; 
+}
+#save-button:hover {
+    background-color: #dbad07;
+    background-image: none;
 }
 
-#recent-details h3, label{
-    margin-top: 0;
-    margin-bottom: 0;
+/* DASHBOARD SCHEDULES */
+.dashboard-schedule {
+    justify-content: flex-start;
+    align-content: space-between;
+    overflow-y: scroll;
+    grid-column: 2 / 3;
+    grid-row: 4 / 7;
+    overflow: hidden;
 }
 
+.schedule-label {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    height: auto;
+}
+.schedule-label h1 {
+    margin: 0;
+}
+.schedule-label .icons {
+    height: 40px;
+    width: 40px;
+}
+
+.schedules {
+    overflow: auto;
+}
+.schedules::-webkit-scrollbar {
+    display: none;
+}
+#schedule-separator {
+    margin: 5px 5px 5px 0;
+}
+#schedule-separator .content-name {
+
+    font-size: 14px;
+}
+
+.schedule-item {
+    padding: 0 0 10px 20px;
+}
+.schedule-item h3,
+.schedule-item p {
+    margin: 0;
+}
+.schedule-item h3 {
+    font-weight: bold;
+    font-size: 18px;
+    color: #1E1A43;
+}
+.schedule-item p {
+    font-size: 14px;
+    color: #8F8F9D;
+}
+.dashboard-schedule .no-records {
+    font-size: 14px;
+}
+
+@media screen and (max-width: 850px) {
+    .dashboard-container {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        height: calc(100% - 60px) !important;
+        overflow: scroll;
+        overflow-y: scroll;
+    }
+    .dashboard-summary,
+    .dashboard-requests,
+    .recent-assessments,
+    .dashboard-calendar,
+    .dashboard-schedule {
+        margin: 10px 0;
+    }
+    .dashboard-requests,
+    .recent-assessments {
+        min-height: 300px;
+    }
+    .dashboard-calendar {
+        min-height: 450px;
+        min-width: 350px;
+        padding: 5px 15px
+    }
+    .dashboard-schedule {
+        min-height: 300px;
+        min-width: 350px;
+    }
+    .dashboard-container::-webkit-scrollbar {
+        display: none;
+    }
+    .cards {
+        height: fit-content;
+    }
+    .card-data label {
+        white-space: wrap;
+        max-height: none;
+    }
+    #recents #recent-card {
+        height: 80px;
+    }
+}
+@media screen and (max-width: 550px) {
+    .dashboard-summary .cards {
+        flex-direction: column;
+    }
+    .cards .card {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 20px;
+        align-items: center;
+    }
+    .cards .icons {
+        margin-bottom: 0;
+    }
+    .cards .card-data {
+        padding: 3px 0 0 0;
+    }
+    .cards label,
+    .cards h3 {
+        margin-bottom: 0;
+    }
+    #recent-details h3 {
+        font-size: 18px;
+    }
+    #recent-details label {
+        font-size: 14px;
+    }
+    .btns .accept,
+    .btns .reject {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+    }
+    .accept .label,
+    .reject .label {
+        display: none;
+    }
+    .accept .btn-icon {
+        display: block;
+        color: #2f8113;
+    }
+    .reject .btn-icon {
+        display: block;
+        color: #e00f0f;
+    }
+}
