@@ -119,82 +119,84 @@ while ($question = $questions_query->fetch_assoc()) {
     </div>
 
     <div class="content-wrapper">
-        <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
-        <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
+        <div class = "main-container">
+            <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
+            <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
 
-        <form id="quiz-form" action="submit_assessment.php" method="POST">
-            <!-- Header with timer -->
-            <div class="header-container">
-                <p>Time Left: <span id="timer" class="timer">00:00</span></p>
-            </div>
+            <form id="quiz-form" action="submit_assessment.php" method="POST">
+                <!-- Header with timer -->
+                <div class="header-container">
+                    <p>Time Left: <span id="timer" class="timer">00:00</span></p>
+                </div>
 
-            <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
-            <div class="tabs-container">
-                <ul class="tabs">
-                    <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
-                </ul>
-            </div>
+                <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
+                <div class="tabs-container">
+                    <ul class="tabs">
+                        <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
+                    </ul>
+                </div>
 
-            <!-- Questions Container -->
-            <div id="quiz-modes-container" class="questions-container">
-                <?php foreach ($questions as $index => $question) : ?>
-                    <div class="question" id="question-<?php echo $question['question_id']; ?>" data-time-limit="<?php echo $question['time_limit']; ?>" style="display: none;">
-                    <div class="question-number">QUESTION # <?php echo $index + 1; ?></div>
-                    <div class="question-text">
-                        <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
-                    </div>
-                    <?php
-                        $question_type = $question['ques_type'];
-                        if ($question_type == 1) { // Single choice
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+                <!-- Questions Container -->
+                <div id="quiz-modes-container" class="questions-container">
+                    <?php foreach ($questions as $index => $question) : ?>
+                        <div class="question" id="question-<?php echo $question['question_id']; ?>" data-time-limit="<?php echo $question['time_limit']; ?>" style="display: none;">
+                        <div class="question-number">QUESTION # <?php echo $index + 1; ?></div>
+                            <div class="question-text">
+                                <p><strong><?php echo htmlspecialchars($question['question']); ?></strong></p>
+                            </div>
+                            <?php
+                            $question_type = $question['ques_type'];
+                            if ($question_type == 1) { // Single choice
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
-                            echo "<div class='option-buttons'>";
-                            $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
-                            while ($choice = $choices_query->fetch_assoc()) {
-                                echo "<div class='form-check'>";
-                                echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
-                                echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "<div class='option-buttons'>";
+                                $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
+                                while ($choice = $choices_query->fetch_assoc()) {
+                                    echo "<div class='form-check'>";
+                                    echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
+                                    echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                    echo "</div>";
+                                }
+                                echo "</div>";
+                            } elseif ($question_type == 2) { // Multiple choice
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
+                                echo "<div class='option-buttons'>";
+                                $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
+                                while ($choice = $choices_query->fetch_assoc()) {
+                                    echo "<div class='form-check'>";
+                                    echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
+                                    echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                    echo "</div>";
+                                }
+                                echo "</div>";
+                            } elseif ($question_type == 3) { // True/False
+                                echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
+                                echo "<div class='option-buttons'>";
+                                    echo "<div class='form-check'>";
+                                    echo "<input id='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
+                                    echo "<label for='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>True</label>";
+                                    echo "</div>";
+                                    echo "<div class='form-check'>";
+                                    echo "<input id='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
+                                    echo "<label for='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>False</label>";
+                                    echo "</div>";
+                                echo "</div>";
+                            } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification
+                                echo "<div class='form-check-group'>";
+                                echo "<input type='text' id='answer_" . htmlspecialchars($question['question_id']) . "' class='quiz-modes-input' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                                 echo "</div>";
                             }
-                            echo "</div>";
-                        } elseif ($question_type == 2) { // Multiple choice
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
-                            echo "<div class='option-buttons'>";
-                            $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
-                            while ($choice = $choices_query->fetch_assoc()) {
-                                echo "<div class='form-check'>";
-                                echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
-                                echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
-                                echo "</div>";
-                            }
-                            echo "</div>";
-                        } elseif ($question_type == 3) { // True/False
-                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
-                            echo "<div class='option-buttons'>";
-                                echo "<div class='form-check'>";
-                                echo "<input id='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
-                                echo "<label for='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>True</label>";
-                                echo "</div>";
-                                echo "<div class='form-check'>";
-                                echo "<input id='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
-                                echo "<label for='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>False</label>";
-                                echo "</div>";
-                            echo "</div>";
-                        } elseif ($question_type == 4 || $question_type == 5) { // Fill in the blank and identification
-                            echo "<div class='form-check-group'>";
-                            echo "<input type='text' id='answer_" . htmlspecialchars($question['question_id']) . "' class='quiz-modes-input' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
-                            echo "</div>";
-                        }
-                        ?>
-                    </div>
-                <?php endforeach; ?>
-                <input type="hidden" name="assessment_id" value="<?php echo htmlspecialchars($assessment_id); ?>">
-                <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
-                <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($class_id); ?>">
-            </div>
-        </form>
+                            ?>
+                        </div>
+                    <?php endforeach; ?>
+                    <input type="hidden" name="assessment_id" value="<?php echo htmlspecialchars($assessment_id); ?>">
+                    <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
+                    <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($class_id); ?>">
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -612,6 +614,27 @@ while ($question = $questions_query->fetch_assoc()) {
             }
             lastPixel = pixel;
         }, 1000);
+
+        //Screenshot andriod (?) yung three fingers
+        let touchCount = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchCount = event.touches.length;
+            
+            if (touchCount === 3) {
+                handleWarning('Screenshot');
+            }
+        }, true);
+
+        // Detect potential screenshot/ app switching based on visibility change
+        document.addEventListener('visibilitychange', () => {
+            
+            if (document.visibilityState === 'hidden') {
+                flashScreen();
+                handleWarning('App Switching / Screenshot');
+            }
+        });
+
 
         // Initialize timer and set up event listeners
         window.onload = function () {

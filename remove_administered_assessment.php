@@ -13,6 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assessment_id']) && i
     $conn->begin_transaction();
 
     try {
+
+        // Disable foreign key checks if necessary
+        $conn->query("SET FOREIGN_KEY_CHECKS=0");
+
         // First, delete from join_assessment table
         $stmt = $conn->prepare("DELETE FROM join_assessment WHERE administer_id = ?");
         $stmt->bind_param("i", $administer_id);
@@ -24,6 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assessment_id']) && i
         $stmt = $conn->prepare("DELETE FROM administer_assessment WHERE assessment_id = ? AND class_id = ?");
         $stmt->bind_param("ii", $assessment_id, $class_id);
         $stmt->execute();
+
+        // Re-enable foreign key checks
+        $conn->query("SET FOREIGN_KEY_CHECKS=1");
 
         // Commit the transaction
         $conn->commit();
