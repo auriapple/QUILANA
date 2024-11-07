@@ -59,6 +59,7 @@ if (isset($_GET['class_id'])) {
 ?>
 
 <!-- Tab navigation -->
+<div style="display: none;" id="class-id-container"><?php echo $class_id; ?></div>
 <div class="tabs-container">
     <ul class="tabs">
         <li class="tab-link active" onclick="openTab(event, 'Assessments')">Assessments</li>
@@ -126,6 +127,19 @@ if (isset($_GET['class_id'])) {
 </div>
 
 <script>
+    let refreshStudentTableInterval;
+    var classId = document.getElementById('class-id-container').textContent;
+
+    function startAutoRefresh(classId) {
+        if (refreshStudentTableInterval) {
+            clearInterval(refreshStudentTableInterval);
+        }
+
+        refreshStudentTableInterval = setInterval(function() {
+            refreshStudentTable(classId);
+        }, 5000);
+    }
+
     function refreshStudentTable(classId) {
         $.ajax({
             url: 'get_students.php', 
@@ -135,6 +149,7 @@ if (isset($_GET['class_id'])) {
                 // Update the table's <tbody> with the new HTML
                 $('#Students tbody').html('');
                 $('#Students tbody').html(response);
+                console.log(classId);
             },
             error: function() {
                 alert('Failed to refresh the student table.');
@@ -142,18 +157,27 @@ if (isset($_GET['class_id'])) {
         });
     }
 
-    let refreshStudentTableInterval;
+    function refreshAssessmentTable(classId) {
+        $.ajax({
+            url: 'get_class_assessments.php', 
+            type: 'POST',
+            data: { class_id: classId },
+            success: function(response) {
+                // Update the table's <tbody> with the new HTML
+                $('#Assessments tbody').html('');
+                $('#Assessments tbody').html(response);
+            },
+            error: function() {
+                alert('Failed to refresh the assessments table.');
+            }
+        });
 
-    function startAutoRefresh(classId) {
-        if (refreshStudentTableInterval) {
-            clearInterval(refreshStudentTableInterval);
-        }
-        refreshStudentTable(classId);
-
-        refreshStudentTableInterval = setInterval(function() {
-            refreshStudentTable(classId);
-        }, 5000);
+        console.log(classId);
     }
+
+    $(document).ready(function() {
+        refreshAssessmentTable(classId);
+    });
 
     function addChildAlert(studentName, className, res) {
         // Create a new div element
@@ -219,6 +243,7 @@ if (isset($_GET['class_id'])) {
  
     function openTab(evt, tabName) {
         var i, tabcontent, tablinks;
+        var classId = document.getElementById('class-id-container').textContent;
         
         // Hide all tab contents
         tabcontent = document.getElementsByClassName("tabcontent");
@@ -241,11 +266,15 @@ if (isset($_GET['class_id'])) {
         evt.currentTarget.classList.add("active");
 
         // Hide the 'Scores' tab if another tab is clicked
+        if (tabName == 'Assessments') {
+            refreshAssessmentTable(classId);
+        }
         if (tabName !== 'StudentScores') {
             document.getElementById('studentScoresTab').style.display = 'none';
         }
         if (tabName == 'Students') {
-            startAutoRefresh(<?php echo $class_id ?>);
+            refreshStudentTable(classId);
+            startAutoRefresh(classId);
         }
     }
 
@@ -288,24 +317,6 @@ if (isset($_GET['class_id'])) {
     $('.popup-close').on('click', function() {
         clearInterval(refreshStudentTableInterval);
     });
-
-    function refreshAssessmentTable(classId) {
-        $.ajax({
-            url: 'get_class_assessments.php', 
-            type: 'POST',
-            data: { class_id: classId },
-            success: function(response) {
-                // Update the table's <tbody> with the new HTML
-                $('#Assessments tbody').html('');
-                $('#Assessments tbody').html(response);
-            },
-            error: function() {
-                alert('Failed to refresh the assessments table.');
-            }
-        });
-    }
-
-    refreshAssessmentTable(<?php echo $class_id ?>);
 
     function removeAdministeredAssessment(assessmentId, classId, administerId, assessmentName, className) {
         var res = ' removed from ';
@@ -450,7 +461,9 @@ if (isset($_GET['class_id'])) {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        var classId = document.getElementById('class-id-container').textContent;
         var defaultTab = document.querySelector('.tab-link.active');
+
         if (defaultTab) {
             var defaultTabName = defaultTab.getAttribute('onclick').match(/'(.*?)'/)[1];
             document.getElementById(defaultTabName).style.display = "block";

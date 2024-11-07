@@ -112,7 +112,7 @@
     position: absolute;
 }
 .ranking-platform {
-    background-image: url('http://localhost/QUILANA/image/RankingPlatformCrown.png');
+    background-image: url('../../image/RankingPlatformCrown.png');
     background-size: contain; 
     width: 365px;
     height: 380px; /*350px*/
@@ -224,6 +224,10 @@
 }
 
 @media screen and (max-width: 480px) {
+    .ranking-platform {
+        width: calc(100% - 10px);
+        background-position: 0px 15px;
+    }
     #personal-ranking-container h3, 
     #personal-ranking-container h4,
     #leaderboards-container h3 {

@@ -303,7 +303,7 @@
 
             function getClasses(course_id) {
                 $.ajax({
-                    url: 'get_classes.php',
+                    url: 'get_class_cards.php',
                     method: 'POST',
                     data: { course_id: course_id },
                     success: function(response) {
@@ -767,14 +767,16 @@
             // View class details button
             $(document).on('click', '#viewClassDetails', function() {
                 var class_id = $(this).attr('data-id');
+                console.log(class_id);
+                
                 $.ajax({
                     url: 'get_class_details.php',
                     method: 'GET',
                     data: { class_id: class_id },
                     success: function(response) {
                         $('#class-details-popup #classDetailsBody').html(response);
-                        // $('#class_details').modal('show');
                         showPopup('class-details-popup');
+                        refreshAssessmentTable(class_id);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.log("Request failed: " + textStatus + ", " + errorThrown);
@@ -968,14 +970,6 @@
             const classId = urlParams.get('class_id');
 
             // If `show_modal` is true, open the class details modal
-            if (showModal === 'true' && classId) {
-                // Show the modal
-                showPopup('class-details-popup');
-
-                // Fetch class details dynamically
-                fetchClassDetails(classId);
-            }
-
             function fetchClassDetails(classId) {
                 $.ajax({
                     url: 'get_class_details.php',
@@ -989,6 +983,14 @@
                         $('#class-details-popup #classDetailsBody').html('<p>Error loading class details.</p>');
                     }
                 });
+            }
+
+            if (showModal === 'true' && classId) {
+                // Show the modal
+                showPopup('class-details-popup');
+
+                // Fetch class details dynamically
+                fetchClassDetails(classId);
             }
 
             // Ensure meatball menu is initialized after any dynamic content changes

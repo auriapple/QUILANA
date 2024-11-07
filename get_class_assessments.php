@@ -44,7 +44,7 @@ if ($qry_assessments->num_rows > 0) {
     }
 } else {
     echo '<tr>
-            <td colspan="4" class="text-center">No assessments found.</td>
-        </tr>';
+        <td colspan="4" class="text-center no-records">No assessments found.</td>
+    </tr>';
 }
 ?>
