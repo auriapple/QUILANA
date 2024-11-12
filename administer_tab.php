@@ -215,7 +215,7 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 15px;
+            padding: 25px 15px 15px;
             background-color: #6e72c1dd;
             font-size: 14px;
             color: #fff;

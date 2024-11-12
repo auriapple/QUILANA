@@ -1,3 +1,17 @@
+<style>
+    .swal2-actions {
+        gap: 10px;
+        flex-direction: row-reverse;
+    }
+    .swal2-actions button {
+        width: 150px !important;
+        margin-top: 20px !important;
+    }
+    #swal2-input {
+        width: 340px;
+    }
+</style>
+
 <?php
 include 'db_connect.php';
 include 'auth.php';
@@ -285,13 +299,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 .catch(error => console.error('Error fetching pending requests:', error));
             }
 
-            // Pending requests buttons functionality
-            $(document).on('click', '.accept-btn, .reject-btn', function() {
-                var classId = $(this).data('class-id');
-                var studentId = $(this).data('student-id');
-                var status = $(this).data('status');
-                var classSub = $(this).data('class-sub');
-                var studentName = $(this).data('student-name');
+            function acceptRejectStudent(classId, studentId, status, classSub, studentName, reason) {
                 var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : null;
 
                 $.ajax({
@@ -300,7 +308,8 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     data: {
                         class_id: classId,
                         student_id: studentId,
-                        status: status
+                        status: status,
+                        reason: reason
                     },
                     success: function(response) {
                         if (response == 'success') {
@@ -309,21 +318,66 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                             fetchPendingRequests();
                         } else {
                             Swal.fire({
-                            title: 'Warning!',
-                            text: 'An error occured in trying to reject/accept ' + studentName + ' to ' + classSub + '.',
-                            icon: 'warning',
-                            confirmButtonText: 'OK',
-                            allowOutsideClick: false,
-                            customClass: {
-                                popup: 'popup-content',
-                                confirmButton: 'secondary-button'
-                            }
-                        }).then(() => {
-                            warningTracker = false;
-                        });
+                                title: 'Warning!',
+                                text: 'An error occured in trying to reject/accept ' + studentName + ' to ' + classSub + '.',
+                                icon: 'warning',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then(() => {
+                                warningTracker = false;
+                            });
                         }
                     } 
                 });
+            }
+
+            // Pending requests buttons functionality
+            $(document).on('click', '.accept-btn, .reject-btn', function() {
+                var classId = $(this).data('class-id');
+                var studentId = $(this).data('student-id');
+                var status = $(this).data('status');
+                var classSub = $(this).data('class-sub');
+                var studentName = $(this).data('student-name');
+                var reason;
+
+                if ($(this).hasClass('accept-btn')) {
+                    acceptRejectStudent(classId, studentId, status, classSub, studentName, reason);
+                } else {
+                    Swal.fire({
+                        title: 'Confirm Rejection.',
+                        text: 'Are you sure you want to reject ' + studentName + ' from ' + classSub + '.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Reject',
+                        cancelButtonText: 'Cancel',
+                        allowOutsideClick: false,
+                        input: 'text',
+                        inputPlaceholder: 'Enter reason for rejection',
+                        customClass: {
+                            popup: 'popup-content',
+                            confirmButton: 'secondary-button',
+                            cancelButton: 'tertiary-button',
+                            input: 'popup-input'
+                        },
+                        preConfirm: (inputValue) => {
+                            if (!inputValue) {
+                                Swal.showValidationMessage('Please enter a reason for rejection');
+                            }
+                            return inputValue;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            reason = result.value;
+                            acceptRejectStudent(classId, studentId, status, classSub, studentName, reason)
+                            warningTracker = false;
+                        } else if (result.isDismissed) {
+                            console.log("User canceled the removal action.");
+                        }
+                    });
+                }
             });
             
             // Initial fetch

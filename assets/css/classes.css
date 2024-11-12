@@ -302,6 +302,53 @@ tr .status {
     color: #6d6d6d !important;
 }
 
+/* Notifications */
+.notification-container {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 0 5px 5px 0;
+    gap: 10px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    height: 300px;
+    width: 300px;
+    background-color: transparent;
+    overflow-y: auto;
+}
+
+.notification-card {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 25px 15px 15px;
+    background-color: #6e72c1dd;
+    font-size: 14px;
+    color: #fff;
+    text-align: justify;
+}
+
+.notification-card span.notif-close {
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 9px;
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+}
+
+.notification-card span.notif-close:hover {
+    position: absolute;
+    cursor: pointer;
+    background-color: #cecece65;
+}
+
 /* Media Query for small screens */
 @media screen and (max-width: 490px) {
     .popup-content {
