@@ -42,8 +42,9 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 ?>
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
+
                 <div class="cards"> 
-                    <div class="card" style="background-color: #ffe2e5;">
+                    <div class="card" style="background-color: #ffe2e5; cursor: pointer;" onclick="window.location.href='class_list.php';">
                         <img class="icons" src="image/DashboardCoursesIcon.png" alt="Courses Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalCourses FROM course 
@@ -56,7 +57,8 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                             <label>Total Programs</label> 
                         </div>
                     </div>
-                    <div class="card" style="background-color: #FADEFF"> 
+
+                    <div class="card" style="background-color: #FADEFF; cursor: pointer;" onclick="window.location.href='class_list.php';"> 
                         <img class="icons" src="image/DashboardClassesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses FROM class
