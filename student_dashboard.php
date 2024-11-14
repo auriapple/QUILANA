@@ -117,7 +117,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         JOIN assessment a ON sr.assessment_id = a.assessment_id
                         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                         JOIN class c ON aa.class_id = c.class_id
-                        WHERE ss.student_id = '".$_SESSION['login_id']."'
+                        WHERE ss.student_id = '".$_SESSION['login_id']."' AND aa.administer_id = ss.administer_id
                         ORDER BY ss.date_taken DESC
                     ");
 
