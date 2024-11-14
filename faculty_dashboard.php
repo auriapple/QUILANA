@@ -35,12 +35,12 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             <div class="dashboard-summary">
                 <?php 
                     $name_query = $conn->query("
-                        SELECT firstname FROM faculty WHERE faculty_id = '".$_SESSION['login_id']."'
+                        SELECT lastname FROM faculty WHERE faculty_id = '".$_SESSION['login_id']."'
                     ");
                     $name = $name_query->fetch_assoc();
-                    $firstname = $name['firstname'];
+                    $lastname = $name['lastname'];
                 ?>
-                <h1> Welcome, <?php echo $firstname ?> </h1>
+                <h1> Welcome, Prof. <?php echo $lastname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards"> 
                     <div class="card" style="background-color: #ffe2e5;">
