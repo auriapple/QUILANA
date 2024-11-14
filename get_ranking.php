@@ -1,18 +1,18 @@
 <?php
 include('db_connect.php');
 
-// Assuming $_GET['assessment_id'] is passed
-if (isset($_GET['assessment_id'])) {
+if (isset($_GET['administer_id']) && isset($_GET['assessment_id']) && isset($_GET['assessment_mode'])) {
     $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+    $administer_id = $conn->real_escape_string($_GET['administer_id']);
+    $assessment_mode = $conn->real_escape_string($_GET['assessment_mode']);
 
     // Fetch assessment mode
     $assessment_query = $conn->query("
-        SELECT assessment_mode, passing_rate, max_points, student_count, remaining_points
+        SELECT passing_rate, max_points, student_count, remaining_points
         FROM assessment
         WHERE assessment_id = '$assessment_id'
     ");
     $assessment_data = $assessment_query->fetch_assoc();
-    $assessment_mode = $assessment_data['assessment_mode'];
 
     if ($assessment_mode == 3) {
         // Fetch scoring details
@@ -20,15 +20,6 @@ if (isset($_GET['assessment_id'])) {
         $max_points = $assessment_data['max_points'];
         $student_count = $assessment_data['student_count'];
         $remaining_points = $assessment_data['remaining_points'];
-
-        // Fetch necessary data
-        $administer_query = $conn->query("
-            SELECT administer_id
-            FROM administer_assessment
-            WHERE assessment_id = '$assessment_id'
-        ");
-        $administer_data = $administer_query->fetch_assoc();
-        $administer_id = $administer_data['administer_id'];
 
         // Fetch all questions in the assessment
         $question_query = $conn->query("
@@ -48,11 +39,11 @@ if (isset($_GET['assessment_id'])) {
             SELECT ss.student_id, sa.time_elapsed, sa.question_id, sa.is_right
             FROM student_answer sa
             JOIN student_submission ss ON sa.submission_id = ss.submission_id
-            JOIN administer_assessment aa ON ss.assessment_id = aa.assessment_id
-            WHERE aa.administer_id = '$administer_id'
+            WHERE ss.administer_id = '$administer_id'
             AND sa.question_id IN ($question_ids_placeholder)
             ORDER BY sa.question_id, sa.time_elapsed ASC
         ");
+
         $answer_data = [];
         while ($details_row = $details_query->fetch_assoc()) {
             $answer_data[$details_row['question_id']][] = $details_row;
@@ -151,9 +142,10 @@ if (isset($_GET['assessment_id'])) {
                             SELECT submission_id 
                             FROM student_submission 
                             WHERE student_id = '" . $conn->real_escape_string($student_id) . "' 
-                            AND assessment_id = '$assessment_id'
+                            AND administer_id = '$administer_id'
                         )
                     ");
+
                     $selected_answers = [];
                     while ($row = $selected_answers_query->fetch_assoc()) {
                         $selected_answers[] = strtolower(trim($row['answer_value']));
@@ -201,7 +193,7 @@ if (isset($_GET['assessment_id'])) {
                         SELECT submission_id
                         FROM student_submission
                         WHERE student_id = '$student_id'
-                        AND assessment_id = '$assessment_id'
+                        AND administer_id = '$administer_id'
                     ) AND question_id = '$question_id'
                 ";
                 $conn->query($answer_rank_query);
@@ -212,11 +204,13 @@ if (isset($_GET['assessment_id'])) {
         $total_possible_score = count($question_ids) * $max_points;
         foreach ($scores as $student_id => $score) {
             $update_result_query = "
-                UPDATE student_results
+                UPDATE student_results sr
+                JOIN student_submission ss ON sr.submission_id = ss.submission_id
                 SET 
-                    score = score + $score,
-                    total_score = $total_possible_score
-                WHERE student_id = '$student_id' AND assessment_id = '$assessment_id'
+                    sr.score = sr.score + $score,
+                    sr.total_score = $total_possible_score
+                WHERE ss.student_id = '$student_id'
+                AND ss.administer_id = '$administer_id'
             ";
             $conn->query($update_result_query);
         }
@@ -228,9 +222,10 @@ if (isset($_GET['assessment_id'])) {
 
     // Fetch all scores for this assessment
     $scores_query = $conn->query("
-        SELECT student_id, score
-        FROM student_results
-        WHERE assessment_id = '$assessment_id'
+        SELECT sr.student_id, sr.score
+        FROM student_results sr
+        JOIN student_submission ss ON sr.submission_id = ss.submission_id
+        WHERE ss.administer_id = '$administer_id'
         ORDER BY score DESC
     ");
 
@@ -246,9 +241,11 @@ if (isset($_GET['assessment_id'])) {
             }
 
             $update_rank_query = "
-                UPDATE student_results
-                SET rank = '$current_rank'
-                WHERE assessment_id = '$assessment_id' AND student_id = '$student_id'
+                UPDATE student_results sr
+                JOIN student_submission ss ON ss.submission_id = sr.submission_id
+                SET sr.rank = '$current_rank'
+                WHERE sr.student_id = '$student_id'
+                AND ss.administer_id = '$administer_id'
             ";
             $conn->query($update_rank_query);
         }
@@ -257,7 +254,7 @@ if (isset($_GET['assessment_id'])) {
         $update_status_query = "
             UPDATE administer_assessment
             SET ranks_status = 1
-            WHERE assessment_id = '$assessment_id'
+            WHERE administer_id = '$administer_id'
         ";
         if ($conn->query($update_status_query)) {
             echo "success";
