@@ -57,7 +57,7 @@
                 $student_id = $_SESSION['login_id'];
 
                 // Fetch student's enrolled classes
-                $classes_query = $conn->query("SELECT c.class_id, c.subject 
+                $classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name
                                                 FROM class c 
                                                 JOIN student_enrollment s ON c.class_id = s.class_id 
                                                 WHERE s.student_id = '$student_id' AND s.status='1'");
@@ -65,13 +65,13 @@
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
                         echo '<div class="content-separator">';
-                        echo '<span class="content-name">' . htmlspecialchars($class['subject']) . '</span>';
+                        echo '<span class="content-name">' . htmlspecialchars($class['class_name']) . ' (' . htmlspecialchars($class['subject']) . ')</span>';
                         echo '<hr class="separator-line">';
                         echo '</div>';
 
                         // Fetch quizzes for each class
                         $quizzes_query = $conn->query("
-                            SELECT a.assessment_id, a.assessment_name, a.topic
+                            SELECT a.assessment_id, a.assessment_name, a.topic, aa.administer_id
                             FROM assessment a
                             JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                             WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1
@@ -90,8 +90,9 @@
                                 // Check if the student has already taken the quiz
                                 $results_query = $conn->query("
                                     SELECT 1 
-                                    FROM student_results 
-                                    WHERE student_id = '$student_id' AND assessment_id = '" . $quiz['assessment_id'] . "'
+                                    FROM student_results sr
+                                    JOIN student_submission ss ON ss.submission_id = sr.submission_id
+                                    WHERE sr.student_id = '$student_id' AND ss.administer_id = '" . $quiz['administer_id'] . "'
                                 ");
 
                                 if ($results_query->num_rows > 0) {
@@ -99,7 +100,7 @@
                                     echo '<div class="assessment-card">';
                                     echo '<div class="assessment-card-title">' . htmlspecialchars($quiz['assessment_name']) . '</div>';
                                     echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
-                                    echo '<button id="viewResult_' . $quiz['assessment_id'] . '" class="main-button" data-id="' . $quiz['assessment_id'] . '" type="button">View Result</button>';
+                                    echo '<button id="viewResult_' . $quiz['administer_id'] . '" class="main-button" data-assessment-id="' . $quiz['assessment_id'] . '" data-administer-id="' . $quiz['administer_id'] . '" type="button">View Result</button>';
                                     echo '</div>';
                                 }
                             }
@@ -127,7 +128,7 @@
                 <div class="assessments-container">
                 <?php
                 // Fetch student's enrolled classes
-                $classes_query = $conn->query("SELECT c.class_id, c.subject 
+                $classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name
                                                 FROM class c 
                                                 JOIN student_enrollment s ON c.class_id = s.class_id 
                                                 WHERE s.student_id = '$student_id' AND s.status='1'");
@@ -135,13 +136,13 @@
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
                         echo '<div class="content-separator">';
-                        echo '<span class="content-name">' . htmlspecialchars($class['subject']) . '</span>';
+                        echo '<span class="content-name">' . htmlspecialchars($class['class_name']) . ' (' . htmlspecialchars($class['subject']) . ')</span>';
                         echo '<hr class="separator-line">';
                         echo '</div>';
 
                         // Fetch exams for each class
                         $exams_query = $conn->query("
-                            SELECT a.assessment_id, a.assessment_name, a.topic
+                            SELECT a.assessment_id, a.assessment_name, a.topic, aa.administer_id
                             FROM assessment a
                             JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                             WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 2
@@ -159,8 +160,9 @@
                             foreach ($exams as $exam) {
                                 $results_query = $conn->query("
                                     SELECT 1 
-                                    FROM student_results 
-                                    WHERE student_id = '$student_id' AND assessment_id = '" . $exam['assessment_id'] . "'
+                                    FROM student_results sr
+                                    JOIN student_submission ss ON ss.submission_id = sr.submission_id
+                                    WHERE sr.student_id = '$student_id' AND ss.administer_id = '" . $exam['administer_id'] . "'
                                 ");
 
                                 if ($results_query->num_rows > 0) {
@@ -168,7 +170,7 @@
                                     echo '<div class="assessment-card">';
                                     echo '<div class="assessment-card-title">' . htmlspecialchars($exam['assessment_name']) . '</div>';
                                     echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($exam['topic']) . '</div>';
-                                    echo '<button id="viewResult_' . $exam['assessment_id'] . '" class="main-button" data-id="' . $exam['assessment_id'] . '" type="button">View Result</button>';
+                                    echo '<button id="viewResult_' . $exam['assessment_id'] . '" class="main-button" data-assessment-id="' . $exam['assessment_id'] . '" data-administer-id="' . $exam['administer_id'] . '" type="button">View Result</button>';
                                     echo '</div>';
                                 }
                             }
@@ -220,12 +222,16 @@
             
             // View assessment results
             $('[id^=viewResult_]').click(function() {
-                var assessment_id = $(this).data('id');
+                var assessment_id = $(this).data('assessment-id');
+                var administer_id = $(this).data('administer-id');
 
                 $.ajax({
                     type: 'GET',
                     url: 'load_results.php',
-                    data: { assessment_id: assessment_id },
+                    data: { 
+                        assessment_id: assessment_id,
+                        administer_id: administer_id,
+                    },
                     dataType: 'json',
                     success: function(result) {
                     if (result.title && result.topic) {
@@ -327,7 +333,7 @@
             });
 
             //Search Functionality
-            function initializeSearch() {
+            /*function initializeSearch() {
                 const searchInput = $('.search-bar input[name="query"]');
                 
                 // Input event listener
@@ -380,7 +386,7 @@
                     $('.search-bar input[name="query"]').val('');
                     $('.search-bar input[name="query"]').trigger('input');
                 });
-            });
+            });*/
         });
     </script>
 </body>
