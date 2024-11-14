@@ -3,28 +3,25 @@ include('db_connect.php');
 include('auth.php');
 
 // Check if assessment_id is set in URL
-if (!isset($_GET['assessment_id'])) {
+if (!isset($_GET['assessment_id']) && !isset($_GET['administer_id'])) {
     header('location: load_assessments.php');
     exit();
 }
 
-$assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
-$class_id = $conn->real_escape_string($_GET['class_id']);
+$assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+$administer_id = $conn->real_escape_string($_GET['administer_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings
-    FROM administer_assessment aa
-    JOIN assessment a ON aa.assessment_id = a.assessment_id
-    WHERE aa.assessment_id = '$assessment_id'
-    AND aa.class_id = '$class_id'
+    SELECT max_warnings
+    FROM assessment
+    WHERE assessment_id = '$assessment_id'
 ");
 
 // Check if there is administer assessment details
 if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
-    $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
 
     // Check if there is a join assessment record
@@ -65,8 +62,20 @@ $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id =
 $assessment = $assessment_query->fetch_assoc();
 $assessment_mode = $assessment['assessment_mode'];
 
+// Check order of questions (normal or randomized)
+$random = $assessment['randomize_questions'];
+
 // Fetch questions related to the assessment
-$questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
+$questions_query = $conn->query("
+    SELECT * 
+    FROM questions 
+    WHERE assessment_id = '$assessment_id' 
+    ORDER BY
+        CASE
+            WHEN $random = 1 then RAND()
+            ELSE 0
+        END;
+");
 
 // Initialize questions array
 $questions = [];
@@ -120,7 +129,6 @@ while ($question = $questions_query->fetch_assoc()) {
 
     <div class="content-wrapper">
         <div class = "main-container">
-            <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
             <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
 
             <form id="quiz-form" action="submit_assessment.php" method="POST">
@@ -193,7 +201,7 @@ while ($question = $questions_query->fetch_assoc()) {
                     <?php endforeach; ?>
                     <input type="hidden" name="assessment_id" value="<?php echo htmlspecialchars($assessment_id); ?>">
                     <input type="hidden" name="assessment_mode" value="<?php echo htmlspecialchars($assessment_mode); ?>">
-                    <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($class_id); ?>">
+                    <input type="hidden" id="administerId_container" name="administer_id" value="<?php echo htmlspecialchars($administer_id);  ?>" />
                 </div>
             </form>
         </div>
@@ -600,22 +608,7 @@ while ($question = $questions_query->fetch_assoc()) {
             handleWarning('Screen capture');
         });
 
-        // Pixel change detection
-        let lastPixel = null;
-        setInterval(() => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1;
-            canvas.height = 1;
-            const ctx = canvas.getContext('2d');
-            ctx.drawWindow(window, 0, 0, 1, 1, "rgb(255,255,255)");
-            const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
-            if (lastPixel !== null && pixel !== lastPixel) {
-                handleWarning('Pixel change');
-            }
-            lastPixel = pixel;
-        }, 1000);
-
-        //Screenshot andriod (?) yung three fingers
+        // Mobile phone screenshot andriod detection (three fingers)
         let touchCount = 0;
 
         document.addEventListener('touchstart', function(event) {
@@ -624,17 +617,7 @@ while ($question = $questions_query->fetch_assoc()) {
             if (touchCount === 3) {
                 handleWarning('Screenshot');
             }
-        }, true);
-
-        // Detect potential screenshot/ app switching based on visibility change
-        document.addEventListener('visibilitychange', () => {
-            
-            if (document.visibilityState === 'hidden') {
-                flashScreen();
-                handleWarning('App Switching / Screenshot');
-            }
-        });
-
+        }, true)
 
         // Initialize timer and set up event listeners
         window.onload = function () {
@@ -647,7 +630,8 @@ while ($question = $questions_query->fetch_assoc()) {
 
         function viewResult() {
             const assessmentMode = document.querySelector('input[name="assessment_mode"]').value;
-            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode);
+            const administerId = document.getElementById('administerId_container').value;
+            window.location.href = 'ranking.php?assessment_id=' + encodeURIComponent(assessmentId) + '&assessment_mode=' + encodeURIComponent(assessmentMode) + '&administer_id=' + encodeURIComponent(administerId);
         }
     </script>
 </body>

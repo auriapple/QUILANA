@@ -8,36 +8,11 @@ if (isset($_POST['class_id'])) {
 
     // Query to get all assessments for the class
     $total_assessments_query = $conn->query("
-        SELECT a.assessment_id, a.assessment_name, a.time_limit, a.topic, a.assessment_mode, a.assessment_type, aa.status
+        SELECT a.assessment_id, a.assessment_name, a.time_limit, a.topic, a.assessment_mode, a.assessment_type, aa.status, aa.administer_id
         FROM assessment a
         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
         WHERE aa.class_id = '$class_id' AND aa.status != 2
     ");
-
-    // Count total assessments
-    /*$total_assessments = $total_assessments_query->num_rows;
-
-    // Query to get assessments taken by the student
-    $taken_assessments_query = $conn->query("
-        SELECT DISTINCT assessment_id
-        FROM student_submission
-        WHERE student_id = '$student_id'
-        AND assessment_id IN (
-            SELECT a.assessment_id
-            FROM assessment a
-            JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
-            WHERE aa.class_id = '$class_id'
-        )
-    ");
-
-    // Count taken assessments
-    $taken_assessments = $taken_assessments_query->num_rows;*/
-
-    // Check if all assessments have been taken
-    /*if ($total_assessments == $taken_assessments) {
-        echo '<p class="no-records">No assessments available for this class.</p>';
-    } else {*/
-
 
     if ($total_assessments_query->num_rows > 0) {
         echo '<div class="assessment-container">';
@@ -47,7 +22,7 @@ if (isset($_POST['class_id'])) {
             $assessment_query = $conn->query("
                 SELECT 1
                 FROM student_submission
-                WHERE student_id = '$student_id' AND assessment_id = '" . $row['assessment_id'] . "'
+                WHERE student_id = '$student_id' AND assessment_id = '" . $row['assessment_id'] . "' AND administer_id = '" . $row['administer_id'] . "'
             ");
 
             // Show assessments that aren't taken yet
@@ -81,8 +56,12 @@ if (isset($_POST['class_id'])) {
                 echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($row['topic']) . '</div>';
                 echo '<div class="assessment-card-mode">Mode: ' . htmlspecialchars($assessment_mode) . '</div>';
                 echo '<div class="assessments-actions">';
-                echo '<a href="' . htmlspecialchars($redirect_url) . '?assessment_id=' . htmlspecialchars($row['assessment_id']) . '&student_id=' . htmlspecialchars($student_id) . '&class_id=' . htmlspecialchars($class_id) . '" class="take-assessment-link">';
-                echo '<button id="takeAssessment_' . $row['assessment_id'] . '" class="main-button">' . htmlspecialchars($button_text) . '</button>';
+                echo '<a href="' . htmlspecialchars($redirect_url) 
+                    . '?assessment_id=' . htmlspecialchars($row['assessment_id']) 
+                    . '&student_id=' . htmlspecialchars($student_id) 
+                    . '&administer_id=' . htmlspecialchars($row['administer_id']) 
+                    . '" class="take-assessment-link">';
+                echo '<button id="takeAssessment_' . $row['administer_id'] . '" class="main-button">' . htmlspecialchars($button_text) . '</button>';
                 echo '</a>';
                 echo '</div>';
                 echo '</div>';

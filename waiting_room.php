@@ -2,15 +2,15 @@
 include('db_connect.php');
 include('auth.php');
 
-// Check if assessment_id, student_id, and class_id are set in URL
-if (!isset($_GET['assessment_id']) || !isset($_GET['student_id']) || !isset($_GET['class_id'])) {
+// Check if assessment_id, student_id, and administer_id are set in URL
+if (!isset($_GET['assessment_id']) && !isset($_GET['student_id']) && !isset($_GET['administer_id'])) {
     header('location: load_assessments.php');
     exit();
 }
 
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $conn->real_escape_string($_GET['student_id']);
-$class_id = $conn->real_escape_string($_GET['class_id']);
+$administer_id = $conn->real_escape_string($_GET['administer_id']);
 
 // Fetch assessment details
 $assessment_query = $conn->query("
@@ -34,16 +34,14 @@ if ($assessment_query->num_rows > 0) {
 
     // Fetch administer assessment details
     $administer_query = $conn->query("
-        SELECT administer_id, status
+        SELECT status
         FROM administer_assessment
-        WHERE assessment_id = '$assessment_id'
-        AND class_id = '$class_id'
+        WHERE administer_id = '$administer_id'
     ");
 
     // Check if the assessment have an administer record
     if ($administer_query && $administer_query->num_rows > 0) {
         $administer_data = $administer_query->fetch_assoc();
-        $administer_id = $administer_data['administer_id'];
         $status = $administer_data['status'];
 
         // Check if there is a join assessment record
@@ -95,7 +93,7 @@ if ($assessment_query->num_rows > 0) {
                 }
 
                 // Redirect to the correct assessment page
-                header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id) . "&class_id=" . urlencode($class_id));
+                header("Location: $redirect_url?assessment_id=" . urlencode($assessment_id) . "&administer_id=" . urlencode($administer_id));
                 exit();
             }
         }
@@ -502,10 +500,9 @@ if ($assessment_query->num_rows > 0) {
     </div>
     <script>
         function check_status() {
-            const assessmentId = "<?php echo $assessment_id; ?>"; 
-            const classId = "<?php echo $class_id; ?>";
+            const administerId = "<?php echo $administer_id; ?>"; 
 
-            fetch(`check_status.php?assessment_id=${assessmentId}&class_id=${classId}`)
+            fetch(`check_status.php?administer_id=${administerId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
