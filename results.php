@@ -64,6 +64,17 @@
 
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
+                        // Apply search condition
+                        $search_condition = "";
+                        if (!empty($query)) {
+                            $search_query = $conn->real_escape_string($query);
+                            $search_condition = "AND (
+                                a.assessment_name LIKE '%$search_query%' 
+                                OR a.topic LIKE '%$search_query%' 
+                                OR c.subject LIKE '%$search_query%'
+                            )";
+                        }
+                
                         echo '<div class="content-separator">';
                         echo '<span class="content-name">' . htmlspecialchars($class['class_name']) . ' (' . htmlspecialchars($class['subject']) . ')</span>';
                         echo '<hr class="separator-line">';
@@ -75,6 +86,7 @@
                             FROM assessment a
                             JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                             WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1
+                            $search_condition
                         ");
 
                         $quizzes = [];
@@ -135,6 +147,17 @@
 
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
+                        // Apply search condition
+                        $search_condition = "";
+                        if (!empty($query)) {
+                            $search_query = $conn->real_escape_string($query);
+                            $search_condition = "AND (
+                                a.assessment_name LIKE '%$search_query%' 
+                                OR a.topic LIKE '%$search_query%' 
+                                OR c.subject LIKE '%$search_query%'
+                            )";
+                        }
+
                         echo '<div class="content-separator">';
                         echo '<span class="content-name">' . htmlspecialchars($class['class_name']) . ' (' . htmlspecialchars($class['subject']) . ')</span>';
                         echo '<hr class="separator-line">';
@@ -146,6 +169,7 @@
                             FROM assessment a
                             JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                             WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 2
+                            $search_condition
                         ");
 
                         $exams = [];
@@ -333,52 +357,74 @@
             });
 
             //Search Functionality
-            /*function initializeSearch() {
+            function initializeSearch() {
                 const searchInput = $('.search-bar input[name="query"]');
                 
                 // Input event listener
                 searchInput.on('input', function() {
-                    const query = $(this).val().trim();
+                    const query = $(this).val().trim().toLowerCase(); // Convert to lowercase for case-insensitive search
                     const activeTab = $('.tab-link.active').data('tab');
-                    const searchType = activeTab === 'quizzes-tab' ? 'quizzes' : 'exams';
                     
-                    // If search is empty, reload all items
-                    if (query === '') {
-                        $.get('search_results.php', {
-                            query: '',
-                            type: searchType
-                        }, function(response) {
-                            if (searchType === 'quizzes') {
-                                $('#quizzes-tab .assessments-container').html(response);
-                            } else {
-                                $('#exams-tab .assessments-container').html(response);
-                            }
-                        });
-                        return;
+                    // Filter the content based on the active tab
+                    if (activeTab === 'quizzes-tab') {
+                        filterAssessments('#quizzes-tab .assessment-card', query);
+                    } else if (activeTab === 'exams-tab') {
+                        filterAssessments('#exams-tab .assessment-card', query);
                     }
-                    
-                    // Perform search
-                    $.get('search_results.php', {
-                        query: query,
-                        type: searchType
-                    }, function(response) {
-                        if (searchType === 'quizzes') {
-                            $('#quizzes-tab .assessments-container').html(response);
-                        } else {
-                            $('#exams-tab .assessments-container').html(response);
-                        }
-                    });
                 });
-                
+
                 // Handle search form submission
                 $('.search-bar').submit(function(e) {
                     e.preventDefault();
                 });
             }
 
+            // Function to filter the assessments
+            function filterAssessments(selector, query) {
+                let hasMatches = false;
+
+                $(selector).each(function() {
+                    const title = $(this).find('.assessment-card-title').text().toLowerCase();
+                    const topic = $(this).find('.assessment-card-topic').text().toLowerCase();
+                    
+                    // Show or hide based on the search query match
+                    if (title.includes(query) || topic.includes(query)) {
+                        $(this).show();
+                        hasMatches = true;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                const noResultsMessage = '<div class="no-records no-result">No results found</div>';
+
+                if (!hasMatches) {
+                    if (query !== '') {
+                        if ($('#quizzes-tab').hasClass('active')) {
+                            $('#quizzes-tab .content-separator').each(function() {
+                                if ($(this).next('.assessment-card').length === 0 && $(this).next('.no-records').length === 0)  {
+                                    $(this).after(noResultsMessage);
+                                }
+                            });
+                        } else if ($('#exams-tab').hasClass('active')) {
+                            $('#exams-tab .content-separator').each(function() {
+                                if ($(this).next('.assessment-card').length === 0 && $(this).next('.no-records').length === 0) {
+                                    $(this).after(noResultsMessage);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    // Remove "No results found" message if matches are found
+                    $('.no-result').remove();
+                }
+            }
+
+            // Initialize search on page load
             $(document).ready(function() {
                 initializeSearch();
-                
+
+                // Reset search when switching tabs
                 $('.tab-link').click(function() {
                     $('.tab-link').removeClass('active');
                     $(this).addClass('active');
@@ -386,7 +432,7 @@
                     $('.search-bar input[name="query"]').val('');
                     $('.search-bar input[name="query"]').trigger('input');
                 });
-            });*/
+            });
         });
     </script>
 </body>
