@@ -153,10 +153,10 @@ $time_limit = $assessment['time_limit'];
             <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
             
             <form id="quiz-form" action="submit_assessment.php" method="POST">
-                <!-- Header with submit button and timer -->
+                <!-- Header with submit button and timer showPopup('confirmation-popup') onclick="submit()" -->
                 <div class="header-container">
                     <p>Time Left: <span id="timer" class="timer">Loading...</span></p>
-                    <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
+                    <button type="button" id="submit" class="secondary-button">Submit</button>
                 </div>
 
                 <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
@@ -311,6 +311,28 @@ $time_limit = $assessment['time_limit'];
             isSubmitting = false;
         }
 
+        document.getElementById('submit').addEventListener('click', function() {
+            // Check if all questions are answered
+            const allAnswered = checkAllAnswered();
+
+            if (allAnswered === 1) {
+                showPopup('confirmation-popup');
+            } else {
+                Swal.fire({
+                    title: 'You cannot submit yet!',
+                    text: 'Please answer all questions first.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                });
+            }
+        });
+        
+
         // FORM SUBMISSION HANDLING
         function handleSubmit(event) {
             if (event) {
@@ -349,6 +371,115 @@ $time_limit = $assessment['time_limit'];
             closePopup('timer-runout-popup');
             closePopup('confirmation-popup');
         }
+
+        // UNANSWERED ITEMS HANDLING
+        // Select all question containers
+        const questions = document.querySelectorAll('.question');
+        const navContainer = document.createElement('div');
+        navContainer.id = 'question-nav-container';
+        document.body.appendChild(navContainer);
+        let currentStartIndex = 0;
+        const maxVisibleBoxes = 10;
+        let seenQuestions = new Set();
+        let unansweredQuestions = new Set();
+
+        // Function to update navigation boxes (show all questions with different styles for answered and unanswered)
+        function updateNavBoxes() {
+            // Clear existing boxes 
+            document.querySelectorAll('.question-nav-box').forEach(box => box.remove());
+
+            // Create navigation boxes for all questions (answered or unanswered)
+            questions.forEach((question, index) => {
+                const navBox = document.createElement('div');
+                navBox.className = 'question-nav-box';
+                navBox.textContent = index + 1;
+                navBox.dataset.index = index;
+
+                // Check if the question is answered
+                if (!isQuestionAnswered(question)) {
+                    navBox.classList.add('unanswered'); // Add 'unanswered' class if not answered
+                }
+
+                // Scroll to the question when clicked
+                navBox.onclick = () => {
+                    question.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'end',
+                    });
+                };
+
+                // Append the nav box to the container
+                navContainer.appendChild(navBox);
+            });
+        }
+
+        // Function to check if all questions are answered
+        function checkAllAnswered() {
+            let allAnswered = true;
+
+            // Check each question to see if it's answered
+            questions.forEach((question) => {
+                if (!isQuestionAnswered(question)) {
+                    allAnswered = false;
+                }
+            });
+
+            if (allAnswered) {
+                console.log("All questions have been answered!");
+                return 1;
+            } else {
+                console.log("Some questions are still unanswered.");
+                return 0;
+            }
+        }
+
+        // Function to check if a question is answered
+        function isQuestionAnswered(question) {
+            const radios = question.querySelectorAll('input[type="radio"]');
+            const checkboxes = question.querySelectorAll('input[type="checkbox"]');
+            const textInput = question.querySelector('input[type="text"]');
+            const isRadioAnswered = radios.length > 0 && Array.from(radios).some(radio => radio.checked);
+            const isCheckboxAnswered = checkboxes.length > 0 && Array.from(checkboxes).some(checkbox => checkbox.checked);
+            const isTextAnswered = textInput && textInput.value.trim() !== '';
+            return isRadioAnswered || isCheckboxAnswered || isTextAnswered;
+        }
+
+        // IntersectionObserver to track seen questions (for lazy loading and marking questions as seen)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const index = Array.from(questions).indexOf(entry.target);
+                if (entry.isIntersecting) {
+                    seenQuestions.add(index);
+                    // Update the unanswered questions set
+                    if (!isQuestionAnswered(entry.target)) {
+                        unansweredQuestions.add(index);
+                    } else {
+                        unansweredQuestions.delete(index);
+                    }
+                    updateNavBoxes();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        // Observe all questions
+        questions.forEach(question => observer.observe(question));
+
+        // Listen for input changes to update answered state
+        document.getElementById('quiz-form').addEventListener('input', () => {
+            questions.forEach((question, index) => {
+                if (seenQuestions.has(index)) {
+                    if (isQuestionAnswered(question)) {
+                        unansweredQuestions.delete(index);
+                    } else {
+                        unansweredQuestions.add(index);
+                    }
+                }
+            });
+            updateNavBoxes();
+        });
+
+        // Initial rendering of the navigation boxes
+        updateNavBoxes();
 
         // SUSPICIOUS ACTIVITIES HANDLING
         // Warning system
@@ -592,14 +723,6 @@ $time_limit = $assessment['time_limit'];
                 return false;
             }
         }, true);
-
-        // Detect potential screenshot/ app switching based on visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-                flashScreen();
-                handleWarning('App Switching / Screenshot');
-            }
-        });
 
         // Event listeners for various capture methods
         window.addEventListener('beforeprint', (e) => {

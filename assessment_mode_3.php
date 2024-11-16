@@ -694,15 +694,6 @@ while ($question = $questions_query->fetch_assoc()) {
             }
         }, true);
 
-        // Detect potential screenshot/ app switching based on visibility change
-        document.addEventListener('visibilitychange', () => {
-            
-            if (document.visibilityState === 'hidden') {
-                flashScreen();
-                handleWarning('App Switching / Screenshot');
-            }
-        });
-
         // Initialize timer and set up event listeners
         window.onload = function () {
             showQuestion(currentQuestionIndex); // Show the first question
