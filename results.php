@@ -43,8 +43,8 @@
         <!-- Tabs -->
         <div class="tabs-container">
             <ul class="tabs">
-                <li class="tab-link active" data-tab="quizzes-tab">Quizzes</li>
-                <li class="tab-link" data-tab="exams-tab">Exams</li>
+                <li class="tab-link <?php echo isset($_GET['tab']) ? '' : 'active'; ?>" data-tab="quizzes-tab">Quizzes</li>
+                <li class="tab-link <?php echo (isset($_GET['tab']) && $_GET['tab'] == 'exams') ? 'active' : ''; ?>" data-tab="exams-tab">Exams</li>
             </ul>
         </div>
 
@@ -226,6 +226,21 @@
                 $(this).addClass('active');
                 $("#" + tab_id).addClass('active');
             });
+
+            // On page load, check URL parameter for the active tab
+            var urlParams = new URLSearchParams(window.location.search);
+            var activeTab = urlParams.get('tab'); // Get the tab parameter from the URL
+
+            if (activeTab) {
+                // If there's a 'tab' parameter, set the exams tab and content to active
+                $('.tab-link').removeClass('active');
+                $('.tab-content').removeClass('active');
+
+                if (activeTab === 'exams') {
+                    $('.tab-link[data-tab="exams-tab"]').addClass('active');
+                    $('#exams-tab').addClass('active');
+                }
+            }
 
             // Format date function
             function formatDate(dateString) {

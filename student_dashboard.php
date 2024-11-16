@@ -50,7 +50,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <h2> Summary </h2>
                 <div class="cards">
                     <!-- Total Number of Classes -->
-                    <div class="card" style="background-color: #FFE2E5;">
+                    <div class="card" style="background-color: #FFE2E5; cursor: pointer;" onclick="window.location.href='enroll.php';">
                         <img class="icons" src="image/DashboardCoursesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses 
@@ -67,7 +67,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                     <!-- Total Number of Quizzes -->
-                    <div class="card" style="background-color: #FADEFF"> 
+                    <div class="card" style="background-color: #FADEFF; cursor: pointer;" onclick="window.location.href='results.php';">
                         <img class="icons" src="image/DashboardClassesIcon.png" alt="Quizzes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalQuizzes 
@@ -85,7 +85,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                     <!-- Total Number of Exams -->
-                    <div class="card" style="background-color: #DCE1FC;"> 
+                    <div class="card" style="background-color: #DCE1FC; cursor: pointer;" onclick="window.location.href='results.php?tab=exams';">
                         <img class="icons" src="image/DashboardExamsIcon.png" alt="Exams Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalExams
