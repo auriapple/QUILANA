@@ -150,7 +150,7 @@
             border-right: 1px solid rgba(59, 39, 110, 0.80);
             justify-content: center;
             padding: 12px;
-            color:#4a4a4a;
+            color: #4a4a4a;
         }
 
         .table-wrapper td:last-child,
@@ -215,7 +215,7 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 15px;
+            padding: 25px 15px 15px;
             background-color: #6e72c1dd;
             font-size: 14px;
             color: #fff;
