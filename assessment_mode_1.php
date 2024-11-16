@@ -38,23 +38,36 @@ if ($administer_query->num_rows>0) {
     if ($join_query->num_rows==0){
         // Insert the join details with the status of 1 (answering)
         $insert_join_query = $conn->query("
-            INSERT INTO join_assessment (student_id, administer_id, status)
-            VALUES ('$student_id', '$administer_id', 1)
+            INSERT INTO join_assessment (student_id, administer_id, status, attempts)
+            VALUES ('$student_id', '$administer_id', 1, 1)
         ");
+
+        $attempts = 1;
+
         if (!$insert_join_query) {
             echo "Error inserting record: " . $conn->error;
         }
     } else {
-        // Update the join_assessment status to 1 (answering)
-        $update_join_query = $conn->query("
-            UPDATE join_assessment 
-            SET status = 1
-            WHERE administer_id = '$administer_id' 
-            AND student_id = '$student_id'
-        ");
-            
-        if (!$update_join_query) {
-            echo "Error updating record: " . $conn->error;
+        $join_details = $join_query->fetch_assoc();
+        
+        if ($join_details['attempts'] < 3) {
+            // Update the join_assessment status to 1 (answering)
+            $update_join_query = $conn->query("
+                UPDATE join_assessment 
+                SET 
+                    status = 1,
+                    attempts = attempts + 1
+                WHERE administer_id = '$administer_id' 
+                AND student_id = '$student_id'
+            ");
+
+            $attempts = $join_details['attempts'] + 1;
+
+            if (!$update_join_query) {
+                echo "Error updating record: " . $conn->error;
+            }
+        } else {
+            $attempts = $join_details['attempts'] + 1;
         }
     }
 }
@@ -229,6 +242,62 @@ $time_limit = $assessment['time_limit'];
         let winKeyPressed = false;
         let ctrlKeyPressed = false;
         let warningTracker = false;
+
+        // Handle number of attempts warning
+        var attempts = <?php echo $attempts; ?>;
+
+        if (attempts > 3) {
+            Swal.fire({
+                title: 'Maximum Attempts Reached!',
+                text: 'You have already reached the maximum number of attempts for this assessment.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleSubmit();
+                }
+            });
+        } else if (attempts === 3) {
+            Swal.fire({
+                title: 'This is your last attempt!',
+                text: 'This is your final chance to answer this assessment. You can no longer answer this assessment after this attempt.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            });
+        } else {
+            var attemptText = '';
+            var attemptTitle = '';
+
+            if (attempts === 1) {
+                attemptTitle = 'First Attempt';
+                attemptText = 'You are about to make your first attempt. Remember, you can only attempt to answer this assessment 3 times.';
+            } else if (attempts === 2) {
+                attemptTitle = 'Second Attempt';
+                attemptText = 'This is your second attempt. You have one more chance to answer this assessment.';
+            }
+
+            Swal.fire({
+                title: attemptTitle,
+                text: attemptText,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            });
+        }
 
         // POPUP HANDLING
         function showPopup(popupId) {
