@@ -204,7 +204,7 @@
                         <input type="hidden" name="class_id" />
                         <input type="hidden" name="faculty_id" value="<?php echo $_SESSION['login_id']; ?>" />
                         <div class="form-group">
-                            <label>Section</label>
+                            <label>Class Name</label>
                             <input type="text" name="class_name" required="required" placeholder="Course, Year, and Section (ex. BSIT 1-1)" class="popup-input" />
                         </div>
                         <div class="form-group">
