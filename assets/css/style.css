@@ -670,7 +670,8 @@ body {
 [id^=viewResult_],
 [id^=viewClassDetails_],
 [id^=takeAssessment_],
-#viewClassDetails {
+#viewClassDetails,
+#viewResult {
     width: calc(100% - 40px);
     border-radius: 5px;
     padding: 12px 30px;

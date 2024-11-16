@@ -49,7 +49,7 @@ if (isset($_GET['query']) && isset($_GET['student_id'])) {
                 <div class="class-card-title"><?php echo $row['subject'] ?></div>
                 <div class="class-card-text">Section: <?php echo $row['class_name'] ?> <br>Professor: <?php echo $row['firstname'] . ' ' . $row['lastname'] ?></div>
                 <div class="class-actions">
-                    <button id="viewClassDetails_<?php echo $row['class_id']; ?>" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
+                    <button id="viewClassDetails" class="main-button" data-id="<?php echo $row['class_id'] ?>" type="button">View Class</button>
                 </div>
             </div>
             <?php

@@ -112,7 +112,7 @@
                                     echo '<div class="assessment-card">';
                                     echo '<div class="assessment-card-title">' . htmlspecialchars($quiz['assessment_name']) . '</div>';
                                     echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
-                                    echo '<button id="viewResult_' . $quiz['administer_id'] . '" class="main-button" data-assessment-id="' . $quiz['assessment_id'] . '" data-administer-id="' . $quiz['administer_id'] . '" type="button">View Result</button>';
+                                    echo '<button id="viewResult" class="main-button" data-assessment-id="' . $quiz['assessment_id'] . '" data-administer-id="' . $quiz['administer_id'] . '" type="button">View Result</button>';
                                     echo '</div>';
                                 }
                             }
@@ -194,7 +194,7 @@
                                     echo '<div class="assessment-card">';
                                     echo '<div class="assessment-card-title">' . htmlspecialchars($exam['assessment_name']) . '</div>';
                                     echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($exam['topic']) . '</div>';
-                                    echo '<button id="viewResult_' . $exam['assessment_id'] . '" class="main-button" data-assessment-id="' . $exam['assessment_id'] . '" data-administer-id="' . $exam['administer_id'] . '" type="button">View Result</button>';
+                                    echo '<button id="viewResult" class="main-button" data-assessment-id="' . $exam['assessment_id'] . '" data-administer-id="' . $exam['administer_id'] . '" type="button">View Result</button>';
                                     echo '</div>';
                                 }
                             }
@@ -260,7 +260,8 @@
             }
             
             // View assessment results
-            $('[id^=viewResult_]').click(function() {
+            //$('viewResult').click(function() {
+            $(document).on('click', '#viewResult', function() {
                 var assessment_id = $(this).data('assessment-id');
                 var administer_id = $(this).data('administer-id');
 
