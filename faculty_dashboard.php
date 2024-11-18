@@ -229,30 +229,35 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="assessment-dropdown">Assessment</label>
-                            <select id="assessment-dropdown" required>
-                                <option value="" disabled selected>Select Assessment</option>
+                            <label for="classes-dropdown">Classes</label>
+                            <select id="classes-dropdown" required>
+                                <option value="" disabled selected>Select Class</option>
                                 <?php
-                                // Fetch all available assessments
-                                $assessment_qry = $conn->query("
+                                // Fetch all available classes
+                                $classes_qry = $conn->query("
                                     SELECT * 
-                                    FROM assessment 
+                                    FROM class 
                                     WHERE faculty_id = '".$_SESSION['login_id']."'
+                                    ORDER BY course_id
                                 ");
 
-                                // Add available assessments in the options
-                                while($assessment_row = $assessment_qry->fetch_assoc()) {
-                                    echo "<option value='".$assessment_row['assessment_id']."'>". htmlspecialchars($assessment_row['assessment_name']) . " (" . htmlspecialchars($assessment_row['subject']) . ")</option>";
+                                // Add available classes in the options
+                                while ($classes_row = $classes_qry->fetch_assoc()) {
+                                    echo "<option value='".$classes_row['class_id']."' 
+                                        data-course-id='".$classes_row['course_id']."' 
+                                        data-subject='".htmlspecialchars($classes_row['subject'])."'>
+                                        ". htmlspecialchars($classes_row['class_name']) . " (" . htmlspecialchars($classes_row['subject']) . ")
+                                    </option>";
                                 }
                                 ?>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="class-dropdown">Class</label>
-                            <select name="class" id="class-dropdown" required>
-                                <option value="" disabled selected>Select Class</option>
-                                <!-- Classes will be populated here -->
+                            <label for="assessments-dropdown">Assessments</label>
+                            <select name="assessments" id="assessments-dropdown" required>
+                                <option value="" disabled selected>Select Assessment</option>
+                                <!-- Assessments will be populated here -->
                             </select>
                         </div> 
                     </form>
@@ -404,8 +409,8 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             // Function to clear form fields
             function clearFormFields() {
                 selectedDateInput.value = '';
-                document.getElementById("assessment-dropdown").selectedIndex = 0;
-                document.getElementById("class-dropdown").innerHTML = '<option value="" disabled selected>Select Class</option>';
+                document.getElementById("classes-dropdown").selectedIndex = 0;
+                document.getElementById("assessments-dropdown").innerHTML = '<option value="" disabled selected>Select Assessment</option>';
             }
 
             // Function to close the add schedule popup
@@ -421,19 +426,28 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             }
 
             // Load classes based on selected assessment
-            $('#assessment-dropdown').change(function() {
-                var assessment_id = $(this).val();
-                if (assessment_id) {
+            $('#classes-dropdown').change(function() {
+                var class_id = $(this).val();
+                var subject = $(this).find('option:selected').data('subject');
+                var course_id = $(this).find('option:selected').data('courseId');
+
+                console.log(" " + course_id)
+
+                if (class_id) {
                     $.ajax({
-                        url: 'get_class.php',
+                        url: 'get_assessments.php',
                         method: 'POST',
-                        data: { assessment_id: assessment_id },
+                        data: { 
+                            class_id: class_id,
+                            subject: subject,
+                            course_id: course_id
+                        },
                         success: function(response) {
-                            $('#class-dropdown').html(response); //  classes dropdown
+                            $('#assessments-dropdown').html(response); //  classes dropdown
                         }
                     });
                 } else {
-                    $('#class-dropdown').html('<option value="" disabled>Select Class</option>'); // Clear classes dropdown
+                    $('#assessments-dropdown').html('<option value="" disabled>Select Assessment</option>'); // Clear classes dropdown
                 }
             });
 
@@ -457,13 +471,13 @@ while ($row = $scheduleQuery->fetch_assoc()) {
 
                 // Check if selected date is before today
                 if (selectedDate < today) {
-                    alert('Make sure to pick a date that is either today or in the upcoming days.'); // Show error message
+                    alert('Make sure to pick a date in the upcoming days.'); // Show error message
                     return;
                 }
 
                 // Gather data for the AJAX request
-                const assessmentId = document.getElementById("assessment-dropdown").value;
-                const classId = document.getElementById("class-dropdown").value;
+                const classId = document.getElementById("classes-dropdown").value;
+                const assessmentId = document.getElementById("assessments-dropdown").value;
                 const facultyId = <?php echo $_SESSION['login_id']; ?>;
 
                 console.log("Selected Date:", selectedDateInput.value);
