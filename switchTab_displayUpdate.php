@@ -2,38 +2,53 @@
 include('db_connect.php');
 header('Content-Type: application/json');
 
-// Decode the JSON data sent from JavaScript
 $data = json_decode(file_get_contents('php://input'), true);
 
-// Check for required fields
-if (isset($data['administer_id']) && isset($data['student_id'])) {
-    $administer_id = $conn->real_escape_string($data['administer_id']);
-    $student_id = $conn->real_escape_string($data['student_id']);
-    $if_display = $data['if_display'] ? 1 : 0; // Convert boolean to integer (1 for true, 0 for false)
+if (isset($data['administer_id']) && isset($data['student_id']) && isset($data['if_display'])) {
+    try {
+        $administer_id = $conn->real_escape_string($data['administer_id']);
+        $student_id = $conn->real_escape_string($data['student_id']);
+        $if_display = $data['if_display'] ? 1 : 0;
 
-    $update_query = "
-        UPDATE join_assessment
-        SET if_display = '$if_display'
-        WHERE administer_id = '$administer_id' AND student_id = '$student_id'
-    ";
+        $stmt = $conn->prepare("
+            UPDATE join_assessment
+            SET if_display = ?
+            WHERE administer_id = ? AND student_id = ?
+        ");
 
-    // Execute the update query
-    if ($conn->query($update_query) === TRUE) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'message' => $conn->error]);
+        if (!$stmt) {
+            throw new Exception("Failed to prepare statement: " . $conn->error);
+        }
+
+        $stmt->bind_param("iii", $if_display, $administer_id, $student_id);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to execute update: " . $stmt->error);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Display status updated successfully'
+        ]);
+
+        $stmt->close();
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
     }
 } else {
-    // Log which fields were missing for further insight
     $missingFields = [];
     if (!isset($data['administer_id'])) $missingFields[] = 'administer_id';
     if (!isset($data['student_id'])) $missingFields[] = 'student_id';
     if (!isset($data['if_display'])) $missingFields[] = 'if_display';
-    error_log("Missing fields: " . implode(', ', $missingFields));
     
-    echo json_encode(['success' => false, 'message' => 'Missing required fields: ' . implode(', ', $missingFields)]);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing required fields: ' . implode(', ', $missingFields)
+    ]);
 }
 
-// Close the database connection
 $conn->close();
 ?>

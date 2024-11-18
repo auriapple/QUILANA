@@ -258,6 +258,40 @@
             color: #999;
         }
 
+        .table-wrapper th, 
+    .table-wrapper td {
+        width: calc(100% / 6);
+        min-width: 93px;
+    }
+
+    /* Make suspicious activities and actions columns a bit narrower */
+    .table-wrapper th:nth-child(3), 
+    .table-wrapper td:nth-child(3),
+    .table-wrapper th:nth-child(4), 
+    .table-wrapper td:nth-child(4) {
+        width: calc(100% / 8);
+        min-width: 80px;
+    }
+
+    .decrease-btn {
+        padding: 5px 10px;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .decrease-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .decrease-btn:hover:not(:disabled) {
+        background-color: #ff5252;
+    }
+
         @media screen and (max-width: 1020px) {
             .main-container .table-wrapper {
                 margin: 10px 0;
@@ -397,6 +431,7 @@
                                     <th class="studentNumber-column">Student Number</th>
                                     <th>Student Name</th>
                                     <th>Number of Suspicious Activities</th>
+                                    <th>Action</th>
                                     <th class="status-column">Status</th>
                                     <th>Score</th>
                                 </tr>
@@ -457,6 +492,20 @@
                             <td>${item.suspicious_act}</td>
                         `;
 
+                        // Add decrease suspicious acts button
+                        const isDisabled = parseInt(item.suspicious_act) === 0;
+                        row.innerHTML += `
+                            <td>
+                                <button 
+                                    class="decrease-btn" 
+                                    onclick="decreaseSuspiciousActs('${item.student_id}')"
+                                    ${parseInt(item.suspicious_act) === 0 ? 'disabled' : ''}
+                                >
+                                    Decrease
+                                </button>
+                            </td>
+                        `;
+
                         // Conditionally add a <div> based on the status value
                         if (parseInt(item.status) === 0) {
                             row.innerHTML += '<td class="status-column"> <div class="joined">Joined</div>  </td>';
@@ -474,7 +523,6 @@
                         } else {
                             row.innerHTML += '<td>N/A</td>';
                         }
-                            
 
                         tbody.appendChild(row);
                         // Update row count
@@ -493,6 +541,58 @@
                 }
             })
             .catch(error => console.error('Error:', error));
+        }
+
+        // function to handle decreasing suspicious acts
+        function decreaseSuspiciousActs(studentId) {
+            const administerId = document.getElementById('administerId-container').value;
+            
+            fetch('decrease_suspicious_acts.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    administer_id: administerId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateTable();
+                    
+                    fetch('switchTab_displayUpdate.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            student_id: studentId,
+                            administer_id: administerId,
+                            if_display: false
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(displayData => {
+                        if (displayData.success) {
+                            updateNotifs();
+                        } else {
+                            console.error('Failed to update display status:', displayData.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating display status:', error);
+                    });
+                } else {
+                    console.error('Failed to decrease suspicious activities:', data.message);
+                    alert('Failed to decrease suspicious activities: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating suspicious activities');
+            });
         }
 
         // Set interval to check for updates every 3 seconds
