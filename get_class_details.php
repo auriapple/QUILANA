@@ -67,7 +67,7 @@ if (isset($_GET['class_id'])) {
     <ul class="tabs">
         <li class="tab-link active" onclick="openTab(event, 'Assessments')">Assessments</li>
         <li class="tab-link" onclick="openTab(event, 'Students')">Students</li>
-        <li class="tab-link" id="studentScoresTab" style="display: none;" onclick="openTab(event, 'StudentScores')">Scores</li>
+        <li class="tab-link" id="studentScoresTab" style="display: none;" onclick="openTab(event, 'StudentScores')"></li>
     </ul>
 </div>
 
@@ -112,7 +112,6 @@ if (isset($_GET['class_id'])) {
 <!-- Tab content for Student Scores -->
 <div id="StudentScores" class="tabcontent" style="display: none;">
     <div class="table-wrapper">
-        <h6 id="studentScoresTitle"></h6>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -327,7 +326,7 @@ if (isset($_GET['class_id'])) {
             .then(response => response.json())
             .then(data => {
                 const scoresContainer = document.getElementById('StudentScores');
-                const scoresTitle = document.getElementById('studentScoresTitle');
+                const scoresTitle = document.getElementById('studentScoresTab');
                 const scoresBody = document.getElementById('studentScoresBody');
                 
                 scoresTitle.textContent = ` ${studentName}`;
