@@ -116,13 +116,13 @@
                                     echo '</div>';
                                 }
                             }
-                            echo '</div>';
-                        
+
                             // If no quizzes have results yet
                             if (!$has_results) {
                                 echo '<div class="no-records">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                             }
 
+                            echo '</div>';
                         // If there are no quizzes at all    
                         } else {
                             echo '<div class="no-records">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
@@ -198,17 +198,19 @@
                                     echo '</div>';
                                 }
                             }
-                            echo '</div>';
 
                             if (!$has_results) {
                                 echo '<div class="no-records">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                             } 
+
+                            echo '</div>';
+                        // If there are no exams at all 
                         } else {
                             echo '<div class="no-records">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         }
                     }
                 } else {
-                echo '<div class="no-records">No exams yet</div>';
+                    echo '<div class="no-records">No exams yet</div>';
                 }
                 ?>
                 </div>
@@ -228,8 +230,10 @@
             });
 
             // On page load, check URL parameter for the active tab
-            var urlParams = new URLSearchParams(window.location.search);
-            var activeTab = urlParams.get('tab'); // Get the tab parameter from the URL
+            var params = new URLSearchParams(window.location.search);
+            var assessmentId = params.get('assessment_id');
+            var administerId = params.get('administer_id');
+            var activeTab = params.get('tab');
 
             if (activeTab) {
                 // If there's a 'tab' parameter, set the exams tab and content to active
@@ -240,6 +244,13 @@
                     $('.tab-link[data-tab="exams-tab"]').addClass('active');
                     $('#exams-tab').addClass('active');
                 }
+            }
+
+            if (assessmentId && administerId) {
+                var newUrl = window.location.href.split('?')[0]; // Removes url parameters
+                window.history.replaceState({}, document.title, newUrl);
+
+                loadAssessmentResults(assessmentId, administerId);
             }
 
             // Format date function
@@ -260,113 +271,117 @@
             }
             
             // View assessment results
-            //$('viewResult').click(function() {
             $(document).on('click', '#viewResult', function() {
-                var assessment_id = $(this).data('assessment-id');
-                var administer_id = $(this).data('administer-id');
+                var assessmentId = $(this).data('assessment-id');
+                var administerId = $(this).data('administer-id');
 
+                loadAssessmentResults(assessmentId, administerId);
+            });
+
+            // Function to load assessment results
+            function loadAssessmentResults(assessmentId, administerId) {
                 $.ajax({
                     type: 'GET',
                     url: 'load_results.php',
-                    data: { 
-                        assessment_id: assessment_id,
-                        administer_id: administer_id,
+                    data: {
+                        assessment_id: assessmentId,
+                        administer_id: administerId
                     },
                     dataType: 'json',
                     success: function(result) {
-                    if (result.title && result.topic) {
-                        $('#assessment-title').text(result.title);
-                        if(result.mode) {
-                            $('#assessment-title').html(result.title + '<br>' + result.mode);
-                        }
-                        $('#assessment-topic').text(result.topic);
-                        
-                        // Clear previous details
-                        $('#assessment-details thead').empty();
-                        $('#assessment-details tbody').empty();
-                        
-                        if (Array.isArray(result.details) && result.details.length > 0) {
-                            // Check if assessment_mode is 1
-                            if (result.assessment_mode == 1) {
-                                $('#assessment-details thead').append(
-                                    `<tr>
-                                        <th>Date</th>
-                                        <th>Score</th>
-                                        <th>Remarks</th>
-                                    </tr>`
-                                );
-                                
-                                // Add details to table
-                                result.details.forEach(function(item) {
-                                    $('#assessment-details tbody').append(
-                                        `<tr>
-                                            <td>${formatDate(item.date)}</td>
-                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
-                                            <td>${item.remarks}</td>
-                                        </tr>`
-                                    );
-                                });
-                                
-                            } else if (result.assessment_mode == 2) {
-                                // Add rank column
-                                $('#assessment-details thead').append(
-                                    `<tr>
-                                        <th>Date</th>
-                                        <th>Score</th>
-                                        <th>Rank</th>
-                                        <th>Remarks</th>
-                                    </tr>`  
-                                );
-                                
-                                // Add details to table
-                                result.details.forEach(function(item) {
-                                    $('#assessment-details tbody').append(
-                                        `<tr>
-                                            <td>${formatDate(item.date)}</td>
-                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
-                                            <td>${item.rank}</td>
-                                            <td>${item.remarks}</td>
-                                        </tr>`
-                                    );
-                                });
-                            } else {
-                                // Add rank column and remove remarks column
-                                $('#assessment-details thead').append(
-                                    `<tr>
-                                        <th>Date</th>
-                                        <th>Score</th>
-                                        <th>Rank</th>
-                                    </tr>`
-                                );
-                                
-                                // Add details to table
-                                result.details.forEach(function(item) {
-                                    $('#assessment-details tbody').append(
-                                        `<tr>
-                                            <td>${formatDate(item.date)}</td>
-                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
-                                            <td>${item.rank}</td>
-                                        </tr>`
-                                    );
-                                });
+                        if (result.title && result.topic) {
+                            $('#assessment-title').text(result.title);
+                            if(result.mode) {
+                                $('#assessment-title').html(result.title + '<br>' + result.mode);
                             }
-                        } else {
-                            // Show message if no results found
-                            $('#assessment-details tbody').append(
-                                '<tr>' +
-                                '<td colspan="4" style="text-align: center;">No results found for this assessment</td>' +
-                                '</tr>'
-                            );
-                        }
+                            $('#assessment-topic').text(result.topic);
+                                
+                            // Clear previous details
+                            $('#assessment-details thead').empty();
+                            $('#assessment-details tbody').empty();
+                                
+                            if (Array.isArray(result.details) && result.details.length > 0) {
+                                // Populate the table based on result details
+                                populateResultDetails(result);
+                            } else {
+                                // Show message if no results found
+                                $('#assessment-details tbody').append(
+                                    '<tr>' +
+                                    '<td colspan="4" style="text-align: center;">No results found for this assessment</td>' +
+                                    '</tr>'
+                                );
+                            }
 
-                        // Show result popup
-                        showPopup('assessment-popup');
-                    } else {
-                        alert('Assessment details not found.');
+                            // Show the result popup
+                            showPopup('assessment-popup');
+                        } else {
+                            alert('Assessment details not found.');
+                        }
                     }
-                }
                 });
-            });
+            }
+
+            // Function to populate result
+            function populateResultDetails(result) {
+                if (result.assessment_mode == 1) {
+                    $('#assessment-details thead').append(
+                        `<tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Remarks</th>
+                        </tr>`
+                    );
+                        
+                    result.details.forEach(function(item) {
+                        $('#assessment-details tbody').append(
+                            `<tr>
+                                <td>${formatDate(item.date)}</td>
+                                <td>${item.score}/${item.total_score}</td>
+                                <td>${item.remarks}</td>
+                            </tr>`
+                        );
+                    });
+                } else if (result.assessment_mode == 2) {
+                    $('#assessment-details thead').append(
+                        `<tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Rank</th>
+                            <th>Remarks</th>
+                        </tr>`
+                    );
+                        
+                    result.details.forEach(function(item) {
+                        $('#assessment-details tbody').append(
+                            `<tr>
+                                <td>${formatDate(item.date)}</td>
+                                <td>${item.score}/${item.total_score}</td>
+                                <td>${item.rank}</td>
+                                <td>${item.remarks}</td>
+                            </tr>`
+                        );
+                    });
+                } else {
+                    $('#assessment-details thead').append(
+                        `<tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Rank</th>
+                        </tr>`
+                    );
+                        
+                    result.details.forEach(function(item) {
+                        $('#assessment-details tbody').append(
+                            `<tr>
+                                <td>${formatDate(item.date)}</td>
+                                <td>${item.score}/${item.total_score}</td>
+                                <td>${item.rank}</td>
+                            </tr>`
+                        );
+                    });
+                }
+            }
+
             // Close the join class popup when close button is clicked
             $('.popup-close').on('click', function() {
                 closePopup('assessment-popup');
@@ -417,15 +432,16 @@
                 if (!hasMatches) {
                     if (query !== '') {
                         if ($('#quizzes-tab').hasClass('active')) {
-                            $('#quizzes-tab .content-separator').each(function() {
-                                if ($(this).next('.assessment-card').length === 0 && $(this).next('.no-records').length === 0)  {
-                                    $(this).after(noResultsMessage);
+                            $('#quizzes-tab .quizzes-container').each(function() {
+                                // Check if there are no assessment cards or no-records inside the quizzes container
+                                if ($(this).next('.assessment-card').length === 0 && $(this).find('.no-records').length === 0) {
+                                    $(this).append(noResultsMessage); // Append inside the quizzes container
                                 }
                             });
                         } else if ($('#exams-tab').hasClass('active')) {
-                            $('#exams-tab .content-separator').each(function() {
-                                if ($(this).next('.assessment-card').length === 0 && $(this).next('.no-records').length === 0) {
-                                    $(this).after(noResultsMessage);
+                            $('#exams-tab .exams-container').each(function() {
+                                if ($(this).next('.assessment-card').length === 0 && $(this).find('.no-records').length === 0) {
+                                    $(this).append(noResultsMessage);
                                 }
                             });
                         }

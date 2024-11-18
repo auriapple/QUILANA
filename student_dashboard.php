@@ -111,7 +111,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="recent-scrollable">
                     <?php
                     $result = $conn->query("
-                        SELECT a.assessment_name, a.assessment_type, c.class_name, c.subject, ss.date_taken
+                        SELECT a.assessment_name, a.assessment_id, a.assessment_type, c.class_name, c.subject, ss.date_taken, aa.administer_id
                         FROM student_results sr
                         JOIN student_submission ss ON sr.submission_id = ss.submission_id
                         JOIN assessment a ON sr.assessment_id = a.assessment_id
@@ -145,8 +145,8 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                             $icon = ($assessmentType == 1) ? 'DashboardClassesIcon.png' : 'DashboardExamsIcon.png';
 
                             // Display the card with proper icon and background color
-                            echo "<div id='recents' class='cards'>";
-                                echo "<div id='recent-card' class='card' style='background-color: {$bgColor};'>";   
+                            echo "<div id='recents' class='cards' onclick='redirectToResults({$assessmentType}, {$row['assessment_id']}, {$row['administer_id']});'>";
+                                echo "<div id='recent-card' class='card' style='background-color: {$bgColor}; cursor: pointer;'>";   
                                     echo "<img class='icons' src='image/{$icon}' alt='" . (($assessmentType == 1) ? 'Quiz' : 'Exam') . " Icon'>";
                                     echo "<div id='recent-details' class='card-data'>";
                                         echo "<h3>{$assessmentName}</h3>";
@@ -277,5 +277,22 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 </div>
             </div>
         </div>
+        <script>
+            function redirectToResults(assessmentType, assessmentId, administerId) {
+                var url = 'results.php';
+                var params = [];
+
+                if (assessmentType == 2) {
+                    params.push('tab=exams');
+                }
+
+                params.push('assessment_id=' + assessmentId);
+                params.push('administer_id=' + administerId);
+
+                url += '?' + params.join('&');
+
+                window.location.href = url;
+            }
+        </script>
     </body>
 </html>
