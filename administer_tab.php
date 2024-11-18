@@ -259,38 +259,37 @@
         }
 
         .table-wrapper th, 
-    .table-wrapper td {
-        width: calc(100% / 6);
-        min-width: 93px;
-    }
+        .table-wrapper td {
+            width: calc(100% / 6);
+            min-width: 93px;
+        }
 
-    /* Make suspicious activities and actions columns a bit narrower */
-    .table-wrapper th:nth-child(3), 
-    .table-wrapper td:nth-child(3),
-    .table-wrapper th:nth-child(4), 
-    .table-wrapper td:nth-child(4) {
-        width: calc(100% / 8);
-        min-width: 80px;
-    }
+        .table-wrapper th:nth-child(3), 
+        .table-wrapper td:nth-child(3),
+        .table-wrapper th:nth-child(4), 
+        .table-wrapper td:nth-child(4) {
+            width: calc(100% / 8);
+            min-width: 80px;
+        }
 
-    .decrease-btn {
-        padding: 5px 10px;
-        background-color: #ff6b6b;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+        .decrease-btn {
+            padding: 5px 10px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-    .decrease-btn:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-    }
+        .decrease-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
 
-    .decrease-btn:hover:not(:disabled) {
-        background-color: #ff5252;
-    }
+        .decrease-btn:hover:not(:disabled) {
+            background-color: #ff5252;
+        }
 
         @media screen and (max-width: 1020px) {
             .main-container .table-wrapper {
