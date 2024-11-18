@@ -467,80 +467,83 @@
         var classId = <?php echo json_encode($class_id); ?>;
 
         function updateTable() {
-            fetch('get_joined.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    assessment_id: assessmentId,
-                    class_id: classId
-                })
+        fetch('get_joined.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                assessment_id: assessmentId,
+                class_id: classId
             })
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#dataTable tbody');
-                tbody.innerHTML = ''; // Clear existing data
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = ''; // Clear existing data
 
-                if (Array.isArray(data) && data.length > 0) {
-                    data.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td class="studentNumber-column">${item.student_number}</td>
-                            <td>${item.student_name}</td>
-                            <td>${item.suspicious_act}</td>
-                        `;
-
-                        // Add decrease suspicious acts button
-                        const isDisabled = parseInt(item.suspicious_act) === 0;
-                        row.innerHTML += `
-                            <td>
-                                <button 
-                                    class="decrease-btn" 
-                                    onclick="decreaseSuspiciousActs('${item.student_id}')"
-                                    ${parseInt(item.suspicious_act) === 0 ? 'disabled' : ''}
-                                >
-                                    Decrease
-                                </button>
-                            </td>
-                        `;
-
-                        // Conditionally add a <div> based on the status value
-                        if (parseInt(item.status) === 0) {
-                            row.innerHTML += '<td class="status-column"> <div class="joined">Joined</div>  </td>';
-                        } else if (parseInt(item.status) === 1) {
-                            row.innerHTML += '<td class="status-column"> <div class="answering">Answering</div> </td>';
-                        } else if (parseInt(item.status) === 2) {
-                            row.innerHTML += '<td class="status-column"> <div class="finished">Finished</div> </td>';
-                        } else {
-                            // Append an empty cell if the status is not 0
-                            row.innerHTML += '<td class="status-column">No Status</td>';
-                        }
-
-                        if (item.score !== null && item.score !== undefined) {
-                            row.innerHTML += `<td>${item.score}/${item.total_score}</td>`;
-                        } else {
-                            row.innerHTML += '<td>N/A</td>';
-                        }
-
-                        tbody.appendChild(row);
-                        // Update row count
-                        document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
-                    });
-                } else if (data.error) {
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(item => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="5" style="text-align: center;">${data.error}</td>`;
+                    row.innerHTML = `
+                        <td class="studentNumber-column">${item.student_number}</td>
+                        <td>${item.student_name}</td>
+                        <td>${item.suspicious_act}</td>
+                    `;
+
+                    const suspiciousActs = parseInt(item.suspicious_act);
+                    const status = parseInt(item.status);
+                    const isDecreaseDisabled = suspiciousActs === 0 || status === 0 || status === 2;
+
+                    row.innerHTML += `
+                        <td>
+                            <button 
+                                class="decrease-btn" 
+                                onclick="decreaseSuspiciousActs('${item.student_id}')"
+                                ${isDecreaseDisabled ? 'disabled' : ''}
+                            >
+                                Decrease
+                            </button>
+                        </td>
+                    `;
+
+                    // Add status column based on the status value
+                    if (status === 0) {
+                        row.innerHTML += '<td class="status-column"><div class="joined">Joined</div></td>';
+                    } else if (status === 1) {
+                        row.innerHTML += '<td class="status-column"><div class="answering">Answering</div></td>';
+                    } else if (status === 2) {
+                        row.innerHTML += '<td class="status-column"><div class="finished">Finished</div></td>';
+                    } else {
+                        row.innerHTML += '<td class="status-column">No Status</td>';
+                    }
+
+                    // Add score column
+                    if (item.score !== null && item.score !== undefined) {
+                        row.innerHTML += `<td>${item.score}/${item.total_score}</td>`;
+                    } else {
+                        row.innerHTML += '<td>N/A</td>';
+                    }
+
                     tbody.appendChild(row);
-                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
-                } else {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="5" style="text-align: center;">No Students have joined</td>`;
-                    tbody.appendChild(row);
-                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
+                    // Update row count
+                    document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
+                });
+            } else if (data.error) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="text-align: center;">${data.error}</td>`;
+                tbody.appendChild(row);
+                document.getElementById('rowCount').innerText = `Number of Students: 0`;
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="text-align: center;">No Students have joined</td>`;
+                tbody.appendChild(row);
+                document.getElementById('rowCount').innerText = `Number of Students: 0`;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
 
         // function to handle decreasing suspicious acts
         function decreaseSuspiciousActs(studentId) {
