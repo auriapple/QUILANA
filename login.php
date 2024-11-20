@@ -142,7 +142,7 @@
                     <div class="images-wrapper">
                         <img src="image/FloatingLana.gif" class="image img-1 show" alt="Lana" />
                         <img src="image/User.png" class="image img-2" alt="" />
-                        <img src="image/image3.png" class="image img-3" alt="" />
+                        <img src="image/Students.png" class="image img-3" alt="" />
                     </div>
 
                     <div class="text-slider">

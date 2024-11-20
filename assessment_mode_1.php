@@ -734,10 +734,20 @@ $time_limit = $assessment['time_limit'];
         });
 
         // TAB SWITCHING DETECTION
-        window.addEventListener("focus", () => {
+        let tabSwtichCounter;
+
+        window.addEventListener("blur", () => {
             if (!warningTracker) {
+                warningTracker = true;
                 handleWarning('Tab switching');
-            } 
+                tabSwtichCounter = setInterval(function() {
+                    handleWarning('Tab switching');
+                }, 10000) // Suspicious Activity will be incremented every 10 seconds (interval is tentative)
+            }
+        });
+        
+        window.addEventListener("focus", () => {
+            clearInterval(tabSwtichCounter);
         });
 
         // ADDITIONAL SECURITY MEASURES
