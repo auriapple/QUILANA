@@ -15,11 +15,12 @@ function getAssessmentDetails($conn, $assessment_id) {
 }
 
 // Function to fetch student results
-function getStudentResults($conn, $assessment_id, $student_id) {
-    $stmt = $conn->prepare("SELECT date_updated, score, total_score, remarks, rank
-                            FROM student_results 
-                            WHERE assessment_id = ? AND student_id = ?");
-    $stmt->bind_param("ii", $assessment_id, $student_id);
+function getStudentResults($conn, $student_id, $administer_id) {
+    $stmt = $conn->prepare("SELECT ss.date_taken, sr.score, sr.total_score, sr.remarks, sr.rank
+                            FROM student_results sr
+                            JOIN student_submission ss ON ss.submission_id = sr.submission_id
+                            WHERE sr.student_id = ? AND ss.administer_id = ?");
+    $stmt->bind_param("ii", $student_id, $administer_id);
     $stmt->execute();
     return $stmt->get_result();
 }
@@ -27,6 +28,7 @@ function getStudentResults($conn, $assessment_id, $student_id) {
 if (isset($_GET['assessment_id']) && filter_var($_GET['assessment_id'], FILTER_VALIDATE_INT)) {
     $assessment_id = $_GET['assessment_id'];
     $student_id = $_SESSION['login_id'];
+    $administer_id = $_GET['administer_id'];
 
     // Fetch assessment details
     $assessment_data = getAssessmentDetails($conn, $assessment_id);
@@ -36,11 +38,11 @@ if (isset($_GET['assessment_id']) && filter_var($_GET['assessment_id'], FILTER_V
     }
 
     // Fetch student results
-    $results_query = getStudentResults($conn, $assessment_id, $student_id);
+    $results_query = getStudentResults($conn, $student_id, $administer_id);
     $details = [];
     while ($row = $results_query->fetch_assoc()) {
         $detail = [
-            'date' => $row['date_updated'],
+            'date' => $row['date_taken'],
             'score' => $row['score'],
             'total_score' => $row['total_score'],
             'remarks' => $row['remarks']

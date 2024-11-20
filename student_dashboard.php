@@ -29,8 +29,6 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
-        <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-        <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
         <script src="assets/js/calendar.js" defer></script>
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;
@@ -41,11 +39,18 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <div class="content-wrapper dashboard-container">
             <!-- Dashboard Summary -->
             <div class="dashboard-summary">
+                <?php 
+                    $name_query = $conn->query("
+                        SELECT firstname FROM student WHERE student_id = '".$_SESSION['login_id']."'
+                    ");
+                    $name = $name_query->fetch_assoc();
+                    $firstname = $name['firstname'];
+                ?>
                 <h1> Welcome, <?php echo $firstname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards">
                     <!-- Total Number of Classes -->
-                    <div class="card" style="background-color: #FFE2E5;">
+                    <div class="card" style="background-color: #FFE2E5; cursor: pointer;" onclick="window.location.href='enroll.php';">
                         <img class="icons" src="image/DashboardCoursesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses 
@@ -62,7 +67,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                     <!-- Total Number of Quizzes -->
-                    <div class="card" style="background-color: #FADEFF"> 
+                    <div class="card" style="background-color: #FADEFF; cursor: pointer;" onclick="window.location.href='results.php';">
                         <img class="icons" src="image/DashboardClassesIcon.png" alt="Quizzes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalQuizzes 
@@ -80,7 +85,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                     <!-- Total Number of Exams -->
-                    <div class="card" style="background-color: #DCE1FC;"> 
+                    <div class="card" style="background-color: #DCE1FC; cursor: pointer;" onclick="window.location.href='results.php?tab=exams';">
                         <img class="icons" src="image/DashboardExamsIcon.png" alt="Exams Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalExams
@@ -106,13 +111,13 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="recent-scrollable">
                     <?php
                     $result = $conn->query("
-                        SELECT a.assessment_name, a.assessment_type, c.class_name, c.subject, ss.date_taken
+                        SELECT a.assessment_name, a.assessment_id, a.assessment_type, c.class_name, c.subject, ss.date_taken, aa.administer_id
                         FROM student_results sr
                         JOIN student_submission ss ON sr.submission_id = ss.submission_id
                         JOIN assessment a ON sr.assessment_id = a.assessment_id
                         JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                         JOIN class c ON aa.class_id = c.class_id
-                        WHERE ss.student_id = '".$_SESSION['login_id']."'
+                        WHERE ss.student_id = '".$_SESSION['login_id']."' AND aa.administer_id = ss.administer_id
                         ORDER BY ss.date_taken DESC
                     ");
 
@@ -140,8 +145,8 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                             $icon = ($assessmentType == 1) ? 'DashboardClassesIcon.png' : 'DashboardExamsIcon.png';
 
                             // Display the card with proper icon and background color
-                            echo "<div id='recents' class='cards'>";
-                                echo "<div id='recent-card' class='card' style='background-color: {$bgColor};'>";   
+                            echo "<div id='recents' class='cards' onclick='redirectToResults({$assessmentType}, {$row['assessment_id']}, {$row['administer_id']});'>";
+                                echo "<div id='recent-card' class='card' style='background-color: {$bgColor}; cursor: pointer;'>";   
                                     echo "<img class='icons' src='image/{$icon}' alt='" . (($assessmentType == 1) ? 'Quiz' : 'Exam') . " Icon'>";
                                     echo "<div id='recent-details' class='card-data'>";
                                         echo "<h3>{$assessmentName}</h3>";
@@ -162,10 +167,12 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="wrapper">
                     <!-- Calendar -->
                     <header>
+                        <div class="icons">
+                            <span id="prev" class="material-symbols-rounded">chevron_left</span>
+                        </div>
                         <p class="current-date"></p>
                         <div class="icons">
-                        <span id="prev" class="material-symbols-rounded">chevron_left</span>
-                        <span id="next" class="material-symbols-rounded">chevron_right</span>
+                            <span id="next" class="material-symbols-rounded">chevron_right</span>
                         </div>
                     </header>
                     <div class="calendar">
@@ -270,5 +277,22 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 </div>
             </div>
         </div>
+        <script>
+            function redirectToResults(assessmentType, assessmentId, administerId) {
+                var url = 'results.php';
+                var params = [];
+
+                if (assessmentType == 2) {
+                    params.push('tab=exams');
+                }
+
+                params.push('assessment_id=' + assessmentId);
+                params.push('administer_id=' + administerId);
+
+                url += '?' + params.join('&');
+
+                window.location.href = url;
+            }
+        </script>
     </body>
 </html>

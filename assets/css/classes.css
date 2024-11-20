@@ -4,7 +4,7 @@
     flex-direction: column;
     height: fit-content;
     width: 450px;
-    padding: 50px 20px 30px 20px; 
+    padding: 50px 20px 40px 20px; 
 }
 .popup-title {
     margin-bottom: 20px;
@@ -44,6 +44,9 @@
 .popup-content .modal-body {
     display: flex;
     flex-direction: column;
+}
+#delete-modal-body {
+    padding: 0 10px;
 }
 .form-group {
     margin-bottom: 10px;
@@ -86,6 +89,9 @@
     margin: 0;
     padding: 20px 0;
     font-size: 20px;
+}
+#delete-message {
+    padding: 10px 0;
 }
 #unenroll_class_name {
     color: #1E1A43;
@@ -161,7 +167,7 @@
     height: 90%;
 }
 .table-wrapper {
-    height: 95%;
+    height: 100% !important;
 }
 
 .table-wrapper table {
@@ -294,6 +300,53 @@ tr .status {
     background-color: #e9ecef;
     opacity: 1;
     color: #6d6d6d !important;
+}
+
+/* Notifications */
+.notification-container {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 0 5px 5px 0;
+    gap: 10px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    height: 300px;
+    width: 300px;
+    background-color: transparent;
+    overflow-y: auto;
+}
+
+.notification-card {
+    position: relative;
+    width: 100%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 25px 15px 15px;
+    background-color: #6e72c1dd;
+    font-size: 14px;
+    color: #fff;
+    text-align: justify;
+}
+
+.notification-card span.notif-close {
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 9px;
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+}
+
+.notification-card span.notif-close:hover {
+    position: absolute;
+    cursor: pointer;
+    background-color: #cecece65;
 }
 
 /* Media Query for small screens */

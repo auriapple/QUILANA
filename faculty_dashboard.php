@@ -1,3 +1,17 @@
+<style>
+    .swal2-actions {
+        gap: 10px;
+        flex-direction: row-reverse;
+    }
+    .swal2-actions button {
+        width: 150px !important;
+        margin-top: 20px !important;
+    }
+    #swal2-input {
+        width: 340px;
+    }
+</style>
+
 <?php
 include 'db_connect.php';
 include 'auth.php';
@@ -24,8 +38,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
-        <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-        <link rel="stylesheet" href="/fontawesome1/css/all.min.css">
+        <link rel="stylesheet" href="assets/css/classes.css">
         <script src="assets/js/calendar.js" defer></script>
     </head>
     <body>
@@ -34,10 +47,17 @@ while ($row = $scheduleQuery->fetch_assoc()) {
 
             <!-- Dashboard Summary -->
             <div class="dashboard-summary">
-                <h1> Welcome, <?php echo $firstname ?> </h1>
+                <?php 
+                    $name_query = $conn->query("
+                        SELECT lastname FROM faculty WHERE faculty_id = '".$_SESSION['login_id']."'
+                    ");
+                    $name = $name_query->fetch_assoc();
+                    $lastname = $name['lastname'];
+                ?>
+                <h1> Welcome, Prof. <?php echo $lastname ?> </h1>
                 <h2> Summary </h2>
                 <div class="cards"> 
-                    <div class="card" style="background-color: #ffe2e5;">
+                    <div class="card" style="background-color: #ffe2e5; cursor: pointer;" onclick="window.location.href='class_list.php';">
                         <img class="icons" src="image/DashboardCoursesIcon.png" alt="Courses Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalCourses FROM course 
@@ -47,10 +67,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         ?>
                         <div class="card-data">
                             <h3> <?php echo $totalCourses ?> </h3>
-                            <label>Total Courses</label> 
+                            <label>Total Programs</label> 
                         </div>
                     </div>
-                    <div class="card" style="background-color: #FADEFF"> 
+                    <div class="card" style="background-color: #FADEFF; cursor: pointer;" onclick="window.location.href='class_list.php';"> 
                         <img class="icons" src="image/DashboardClassesIcon.png" alt="Classes Icon">
                         <?php
                         $result = $conn->query("SELECT COUNT(*) as totalClasses FROM class
@@ -148,6 +168,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 </div>
             </div>
 
+            <div class="alert-container" id="alert-container">
+                <!-- Alert for Accepting/Rejecting Students will be displayed here -->
+            </div>
+
             <!-- Scheduled Assessments -->
             <div class="dashboard-schedule">
                 <div class="schedule-label">
@@ -205,30 +229,35 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="assessment-dropdown">Assessment</label>
-                            <select id="assessment-dropdown" required>
-                                <option value="" disabled selected>Select Assessment</option>
+                            <label for="classes-dropdown">Classes</label>
+                            <select id="classes-dropdown" required>
+                                <option value="" disabled selected>Select Class</option>
                                 <?php
-                                // Fetch all available assessments
-                                $assessment_qry = $conn->query("
+                                // Fetch all available classes
+                                $classes_qry = $conn->query("
                                     SELECT * 
-                                    FROM assessment 
+                                    FROM class 
                                     WHERE faculty_id = '".$_SESSION['login_id']."'
+                                    ORDER BY course_id
                                 ");
 
-                                // Add available assessments in the options
-                                while($assessment_row = $assessment_qry->fetch_assoc()) {
-                                    echo "<option value='".$assessment_row['assessment_id']."'>". htmlspecialchars($assessment_row['assessment_name']) . " (" . htmlspecialchars($assessment_row['subject']) . ")</option>";
+                                // Add available classes in the options
+                                while ($classes_row = $classes_qry->fetch_assoc()) {
+                                    echo "<option value='".$classes_row['class_id']."' 
+                                        data-course-id='".$classes_row['course_id']."' 
+                                        data-subject='".htmlspecialchars($classes_row['subject'])."'>
+                                        ". htmlspecialchars($classes_row['class_name']) . " (" . htmlspecialchars($classes_row['subject']) . ")
+                                    </option>";
                                 }
                                 ?>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="class-dropdown">Class</label>
-                            <select name="class" id="class-dropdown" required>
-                                <option value="" disabled selected>Select Class</option>
-                                <!-- Classes will be populated here -->
+                            <label for="assessments-dropdown">Assessments</label>
+                            <select name="assessments" id="assessments-dropdown" required>
+                                <option value="" disabled selected>Select Assessment</option>
+                                <!-- Assessments will be populated here -->
                             </select>
                         </div> 
                     </form>
@@ -243,6 +272,28 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;
 
+            function addChildElement(studentName, className, res) {
+                // Create a new div element
+                const alert = document.createElement('div');
+                alert.className = 'alert-card';
+                alert.textContent = studentName + ' has been ' + res + ' ' + className;
+
+                // Append the new child to the parent
+                const alertContainer = document.getElementById('alert-container');
+                alertContainer.appendChild(alert);
+
+                // Store a reference to the child element
+                const thisAlert = alert;
+
+                // Set a timeout to fade out the child after 5 seconds then removed
+                setTimeout(() => {
+                    thisAlert.classList.add('fade');
+                }, 5000);
+                setTimeout(() => {
+                    alertContainer.removeChild(thisAlert);
+                }, 7000);
+            }
+
             // Function to fetch pending requests from students
             function fetchPendingRequests() {
                 fetch('get_requests.php')
@@ -253,11 +304,8 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 .catch(error => console.error('Error fetching pending requests:', error));
             }
 
-            // Pending requests buttons functionality
-            $(document).on('click', '.accept-btn, .reject-btn', function() {
-                var classId = $(this).data('class-id');
-                var studentId = $(this).data('student-id');
-                var status = $(this).data('status');
+            function acceptRejectStudent(classId, studentId, status, classSub, studentName, reason) {
+                var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : null;
 
                 $.ajax({
                     url: 'status_update.php',
@@ -265,24 +313,83 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     data: {
                         class_id: classId,
                         student_id: studentId,
-                        status: status
+                        status: status,
+                        reason: reason
                     },
                     success: function(response) {
                         if (response == 'success') {
-                            alert('Student status updated.');
-                            location.reload();
+                            addChildElement(studentName, classSub, res);
+                            console.log(studentName + '\n' + classSub + '\n' + res);
+                            fetchPendingRequests();
                         } else {
-                            alert('Failed to update status.');
+                            Swal.fire({
+                                title: 'Warning!',
+                                text: 'An error occured in trying to reject/accept ' + studentName + ' to ' + classSub + '.',
+                                icon: 'warning',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'popup-content',
+                                    confirmButton: 'secondary-button'
+                                }
+                            }).then(() => {
+                                warningTracker = false;
+                            });
                         }
                     } 
                 });
+            }
+
+            // Pending requests buttons functionality
+            $(document).on('click', '.accept-btn, .reject-btn', function() {
+                var classId = $(this).data('class-id');
+                var studentId = $(this).data('student-id');
+                var status = $(this).data('status');
+                var classSub = $(this).data('class-sub');
+                var studentName = $(this).data('student-name');
+                var reason;
+
+                if ($(this).hasClass('accept-btn')) {
+                    acceptRejectStudent(classId, studentId, status, classSub, studentName, reason);
+                } else {
+                    Swal.fire({
+                        title: 'Confirm Rejection.',
+                        text: 'Are you sure you want to reject ' + studentName + ' from ' + classSub + '.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Reject',
+                        cancelButtonText: 'Cancel',
+                        allowOutsideClick: false,
+                        input: 'text',
+                        inputPlaceholder: 'Enter reason for rejection',
+                        customClass: {
+                            popup: 'popup-content',
+                            confirmButton: 'secondary-button',
+                            cancelButton: 'tertiary-button',
+                            input: 'popup-input'
+                        },
+                        preConfirm: (inputValue) => {
+                            if (!inputValue) {
+                                Swal.showValidationMessage('Please enter a reason for rejection');
+                            }
+                            return inputValue;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            reason = result.value;
+                            acceptRejectStudent(classId, studentId, status, classSub, studentName, reason)
+                            warningTracker = false;
+                        } else if (result.isDismissed) {
+                            console.log("User canceled the removal action.");
+                        }
+                    });
+                }
             });
             
             // Initial fetch
             fetchPendingRequests();
 
             // Refresh every 5 seconds
-            setInterval(fetchPendingRequests, 10000);
+            setInterval(fetchPendingRequests, 5000);
 
             // Modal functionality
             const modal = document.getElementById("add-schedule-popup");
@@ -295,15 +402,15 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 clearFormFields();
                 console.log(selectedDate);
                 // Set the selected date to the input field when the modal opens
-                selectedDateInput.value = selectedDate || `${currMonth + 1}/${date.getDate()}/${currYear}`; // Default to today's date if none selected
+                selectedDateInput.value = selectedDate || `${currYear}-${currMonth + 1}-${date.getDate()}`; // Default to today's date if none selected
                 modal.style.display = "flex";
             }
 
             // Function to clear form fields
             function clearFormFields() {
                 selectedDateInput.value = '';
-                document.getElementById("assessment-dropdown").selectedIndex = 0;
-                document.getElementById("class-dropdown").innerHTML = '<option value="" disabled selected>Select Class</option>';
+                document.getElementById("classes-dropdown").selectedIndex = 0;
+                document.getElementById("assessments-dropdown").innerHTML = '<option value="" disabled selected>Select Assessment</option>';
             }
 
             // Function to close the add schedule popup
@@ -319,19 +426,28 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             }
 
             // Load classes based on selected assessment
-            $('#assessment-dropdown').change(function() {
-                var assessment_id = $(this).val();
-                if (assessment_id) {
+            $('#classes-dropdown').change(function() {
+                var class_id = $(this).val();
+                var subject = $(this).find('option:selected').data('subject');
+                var course_id = $(this).find('option:selected').data('courseId');
+
+                console.log(" " + course_id)
+
+                if (class_id) {
                     $.ajax({
-                        url: 'get_class.php',
+                        url: 'get_assessments.php',
                         method: 'POST',
-                        data: { assessment_id: assessment_id },
+                        data: { 
+                            class_id: class_id,
+                            subject: subject,
+                            course_id: course_id
+                        },
                         success: function(response) {
-                            $('#class-dropdown').html(response); //  classes dropdown
+                            $('#assessments-dropdown').html(response); //  classes dropdown
                         }
                     });
                 } else {
-                    $('#class-dropdown').html('<option value="" disabled>Select Class</option>'); // Clear classes dropdown
+                    $('#assessments-dropdown').html('<option value="" disabled>Select Assessment</option>'); // Clear classes dropdown
                 }
             });
 
@@ -355,13 +471,13 @@ while ($row = $scheduleQuery->fetch_assoc()) {
 
                 // Check if selected date is before today
                 if (selectedDate < today) {
-                    alert('Make sure to pick a date that is either today or in the upcoming days.'); // Show error message
+                    alert('Make sure to pick a date in the upcoming days.'); // Show error message
                     return;
                 }
 
                 // Gather data for the AJAX request
-                const assessmentId = document.getElementById("assessment-dropdown").value;
-                const classId = document.getElementById("class-dropdown").value;
+                const classId = document.getElementById("classes-dropdown").value;
+                const assessmentId = document.getElementById("assessments-dropdown").value;
                 const facultyId = <?php echo $_SESSION['login_id']; ?>;
 
                 console.log("Selected Date:", selectedDateInput.value);

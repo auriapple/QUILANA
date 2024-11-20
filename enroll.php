@@ -7,12 +7,12 @@
     <title>Classes | Quilana</title>
     <link rel="stylesheet" href="meatballMenuTest/meatball.css">
     <link rel="stylesheet" href="assets/css/classes.css">
-    <link rel="stylesheet" href="/material-symbols/css/material-symbols.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
 <body>
-    <?php include('nav_bar.php') ?>
+    <?php 
+    include('nav_bar.php');
+    $student_id = $_SESSION['login_id'];
+    ?>
     <div class="content-wrapper">
         <!-- Header Container -->
         <div class="join-class-container">
@@ -35,10 +35,10 @@
         <div class="scrollable-content">
             <!-- Classes Tab -->
             <div id="classes-tab" class="tab-content active">
-                <div class="class-container">
+                <div class="class-container" id="class-container">
+                <div style="display: none;" id="student-id-container"><?php echo $student_id; ?></div>
                     <?php
-                    $student_id = $_SESSION['login_id'];
-
+/* 
                     // Fetch student's enrolled classes
                     $enrolled_classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name, f.firstname, f.lastname 
                                                             FROM student_enrollment e
@@ -77,7 +77,7 @@
                         <?php }
                     } else {
                         echo '<div class="no-records">You are not enrolled in any classes</div>';
-                    }
+                    } */
                     ?>           
             </div>
         </div>
@@ -95,6 +95,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Notifications for Acceptance or Rejection of Join Request -->
+     <div class="notification-container" id="notification-container">
+        <!-- Notifications will be displayed here -->
+     </div>
 
     <!-- Modal for entering class code to join a class -->
     <div id="join-class-popup" class="popup-overlay"> 
@@ -131,6 +136,74 @@
 
     <script>  
         $(document).ready(function() {
+            var studentId = document.getElementById('student-id-container').textContent;
+
+            function getClasses(studentId) {
+                $.ajax({
+                    url: 'get_student_class_cards.php',
+                    method: 'POST',
+                    data: { student_id: studentId },
+                    success: function(response) {
+                        $('#class-container').html(response);
+                    }
+                });
+            } 
+
+            getClasses(studentId);
+            setInterval(function() {
+                getClasses(studentId);
+            }, 10000);
+
+            function getNotifications(studentId) {
+                $.ajax({
+                    url: 'get_student_notifs.php',
+                    method: 'POST',
+                    data: { student_id: studentId },
+                    success: function(response) {
+                        $('#notification-container').html(response);
+                        addCloseListeners();
+                    }
+                });
+            }
+
+            getNotifications(studentId);
+            setInterval(function() {
+                getNotifications(studentId);
+            }, 10000);
+
+            function addCloseListeners() {
+                document.querySelectorAll('.notif-close').forEach(closeButton => {
+                    closeButton.addEventListener('click', function() {
+                        // Get the notification card and retrieve the necessary data
+                        var notificationCard = this.parentElement;
+                        var enrollmentId = notificationCard.getAttribute('data-enrollment-id');
+
+                        // Hide the notification card visually
+                        notificationCard.style.display = 'none';
+
+                        // Send an AJAX request to update the if_display attribute in the database
+                        fetch('studentNotif_displayUpdate.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                enrollment_id: enrollmentId,
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.success) {
+                                console.error('Failed to update the database:', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    });
+                });
+            }
+            
             // Button Visibility
             function updateButtons() {
                 var activeTab = $('.tab-link.active').data('tab');
@@ -240,9 +313,8 @@
                 });
             });
 
-
             // View Class Details
-            $('[id^=viewClassDetails_]').click(function() {
+            $(document).on('click', '#viewClassDetails', function() {
                 var class_id = $(this).data('id');
                 var class_name = $(this).closest('.class-card').find('.class-card-title').text();
 
@@ -364,6 +436,37 @@
             $(document).on('click', '.popup-close, #cancel', function() {
                 closePopup('unenroll-popup');
             });
+
+            // Search functionality
+            $('.search-bar').submit(function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+
+            // input event listener in search field
+            $('.search-bar input[name="query"]').on('input', function() {
+                performSearch();
+            });
+
+                function performSearch() {
+                var query = $('.search-bar input[name="query"]').val();
+            
+                     $.ajax({
+                        url: 'search_classes.php',
+                        method: 'GET',
+                        data: { 
+                            query: query,
+                            student_id: studentId
+                        },
+                        success: function(response) {
+                            $('#classes-tab').html(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Search failed:', error);
+                        }
+                    });
+                }
+            
         });
     </script>
 </body>

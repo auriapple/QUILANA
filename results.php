@@ -43,8 +43,8 @@
         <!-- Tabs -->
         <div class="tabs-container">
             <ul class="tabs">
-                <li class="tab-link active" data-tab="quizzes-tab">Quizzes</li>
-                <li class="tab-link" data-tab="exams-tab">Exams</li>
+                <li class="tab-link <?php echo isset($_GET['tab']) ? '' : 'active'; ?>" data-tab="quizzes-tab">Quizzes</li>
+                <li class="tab-link <?php echo (isset($_GET['tab']) && $_GET['tab'] == 'exams') ? 'active' : ''; ?>" data-tab="exams-tab">Exams</li>
             </ul>
         </div>
 
@@ -57,24 +57,36 @@
                 $student_id = $_SESSION['login_id'];
 
                 // Fetch student's enrolled classes
-                $classes_query = $conn->query("SELECT c.class_id, c.subject 
+                $classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name
                                                 FROM class c 
                                                 JOIN student_enrollment s ON c.class_id = s.class_id 
                                                 WHERE s.student_id = '$student_id' AND s.status='1'");
 
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
+                        // Apply search condition
+                        $search_condition = "";
+                        if (!empty($query)) {
+                            $search_query = $conn->real_escape_string($query);
+                            $search_condition = "AND (
+                                a.assessment_name LIKE '%$search_query%' 
+                                OR a.topic LIKE '%$search_query%' 
+                                OR c.subject LIKE '%$search_query%'
+                            )";
+                        }
+                
                         echo '<div class="content-separator">';
-                        echo '<span class="content-name">' . htmlspecialchars($class['subject']) . '</span>';
+                        echo '<span class="content-name">' . htmlspecialchars($class['class_name']) . ' (' . htmlspecialchars($class['subject']) . ')</span>';
                         echo '<hr class="separator-line">';
                         echo '</div>';
 
                         // Fetch quizzes for each class
                         $quizzes_query = $conn->query("
-                            SELECT a.assessment_id, a.assessment_name, a.topic
+                            SELECT a.assessment_id, a.assessment_name, a.topic, aa.administer_id
                             FROM assessment a
                             JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                             WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 1
+                            $search_condition
                         ");
 
                         $quizzes = [];
@@ -90,8 +102,9 @@
                                 // Check if the student has already taken the quiz
                                 $results_query = $conn->query("
                                     SELECT 1 
-                                    FROM student_results 
-                                    WHERE student_id = '$student_id' AND assessment_id = '" . $quiz['assessment_id'] . "'
+                                    FROM student_results sr
+                                    JOIN student_submission ss ON ss.submission_id = sr.submission_id
+                                    WHERE sr.student_id = '$student_id' AND ss.administer_id = '" . $quiz['administer_id'] . "'
                                 ");
 
                                 if ($results_query->num_rows > 0) {
@@ -99,17 +112,17 @@
                                     echo '<div class="assessment-card">';
                                     echo '<div class="assessment-card-title">' . htmlspecialchars($quiz['assessment_name']) . '</div>';
                                     echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($quiz['topic']) . '</div>';
-                                    echo '<button id="viewResult_' . $quiz['assessment_id'] . '" class="main-button" data-id="' . $quiz['assessment_id'] . '" type="button">View Result</button>';
+                                    echo '<button id="viewResult" class="main-button" data-assessment-id="' . $quiz['assessment_id'] . '" data-administer-id="' . $quiz['administer_id'] . '" type="button">View Result</button>';
                                     echo '</div>';
                                 }
                             }
-                            echo '</div>';
-                        
+
                             // If no quizzes have results yet
                             if (!$has_results) {
                                 echo '<div class="no-records">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
                             }
 
+                            echo '</div>';
                         // If there are no quizzes at all    
                         } else {
                             echo '<div class="no-records">No quizzes yet for ' . htmlspecialchars($class['subject']) . '</div>';
@@ -127,24 +140,36 @@
                 <div class="assessments-container">
                 <?php
                 // Fetch student's enrolled classes
-                $classes_query = $conn->query("SELECT c.class_id, c.subject 
+                $classes_query = $conn->query("SELECT c.class_id, c.subject, c.class_name
                                                 FROM class c 
                                                 JOIN student_enrollment s ON c.class_id = s.class_id 
                                                 WHERE s.student_id = '$student_id' AND s.status='1'");
 
                 if ($classes_query->num_rows > 0) {
                     while ($class = $classes_query->fetch_assoc()) {
+                        // Apply search condition
+                        $search_condition = "";
+                        if (!empty($query)) {
+                            $search_query = $conn->real_escape_string($query);
+                            $search_condition = "AND (
+                                a.assessment_name LIKE '%$search_query%' 
+                                OR a.topic LIKE '%$search_query%' 
+                                OR c.subject LIKE '%$search_query%'
+                            )";
+                        }
+
                         echo '<div class="content-separator">';
-                        echo '<span class="content-name">' . htmlspecialchars($class['subject']) . '</span>';
+                        echo '<span class="content-name">' . htmlspecialchars($class['class_name']) . ' (' . htmlspecialchars($class['subject']) . ')</span>';
                         echo '<hr class="separator-line">';
                         echo '</div>';
 
                         // Fetch exams for each class
                         $exams_query = $conn->query("
-                            SELECT a.assessment_id, a.assessment_name, a.topic
+                            SELECT a.assessment_id, a.assessment_name, a.topic, aa.administer_id
                             FROM assessment a
                             JOIN administer_assessment aa ON a.assessment_id = aa.assessment_id
                             WHERE aa.class_id = '" . $class['class_id'] . "' AND a.assessment_type = 2
+                            $search_condition
                         ");
 
                         $exams = [];
@@ -159,8 +184,9 @@
                             foreach ($exams as $exam) {
                                 $results_query = $conn->query("
                                     SELECT 1 
-                                    FROM student_results 
-                                    WHERE student_id = '$student_id' AND assessment_id = '" . $exam['assessment_id'] . "'
+                                    FROM student_results sr
+                                    JOIN student_submission ss ON ss.submission_id = sr.submission_id
+                                    WHERE sr.student_id = '$student_id' AND ss.administer_id = '" . $exam['administer_id'] . "'
                                 ");
 
                                 if ($results_query->num_rows > 0) {
@@ -168,21 +194,23 @@
                                     echo '<div class="assessment-card">';
                                     echo '<div class="assessment-card-title">' . htmlspecialchars($exam['assessment_name']) . '</div>';
                                     echo '<div class="assessment-card-topic">Topic: ' . htmlspecialchars($exam['topic']) . '</div>';
-                                    echo '<button id="viewResult_' . $exam['assessment_id'] . '" class="main-button" data-id="' . $exam['assessment_id'] . '" type="button">View Result</button>';
+                                    echo '<button id="viewResult" class="main-button" data-assessment-id="' . $exam['assessment_id'] . '" data-administer-id="' . $exam['administer_id'] . '" type="button">View Result</button>';
                                     echo '</div>';
                                 }
                             }
-                            echo '</div>';
 
                             if (!$has_results) {
                                 echo '<div class="no-records">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                             } 
+
+                            echo '</div>';
+                        // If there are no exams at all 
                         } else {
                             echo '<div class="no-records">No exams yet for ' . htmlspecialchars($class['subject']) . '</div>';
                         }
                     }
                 } else {
-                echo '<div class="no-records">No exams yet</div>';
+                    echo '<div class="no-records">No exams yet</div>';
                 }
                 ?>
                 </div>
@@ -200,6 +228,30 @@
                 $(this).addClass('active');
                 $("#" + tab_id).addClass('active');
             });
+
+            // On page load, check URL parameter for the active tab
+            var params = new URLSearchParams(window.location.search);
+            var assessmentId = params.get('assessment_id');
+            var administerId = params.get('administer_id');
+            var activeTab = params.get('tab');
+
+            if (activeTab) {
+                // If there's a 'tab' parameter, set the exams tab and content to active
+                $('.tab-link').removeClass('active');
+                $('.tab-content').removeClass('active');
+
+                if (activeTab === 'exams') {
+                    $('.tab-link[data-tab="exams-tab"]').addClass('active');
+                    $('#exams-tab').addClass('active');
+                }
+            }
+
+            if (assessmentId && administerId) {
+                var newUrl = window.location.href.split('?')[0]; // Removes url parameters
+                window.history.replaceState({}, document.title, newUrl);
+
+                loadAssessmentResults(assessmentId, administerId);
+            }
 
             // Format date function
             function formatDate(dateString) {
@@ -219,111 +271,199 @@
             }
             
             // View assessment results
-            $('[id^=viewResult_]').click(function() {
-                var assessment_id = $(this).data('id');
+            $(document).on('click', '#viewResult', function() {
+                var assessmentId = $(this).data('assessment-id');
+                var administerId = $(this).data('administer-id');
 
+                loadAssessmentResults(assessmentId, administerId);
+            });
+
+            // Function to load assessment results
+            function loadAssessmentResults(assessmentId, administerId) {
                 $.ajax({
                     type: 'GET',
                     url: 'load_results.php',
-                    data: { assessment_id: assessment_id },
+                    data: {
+                        assessment_id: assessmentId,
+                        administer_id: administerId
+                    },
                     dataType: 'json',
                     success: function(result) {
-                    if (result.title && result.topic) {
-                        $('#assessment-title').text(result.title);
-                        if(result.mode) {
-                            $('#assessment-title').html(result.title + '<br>' + result.mode);
-                        }
-                        $('#assessment-topic').text(result.topic);
-                        
-                        // Clear previous details
-                        $('#assessment-details thead').empty();
-                        $('#assessment-details tbody').empty();
-                        
-                        if (Array.isArray(result.details) && result.details.length > 0) {
-                            // Check if assessment_mode is 1
-                            if (result.assessment_mode == 1) {
-                                $('#assessment-details thead').append(
-                                    `<tr>
-                                        <th>Date</th>
-                                        <th>Score</th>
-                                        <th>Remarks</th>
-                                    </tr>`
-                                );
-                                
-                                // Add details to table
-                                result.details.forEach(function(item) {
-                                    $('#assessment-details tbody').append(
-                                        `<tr>
-                                            <td>${formatDate(item.date)}</td>
-                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
-                                            <td>${item.remarks}</td>
-                                        </tr>`
-                                    );
-                                });
-                                
-                            } else if (result.assessment_mode == 2) {
-                                // Add rank column
-                                $('#assessment-details thead').append(
-                                    `<tr>
-                                        <th>Date</th>
-                                        <th>Score</th>
-                                        <th>Rank</th>
-                                        <th>Remarks</th>
-                                    </tr>`  
-                                );
-                                
-                                // Add details to table
-                                result.details.forEach(function(item) {
-                                    $('#assessment-details tbody').append(
-                                        `<tr>
-                                            <td>${formatDate(item.date)}</td>
-                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
-                                            <td>${item.rank}</td>
-                                            <td>${item.remarks}</td>
-                                        </tr>`
-                                    );
-                                });
-                            } else {
-                                // Add rank column and remove remarks column
-                                $('#assessment-details thead').append(
-                                    `<tr>
-                                        <th>Date</th>
-                                        <th>Score</th>
-                                        <th>Rank</th>
-                                    </tr>`
-                                );
-                                
-                                // Add details to table
-                                result.details.forEach(function(item) {
-                                    $('#assessment-details tbody').append(
-                                        `<tr>
-                                            <td>${formatDate(item.date)}</td>
-                                            <td>${item.score}/${item.total_score}</td> <!-- Display score/total_score -->
-                                            <td>${item.rank}</td>
-                                        </tr>`
-                                    );
-                                });
+                        if (result.title && result.topic) {
+                            $('#assessment-title').text(result.title);
+                            if(result.mode) {
+                                $('#assessment-title').html(result.title + '<br>' + result.mode);
                             }
-                        } else {
-                            // Show message if no results found
-                            $('#assessment-details tbody').append(
-                                '<tr>' +
-                                '<td colspan="4" style="text-align: center;">No results found for this assessment</td>' +
-                                '</tr>'
-                            );
-                        }
+                            $('#assessment-topic').text(result.topic);
+                                
+                            // Clear previous details
+                            $('#assessment-details thead').empty();
+                            $('#assessment-details tbody').empty();
+                                
+                            if (Array.isArray(result.details) && result.details.length > 0) {
+                                // Populate the table based on result details
+                                populateResultDetails(result);
+                            } else {
+                                // Show message if no results found
+                                $('#assessment-details tbody').append(
+                                    '<tr>' +
+                                    '<td colspan="4" style="text-align: center;">No results found for this assessment</td>' +
+                                    '</tr>'
+                                );
+                            }
 
-                        // Show result popup
-                        showPopup('assessment-popup');
-                    } else {
-                        alert('Assessment details not found.');
+                            // Show the result popup
+                            showPopup('assessment-popup');
+                        } else {
+                            alert('Assessment details not found.');
+                        }
                     }
-                }
                 });
-            });
+            }
+
+            // Function to populate result
+            function populateResultDetails(result) {
+                if (result.assessment_mode == 1) {
+                    $('#assessment-details thead').append(
+                        `<tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Remarks</th>
+                        </tr>`
+                    );
+                        
+                    result.details.forEach(function(item) {
+                        $('#assessment-details tbody').append(
+                            `<tr>
+                                <td>${formatDate(item.date)}</td>
+                                <td>${item.score}/${item.total_score}</td>
+                                <td>${item.remarks}</td>
+                            </tr>`
+                        );
+                    });
+                } else if (result.assessment_mode == 2) {
+                    $('#assessment-details thead').append(
+                        `<tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Rank</th>
+                            <th>Remarks</th>
+                        </tr>`
+                    );
+                        
+                    result.details.forEach(function(item) {
+                        $('#assessment-details tbody').append(
+                            `<tr>
+                                <td>${formatDate(item.date)}</td>
+                                <td>${item.score}/${item.total_score}</td>
+                                <td>${item.rank}</td>
+                                <td>${item.remarks}</td>
+                            </tr>`
+                        );
+                    });
+                } else {
+                    $('#assessment-details thead').append(
+                        `<tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Rank</th>
+                        </tr>`
+                    );
+                        
+                    result.details.forEach(function(item) {
+                        $('#assessment-details tbody').append(
+                            `<tr>
+                                <td>${formatDate(item.date)}</td>
+                                <td>${item.score}/${item.total_score}</td>
+                                <td>${item.rank}</td>
+                            </tr>`
+                        );
+                    });
+                }
+            }
+
             // Close the join class popup when close button is clicked
             $('.popup-close').on('click', function() {
                 closePopup('assessment-popup');
+            });
+
+            //Search Functionality
+            function initializeSearch() {
+                const searchInput = $('.search-bar input[name="query"]');
+                
+                // Input event listener
+                searchInput.on('input', function() {
+                    const query = $(this).val().trim().toLowerCase(); // Convert to lowercase for case-insensitive search
+                    const activeTab = $('.tab-link.active').data('tab');
+                    
+                    // Filter the content based on the active tab
+                    if (activeTab === 'quizzes-tab') {
+                        filterAssessments('#quizzes-tab .assessment-card', query);
+                    } else if (activeTab === 'exams-tab') {
+                        filterAssessments('#exams-tab .assessment-card', query);
+                    }
+                });
+
+                // Handle search form submission
+                $('.search-bar').submit(function(e) {
+                    e.preventDefault();
+                });
+            }
+
+            // Function to filter the assessments
+            function filterAssessments(selector, query) {
+                let hasMatches = false;
+
+                $(selector).each(function() {
+                    const title = $(this).find('.assessment-card-title').text().toLowerCase();
+                    const topic = $(this).find('.assessment-card-topic').text().toLowerCase();
+                    
+                    // Show or hide based on the search query match
+                    if (title.includes(query) || topic.includes(query)) {
+                        $(this).show();
+                        hasMatches = true;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                const noResultsMessage = '<div class="no-records no-result">No results found</div>';
+
+                if (!hasMatches) {
+                    if (query !== '') {
+                        if ($('#quizzes-tab').hasClass('active')) {
+                            $('#quizzes-tab .quizzes-container').each(function() {
+                                // Check if there are no assessment cards or no-records inside the quizzes container
+                                if ($(this).next('.assessment-card').length === 0 && $(this).find('.no-records').length === 0) {
+                                    $(this).append(noResultsMessage); // Append inside the quizzes container
+                                }
+                            });
+                        } else if ($('#exams-tab').hasClass('active')) {
+                            $('#exams-tab .exams-container').each(function() {
+                                if ($(this).next('.assessment-card').length === 0 && $(this).find('.no-records').length === 0) {
+                                    $(this).append(noResultsMessage);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    // Remove "No results found" message if matches are found
+                    $('.no-result').remove();
+                }
+            }
+
+            // Initialize search on page load
+            $(document).ready(function() {
+                initializeSearch();
+
+                // Reset search when switching tabs
+                $('.tab-link').click(function() {
+                    $('.tab-link').removeClass('active');
+                    $(this).addClass('active');
+                    
+                    $('.search-bar input[name="query"]').val('');
+                    $('.search-bar input[name="query"]').trigger('input');
+                });
             });
         });
     </script>

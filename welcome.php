@@ -70,10 +70,9 @@
     </main>
 
     <!-- JavaScript Files -->
-
-    <script src="https://kit.fontawesome.com/a81368914c.js"></script>
+    <script src="assets/js/fontawesomekit.js"></script>
     <script>
-                // Select The Elements
+        // Select The Elements
         var toggle_btn;
         var big_wrapper;
         var hamburger_menu;

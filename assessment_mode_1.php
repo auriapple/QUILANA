@@ -3,28 +3,26 @@ include('db_connect.php');
 include('auth.php');
 
 // Check if assessment_id is set in URL
-if (!isset($_GET['assessment_id'])) {
+if (!isset($_GET['assessment_id']) && !isset($_GET['administer_id'])) {
     header('location: load_assessments.php');
     exit();
 }
 
-$assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
-$class_id = $conn->real_escape_string($_GET['class_id']);
+$assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+$administer_id = $conn->real_escape_string($_GET['administer_id']);
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
-    SELECT aa.administer_id, a.max_warnings, aa.start_time
+    SELECT a.max_warnings, aa.start_time
     FROM administer_assessment aa
     JOIN assessment a ON aa.assessment_id = a.assessment_id
-    WHERE aa.assessment_id = '$assessment_id'
-    AND aa.class_id = '$class_id'
+    WHERE aa.administer_id = '$administer_id'
 ");
 
 // Check if there is administer assessment details
 if ($administer_query->num_rows>0) {
     $administer_row = $administer_query->fetch_assoc();
-    $administer_id = $administer_row['administer_id'];
     $max_warnings = $administer_row['max_warnings'];
     $start_time = $administer_row['start_time'];
 
@@ -40,11 +38,36 @@ if ($administer_query->num_rows>0) {
     if ($join_query->num_rows==0){
         // Insert the join details with the status of 1 (answering)
         $insert_join_query = $conn->query("
-            INSERT INTO join_assessment (student_id, administer_id, status)
-            VALUES ('$student_id', '$administer_id', 1)
+            INSERT INTO join_assessment (student_id, administer_id, status, attempts)
+            VALUES ('$student_id', '$administer_id', 1, 1)
         ");
+
+        $attempts = 1;
+
         if (!$insert_join_query) {
             echo "Error inserting record: " . $conn->error;
+        }
+    } else {
+        $join_details = $join_query->fetch_assoc();
+        
+        if ($join_details['attempts'] < 3) {
+            // Update the join_assessment status to 1 (answering)
+            $update_join_query = $conn->query("
+                UPDATE join_assessment 
+                SET 
+                    status = 1,
+                    attempts = attempts + 1
+                WHERE administer_id = '$administer_id' 
+                AND student_id = '$student_id'
+            ");
+
+            $attempts = $join_details['attempts'] + 1;
+
+            if (!$update_join_query) {
+                echo "Error updating record: " . $conn->error;
+            }
+        } else {
+            $attempts = $join_details['attempts'] + 1;
         }
     }
 }
@@ -53,8 +76,20 @@ if ($administer_query->num_rows>0) {
 $assessment_query = $conn->query("SELECT * FROM assessment WHERE assessment_id = '$assessment_id'");
 $assessment = $assessment_query->fetch_assoc();
 
+// Check order of questions (normal or randomized)
+$random = $assessment['randomize_questions'];
+
 // Fetch questions related to the assessment
-$questions_query = $conn->query("SELECT * FROM questions WHERE assessment_id = '$assessment_id'");
+$questions_query = $conn->query("
+    SELECT * 
+    FROM questions 
+    WHERE assessment_id = '$assessment_id' 
+    ORDER BY
+        CASE
+            WHEN $random = 1 then RAND()
+            ELSE 0
+        END;
+");
 
 // Get the time limit for the assessment
 $time_limit = $assessment['time_limit'];
@@ -68,9 +103,8 @@ $time_limit = $assessment['time_limit'];
     <title><?php echo htmlspecialchars($assessment['assessment_name']); ?> | Quilana</title>
     <?php include('header.php') ?>
     <link rel="stylesheet" href="assets/css/assessments.css">
-    <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
-    <script src="/sweetalert2/sweetalert2.min.js"></script>
 </head>
+
 <body>
     <?php include('nav_bar.php') ?>
     <!-- Confirmation Popup -->
@@ -115,84 +149,85 @@ $time_limit = $assessment['time_limit'];
     </div>
 
     <div class="content-wrapper">
-        <input type="hidden" id="administerId_container" value="<?php echo $administer_id;  ?>" />
-        <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
-        
-        <form id="quiz-form" action="submit_assessment.php" method="POST">
-            <!-- Header with submit button and timer -->
-            <div class="header-container">
-                <p>Time Left: <span id="timer" class="timer">Loading...</span></p>
-                <button type="button" onclick="showPopup('confirmation-popup')" id="submit" class="secondary-button">Submit</button>
-            </div>
+        <div class = "main-container">
+            <input type="hidden" id="maxWarnings_container" value="<?php echo $max_warnings;  ?>" />
+            
+            <form id="quiz-form" action="submit_assessment.php" method="POST">
+                <!-- Header with submit button and timer showPopup('confirmation-popup') onclick="submit()" -->
+                <div class="header-container">
+                    <p>Time Left: <span id="timer" class="timer">Loading...</span></p>
+                    <button type="button" id="submit" class="secondary-button">Submit</button>
+                </div>
 
-            <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
-            <div class="tabs-container">
-                <ul class="tabs">
-                    <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
-                </ul>
-            </div>
+                <!-- Quiz form will appear here if the student hasn't already taken the assessment -->
+                <div class="tabs-container">
+                    <ul class="tabs">
+                        <li class="tab-link active" data-tab="assessment-tab"><?php echo htmlspecialchars($assessment['assessment_name']); ?></li>
+                    </ul>
+                </div>
 
-            <!-- Questions Container -->
-            <div class="questions-container">
-                <?php
-                // Initialize question counter to 1
-                $question_number = 1;
-                while ($question = $questions_query->fetch_assoc()) {
-                    echo "<div class='question'>";
-                    echo "<p><strong>$question_number. " . htmlspecialchars($question['question']) . "</strong></p>";
+                <!-- Questions Container -->
+                <div class="questions-container1">
+                    <?php
+                    // Initialize question counter to 1
+                    $question_number = 1;
+                    while ($question = $questions_query->fetch_assoc()) {
+                        echo "<div class='question'>";
+                        echo "<p><strong>$question_number. " . htmlspecialchars($question['question']) . "</strong></p>";
 
-                    // Handle input types based on question type
-                    $question_type = $question['ques_type'];
+                        // Handle input types based on question type
+                        $question_type = $question['ques_type'];
 
-                    // Single choice (radio buttons)
-                    if ($question_type == 1) {
-                        echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+                        // Single choice (radio buttons)
+                        if ($question_type == 1) {
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
 
-                        $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
-                        while ($choice = $choices_query->fetch_assoc()) {
+                            $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
+                            while ($choice = $choices_query->fetch_assoc()) {
+                                echo "<div class='form-check'>";
+                                echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
+                                echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "</div>";
+                            }
+                        // Multiple choice (checkboxes)
+                        } elseif ($question_type == 2) {
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+
+                            $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
+                            while ($choice = $choices_query->fetch_assoc()) {
+                                echo "<div class='form-check'>";
+                                echo "<input id='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
+                                echo "<label for='option_" . htmlspecialchars($choice['option_id']) . "' class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                                echo "</div>";
+                            }
+                        // True/False (radio buttons)
+                        } elseif ($question_type == 3) {
+                            echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
+                            
                             echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='" . htmlspecialchars($choice['option_txt']) . "' required>";
-                            echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
+                            echo "<input id='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
+                            echo "<label for='true_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>True</label>";
+                            echo "</div>";
+                            echo "<div class='form-check'>";
+                            echo "<input id='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
+                            echo "<label for='false_" . htmlspecialchars($question['question_id']) . "' class='form-check-label'>False</label>";
+                            echo "</div>";
+                        // Fill in the blank and identification (text input)
+                        } elseif ($question_type == 4 || $question_type == 5) {
+                            echo "<div class='form-check-group'>";
+                            echo "<input type='text' id='answer_" . htmlspecialchars($question['question_id']) . "' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
                             echo "</div>";
                         }
-                    // Multiple choice (checkboxes)
-                    } elseif ($question_type == 2) {
-                        echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-
-                        $choices_query = $conn->query("SELECT * FROM question_options WHERE question_id = '" . $question['question_id'] . "'");
-                        while ($choice = $choices_query->fetch_assoc()) {
-                            echo "<div class='form-check'>";
-                            echo "<input class='form-check-input' type='checkbox' name='answers[" . $question['question_id'] . "][]' value='" . htmlspecialchars($choice['option_txt']) . "'>";
-                            echo "<label class='form-check-label'>" . htmlspecialchars($choice['option_txt']) . "</label>";
-                            echo "</div>";
-                        }
-                    // True/False (radio buttons)
-                    } elseif ($question_type == 3) {
-                        echo "<input type='hidden' name='answers[" . $question['question_id'] . "]' value=''>";
-                        
-                        echo "<div class='form-check'>";
-                        echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='true' required>";
-                        echo "<label class='form-check-label'>True</label>";
                         echo "</div>";
-                        echo "<div class='form-check'>";
-                        echo "<input class='form-check-input' type='radio' name='answers[" . $question['question_id'] . "]' value='false' required>";
-                        echo "<label class='form-check-label'>False</label>";
-                        echo "</div>";
-                    // Fill in the blank and identification (text input)
-                    } elseif ($question_type == 4 || $question_type == 5) {
-                        echo "<div class='form-check-group'>";
-                        echo "<input type='text' class='form-control' name='answers[" . $question['question_id'] . "]' placeholder='Type your answer here' required>";
-                        echo "</div>";
+                        $question_number++;
                     }
-                    echo "</div>";
-                    $question_number++;
-                }
-                ?>
-                <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
-                <input type="hidden" id="time_limit" name="time_limit" value="<?php echo $time_limit; ?>">
-                <input type="hidden" name="class_id" value="<?php echo $class_id; ?>">
-            </div>
-        </form>
+                    ?>
+                    <input type="hidden" name="assessment_id" value="<?php echo $assessment_id; ?>">
+                    <input type="hidden" id="time_limit" name="time_limit" value="<?php echo $time_limit; ?>">
+                    <input type="hidden" id="administerId_container" name="administer_id" value="<?php echo htmlspecialchars($administer_id);  ?>" />
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -208,6 +243,62 @@ $time_limit = $assessment['time_limit'];
         let ctrlKeyPressed = false;
         let warningTracker = false;
 
+        // Handle number of attempts warning
+        var attempts = <?php echo $attempts; ?>;
+
+        if (attempts > 3) {
+            Swal.fire({
+                title: 'Maximum Attempts Reached!',
+                text: 'You have already reached the maximum number of attempts for this assessment.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleSubmit();
+                }
+            });
+        } else if (attempts === 3) {
+            Swal.fire({
+                title: 'This is your last attempt!',
+                text: 'This is your final chance to answer this assessment. You can no longer answer this assessment after this attempt.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            });
+        } else {
+            var attemptText = '';
+            var attemptTitle = '';
+
+            if (attempts === 1) {
+                attemptTitle = 'First Attempt';
+                attemptText = 'You are about to make your first attempt. Remember, you can only attempt to answer this assessment 3 times.';
+            } else if (attempts === 2) {
+                attemptTitle = 'Second Attempt';
+                attemptText = 'This is your second attempt. You have one more chance to answer this assessment.';
+            }
+
+            Swal.fire({
+                title: attemptTitle,
+                text: attemptText,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            });
+        }
+
         // POPUP HANDLING
         function showPopup(popupId) {
             document.getElementById(popupId).style.display = 'flex';
@@ -219,6 +310,28 @@ $time_limit = $assessment['time_limit'];
             document.getElementById(popupId).style.display = 'none';
             isSubmitting = false;
         }
+
+        document.getElementById('submit').addEventListener('click', function() {
+            // Check if all questions are answered
+            const allAnswered = checkAllAnswered();
+
+            if (allAnswered === 1) {
+                showPopup('confirmation-popup');
+            } else {
+                Swal.fire({
+                    title: 'You cannot submit yet!',
+                    text: 'Please answer all questions first.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                });
+            }
+        });
+        
 
         // FORM SUBMISSION HANDLING
         function handleSubmit(event) {
@@ -258,6 +371,115 @@ $time_limit = $assessment['time_limit'];
             closePopup('timer-runout-popup');
             closePopup('confirmation-popup');
         }
+
+        // UNANSWERED ITEMS HANDLING
+        // Select all question containers
+        const questions = document.querySelectorAll('.question');
+        const navContainer = document.createElement('div');
+        navContainer.id = 'question-nav-container';
+        document.body.appendChild(navContainer);
+        let currentStartIndex = 0;
+        const maxVisibleBoxes = 10;
+        let seenQuestions = new Set();
+        let unansweredQuestions = new Set();
+
+        // Function to update navigation boxes (show all questions with different styles for answered and unanswered)
+        function updateNavBoxes() {
+            // Clear existing boxes 
+            document.querySelectorAll('.question-nav-box').forEach(box => box.remove());
+
+            // Create navigation boxes for all questions (answered or unanswered)
+            questions.forEach((question, index) => {
+                const navBox = document.createElement('div');
+                navBox.className = 'question-nav-box';
+                navBox.textContent = index + 1;
+                navBox.dataset.index = index;
+
+                // Check if the question is answered
+                if (!isQuestionAnswered(question)) {
+                    navBox.classList.add('unanswered'); // Add 'unanswered' class if not answered
+                }
+
+                // Scroll to the question when clicked
+                navBox.onclick = () => {
+                    question.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'end',
+                    });
+                };
+
+                // Append the nav box to the container
+                navContainer.appendChild(navBox);
+            });
+        }
+
+        // Function to check if all questions are answered
+        function checkAllAnswered() {
+            let allAnswered = true;
+
+            // Check each question to see if it's answered
+            questions.forEach((question) => {
+                if (!isQuestionAnswered(question)) {
+                    allAnswered = false;
+                }
+            });
+
+            if (allAnswered) {
+                console.log("All questions have been answered!");
+                return 1;
+            } else {
+                console.log("Some questions are still unanswered.");
+                return 0;
+            }
+        }
+
+        // Function to check if a question is answered
+        function isQuestionAnswered(question) {
+            const radios = question.querySelectorAll('input[type="radio"]');
+            const checkboxes = question.querySelectorAll('input[type="checkbox"]');
+            const textInput = question.querySelector('input[type="text"]');
+            const isRadioAnswered = radios.length > 0 && Array.from(radios).some(radio => radio.checked);
+            const isCheckboxAnswered = checkboxes.length > 0 && Array.from(checkboxes).some(checkbox => checkbox.checked);
+            const isTextAnswered = textInput && textInput.value.trim() !== '';
+            return isRadioAnswered || isCheckboxAnswered || isTextAnswered;
+        }
+
+        // IntersectionObserver to track seen questions (for lazy loading and marking questions as seen)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const index = Array.from(questions).indexOf(entry.target);
+                if (entry.isIntersecting) {
+                    seenQuestions.add(index);
+                    // Update the unanswered questions set
+                    if (!isQuestionAnswered(entry.target)) {
+                        unansweredQuestions.add(index);
+                    } else {
+                        unansweredQuestions.delete(index);
+                    }
+                    updateNavBoxes();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        // Observe all questions
+        questions.forEach(question => observer.observe(question));
+
+        // Listen for input changes to update answered state
+        document.getElementById('quiz-form').addEventListener('input', () => {
+            questions.forEach((question, index) => {
+                if (seenQuestions.has(index)) {
+                    if (isQuestionAnswered(question)) {
+                        unansweredQuestions.delete(index);
+                    } else {
+                        unansweredQuestions.add(index);
+                    }
+                }
+            });
+            updateNavBoxes();
+        });
+
+        // Initial rendering of the navigation boxes
+        updateNavBoxes();
 
         // SUSPICIOUS ACTIVITIES HANDLING
         // Warning system
@@ -534,20 +756,16 @@ $time_limit = $assessment['time_limit'];
             handleWarning('Screen capture');
         });
 
-        // Pixel change detection
-        let lastPixel = null;
-        setInterval(() => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1;
-            canvas.height = 1;
-            const ctx = canvas.getContext('2d');
-            ctx.drawWindow(window, 0, 0, 1, 1, "rgb(255,255,255)");
-            const pixel = ctx.getImageData(0, 0, 1, 1).data.toString();
-            if (lastPixel !== null && pixel !== lastPixel) {
-                handleWarning('Pixel change');
+        // Mobile phone screenshot andriod detection (three fingers)
+        let touchCount = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchCount = event.touches.length;
+            
+            if (touchCount === 3) {
+                handleWarning('Screenshot');
             }
-            lastPixel = pixel;
-        }, 1000);
+        }, true);
 
         // Set Timer Functionality and Event Listeners
         window.onload = function() {

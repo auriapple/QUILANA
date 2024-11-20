@@ -150,7 +150,7 @@
             border-right: 1px solid rgba(59, 39, 110, 0.80);
             justify-content: center;
             padding: 12px;
-            color:#4a4a4a;
+            color: #4a4a4a;
         }
 
         .table-wrapper td:last-child,
@@ -215,14 +215,11 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 25px;
-            border: 1px solid #eee;
-            background-color: #fff;
-            box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
+            padding: 25px 15px 15px;
+            background-color: #6e72c1dd;
             font-size: 14px;
-            color: #777;
+            color: #fff;
             text-align: justify;
-
         }
 
         .notification-card span.notif-close {
@@ -236,7 +233,7 @@
             right: 7px;
             cursor: pointer;
             font-size: 16px;
-            color: #999;
+            color: #fff;
         }
 
         .notification-card span.notif-close:hover {
@@ -255,7 +252,7 @@
             text-align: right;
             font-size: 10px;
             letter-spacing: 1px;
-            color: #999;
+            color: white;
         }
 
         .table-wrapper td {
@@ -418,6 +415,7 @@
                             <button id="closeAssessment" class="main-button button" style="width: 180px; display: none;"> Close </button>
                         </div>
                         <input type="hidden" id="administerId-container" value="<?php echo $administer['administer_id']; ?>" />
+                        <input type="hidden" id="startTime-container" value="<?php echo $administer['start_time']; ?>" />
                     </div>
 
                     <div class='table-wrapper'>
@@ -712,6 +710,14 @@
             if (storedStartTime) {
                 $('#startAssessment').hide();
                 initializeTimer(storedStartTime);
+            } else {
+                const startTime = document.getElementById('startTime-container').value;
+
+                if(startTime) {
+                    $('#startAssessment').hide();
+                    sessionStorage.setItem(`start_time_${administerId}`, startTime);
+                    initializeTimer(startTime);
+                }
             }
         }
 

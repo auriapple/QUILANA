@@ -8,7 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Fetch details from the form submitted
     $assessment_id = $conn->real_escape_string($_POST['assessment_id']);
-    $class_id = $conn->real_escape_string($_POST['class_id']);
+    $administer_id = $conn->real_escape_string($_POST['administer_id']);
+    //$class_id = $conn->real_escape_string($_POST['class_id']);
     $answers = $_POST['answers'];
     $time_elapsed = isset($_POST['time_elapsed']) ? json_decode($_POST['time_elapsed'], true) : [];
     
@@ -18,18 +19,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         $conn->begin_transaction();
         // Fetch administer assessment details
-        $administer_query = $conn->query("
+        /*$administer_query = $conn->query("
             SELECT aa.administer_id 
             FROM administer_assessment aa
             JOIN assessment a ON a.assessment_id = aa.assessment_id
             WHERE a.assessment_id = '$assessment_id'
             AND aa.class_id = '$class_id'
-        ");
+        ");*/
 
         // Check if there is administer assessment details
-        if ($administer_query->num_rows>0) {
-            $administer_data = $administer_query->fetch_assoc();
-            $administer_id = $administer_data['administer_id'];
+        //if ($administer_query->num_rows>0) {
+            //$administer_data = $administer_query->fetch_assoc();
+            //$administer_id = $administer_data['administer_id'];
             
             // Update the join_assessment status to 2 (finished)
             $update_join_query = $conn->query("
@@ -42,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!$update_join_query) {
                 echo "Error updating record: " . $conn->error;
             }
-        }
+        //}
 
         // Insert submission details into the student_submission table
-        $insert_submission_query = "INSERT INTO student_submission (student_id, assessment_id, date_taken) 
-                                    VALUES ('$student_id', '$assessment_id', '$date_taken')";
+        $insert_submission_query = "INSERT INTO student_submission (student_id, assessment_id, administer_id, date_taken) 
+                                    VALUES ('$student_id', '$assessment_id', '$administer_id', '$date_taken')";
 
         if ($conn->query($insert_submission_query)) {
             $submission_id = $conn->insert_id;
@@ -257,8 +258,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $assessment_mode = $assessment_data['assessment_mode'];
         $passing_rate = $assessment_data['passing_rate'];
 
-        $rank = NULL;
-
         $score = ($assessment_mode != 3) ? $total_score : 0;
 
         $assessment_score = ($assessment_mode != 3) ? $total_possible_score : 0;
@@ -269,8 +268,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Insert results into student_results table
         $insert_results_query = "
-            INSERT INTO student_results (submission_id, assessment_id, student_id, total_score, score, remarks, rank)
-            VALUES ('$submission_id', '$assessment_id', '$student_id', '$assessment_score', '$score', " . ($remarks === NULL ? "NULL" : "'$remarks'") . ", '$rank')
+            INSERT INTO student_results (submission_id, assessment_id, student_id, total_score, score, remarks)
+            VALUES ('$submission_id', '$assessment_id', '$student_id', '$assessment_score', '$score', " . ($remarks === NULL ? "NULL" : "'$remarks'") . ")
             ";
         if ($conn->query($insert_results_query)) {
             echo "Results inserted successfully!";

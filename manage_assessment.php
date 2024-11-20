@@ -68,8 +68,6 @@ if ($stmt = $conn->prepare($query)) {
 <html lang="en">
 <head>
     <title>Manage Assessment | Quilana</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .assessment {
             padding: 10px;
@@ -104,6 +102,9 @@ if ($stmt = $conn->prepare($query)) {
             background-color: #E0E0EC !important;
             font-weight: bold;
             border-bottom: none !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .card-body {
             height: 45vh;
@@ -164,6 +165,53 @@ if ($stmt = $conn->prepare($query)) {
             display: flex;
             gap: 10px;
         }
+
+        .randomize {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin: 0;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+            align-items: center;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+        }
+        input:checked + .slider {
+            background-color: #4A4CA6;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
     </style>
 </head>
 <body>
@@ -204,9 +252,6 @@ if ($stmt = $conn->prepare($query)) {
                     <p><strong>Passing Rate:</strong> 
                         <span id="speedmode-passing-rate"><?php echo isset($assessment_passing_rate) && $assessment_passing_rate > 0 ? $assessment_passing_rate . '%' : 'Not set'; ?></span>
                     </p>
-                    <p><strong>Maximum Warnings:</strong> 
-                        <span id="speedmode-max-warnings"><?php echo $assessment_max_warnings; ?></span>
-                    </p>
                     <p><strong>Max Points:</strong> 
                         <span id="current-max-points"><?php echo isset($assessment_max_points) ? $assessment_max_points : 'Not set'; ?></span>
                     </p>
@@ -215,6 +260,9 @@ if ($stmt = $conn->prepare($query)) {
                     </p>
                     <p><strong>Remaining Points:</strong> 
                         <span id="current-remaining-points"><?php echo isset($assessment_remaining_points) ? $assessment_remaining_points : 'Not set'; ?></span></p>                
+                    </p>
+                    <p><strong>Maximum Warnings:</strong> 
+                        <span id="speedmode-max-warnings"><?php echo $assessment_max_warnings; ?></span>
                     </p>
                 <?php endif; ?>
                 <div class="mt-3">
@@ -225,7 +273,7 @@ if ($stmt = $conn->prepare($query)) {
                         <button class="btn btn-secondary me-2" id="edit_passing_rate_btn"><i class="fa fa-plus"></i> Edit Passing Rate and Maximum Warnings</button>
                     <?php endif; ?>
                     <?php if ($assessment_mode_code == 3): ?>
-                        <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate, Maximum Warnings, and Pointing System</button>
+                        <button class="btn btn-secondary me-2" id="edit_speedmode_details_btn"><i class="fa fa-plus"></i> Edit Passing Rate, Pointing System, and Maximum Warnings</button>
                     <?php endif; ?>
                     <button class="btn btn-primary" id="add_question_btn">
                         <i class="fa fa-plus"></i> Add Question
@@ -255,7 +303,18 @@ if ($stmt = $conn->prepare($query)) {
 
                 if ($questions_result->num_rows > 0) {
                     echo '<div class="card card-full-width">';
-                    echo '<div class="card-header">Questions</div>';
+                    echo '<div class="card-header">';
+                    echo '<span>Questions</span>';
+                    echo '<div class="randomize">';
+                    echo '<span>Randomize</span>';
+                    // Toggle Button next to "Randomize"
+                    echo '<label class="switch">';
+                    echo '<input type="checkbox" id="randomize-toggle">';
+                    echo '<span class="slider"></span>';
+                    echo '</label>';
+                    echo '</div>';
+                    
+                    echo '</div>';
                     echo '<div class="card-body">';
                     echo '<ul class="list-group">';
                     
@@ -395,12 +454,12 @@ if ($stmt = $conn->prepare($query)) {
         </div>
     </div>
 
-    <!-- Edit Time Limit, Passing Rate, and Max Warning Modal -->
+    <!-- Modal for Normal Mode Details -->
     <div id="edit_time_limit_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Time Limit and Passing Rate</h5>
+                    <h5 class="modal-title">Edit Time Limit, Passing Rate, and Maximum Warnings</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -416,7 +475,7 @@ if ($stmt = $conn->prepare($query)) {
                             <input type="number" id="assessment_passing_rate" name="passing_rate"  min="0" max="100" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="assessment_max_warnings">Maximum Warnings</label>
+                            <label for="assessment_max_warnings">Maximum Warnings:</label>
                             <input type="number" id="assessment_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                     </form>
@@ -434,7 +493,7 @@ if ($stmt = $conn->prepare($query)) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editSpeedModeLabel">Edit Passing Rate and Points</h5>
+                    <h5 class="modal-title" id="editSpeedModeLabel">Edit Passing Rate, Pointing System, and Maximum Warnings</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
@@ -455,6 +514,10 @@ if ($stmt = $conn->prepare($query)) {
                             <label for="assessment_remaining_points">Remaining Points (for those not eligible for maximum points):</label>
                             <input type="number" class="form-control" id="assessment_remaining_points" name="assessment_remaining_points" required>
                         </div>
+                        <div class="form-group">
+                            <label for="assessment_max_warnings">Maximum Warnings:</label>
+                            <input type="number" id="assessment_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -465,12 +528,12 @@ if ($stmt = $conn->prepare($query)) {
         </div>
     </div>
 
-    <!-- Edit Passing Rate Modal For Quiz Bee Mode -->
+    <!-- Modal for Quiz Bee Mode Details -->
     <div id="edit_passing_rate_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Passing Rate</h5>
+                    <h5 class="modal-title">Edit Passing Rate and Maximum Warnings</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -482,7 +545,7 @@ if ($stmt = $conn->prepare($query)) {
                             <input type="number" id="quizbee_passing_rate" name="passing_rate" class="form-control" min="0" max="100" required>
                         </div>
                         <div class="form-group">
-                            <label for="quizbee_max_warnings">Maximum Warnings</label>
+                            <label for="quizbee_max_warnings">Maximum Warnings:</label>
                             <input type="number" id="quizbee_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                     </form>
@@ -494,8 +557,6 @@ if ($stmt = $conn->prepare($query)) {
             </div>
         </div>
     </div>
-
-
 
     <script>
     $(document).ready(function() {
@@ -726,7 +787,6 @@ if ($stmt = $conn->prepare($query)) {
                 }
             }
 
-
         // Add question button handler (for new questions)
         $(document).on('click', '#add_question_btn', function() {
             $('#question-frm')[0].reset();
@@ -738,8 +798,8 @@ if ($stmt = $conn->prepare($query)) {
             $('#manage_question').modal('show');
         });
 
-                // Edit question button handler
-                $(document).on('click', '.edit_question', function() {
+        // Edit question button handler
+        $(document).on('click', '.edit_question', function() {
             var questionId = $(this).data('id');
 
             // Fetch question details for editing
@@ -791,7 +851,7 @@ if ($stmt = $conn->prepare($query)) {
             }
         });
 
-        // Edit time limit and passing rate button handler
+        // Edit normal mode assessment details
         $('#edit_time_limit_btn').click(function() {
             var currentTimeLimit = $('#current-time-limit').text();
             var currentPassingRate = $('#current-passing-rate').text();
@@ -804,7 +864,7 @@ if ($stmt = $conn->prepare($query)) {
             $('#edit_time_limit_modal').modal('show');
         });
 
-        // Save time limit and passing rate button handler
+        // Save normal mode assessment details
         $('#save_time_limit').click(function() {
             var newTimeLimit = $('#assessment_time_limit').val();
             var newPassingRate = $('#assessment_passing_rate').val();
@@ -845,31 +905,32 @@ if ($stmt = $conn->prepare($query)) {
             });
         });
 
-
-        // Edit Speed Mode Details button handler
+        // Edit speed mode assessment details
         $('#edit_speedmode_details_btn').click(function() {
-                var currentPassingRate = $('#speedmode-passing-rate').text();
-                var currentMaxPoints = $('#current-max-points').text();
-                var currentStudentCount = $('#current-student-count').text();
-                var currentRemainingPoints = $('#current-remaining-points').text();
+            var currentPassingRate = $('#speedmode-passing-rate').text();
+            var currentMaxPoints = $('#current-max-points').text();
+            var currentStudentCount = $('#current-student-count').text();
+            var currentRemainingPoints = $('#current-remaining-points').text();
+            var currentMaxWarnings = $('#speedmode-max-warnings').text();
 
-                $('#speedmode_passing_rate').val(currentPassingRate !== 'Not set' ? currentPassingRate : '');
-                $('#assessment_max_points').val(currentMaxPoints !== 'Not set' ? currentMaxPoints : '');
-                $('#assessment_student_count').val(currentStudentCount !== 'Not set' ? currentStudentCount : '');
-                $('#assessment_remaining_points').val(currentRemainingPoints !== 'Not set' ? currentRemainingPoints : '');
+            $('#speedmode_passing_rate').val(currentPassingRate !== 'Not set' ? currentPassingRate : '');
+            $('#assessment_max_points').val(currentMaxPoints !== 'Not set' ? currentMaxPoints : '');
+            $('#assessment_student_count').val(currentStudentCount !== 'Not set' ? currentStudentCount : '');
+            $('#assessment_remaining_points').val(currentRemainingPoints !== 'Not set' ? currentRemainingPoints : '');
+            $('#assessment_max_warnings').val(currentMaxWarnings !== 'Not set' ? currentMaxWarnings: '');
 
-                $('#edit_speedmode_modal').modal('show');
-            });
+            $('#edit_speedmode_modal').modal('show');
+        });
 
-            // Save Speed Mode Details button handler
-            $('#save_speed_mode').click(function() {
-
+        // Save speed mode assessment details
+        $('#save_speed_mode').click(function() {
             var passingRate = $('#speedmode_passing_rate').val();
             var maxPoints = $('#assessment_max_points').val();
             var studentCount = $('#assessment_student_count').val();
             var remainingPoints = $('#assessment_remaining_points').val();
+            var maxWarnings = $('#speedmode_max_warnings').val();
 
-            if (!passingRate || !maxPoints || !studentCount || !remainingPoints) {
+            if (!passingRate || !maxPoints || !studentCount || !remainingPoints || !maxWarnings) {
                 alert('Please fill in all fields correctly.');
                 return;
             }
@@ -883,7 +944,8 @@ if ($stmt = $conn->prepare($query)) {
                     passing_rate: passingRate,
                     max_points: maxPoints,
                     student_count: studentCount,
-                    remaining_points: remainingPoints
+                    remaining_points: remainingPoints,
+                    max_warnings: maxWarnings
                 },
                 dataType: 'json',
                 success: function(response) {
@@ -905,15 +967,18 @@ if ($stmt = $conn->prepare($query)) {
             });
         });
 
-        // Edit Passing Rate button handler (for Quiz Bee Mode)
+        // Edit quiz bee mode assessment details
         $('#edit_passing_rate_btn').click(function() {
             var currentPassingRate = $('#quizbee-passing-rate').text().trim();
+            var currentMaxWarnings = $('#quizbee-max-warnings').text();
 
             $('#quizbee_passing_rate').val(currentPassingRate === 'Not set' ? '' : currentPassingRate);
+            $('#assessment_max_warnings').val(currentMaxWarnings === 'Not set' ? '' : currentMaxWarnings);
+
             $('#edit_passing_rate_modal').modal('show');
         });
 
-        // Save passing rate button handler
+        // Save quiz bee mode assessment details
         $('#save_passing_rate').click(function() {
             var newPassingRate = $('#quizbee_passing_rate').val();
             var newMaxWarnings = $('#quizbee_max_warnings').val();
@@ -941,6 +1006,7 @@ if ($stmt = $conn->prepare($query)) {
                         $('#quizbee-passing-rate').text(newPassingRate === '0' ? 'Not set' : newPassingRate);
                         $('#edit_passing_rate_modal').modal('hide');
                         alert('Quiz bee mode details updated successfully.');
+                        location.reload();
                     } else {
                         alert('Error: ' + response.message);
                     }
@@ -951,7 +1017,6 @@ if ($stmt = $conn->prepare($query)) {
                 }
             });
         });
-
 
         // Function to handle assessment mode change
         function handleAssessmentModeChange() {
@@ -975,13 +1040,79 @@ if ($stmt = $conn->prepare($query)) {
             }
         }
 
-        // Call the function on page load
-        $(document).ready(function() {
-            handleAssessmentModeChange(); 
+        // Handle question randomization changes
+        const checkbox = document.getElementById('randomize-toggle');
+        let checked;
+
+        checkbox.addEventListener('change', function() {
+            if (checkbox.checked) {
+                console.log('Checkbox is checked');
+                checked = 1;
+            } else {
+                console.log('Checkbox is not checked');
+                checked = 0;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: 'randomize_questions.php',
+                data: { 
+                    assessment_id: <?php echo $assessment_id; ?>,
+                    checked: checked
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === 'randomize') {
+                        alert('Questions are randomized successfully');
+                    } else if (response.status === 'undo randomize') {
+                        alert('Undoed question randomization successfully')
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: " + status + ": " + error);
+                    alert('An error occurred while randomizing questions. Please try again.');
+                }
+            });
         });
 
-    });
+        // Function to check if randomized
+        function checkRandomize() {
+            $.ajax({
+                type: 'GET',
+                url: 'check_randomization.php',
+                data: { 
+                    assessment_id: <?php echo $assessment_id; ?>
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === 'success') {
+                        let checked = response.checked;
+                        if (checked === 1) {
+                            $('#randomize-toggle').prop('checked', true); // Set to checked
+                        } else {
+                            $('#randomize-toggle').prop('checked', false); // Set to unchecked
+                        }
+                        console.log("Randomization successfully checked and set");
+                    } else {
+                        console.log("Error checking and setting randomization: " + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: " + status + ": " + error);
+                }
+            });
+        }
 
-</script>
+        // Call the function on page load
+        $(document).ready(function() {
+            handleAssessmentModeChange();
+            checkRandomize();
+        });
+    });
+    </script>
 </body>
 </html>

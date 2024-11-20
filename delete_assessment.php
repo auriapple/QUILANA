@@ -93,21 +93,21 @@ if (isset($_POST['assessment_id'])) {
         $delete_result_stmt->execute();
         $delete_result_stmt->close();
         
-        // 9. Delete student submissions
+        // 10. Delete student submissions
         $delete_submission_query = "DELETE FROM student_submission WHERE assessment_id = ?";
         $delete_submission_stmt = $conn->prepare($delete_submission_query);
         $delete_submission_stmt->bind_param("i", $assessment_id);
         $delete_submission_stmt->execute();
         $delete_submission_stmt->close();
 
-        // 10. Delete the assessments uploaded in review website
+        // 11. Delete the assessments uploaded in review website
         $delete_uploads_query = "DELETE FROM assessment_uploads WHERE assessment_id = ?";
         $delete_uploads_stmt = $conn->prepare($delete_uploads_query);
         $delete_uploads_stmt->bind_param("i", $assessment_id);
         $delete_uploads_stmt->execute();
         $delete_uploads_stmt->close();
 
-        // 11. Delete the assessment itself
+        // 12. Delete the assessment itself
         $delete_assessment_query = "DELETE FROM assessment WHERE assessment_id = ?";
         $delete_assessment_stmt = $conn->prepare($delete_assessment_query);
         $delete_assessment_stmt->bind_param("i", $assessment_id);

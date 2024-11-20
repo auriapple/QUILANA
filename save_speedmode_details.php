@@ -7,16 +7,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $max_points = intval($_POST['max_points']);
     $student_count = intval($_POST['student_count']);
     $remaining_points = intval($_POST['remaining_points']);
+    $max_warnings = intval($_POST['max_warnings']);
 
     $query = "UPDATE assessment SET 
     passing_rate = ?, 
     max_points = ?, 
     student_count = ?, 
-    remaining_points = ? 
+    remaining_points = ?,
+    max_warnings = ? 
     WHERE assessment_id = ?";
 
     if ($stmt = $conn->prepare($query)) {
-        $stmt->bind_param("iiiii", $passing_rate, $max_points, $student_count, $remaining_points, $assessment_id);
+        $stmt->bind_param("iiiiii", $passing_rate, $max_points, $student_count, $remaining_points, $assessment_id, $max_warnings);
         
         if ($stmt->execute()) {
             echo json_encode(['status' => 'success', 'message' => 'Speed mode details updated successfully']);

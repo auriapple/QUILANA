@@ -1,18 +1,17 @@
 <?php
 include('db_connect.php');
 
-if (!isset($_GET['assessment_id']) || !isset($_GET['class_id'])) {
+if (!isset($_GET['administer_id'])) {
     echo json_encode(['error' => 'Missing parameters']);
     exit();
 }
 
-$assessment_id = $conn->real_escape_string($_GET['assessment_id']);
-$class_id = $conn->real_escape_string($_GET['class_id']);
+$administer_id = $conn->real_escape_string($_GET['administer_id']);
 
 $status_query = $conn->query("
     SELECT status 
     FROM administer_assessment 
-    WHERE assessment_id = '$assessment_id' AND class_id = '$class_id'
+    WHERE administer_id = '$administer_id'
 ");
 
 if ($status_query && $status_query->num_rows > 0) {
