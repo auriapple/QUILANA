@@ -1015,6 +1015,120 @@
             $(document).ajaxComplete(function() {
                 updateMeatballMenu();
             });
+
+            // Search Functionality
+            function initializeSearch() {
+                const searchInput = $('.search-bar input[name="query"]');
+
+                // Input event listener 
+                searchInput.on('input', function() {
+                    const query = $(this).val().trim();
+                    const activeTab = $('.tab-link.active').data('tab');
+                    const searchType = activeTab === 'courses-tab' ? 'courses' : 'classes';
+
+                    // If search is empty, reload all items
+                    if (query === '') {
+                        if (searchType === 'courses') {
+                            // Load all courses
+                            $.get('search.php', {
+                                query: '',
+                                type: 'courses'
+                            }, function(response) {
+                                $('.course-container').first().html(response);
+                                updateMeatballMenu();
+                            });
+                        } else {
+                            // Load classes
+                            if (currentCourseId) {
+                                $.get('search.php', {
+                                    query: '',
+                                    type: 'classes',
+                                    course_id: currentCourseId
+                                }, function(response) {
+                                    $('#class-container').html(response);
+                                    updateMeatballMenu();
+                                });
+                            }
+                        }
+                        return;
+                    }
+
+                    const searchParams = {
+                        query: query,
+                        type: searchType
+                    };
+
+                    if (searchType === 'classes' && currentCourseId) {
+                        searchParams.course_id = currentCourseId;
+                    }
+
+                    // Perform search
+                    $.get('search.php', searchParams, function(response) {
+                        if (searchType === 'courses') {
+                            $('.course-container').first().html(response);
+                        } else {
+                            $('#class-container').html(response);
+                        }
+                        updateMeatballMenu();
+                    });
+                });
+
+                // Handle search form submission
+                $('.search-bar').submit(function(e) {
+                    e.preventDefault();
+                });
+            }
+
+            // Function to load classes for a course
+            function getClasses(courseId) {
+                $.get('search.php', {
+                    query: '',
+                    type: 'classes',
+                    course_id: courseId
+                }, function(response) {
+                    $('#class-container').html(response);
+                    updateMeatballMenu();
+                });
+            }
+
+
+            $(document).ready(function() {
+                initializeSearch();
+
+                // Tab click handler
+                $('.tab-link').click(function() {
+                    $('.tab-link').removeClass('active');
+                    $(this).addClass('active');
+
+                    $('.search-bar input[name="query"]').val('');
+                    $('.search-bar input[name="query"]').trigger('input');
+                });
+
+                // Classes button click handler
+                $(document).on('click', '.viewClasses', function() {
+                    currentCourseId = $(this).data('id');
+                    const courseName = $(this).data('name');
+
+                    $('#classes-tab-link')
+                        .show()
+                        .click()
+                        .text(courseName);
+
+                    // Load classes for the selected course
+                    getClasses(currentCourseId);
+
+                    $('#add-class-popup input[name="course_id"]').val(currentCourseId);
+                    $('.search-bar input[name="query"]').val('');
+
+                    // Update URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set('course_id', currentCourseId);
+                    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+                    history.replaceState(null, '', newUrl);
+
+                    initializeCourseSpecificHandlers(currentCourseId);
+                });
+            });
         });
         </script>
     </body>
