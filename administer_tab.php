@@ -258,6 +258,38 @@
             color: #999;
         }
 
+        .table-wrapper td {
+            width: calc(100% / 6);
+            min-width: 93px;
+        }
+
+        .table-wrapper th:nth-child(3), 
+        .table-wrapper td:nth-child(3),
+        .table-wrapper th:nth-child(4), 
+        .table-wrapper td:nth-child(4) {
+            width: calc(100% / 8);
+            min-width: 80px;
+        }
+
+        .decrease-btn {
+            padding: 5px 10px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .decrease-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .decrease-btn:hover:not(:disabled) {
+            background-color: #ff5252;
+        }
+
         @media screen and (max-width: 1020px) {
             .main-container .table-wrapper {
                 margin: 10px 0;
@@ -396,6 +428,7 @@
                                     <th class="studentNumber-column">Student Number</th>
                                     <th>Student Name</th>
                                     <th>Number of Suspicious Activities</th>
+                                    <th>Action</th>
                                     <th class="status-column">Status</th>
                                     <th>Score</th>
                                 </tr>
@@ -441,58 +474,122 @@
                     assessment_id: assessmentId,
                     class_id: classId
                 })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = ''; // Clear existing data
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="studentNumber-column">${item.student_number}</td>
+                        <td>${item.student_name}</td>
+                        <td>${item.suspicious_act}</td>
+                    `;
+                    const suspiciousActs = parseInt(item.suspicious_act);
+                    const status = parseInt(item.status);
+                    const isDecreaseDisabled = suspiciousActs === 0 || status === 0 || status === 2;
+                    row.innerHTML += `
+                        <td>
+                            <button 
+                                class="decrease-btn" 
+                                onclick="decreaseSuspiciousActs('${item.student_id}')"
+                                ${isDecreaseDisabled ? 'disabled' : ''}
+                            >
+                                Decrease
+                            </button>
+                        </td>
+                    `;
+                    // Add status column based on the status value
+                    if (status === 0) {
+                        row.innerHTML += '<td class="status-column"><div class="joined">Joined</div></td>';
+                    } else if (status === 1) {
+                        row.innerHTML += '<td class="status-column"><div class="answering">Answering</div></td>';
+                    } else if (status === 2) {
+                        row.innerHTML += '<td class="status-column"><div class="finished">Finished</div></td>';
+                    } else {
+                        row.innerHTML += '<td class="status-column">No Status</td>';
+                    }
+
+                    // Add score column
+                    if (item.score !== null && item.score !== undefined) {
+                        row.innerHTML += `<td>${item.score}/${item.total_score}</td>`;
+                    } else {
+                        row.innerHTML += '<td>N/A</td>';
+                    }
+                            
+
+                      // Update row count
+                    document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
+                });
+            } else if (data.error) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="text-align: center;">${data.error}</td>`;
+                tbody.appendChild(row);
+                document.getElementById('rowCount').innerText = `Number of Students: 0`;
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="text-align: center;">No Students have joined</td>`;
+                tbody.appendChild(row);
+                document.getElementById('rowCount').innerText = `Number of Students: 0`;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // function to handle decreasing suspicious acts
+    function decreaseSuspiciousActs(studentId) {
+            const administerId = document.getElementById('administerId-container').value;
+
+            fetch('decrease_suspicious_acts.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    administer_id: administerId
+                })
             })
             .then(response => response.json())
             .then(data => {
-                const tbody = document.querySelector('#dataTable tbody');
-                tbody.innerHTML = ''; // Clear existing data
+                if (data.success) {
+                    updateTable();
 
-                if (Array.isArray(data) && data.length > 0) {
-                    data.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td class="studentNumber-column">${item.student_number}</td>
-                            <td>${item.student_name}</td>
-                            <td>${item.suspicious_act}</td>
-                        `;
-
-                        // Conditionally add a <div> based on the status value
-                        if (parseInt(item.status) === 0) {
-                            row.innerHTML += '<td class="status-column"> <div class="joined">Joined</div>  </td>';
-                        } else if (parseInt(item.status) === 1) {
-                            row.innerHTML += '<td class="status-column"> <div class="answering">Answering</div> </td>';
-                        } else if (parseInt(item.status) === 2) {
-                            row.innerHTML += '<td class="status-column"> <div class="finished">Finished</div> </td>';
+                    fetch('switchTab_displayUpdate.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            student_id: studentId,
+                            administer_id: administerId,
+                            if_display: false
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(displayData => {
+                        if (displayData.success) {
+                            updateNotifs();
                         } else {
-                            // Append an empty cell if the status is not 0
-                            row.innerHTML += '<td class="status-column">No Status</td>';
+                            console.error('Failed to update display status:', displayData.message);
                         }
-
-                        if (item.score !== null && item.score !== undefined) {
-                            row.innerHTML += `<td>${item.score}/${item.total_score}</td>`;
-                        } else {
-                            row.innerHTML += '<td>N/A</td>';
-                        }
-                            
-
-                        tbody.appendChild(row);
-                        // Update row count
-                        document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
+                    })
+                    .catch(error => {
+                        console.error('Error updating display status:', error);
                     });
-                } else if (data.error) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="5" style="text-align: center;">${data.error}</td>`;
-                    tbody.appendChild(row);
-                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
                 } else {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="5" style="text-align: center;">No Students have joined</td>`;
-                    tbody.appendChild(row);
-                    document.getElementById('rowCount').innerText = `Number of Students: 0`;
+                    console.error('Failed to decrease suspicious activities:', data.message);
+                    alert('Failed to decrease suspicious activities: ' + data.message);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating suspicious activities');
+            });
         }
+
 
         // Set interval to check for updates every 3 seconds
         setInterval(updateTable, 3000);

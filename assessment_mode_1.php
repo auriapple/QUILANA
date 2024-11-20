@@ -287,46 +287,49 @@ $time_limit = $assessment['time_limit'];
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success && warningCount >= max_warnings) {
-                    clearInterval(timerInterval);
+                if (data.success) {
+                    if (data.new_count !== undefined) {
+                        warningCount = data.new_count;
+                        sessionStorage.setItem(`warningCount_${assessmentId}`, warningCount);
+                    }
+                    if (warningCount >= max_warnings) {
+                        clearInterval(timerInterval);
+                        Swal.fire({
+                            title: 'Maximum Warnings Reached!',
+                            text: 'Your assessment will be submitted automatically.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                handleSubmit();
+                            }
+                            warningTracker = false;
+                        });
+                        return;
+                    }
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: `${method} attempt detected. You have ${max_warnings - warningCount} warnings left.`,
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            confirmButton: 'secondary-button'
+                        }
+                    }).then(() => {
+                        warningTracker = false;
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
-
-            if (warningCount >= max_warnings) {
-                Swal.fire({
-                    title: 'Maximum Warnings Reached!',
-                    text: 'Your assessment will be submitted automatically.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    customClass: {
-                        popup: 'popup-content',
-                        confirmButton: 'secondary-button'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        handleSubmit();
-                    }
-                    warningTracker = false;
-                });
-            } else {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: `${method} attempt detected. You have ${max_warnings - warningCount} warnings left.`,
-                    icon: 'warning',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    customClass: {
-                        popup: 'popup-content',
-                        confirmButton: 'secondary-button'
-                    }
-                }).then(() => {
-                    warningTracker = false;
-                });
-            }
         }
 
         // USER VISUAL EXPERIENCE
