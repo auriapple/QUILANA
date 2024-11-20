@@ -150,7 +150,7 @@
             border-right: 1px solid rgba(59, 39, 110, 0.80);
             justify-content: center;
             padding: 12px;
-            color: #4a4a4a;
+            color:#4a4a4a;
         }
 
         .table-wrapper td:last-child,
@@ -215,11 +215,14 @@
             width: 100%;
             height: fit-content;
             border-radius: 10px;
-            padding: 25px 15px 15px;
-            background-color: #6e72c1dd;
+            padding: 25px;
+            border: 1px solid #eee;
+            background-color: #fff;
+            box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
             font-size: 14px;
-            color: #fff;
+            color: #777;
             text-align: justify;
+
         }
 
         .notification-card span.notif-close {
@@ -233,7 +236,7 @@
             right: 7px;
             cursor: pointer;
             font-size: 16px;
-            color: #fff;
+            color: #999;
         }
 
         .notification-card span.notif-close:hover {
@@ -252,9 +255,10 @@
             text-align: right;
             font-size: 10px;
             letter-spacing: 1px;
-            color: white;
+            color: #999;
         }
 
+        .table-wrapper th, 
         .table-wrapper td {
             width: calc(100% / 6);
             min-width: 93px;
@@ -463,20 +467,21 @@
         var classId = <?php echo json_encode($class_id); ?>;
 
         function updateTable() {
-            fetch('get_joined.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    assessment_id: assessmentId,
-                    class_id: classId
-                })
+        fetch('get_joined.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                assessment_id: assessmentId,
+                class_id: classId
+            })
         })
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#dataTable tbody');
             tbody.innerHTML = ''; // Clear existing data
+
             if (Array.isArray(data) && data.length > 0) {
                 data.forEach(item => {
                     const row = document.createElement('tr');
@@ -485,9 +490,11 @@
                         <td>${item.student_name}</td>
                         <td>${item.suspicious_act}</td>
                     `;
+
                     const suspiciousActs = parseInt(item.suspicious_act);
                     const status = parseInt(item.status);
                     const isDecreaseDisabled = suspiciousActs === 0 || status === 0 || status === 2;
+
                     row.innerHTML += `
                         <td>
                             <button 
@@ -499,6 +506,7 @@
                             </button>
                         </td>
                     `;
+
                     // Add status column based on the status value
                     if (status === 0) {
                         row.innerHTML += '<td class="status-column"><div class="joined">Joined</div></td>';
@@ -516,9 +524,9 @@
                     } else {
                         row.innerHTML += '<td>N/A</td>';
                     }
-                            
 
-                      // Update row count
+                    tbody.appendChild(row);
+                    // Update row count
                     document.getElementById('rowCount').innerText = `Number of Students: ${tbody.rows.length}`;
                 });
             } else if (data.error) {
@@ -536,10 +544,11 @@
         .catch(error => console.error('Error:', error));
     }
 
-    // function to handle decreasing suspicious acts
-    function decreaseSuspiciousActs(studentId) {
-            const administerId = document.getElementById('administerId-container').value;
 
+        // function to handle decreasing suspicious acts
+        function decreaseSuspiciousActs(studentId) {
+            const administerId = document.getElementById('administerId-container').value;
+            
             fetch('decrease_suspicious_acts.php', {
                 method: 'POST',
                 headers: {
@@ -554,7 +563,7 @@
             .then(data => {
                 if (data.success) {
                     updateTable();
-
+                    
                     fetch('switchTab_displayUpdate.php', {
                         method: 'POST',
                         headers: {
@@ -587,7 +596,6 @@
                 alert('An error occurred while updating suspicious activities');
             });
         }
-
 
         // Set interval to check for updates every 3 seconds
         setInterval(updateTable, 3000);

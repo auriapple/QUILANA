@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $get_assessments_query = $conn->prepare("
             SELECT assessment_id, assessment_name
             FROM assessment
-            WHERE subject = ? AND course_id = ?
+            WHERE assessment_id NOT IN (SELECT assessment_id FROM administer_assessment WHERE class_id = ?) AND subject = ? 
         ");
-        $get_assessments_query->bind_param("si", $subject, $course_id);
+        $get_assessments_query->bind_param("is", $class_id, $subject);
         $get_assessments_query->execute();
         $assessments = $get_assessments_query->get_result();
 

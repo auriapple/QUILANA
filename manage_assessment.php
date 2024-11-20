@@ -515,8 +515,8 @@ if ($stmt = $conn->prepare($query)) {
                             <input type="number" class="form-control" id="assessment_remaining_points" name="assessment_remaining_points" required>
                         </div>
                         <div class="form-group">
-                            <label for="assessment_max_warnings">Maximum Warnings:</label>
-                            <input type="number" id="assessment_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
+                            <label for="speedmode_max_warnings">Maximum Warnings:</label>
+                            <input type="number" id="speedmode_max_warnings" name="max_warnings"  min="0" max="100" class="form-control" required>
                         </div>
                     </form>
                 </div>
@@ -917,7 +917,7 @@ if ($stmt = $conn->prepare($query)) {
             $('#assessment_max_points').val(currentMaxPoints !== 'Not set' ? currentMaxPoints : '');
             $('#assessment_student_count').val(currentStudentCount !== 'Not set' ? currentStudentCount : '');
             $('#assessment_remaining_points').val(currentRemainingPoints !== 'Not set' ? currentRemainingPoints : '');
-            $('#assessment_max_warnings').val(currentMaxWarnings !== 'Not set' ? currentMaxWarnings: '');
+            $('#speedmode_max_warnings').val(currentMaxWarnings !== 'Not set' ? currentMaxWarnings: '');
 
             $('#edit_speedmode_modal').modal('show');
         });
@@ -930,7 +930,7 @@ if ($stmt = $conn->prepare($query)) {
             var remainingPoints = $('#assessment_remaining_points').val();
             var maxWarnings = $('#speedmode_max_warnings').val();
 
-            if (!passingRate || !maxPoints || !studentCount || !remainingPoints || !maxWarnings) {
+            if (passingRate === '' || !maxPoints === '' || !studentCount === '' || !remainingPoints === '' || !maxWarnings === '') {
                 alert('Please fill in all fields correctly.');
                 return;
             }
