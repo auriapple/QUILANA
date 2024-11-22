@@ -259,23 +259,17 @@ if (isset($_GET['class_id'])) {
                 cancelButtonText: 'Cancel',
                 allowOutsideClick: false,
                 input: 'text',
-                inputPlaceholder: 'Enter reason for rejection',
+                inputValue: 'Student is not enrolled in the class',
                 customClass: {
                     popup: 'popup-content',
                     confirmButton: 'secondary-button',
                     cancelButton: 'tertiary-button',
                     input: 'popup-input'
-                },
-                preConfirm: (inputValue) => {
-                    if (!inputValue) {
-                        Swal.showValidationMessage('Please enter a reason for rejection');
-                    }
-                    return inputValue;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    reason = result.value;
-                    acceptRejectStudent(classId, studentId, status, classSub, studentName, reason)
+                    const reason = result.value;
+                    acceptRejectStudent(classId, studentId, status, classSub, studentName, reason);
                     warningTracker = false;
                 } else if (result.isDismissed) {
                     console.log("User canceled the removal action.");

@@ -360,8 +360,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         cancelButtonText: 'Cancel',
                         allowOutsideClick: false,
                         input: 'text',
-                        inputValue: 'Does not belong to the class',
-                        inputPlaceholder: 'Does not belong to the class',
+                        inputValue: 'Student is not enrolled in the class',
                         customClass: {
                             popup: 'popup-content',
                             confirmButton: 'secondary-button',
