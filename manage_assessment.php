@@ -907,7 +907,7 @@ if ($stmt = $conn->prepare($query)) {
 
         // Edit speed mode assessment details
         $('#edit_speedmode_details_btn').click(function() {
-            var currentPassingRate = $('#speedmode-passing-rate').text();
+            var currentPassingRate = $('#speedmode-passing-rate').text().replace('%', '');
             var currentMaxPoints = $('#current-max-points').text();
             var currentStudentCount = $('#current-student-count').text();
             var currentRemainingPoints = $('#current-remaining-points').text();
@@ -950,11 +950,11 @@ if ($stmt = $conn->prepare($query)) {
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
-                        $('#speedmode-passing-rate').text(passingRate === '0' ? 'Not set' : passingRate);
+                        $('#speedmode-passing-rate').text(passingRate === '0' ? 'Not set' : passingRate + "%");
                         $('#current-max-points').text(maxPoints === '0' ? 'Not set' : maxPoints);
                         $('#current-student-count').text(studentCount === '0' ? 'Not set' : studentCount);
                         $('#current-remaining-points').text(remainingPoints === '0' ? 'Not set' : remainingPoints);
-
+                        $('#speedmode-max-warnings').text(maxWarnings === '0' ? 'Not set' : maxWarnings)
                         $('#edit_speedmode_modal').modal('hide');
                         alert('Speed mode details saved successfully!');
                     } else {

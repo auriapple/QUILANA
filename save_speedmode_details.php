@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     WHERE assessment_id = ?";
 
     if ($stmt = $conn->prepare($query)) {
-        $stmt->bind_param("iiiiii", $passing_rate, $max_points, $student_count, $remaining_points, $assessment_id, $max_warnings);
+        $stmt->bind_param("iiiiii", $passing_rate, $max_points, $student_count, $remaining_points, $max_warnings, $assessment_id);
         
         if ($stmt->execute()) {
             echo json_encode(['status' => 'success', 'message' => 'Speed mode details updated successfully']);
