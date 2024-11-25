@@ -770,8 +770,8 @@ $time_limit = $assessment['time_limit'];
         // Set Timer Functionality and Event Listeners
         window.onload = function() {
             const maxTimeLimit = parseInt(document.getElementById('time_limit').value) * 60; // Convert minutes to seconds
-            const startTime = new Date("<?php echo $start_time; ?> GMT+0800").getTime();
-
+            const startTime = Date.parse("<?php echo $start_time; ?>");
+            
             function calculateRemainingTime() {
                 const now = Date.now();
                 const elapsedTime = Math.floor((now - startTime) / 1000); // Calculate elapsed time in seconds
