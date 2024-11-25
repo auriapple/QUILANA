@@ -267,6 +267,58 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     </div>
                 </div>
             </div>
+            
+            <!-- Dashboard Customization -->
+            <button id='dashboard-options-button' data-type="3" data-id="<?php echo $_SESSION['login_id']; ?>"><span class="material-symbols-outlined">settings</span></button> 
+
+            <div id="dashboard-options-popup" class="popup-overlay"> 
+                <div id="dashboard-options-modal-content" class="popup-content" role="document">
+                    <button class="popup-close">&times;</button>
+                    <h2 id="dashboard-options-title" class="popup-title">Dashboard Customization</h2>
+
+                    <div class="modal-body" id="dashboardOptionsBody">
+                        <div class="dashboard-option">
+                            <label>Summary</label>
+                            <label class="switch">
+                                <input type="checkbox" id="summary-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option">
+                            <label>Requests</label>
+                            <label class="switch">
+                                <input type="checkbox" id="request-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option">
+                            <label>Report</label>
+                            <label class="switch">
+                                <input type="checkbox" id="report-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option">
+                            <label>Calendar</label>
+                            <label class="switch">
+                                <input type="checkbox" id="calendar-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option last">
+                            <label>Upcoming Assessments</label>
+                            <label class="switch">
+                                <input type="checkbox" id="upcoming-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button id="save-settings" class="secondary-button" name="save">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
 
         <script>
@@ -505,7 +557,101 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         alert('An error occurred while trying to save the assessment. Please try again.');
                     }
                 });
-            }        
+            }
+            
+            function showPopup(popupId) {
+                $('#' + popupId).css('display', 'flex');
+            }
+
+            function closePopup(popupId) {
+                $('#' + popupId).css('display', 'none');
+            }
+
+            // Close the popup when close button is clicked
+            $('.popup-close').on('click', function() {
+                var activePopup = this.parentElement.parentElement.id;
+                closePopup(activePopup);
+            });
+
+            $('#dashboard-options-button').click(function() {
+                const userId = $(this).data('id');
+                const userType = $(this).data('type');
+
+                // Send AJAX request to the server
+                $.ajax({
+                    url: 'check_dashboardSettings.php', // PHP script location
+                    type: 'POST',
+                    data: { 
+                        id: userId,
+                        type: userType
+                     },
+                     success: function (response) {
+                        if (typeof response === "string") {
+                            response = JSON.parse(response);
+                        }
+
+                        if (response.status === 'success') {
+                            $('#summary-toggle').prop('checked', response?.summary == 1 ?? false);
+                            $('#request-toggle').prop('checked', response?.request == 1 ?? false);
+                            $('#report-toggle').prop('checked', response?.report == 1 ?? false);
+                            $('#calendar-toggle').prop('checked', response?.calendar == 1 ?? false);
+                            $('#upcoming-toggle').prop('checked', response?.upcoming == 1 ?? false);
+
+                            showPopup('dashboard-options-popup');
+                        } else {
+                            console.error("Error checking and setting randomization:", response?.message ?? "Unknown error");
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred. Please try again.');
+                    }
+                })
+            });
+
+            const summaryCheckbox = document.getElementById('summary-toggle');
+            const requestCheckbox = document.getElementById('request-toggle');
+            const reportCheckbox = document.getElementById('report-toggle');
+            const calendarCheckbox = document.getElementById('calendar-toggle');
+            const upcomingCheckbox = document.getElementById('upcoming-toggle');
+
+            let summary;
+            let request;
+            let report;
+            let calendar;
+            let upcoming;
+
+            const userId = document.getElementById('dashboard-options-button').dataset.id;
+
+            $('#save-settings').click(function() {
+                summary = summaryCheckbox.checked ? 1 : 0;
+                request = requestCheckbox.checked ? 1 : 0;
+                report = reportCheckbox.checked ? 1 : 0;
+                calendar = calendarCheckbox.checked ? 1 : 0;
+                upcoming = upcomingCheckbox.checked ? 1 : 0;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'update_dashboardSettings.php',
+                    data: { 
+                        user_id : userId,
+                        user_type : 3,
+                        summary : summary,
+                        request : request,
+                        report : report,
+                        calendar : calendar,
+                        upcoming : upcoming,
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        // location.reload();
+                        closePopup('dashboard-options-popup');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error: " + status + ": " + error);
+                        alert('An error occurred while randomizing questions. Please try again.');
+                    }
+                });
+            });
         </script>
     </body>
 </html>

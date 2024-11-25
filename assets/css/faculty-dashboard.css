@@ -36,7 +36,8 @@ body {
 .dashboard-requests,
 .dashboard-calendar,
 .recent-assessments,
-.dashboard-schedule {
+.dashboard-schedule,
+.dashboard-chart {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
@@ -50,7 +51,8 @@ body {
 .dashboard-requests h1,
 .dashboard-summary h1,
 .recent-assessments h1,
-.dashboard-schedule h1 {
+.dashboard-schedule h1,
+.dashboard-chart h1 {
     min-height: fit-content;
     font-size: 20px;
     font-weight: 600;
@@ -237,6 +239,113 @@ td .btns,
 .accept:focus, 
 .reject:focus {
     outline: none;
+}
+
+/* Chart */
+.dashboard-chart {
+    justify-content: flex-start;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    margin-left: 0;
+}
+
+/* Dashboard Options */
+#dashboard-options-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border: none;
+    color: white;
+    background-image: linear-gradient(to right, #6E72C1, #4A4CA6);
+    background-color: #4A4CA6;
+    z-index: 2;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#dashboard-options-button:hover {
+    background-color: #4A4CA6;
+    background-image: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.25);
+}
+#dashboard-options-button:active {
+    outline: none;
+    transform: scale(1.02);
+    transition: transform 0.1s ease;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+}
+
+.dashboard-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 50px;
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+}
+
+#dashboardOptionsBody .last {
+    border: none;
+}
+
+.randomize {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin: 0;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+    align-items: center;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+}
+input:checked + .slider {
+    background-color: #4A4CA6;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
 }
 
 /* Enrollment Alerts */

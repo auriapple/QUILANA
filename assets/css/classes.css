@@ -291,7 +291,8 @@ tr .status {
 #add-assessment-popup .modal-footer,
 #administer-assessment-popup .modal-footer,
 #edit-assessment-popup .modal-footer,
-#delete-assessment-popup .modal-footer {
+#delete-assessment-popup .modal-footer,
+#dashboard-options-popup .modal-footer {
     border: none !important;
     padding: 0 !important;
     justify-content: center !important;

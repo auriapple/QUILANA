@@ -29,6 +29,8 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         <title>Dashboard | Quilana</title>
         <link rel="stylesheet" href="assets/css/faculty-dashboard.css">
         <link rel="stylesheet" href="assets/css/calendar.css">
+        <link rel="stylesheet" href="assets/css/classes.css">
+        <script src="assets/js/chart.js"></script>
         <script src="assets/js/calendar.js" defer></script>
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;
@@ -103,6 +105,11 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="dashboard-chart" id="dashboard-chart">
+                <h1>Report</h1>
+                <canvas id="lineChart" width="800" height="400"></canvas>
             </div>
 
             <!-- Recent Assessments -->
@@ -276,6 +283,57 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 ?>    
                 </div>
             </div>
+
+            <!-- Dashboard Customization -->
+            <button id='dashboard-options-button' data-type="3" data-id="<?php echo $_SESSION['login_id']; ?>"><span class="material-symbols-outlined">settings</span></button> 
+
+            <div id="dashboard-options-popup" class="popup-overlay"> 
+                <div id="dashboard-options-modal-content" class="popup-content" role="document">
+                    <button class="popup-close">&times;</button>
+                    <h2 id="dashboard-options-title" class="popup-title">Dashboard Customization</h2>
+
+                    <div class="modal-body" id="dashboardOptionsBody">
+                        <div class="dashboard-option">
+                            <label>Summary</label>
+                            <label class="switch">
+                                <input type="checkbox" id="summary-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option">
+                            <label>Recents</label>
+                            <label class="switch">
+                                <input type="checkbox" id="recents-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option">
+                            <label>Report</label>
+                            <label class="switch">
+                                <input type="checkbox" id="report-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option">
+                            <label>Calendar</label>
+                            <label class="switch">
+                                <input type="checkbox" id="calendar-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="dashboard-option last">
+                            <label>Upcoming Assessments</label>
+                            <label class="switch">
+                                <input type="checkbox" id="upcoming-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button id="save-settings" class="secondary-button" name="save">Save</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <script>
             function redirectToResults(assessmentType, assessmentId, administerId) {
@@ -293,6 +351,125 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
 
                 window.location.href = url;
             }
+
+            function showPopup(popupId) {
+                $('#' + popupId).css('display', 'flex');
+            }
+
+            function closePopup(popupId) {
+                $('#' + popupId).css('display', 'none');
+            }
+
+            // Close the popup when close button is clicked
+            $('.popup-close').on('click', function() {
+                var activePopup = this.parentElement.parentElement.id;
+                closePopup(activePopup);
+            });
+
+            $('#dashboard-options-button').click(function() {
+                const userId = $(this).data('id');
+                const userType = $(this).data('type');
+
+                // Send AJAX request to the server
+                $.ajax({
+                    url: 'check_dashboardSettings.php', // PHP script location
+                    type: 'POST',
+                    data: { 
+                        id: userId,
+                        type: userType
+                     },
+                     success: function (response) {
+                        if (typeof response === "string") {
+                            response = JSON.parse(response);
+                        }
+
+                        if (response.status === 'success') {
+                            $('#summary-toggle').prop('checked', response?.summary == 1 ?? false);
+                            $('#recents-toggle').prop('checked', response?.recent == 1 ?? false);
+                            $('#report-toggle').prop('checked', response?.report == 1 ?? false);
+                            $('#calendar-toggle').prop('checked', response?.calendar == 1 ?? false);
+                            $('#upcoming-toggle').prop('checked', response?.upcoming == 1 ?? false);
+
+                            showPopup('dashboard-options-popup');
+                        } else {
+                            console.error("Error checking and setting randomization:", response?.message ?? "Unknown error");
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred. Please try again.');
+                    }
+                })
+            });
+
+            const summaryCheckbox = document.getElementById('summary-toggle');
+            const recentCheckbox = document.getElementById('recents-toggle');
+            const reportCheckbox = document.getElementById('report-toggle');
+            const calendarCheckbox = document.getElementById('calendar-toggle');
+            const upcomingCheckbox = document.getElementById('upcoming-toggle');
+
+            let summary;
+            let recent;
+            let report;
+            let calendar;
+            let upcoming;
+
+            const userId = document.getElementById('dashboard-options-button').dataset.id;
+
+            $('#save-settings').click(function() {
+                summary = summaryCheckbox.checked ? 1 : 0;
+                recent = recentCheckbox.checked ? 1 : 0;
+                report = reportCheckbox.checked ? 1 : 0;
+                calendar = calendarCheckbox.checked ? 1 : 0;
+                upcoming = upcomingCheckbox.checked ? 1 : 0;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'update_dashboardSettings.php',
+                    data: { 
+                        user_id : userId,
+                        user_type : 3,
+                        summary : summary,
+                        recent : recent,
+                        report : report,
+                        calendar : calendar,
+                        upcoming : upcoming,
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        // location.reload();
+                        closePopup('dashboard-options-popup');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error: " + status + ": " + error);
+                        alert('An error occurred while randomizing questions. Please try again.');
+                    }
+                });
+            });
+
+            // Fetch dynamic data from PHP
+            const dataPoints = <?php echo json_encode([10, 40, 80, 30, 60, 120, 90]); ?>;
+
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataPoints.map((_, index) => `Point ${index + 1}`),
+                    datasets: [{
+                        label: 'Sample Data',
+                        data: dataPoints,
+                        borderColor: 'blue',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Index' } },
+                        y: { title: { display: true, text: 'Value' } }
+                    }
+                }
+            });
         </script>
     </body>
 </html>
