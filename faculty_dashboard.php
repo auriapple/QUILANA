@@ -727,6 +727,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     footer.style.height = '100%';
                     footer.style.display = 'flex';
                     footer.style.flexDirection = 'column';
+                    document.getElementById('dashboard-calendar').style.height = "100%";
                     document.getElementById('today-schedule').style.height = '100%'
                 }
 

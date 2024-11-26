@@ -190,7 +190,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
 
             <div class="section2" id="section2">
                 <!-- Dashboard Calendar -->
-                <div class="dashboard-calendar">
+                <div class="dashboard-calendar" id="dashboard-calendar">
                     <div class="wrapper">
                         <!-- Calendar -->
                         <header>
@@ -519,6 +519,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                     footer.style.height = '100%';
                     footer.style.display = 'flex';
                     footer.style.flexDirection = 'column';
+                    document.getElementById('dashboard-calendar').style.height = "100%";
                     document.getElementById('today-schedule').style.height = '100%'
                 }
 
