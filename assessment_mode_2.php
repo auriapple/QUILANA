@@ -265,6 +265,11 @@ while ($question = $questions_query->fetch_assoc()) {
                     popup: 'popup-content',
                     confirmButton: 'secondary-button'
                 }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showQuestion(currentQuestionIndex);
+                }
+                //warningTracker = false;
             });
         } else {
             var attemptText = '';
@@ -288,6 +293,11 @@ while ($question = $questions_query->fetch_assoc()) {
                     popup: 'popup-content',
                     confirmButton: 'secondary-button'
                 }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showQuestion(currentQuestionIndex);
+                }
+                //warningTracker = false;
             });
         }
 
@@ -693,8 +703,6 @@ while ($question = $questions_query->fetch_assoc()) {
 
         // Initialize timer and set up event listeners
         window.onload = function () {
-            showQuestion(currentQuestionIndex);
-
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
 
             setupAntiScreenshotOverlay();

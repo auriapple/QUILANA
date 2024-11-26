@@ -54,6 +54,7 @@ header .current-date{
 .calendar {
     display: flex;
     flex-direction: column;
+    max-height: 250px;
     height: 60%; /* 100% min-width:320px */
     white-space: nowrap;
 }

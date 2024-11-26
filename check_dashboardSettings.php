@@ -34,13 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($insertStmt->execute()) {
             echo json_encode([
-                'status' => 'success',
-                'summary' => '1',
-                'recent' => '1',
-                'request' => '1',
-                'report' => '0',
-                'calendar' => '1',
-                'upcoming' => '1'
+                'status' => 'created'
             ]);
         } else {
             echo "Error: " . $conn->error;
