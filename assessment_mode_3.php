@@ -280,6 +280,11 @@ while ($question = $questions_query->fetch_assoc()) {
                     popup: 'popup-content',
                     confirmButton: 'secondary-button'
                 }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showQuestion(currentQuestionIndex); // Show the first question
+                    startStopwatch();
+                }
             });
         } else {
             var attemptText = '';
@@ -302,6 +307,11 @@ while ($question = $questions_query->fetch_assoc()) {
                 customClass: {
                     popup: 'popup-content',
                     confirmButton: 'secondary-button'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showQuestion(currentQuestionIndex); // Show the first question
+                    startStopwatch();
                 }
             });
         }
@@ -699,8 +709,7 @@ while ($question = $questions_query->fetch_assoc()) {
 
         // Initialize timer and set up event listeners
         window.onload = function () {
-            showQuestion(currentQuestionIndex); // Show the first question
-            startStopwatch();
+            
 
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
 
