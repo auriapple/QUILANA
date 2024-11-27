@@ -622,7 +622,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                     datasets: [{
                         label: 'Introduction to Computing',
                         data: dataPoints,
-                        borderColor: 'blue',
+                        borderColor: '#4A4CA6',
                         fill: false,
                         tension: 0.1
                     }]
