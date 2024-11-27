@@ -119,7 +119,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             
             <div class="section2">
                 <!-- Dashboard Calendar -->
-                <div class="dashboard-calendar">
+                <div class="dashboard-calendar" id="dashboard-calendar">
                     <div class="wrapper">
                         <!-- Calendar -->
                         <header>
@@ -144,10 +144,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                             <ul class="days"></ul>
                         </div>
                         <!-- Today's Schedule -->
-                        <footer>
+                        <footer id="footer">
                             <div class="line"></div>
                             <h1>Today</h1>
-                            <div class="today-schedule">
+                            <div class="today-schedule" id="today-schedule">
                                 <?php
                                 // Fetch today's date
                                 $today = date('Y-m-d');
@@ -824,8 +824,8 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { title: { display: true, text: 'Index' } },
-                        y: { title: { display: true, text: 'Value' } }
+                        x: { title: { display: true, text: 'Percentage' } },
+                        y: { title: { display: true, text: 'Assessments' } }
                     }
                 }
             });

@@ -631,8 +631,18 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { title: { display: true, text: 'Index' } },
-                        y: { title: { display: true, text: 'Value' } }
+                        x: { title: { display: true, text: 'Assessments' } },
+                        y: {
+                            title: { display: true, text: 'Percentage' },
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return `${value}%`;
+                                },
+                                stepSize: 25 // Step size between each tick
+                            }
+                        }
                     }
                 }
             });
