@@ -709,8 +709,6 @@ while ($question = $questions_query->fetch_assoc()) {
 
         // Initialize timer and set up event listeners
         window.onload = function () {
-            
-
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
 
             setupAntiScreenshotOverlay();

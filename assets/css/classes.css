@@ -315,6 +315,7 @@ tr .status {
     width: 300px;
     background-color: transparent;
     overflow-y: auto;
+    z-index: 3;
 }
 
 .notification-card {

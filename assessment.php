@@ -122,6 +122,7 @@
                         </div> <!-- Close the last subject card container -->
                     </div> <!-- Close the last course section -->
                 </div>
+            </div>
                    
             <div id="details-tab" class="tab-content">
                 <h1></h1>
@@ -131,7 +132,6 @@
                 <div id="administer-container">
                 </div>
             </div>
-            <!-- </div> For Nathan -->
         </div>
 
             <!-- Modal for managing assessments -->

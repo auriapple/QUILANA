@@ -409,7 +409,6 @@ while ($question = $questions_query->fetch_assoc()) {
             xhr.send(formData);
 
             // Close any open popups
-            closePopup('timer-runout-popup');
             closePopup('confirmation-popup');
         }
 
@@ -701,8 +700,6 @@ while ($question = $questions_query->fetch_assoc()) {
 
         // Initialize timer and set up event listeners
         window.onload = function () {
-            //showQuestion(currentQuestionIndex);
-
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
 
             setupAntiScreenshotOverlay();

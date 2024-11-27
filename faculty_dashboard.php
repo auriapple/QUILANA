@@ -360,6 +360,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         cancelButtonText: 'Cancel',
                         allowOutsideClick: false,
                         input: 'text',
+                        inputValue: 'The student is not enrolled in the class',
                         inputPlaceholder: 'Enter reason for rejection',
                         customClass: {
                             popup: 'popup-content',

@@ -217,7 +217,7 @@ if (isset($_GET['class_id'])) {
             },
             success: function(response) {
                 if (response == 'success') {
-                    addChildElement(studentName, classSub, res);
+                    addChildAlert(studentName, classSub, res);
                     console.log(studentName + '\n' + classSub + '\n' + res);
                     fetchPendingRequests();
                 } else {
