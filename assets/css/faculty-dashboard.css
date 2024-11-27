@@ -288,6 +288,10 @@ td .btns,
     margin-left: 0;
 }
 
+.dashboard-chart canvas {
+    height: calc(100% - 20px) !important;
+}
+
 /* Dashboard Options */
 #dashboard-options-button {
     display: flex;
