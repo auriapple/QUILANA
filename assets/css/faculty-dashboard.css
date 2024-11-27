@@ -336,6 +336,10 @@ td .btns,
     padding: 10px;
 }
 
+.dashboard-option label {
+    margin-bottom: 0px;
+}
+
 #dashboardOptionsBody .last {
     border: none;
 }
@@ -743,5 +747,8 @@ footer h1 {
     .reject .btn-icon {
         display: block;
         color: #e00f0f;
+    }
+    .dashboard-option {
+        margin: 0px;
     }
 }
