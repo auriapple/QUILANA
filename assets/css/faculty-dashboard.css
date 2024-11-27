@@ -465,9 +465,9 @@ footer h1 {
 }
 .today-schedule {
     background-color: #FFEEB2;
-    margin: 5px 10px 10px;
+    margin: 0 10px;
     border-radius: 10px;
-    height: 65px;
+    height: 60px;
     align-items: center;
     display: flex;
     justify-content: center;

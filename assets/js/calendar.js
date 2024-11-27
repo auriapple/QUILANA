@@ -112,7 +112,7 @@ style.innerHTML = `
         background-color: #E8C340; /* Change color as needed */
         border-radius: 50%;
         position: absolute; /* Adjust position */
-        top: 4px; /* Adjust as necessary */
+        top: -2px; /* Adjust as necessary */
         left: 50%; /* Center it */
         transform: translateX(-50%); /* Center it */
     }
