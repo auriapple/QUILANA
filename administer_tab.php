@@ -210,44 +210,6 @@
             overflow-y: auto;
         }
 
-        .notification-card {
-            position: relative;
-            width: 100%;
-            height: fit-content;
-            border-radius: 10px;
-            padding: 25px;
-            border: 1px solid #eee;
-            background-color: #fff;
-            box-shadow: 4px 4px 4px rgba(150, 150, 150, 0.25);
-            font-size: 14px;
-            color: #777;
-            text-align: justify;
-
-        }
-
-        .notification-card span.notif-close {
-            width: 18px;
-            height: 18px;
-            text-align: center;
-            line-height: 18px;
-            border-radius: 9px;
-            position: absolute;
-            top: 7px;
-            right: 7px;
-            cursor: pointer;
-            font-size: 16px;
-            color: #999;
-        }
-
-        .notification-card span.notif-close:hover {
-            position: absolute;
-            top: 7px;
-            right: 7px;
-            cursor: pointer;
-            color: #888;
-            background-color: #eee;
-        }
-
         .notification-card .timeStamp {
             position: absolute;
             bottom: 7px;
@@ -255,7 +217,7 @@
             text-align: right;
             font-size: 10px;
             letter-spacing: 1px;
-            color: #999;
+            color: white;
         }
 
         .table-wrapper th, 

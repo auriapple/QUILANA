@@ -1,0 +1,70 @@
+/* 
+c1 - Summary
+c2 - Recent/Request
+c3 - Report
+c4 - Calendar
+c5 - Upcoming
+*/
+.form1 { /* Default */
+    grid-template-areas:
+    "c1 c1 c4"
+    "c2 c2 c4"
+    "c2 c2 c5"
+    "c2 c2 c5";
+}
+
+.form2 { /* All included */
+    grid-template-areas:
+    "c1 c2 c4"
+    "c3 c3 c4"
+    "c3 c2 c5"
+    "c3 c3 c5";
+}
+
+.form3 { /* No Summary */
+    grid-template-areas:
+    "c2 c2 c4"
+    "c3 c3 c4"
+    "c3 c3 c5"
+    "c3 c3 c5";
+}
+
+.form4 { /* All included */
+    grid-template-areas:
+    "c1 c1 c4"
+    "c3 c3 c4"
+    "c3 c3 c5"
+    "c3 c3 c5";
+}
+
+.form2 { /* All included */
+    grid-template-areas:
+    "c1 c1 c4"
+    "c2 c2 c4"
+    "c2 c2 c5"
+    "c2 c2 c5";
+}
+
+.form2 { /* All included */
+    grid-template-areas:
+    "c1 c1 c4"
+    "c2 c2 c4"
+    "c2 c2 c5"
+    "c2 c2 c5";
+}
+
+.form2 { /* All included */
+    grid-template-areas:
+    "c1 c1 c4"
+    "c2 c2 c4"
+    "c2 c2 c5"
+    "c2 c2 c5";
+}
+
+.form2 { /* All included */
+    grid-template-areas:
+    "c1 c1 c4"
+    "c2 c2 c4"
+    "c2 c2 c5"
+    "c2 c2 c5";
+}

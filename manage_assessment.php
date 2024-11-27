@@ -1066,7 +1066,7 @@ if ($stmt = $conn->prepare($query)) {
                     if (response.status === 'randomize') {
                         alert('Questions are randomized successfully');
                     } else if (response.status === 'undo randomize') {
-                        alert('Undoed question randomization successfully')
+                        alert('Question randomization has been successfully undone!')
                     } else {
                         alert('Error: ' + response.message);
                     }

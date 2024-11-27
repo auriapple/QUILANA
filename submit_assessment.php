@@ -9,7 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Fetch details from the form submitted
     $assessment_id = $conn->real_escape_string($_POST['assessment_id']);
     $administer_id = $conn->real_escape_string($_POST['administer_id']);
-    //$class_id = $conn->real_escape_string($_POST['class_id']);
     $answers = $_POST['answers'];
     $time_elapsed = isset($_POST['time_elapsed']) ? json_decode($_POST['time_elapsed'], true) : [];
     
@@ -18,32 +17,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         $conn->begin_transaction();
-        // Fetch administer assessment details
-        /*$administer_query = $conn->query("
-            SELECT aa.administer_id 
-            FROM administer_assessment aa
-            JOIN assessment a ON a.assessment_id = aa.assessment_id
-            WHERE a.assessment_id = '$assessment_id'
-            AND aa.class_id = '$class_id'
-        ");*/
-
-        // Check if there is administer assessment details
-        //if ($administer_query->num_rows>0) {
-            //$administer_data = $administer_query->fetch_assoc();
-            //$administer_id = $administer_data['administer_id'];
             
-            // Update the join_assessment status to 2 (finished)
-            $update_join_query = $conn->query("
-                UPDATE join_assessment 
-                SET status = 2
-                WHERE administer_id = '$administer_id' 
-                AND student_id = '$student_id'
-            ");
-                
-            if (!$update_join_query) {
-                echo "Error updating record: " . $conn->error;
-            }
-        //}
+        // Update the join_assessment status to 2 (finished)
+        $update_join_query = $conn->query("
+            UPDATE join_assessment 
+            SET status = 2
+            WHERE administer_id = '$administer_id' 
+            AND student_id = '$student_id'
+        ");
+            
+        if (!$update_join_query) {
+            echo "Error updating record: " . $conn->error;
+        } else {
+            echo "Successfully updated record!";
+        }
 
         // Insert submission details into the student_submission table
         $insert_submission_query = "INSERT INTO student_submission (student_id, assessment_id, administer_id, date_taken) 
@@ -111,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 } else {
                     $option_id = NULL;
                     $option_value = 'NO ANSWER';
+                    $is_right = 0;
                 }
                 
                 // Calculate score

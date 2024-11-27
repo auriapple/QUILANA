@@ -281,8 +281,10 @@ while ($question = $questions_query->fetch_assoc()) {
                     confirmButton: 'secondary-button'
                 }
             }).then((result) => {
-                showQuestion(currentQuestionIndex); // Show the first question
-                startStopwatch();
+                if (result.isConfirmed) {
+                    showQuestion(currentQuestionIndex); // Show the first question
+                    startStopwatch();
+                }
             });
         } else {
             var attemptText = '';
@@ -307,8 +309,10 @@ while ($question = $questions_query->fetch_assoc()) {
                     confirmButton: 'secondary-button'
                 }
             }).then((result) => {
-                showQuestion(currentQuestionIndex); // Show the first question
-                startStopwatch();
+                if (result.isConfirmed) {
+                    showQuestion(currentQuestionIndex); // Show the first question
+                    startStopwatch();
+                }
             });
         }
 

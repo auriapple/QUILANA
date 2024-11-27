@@ -251,15 +251,15 @@ function getRankSuffix($rank) {
                         // Set padding top based on student count
                         if ($student_count > 1){
                             if ($index === 1) {
-                                $padding_top = '65px'; //35px
+                                $padding_top = '65px';
                             } else {
-                                $padding_top = '100px'; //100px
+                                $padding_top = '100px';
                             }
                         } else {
                             if ($index === 1) {
-                                $padding_top = '85px'; //35px
+                                $padding_top = '85px';
                             } else {
-                                $padding_top = '115px'; //100px
+                                $padding_top = '115px';
                             }
                         }
 
@@ -339,10 +339,12 @@ function getRankSuffix($rank) {
             checkInterval = setInterval(check_status, 3000);
         }
 
-        document.getElementById('close').addEventListener('click', function(event) {
-            // Clear the session storage
-            sessionStorage.removeItem('statusChecked');
-        });
+        const closeButton = document.getElementById('close');
+        if (closeButton) {
+            closeButton.addEventListener('click', function(event) {
+                sessionStorage.removeItem('statusChecked');
+            });
+        }
 
         // Call the startStatusCheck function
         startStatusCheck();

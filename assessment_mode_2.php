@@ -269,7 +269,6 @@ while ($question = $questions_query->fetch_assoc()) {
                 if (result.isConfirmed) {
                     showQuestion(currentQuestionIndex);
                 }
-                //warningTracker = false;
             });
         } else {
             var attemptText = '';
@@ -297,7 +296,6 @@ while ($question = $questions_query->fetch_assoc()) {
                 if (result.isConfirmed) {
                     showQuestion(currentQuestionIndex);
                 }
-                //warningTracker = false;
             });
         }
 
@@ -411,7 +409,6 @@ while ($question = $questions_query->fetch_assoc()) {
             xhr.send(formData);
 
             // Close any open popups
-            closePopup('timer-runout-popup');
             closePopup('confirmation-popup');
         }
 
