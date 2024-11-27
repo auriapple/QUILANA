@@ -9,6 +9,27 @@
     #swal2-input {
         width: 340px;
     }
+    #acceptRejectContainer {
+        width: fit-content;
+        display: flex;
+        justify-self: end;
+        gap: 20px;
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+    #accept-all, #reject-all {
+        width: 95px;
+        height: 30px;
+        border-radius: 5px;
+        background: #87FFB0;
+        border: none;
+        color: #2F8113;
+    }
+
+    #reject-all {
+        background: #FF8585;
+        color: #DE1616;
+    }
 </style>
 
 <?php
@@ -21,6 +42,9 @@ if (isset($_GET['class_id'])) {
     $qry_class = $conn->query("SELECT class_name, subject FROM class WHERE class_id = '$class_id'");
     if ($qry_class->num_rows > 0) {
         $class = $qry_class->fetch_assoc();
+        $class_name = htmlspecialchars($class['class_name']);
+        $subject = htmlspecialchars($class['subject']);
+        $classSub = $class_name . ' (' . $subject . ')';
         echo "<h4><strong>{$class['class_name']} ({$class['subject']})</strong></h4>";
     } else {
         echo "<p><strong>Class not found.</strong></p>";
@@ -92,6 +116,7 @@ if (isset($_GET['class_id'])) {
 
 <!-- Tab content for Students -->
 <div id="Students" class="tabcontent" style="display: none;">
+    <input hidden id="numPendingContainer" value="">
     <div class="table-wrapper">
         <table class="table table-bordered">
             <thead>
@@ -106,6 +131,19 @@ if (isset($_GET['class_id'])) {
                 <!-- Student Record will be loaded here -->
             </tbody>
         </table>
+    </div>
+
+    <div id = "acceptRejectContainer">
+        <button id="accept-all" class="accept-all"
+            data-class-id="<?php echo $class_id; ?>" 
+            data-status="1" 
+            data-class-sub= "<?php echo $classSub; ?>"
+            data-num="<?php echo $numPending['numPending']; ?>"> Accept All </button>
+        <button id="reject-all" class="reject-all"
+            data-class-id="<?php echo $class_id; ?>" 
+            data-status="2" 
+            data-class-sub="<?php echo $classSub; ?>"
+            data-num="<?php echo $numPending['numPending']; ?>"> Reject All </button>
     </div>
 </div>
 
@@ -151,7 +189,24 @@ if (isset($_GET['class_id'])) {
                 // Update the table's <tbody> with the new HTML
                 $('#Students tbody').html('');
                 $('#Students tbody').html(response);
-                console.log(classId);
+
+                $.ajax({
+                    url: 'get_numPending.php',
+                    type: 'POST',
+                    data: { class_id: classId },
+                    success: function(pendingResponse) {
+                        const pendingData = JSON.parse(pendingResponse);
+                        document.getElementById('numPendingContainer').value = pendingData.numPending;
+                        if (pendingData.numPending == 0) {
+                            $('#acceptRejectContainer').hide();
+                        } else {
+                            $('#acceptRejectContainer').show();
+                        }
+                    },
+                    error: function() {
+                        alert('Failed to fetch pending count.');
+                    }
+                });
             },
             error: function() {
                 alert('Failed to refresh the student table.');
@@ -173,8 +228,6 @@ if (isset($_GET['class_id'])) {
                 alert('Failed to refresh the assessments table.');
             }
         });
-
-        console.log(classId);
     }
 
     $(document).ready(function() {
@@ -185,7 +238,7 @@ if (isset($_GET['class_id'])) {
         // Create a new div element
         const alert = document.createElement('div');
         alert.className = 'alert-card';
-        alert.textContent = studentName + ' has been ' + res + ' ' + className;
+        alert.textContent = studentName + ' has/have been ' + res + ' ' + className;
 
         // Append the new child to the parent
         const alertContainer = document.getElementById('alert-container');
@@ -219,7 +272,7 @@ if (isset($_GET['class_id'])) {
                 if (response == 'success') {
                     addChildAlert(studentName, classSub, res);
                     console.log(studentName + '\n' + classSub + '\n' + res);
-                    fetchPendingRequests();
+                    refreshStudentTable(classId);
                 } else {
                     Swal.fire({
                         title: 'Warning!',
@@ -506,6 +559,103 @@ if (isset($_GET['class_id'])) {
             var defaultTabName = defaultTab.getAttribute('onclick').match(/'(.*?)'/)[1];
             document.getElementById(defaultTabName).style.display = "block";
             document.getElementById(defaultTabName).classList.add("active");
+        }
+    });
+
+    function acceptRejectAllStudents(classId, status, classSub, reason) {
+        var res = status == 1 ? 'accepted to ' : status == 2 ? 'rejected from ' : null;
+
+        $.ajax({
+            url: 'status_updateAll.php',
+            type: 'POST',
+            data: {
+                class_id: classId,
+                status: status,
+                reason: reason
+            },
+            success: function(response) {
+                if (typeof response === 'string') {
+                    response = JSON.parse(response);
+                }
+
+                if (response.status === 'success') {
+                    var affected = response.affected + ' Students ';
+                    addChildAlert(affected, classSub, res);
+                    refreshStudentTable(classId);
+                } else {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: 'An error occured in trying to reject/accept all students to ' + classSub + '.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'popup-content',
+                            confirmButton: 'secondary-button'
+                        }
+                    }).then(() => {
+                        warningTracker = false;
+                    });
+                }
+            } 
+        });
+    }
+
+    // Accept/Reject All functionality
+    $(document).on('click', '.accept-all, .reject-all', function() {
+        var classId = $(this).data('class-id');
+        var status = $(this).data('status');
+        var classSub = $(this).data('class-sub');
+        var numPending = document.getElementById('numPendingContainer').value;
+
+        if ($(this).hasClass('accept-all')) {
+            Swal.fire({
+                title: 'Confirm Acceptance.',
+                text: 'Are you sure you want to accept ' + numPending + ' Students to ' + classSub + '.',
+                showCancelButton: true,
+                confirmButtonText: 'Accept',
+                cancelButtonText: 'Cancel',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button',
+                    cancelButton: 'tertiary-button',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const reason = null;
+                    acceptRejectAllStudents(classId, status, classSub, reason);
+                    warningTracker = false;
+                } else if (result.isDismissed) {
+                    console.log("User canceled the removal action.");
+                }
+            });
+        } else {
+            Swal.fire({
+                title: 'Confirm Rejection.',
+                text: 'Are you sure you want to reject ' + numPending + ' Students from ' + classSub + '.',
+                showCancelButton: true,
+                confirmButtonText: 'Reject',
+                cancelButtonText: 'Cancel',
+                allowOutsideClick: false,
+                input: 'text',
+                inputValue: 'Students are not enrolled in the class',
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button',
+                    cancelButton: 'tertiary-button',
+                    input: 'popup-input'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const reason = result.value;
+                    acceptRejectAllStudents(classId, status, classSub, reason);
+                    
+                    warningTracker = false;
+                } else if (result.isDismissed) {
+                    console.log("User canceled the removal action.");
+                }
+            });
         }
     });
 </script>

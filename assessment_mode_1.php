@@ -11,6 +11,7 @@ if (!isset($_GET['assessment_id']) && !isset($_GET['administer_id'])) {
 $student_id = $_SESSION['login_id'];
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $administer_id = $conn->real_escape_string($_GET['administer_id']);
+$start_time = date('Y-m-d H:i:s');
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
@@ -333,31 +334,6 @@ $time_limit = $assessment['time_limit'];
                 });
             }
         });
-
-        var is_submitted = <?php echo $is_submitted; ?>;
-
-        function showSubmissionError() {
-            Swal.fire({
-                title: 'Assessment Already Submitted!',
-                text: 'You have already submitted your answers to this assessment already',
-                icon: 'error',
-                confirmButtonText: 'OK',
-                allowOutsideClick: false,
-                customClass: {
-                    popup: 'popup-content',
-                    confirmButton: 'secondary-button'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = 'enroll.php';
-                    console.log("Redirecting to enroll.php");
-                }
-            });
-        }
-
-        if (is_submitted) {
-            showSubmissionError();
-        }
         
         // FORM SUBMISSION HANDLING
         function handleSubmit() {
@@ -372,7 +348,22 @@ $time_limit = $assessment['time_limit'];
                 success: function(response) {
                     console.log("AJAX success response:", response);     
                     if (response.status === 'submitted') {
-                        showSubmissionError();
+                        Swal.fire({
+                            title: 'Assessment Already Submitted!',
+                            text: 'You have already submitted your answers to this assessment already',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'enroll.php';
+                                console.log("Redirecting to enroll.php");
+                            }
+                        });
                     } else {
                         console.log("Form not submitted yet, proceeding with form submission");
                         submitForm();

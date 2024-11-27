@@ -57,7 +57,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         </div>
 
         <div class="content-wrapper dashboard-container">
-            <div class="section1">
+            <div class="section1" id="section1">
                 <div class="section1-1" id="section1-1">
                     <!-- Dashboard Summary -->
                     <div class="dashboard-summary" id="dashboard-summary">
@@ -108,6 +108,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                 </div>
+
                 <div class="section1-2" id="section1-2">
                     <div class="dashboard-chart" id="dashboard-chart">
                         <h1>Report</h1>
@@ -115,9 +116,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     </div>    
                 </div>
             </div>
+            
             <div class="section2">
                 <!-- Dashboard Calendar -->
-                <div class="dashboard-calendar">
+                <div class="dashboard-calendar" id="dashboard-calendar">
                     <div class="wrapper">
                         <!-- Calendar -->
                         <header>
@@ -142,10 +144,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                             <ul class="days"></ul>
                         </div>
                         <!-- Today's Schedule -->
-                        <footer>
+                        <footer id="footer">
                             <div class="line"></div>
                             <h1>Today</h1>
-                            <div class="today-schedule">
+                            <div class="today-schedule" id="today-schedule">
                                 <?php
                                 // Fetch today's date
                                 $today = date('Y-m-d');
@@ -347,7 +349,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
         <script>
             const scheduledDates = <?php echo json_encode($schedules); ?>;
 
-            function addChildElement(studentName, className, res) {
+            function addChildAlert(studentName, className, res) {
                 // Create a new div element
                 const alert = document.createElement('div');
                 alert.className = 'alert-card';
@@ -393,7 +395,7 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     },
                     success: function(response) {
                         if (response == 'success') {
-                            addChildElement(studentName, classSub, res);
+                            addChildAlert(studentName, classSub, res);
                             console.log(studentName + '\n' + classSub + '\n' + res);
                             fetchPendingRequests();
                         } else {
@@ -748,12 +750,14 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                     footer.style.display = 'flex';
                     footer.style.flexDirection = 'column';
                     document.getElementById('today-schedule').style.height = '100%'
+                    document.getElementById('section1').style.marginRight = '10px';
                 }
                 if (!ifSection1_2Show) {
                     $('.section1-2').hide();
                     document.getElementById('section1-1').style.flexDirection = 'column';
                     document.getElementById('section1-1').style.maxHeight = 'none';
                     document.getElementById('dashboard-requests').style.maxHeight = 'none';
+                    document.getElementById('section1').style.marginRight = '10px';
 
                     if (document.getElementById('request-input').value != 1) {
                         document.getElementById('dashboard-summary').style.maxHeight = 'none';
@@ -808,9 +812,9 @@ while ($row = $scheduleQuery->fetch_assoc()) {
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataPoints.map((_, index) => `Point ${index + 1}`),
+                    labels: dataPoints.map((_, index) => `Quiz ${index + 1}`),
                     datasets: [{
-                        label: 'Sample Data',
+                        label: 'Introduction to Computing',
                         data: dataPoints,
                         borderColor: 'blue',
                         fill: false,
@@ -819,9 +823,10 @@ while ($row = $scheduleQuery->fetch_assoc()) {
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
-                        x: { title: { display: true, text: 'Index' } },
-                        y: { title: { display: true, text: 'Value' } }
+                        x: { title: { display: true, text: 'Percentage' } },
+                        y: { title: { display: true, text: 'Assessments' } }
                     }
                 }
             });
