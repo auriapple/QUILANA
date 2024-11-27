@@ -291,7 +291,7 @@
             background-color: #ff5252;
         }
 
-        @media screen and (max-width: 1020px) {
+        @media screen and (max-width: 1200px) {
             .main-container .table-wrapper {
                 margin: 10px 0;
             }
@@ -301,7 +301,7 @@
             }
         }
 
-        @media screen and (max-width: 920px) {
+        @media screen and (max-width: 1100px) {
             .studentNumber-column {
                 transition: ease-out 300ms;
                 display: none;
@@ -309,8 +309,7 @@
 
             .table-wrapper th, 
             .table-wrapper td {
-                width: calc(100% / 4);
-                min-width: 93px;
+                width: 20% !important;
             }
 
             .table-wrapper .joined,
@@ -320,7 +319,7 @@
             }
         }
 
-        @media screen and (max-width: 720px) {
+        @media screen and (max-width: 1020px) {
             .main-container .table-wrapper {
                 margin: 0;
             }

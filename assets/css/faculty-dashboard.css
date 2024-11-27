@@ -49,7 +49,6 @@ body {
     display: flex;
     flex-direction: row;
     max-height: 270px;
-    gap: 10px;
     box-sizing: border-box;
 }
 
@@ -242,6 +241,7 @@ td .btns,
     transition: ease-in 200ms;
     overflow: hidden;
     cursor: pointer;
+    line-height: 20px;
 }
 .btns .accept,
 .btn-container .accept {

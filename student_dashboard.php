@@ -44,14 +44,19 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         $settings = $settings_query->fetch_assoc();
 
         $chart_query = $conn->query("
-            SELECT sr.score / sr.total_score * a.passing_rate + (100 - a.passing_rate) AS percentage FROM student_results sr JOIN assessment a ON sr.assessment_id = a.assessment_id WHERE student_id = '118'
+            SELECT sr.score / sr.total_score * a.passing_rate + (100 - a.passing_rate) AS percentage, a.assessment_name
+            FROM student_results sr JOIN assessment a ON sr.assessment_id = a.assessment_id 
+            WHERE student_id = '".$_SESSION['login_id']."'
         ");
         $chart_data = [];
+        $chart_dataLabels = [];
         while ($chart = $chart_query->fetch_assoc()) {
             $chart_data[] = $chart['percentage'];
+            $chart_dataLabels[] = $chart['assessment_name'];
         }
 
         $json_chart_data = json_encode($chart_data);
+        $json_chart_dataLabels = json_encode($chart_dataLabels);
     ?>
         <div hidden>
             <input id='summary-input' value = "<?php echo $settings['summary'] ?>">
@@ -189,13 +194,13 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                         </div>
                     </div>
                 </div>
+
                 <div class="section1-2" id="section1-2">
                     <div class="dashboard-chart" id="dashboard-chart">
                         <h1>Report</h1>
                         <canvas id="lineChart" width="800" height="400"></canvas>
                     </div>
                 </div>
-                
             </div>
 
             <div class="section2" id="section2">
@@ -562,7 +567,10 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 }
                 if (!ifSection2Show) {
                     $('.section2').hide();
+                    document.getElementById('section1').style.paddingRight = '10px';
                 }
+
+                console.log('Looking like a chef');
             }
 
             $(document).ready(function() {
@@ -604,12 +612,13 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
 
             // Fetch dynamic data from PHP
             const dataPoints = <?php echo $json_chart_data; ?>;
+            const dataPointLabels = <?php echo $json_chart_dataLabels; ?>
 
             const ctx = document.getElementById('lineChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataPoints.map((_, index) => `Quiz ${index + 1}`),
+                    labels: dataPointLabels,
                     datasets: [{
                         label: 'Introduction to Computing',
                         data: dataPoints,
