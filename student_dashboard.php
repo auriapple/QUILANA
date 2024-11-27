@@ -42,6 +42,16 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
             SELECT * FROM dashboard_settings WHERE user_id = '".$_SESSION['login_id']."' AND user_type = 3
         ");
         $settings = $settings_query->fetch_assoc();
+
+        $chart_query = $conn->query("
+            SELECT sr.score / sr.total_score * a.passing_rate + (100 - a.passing_rate) AS percentage FROM student_results sr JOIN assessment a ON sr.assessment_id = a.assessment_id WHERE student_id = '118'
+        ");
+        $chart_data = [];
+        while ($chart = $chart_query->fetch_assoc()) {
+            $chart_data[] = $chart['percentage'];
+        }
+
+        $json_chart_data = json_encode($chart_data);
     ?>
         <div hidden>
             <input id='summary-input' value = "<?php echo $settings['summary'] ?>">
@@ -593,15 +603,15 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
             });
 
             // Fetch dynamic data from PHP
-            const dataPoints = <?php echo json_encode([10, 40, 80, 30, 60, 120, 90]); ?>;
+            const dataPoints = <?php echo $json_chart_data; ?>;
 
             const ctx = document.getElementById('lineChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataPoints.map((_, index) => `Point ${index + 1}`),
+                    labels: dataPoints.map((_, index) => `Quiz ${index + 1}`),
                     datasets: [{
-                        label: 'Sample Data',
+                        label: 'Introduction to Computing',
                         data: dataPoints,
                         borderColor: 'blue',
                         fill: false,
