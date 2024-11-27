@@ -12,6 +12,8 @@ $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
 $class_id = $conn->real_escape_string($_GET['class_id']);
 
+$start_time = date('Y-m-d H:i:s');
+
 // Fetch administer assessment details
 $administer_query = $conn->query("
     SELECT aa.administer_id, a.max_warnings, aa.start_time
@@ -685,7 +687,7 @@ $time_limit = $assessment['time_limit'];
             const startTime = Date.parse("<?php echo $start_time; ?>") || 
                   new Date("<?php echo $start_time; ?>").getTime() || 
                   Date.now();
-                  
+
             function calculateRemainingTime() {
                 const now = Date.now();
                 const elapsedTime = Math.floor((now - startTime) / 1000); // Calculate elapsed time in seconds
