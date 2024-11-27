@@ -242,8 +242,6 @@ while ($question = $questions_query->fetch_assoc()) {
         let currentQuestionIndex = 0;
         const assessmentId = document.querySelector('input[name="assessment_id"]').value;
         let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
-        let isSubmitting = false;
-        let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
         let altKeyPressed = false;
         let winKeyPressed = false;
@@ -366,14 +364,43 @@ while ($question = $questions_query->fetch_assoc()) {
             questionTimes[currentQuestionIndex] = elapsedTime;
             console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
             closePopup('final-confirmation-popup');
-            
-            if (event) {
-                event.preventDefault();
-            }
-            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
-            isSubmitting = true;
 
-            submitForm();
+            const administerId = parseInt(document.getElementById('administerId_container').value);
+            console.log('Checking submission status for administer_id:', administerId);
+            
+            $.ajax({
+                url: 'check_submission.php',
+                method: 'GET',
+                data: { administer_id: administerId},
+                dataType: 'json',
+                success: function(response) {
+                    console.log("AJAX success response:", response);     
+                    if (response.status === 'submitted') {
+                        Swal.fire({
+                            title: 'Assessment Already Submitted!',
+                            text: 'You have submitted your answers to this assessment already',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'enroll.php';
+                                console.log("Redirecting to enroll.php");
+                            }
+                        });
+                    } else {
+                        console.log("Form not submitted yet, proceeding with form submission");
+                        submitForm();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('checking of submission failed:', error);
+                }
+            });
         }
 
         // FORM SUBMISSION HANDLING

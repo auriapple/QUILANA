@@ -2,23 +2,23 @@
 include('db_connect.php');
 include('auth.php');
 
-if (!isset($_GET['assessment_id']) || !isset($_SESSION['user_id'])) {
-    echo 'error';
+if (!isset($_GET['administer_id']) || !isset($_SESSION['login_id'])) {
+    echo json_encode(['error' => 'Missing parameters']);
     exit();
 }
 
-$assessment_id = $conn->real_escape_string($_GET['assessment_id']);
+$administer_id = $conn->real_escape_string($_GET['administer_id']);
 $student_id = $_SESSION['login_id'];
 
 $check_submission_query = $conn->query("
-    SELECT * FROM student_results 
-    WHERE assessment_id = '$assessment_id' 
+    SELECT * FROM student_submission 
+    WHERE administer_id = '$administer_id' 
     AND student_id = '$student_id'
 ");
 
-if ($check_submission_query->num_rows > 0) {
-    echo 'submitted';
+if ($check_submission_query && $check_submission_query->num_rows > 0) {
+    echo json_encode(['status' => 'submitted']);
 } else {
-    echo 'not_submitted';
+    echo json_encode(['status' => 'not submitted']);
 }
 ?>

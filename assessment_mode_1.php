@@ -49,6 +49,11 @@ if ($administer_query->num_rows>0) {
         }
     } else {
         $join_details = $join_query->fetch_assoc();
+
+        if ($join_details['status'] === 2) {
+            $is_submitted = true;
+            exit();
+        }
         
         if ($join_details['attempts'] < 3) {
             // Update the join_assessment status to 1 (answering)
@@ -235,8 +240,6 @@ $time_limit = $assessment['time_limit'];
         let timerInterval;
         const assessmentId = document.querySelector('input[name="assessment_id"]').value;
         let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
-        let isSubmitting = false;
-        let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
         let altKeyPressed = false;
         let winKeyPressed = false;
@@ -308,7 +311,6 @@ $time_limit = $assessment['time_limit'];
         }
         function closeErrorPopup(popupId) {
             document.getElementById(popupId).style.display = 'none';
-            isSubmitting = false;
         }
 
         document.getElementById('submit').addEventListener('click', function() {
@@ -331,22 +333,58 @@ $time_limit = $assessment['time_limit'];
                 });
             }
         });
+
+        var is_submitted = <?php echo $is_submitted; ?>;
+
+        function showSubmissionError() {
+            Swal.fire({
+                title: 'Assessment Already Submitted!',
+                text: 'You have already submitted your answers to this assessment already',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'popup-content',
+                    confirmButton: 'secondary-button'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'enroll.php';
+                    console.log("Redirecting to enroll.php");
+                }
+            });
+        }
+
+        if (is_submitted) {
+            showSubmissionError();
+        }
         
-
         // FORM SUBMISSION HANDLING
-        function handleSubmit(event) {
-            if (event) {
-                event.preventDefault();
-            }
-            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
-            isSubmitting = true;
-
-            submitForm();
+        function handleSubmit() {
+            const administerId = parseInt(document.getElementById('administerId_container').value);
+            console.log('Checking submission status for administer_id:', administerId);
+            
+            $.ajax({
+                url: 'check_submission.php',
+                method: 'GET',
+                data: { administer_id: administerId},
+                dataType: 'json',
+                success: function(response) {
+                    console.log("AJAX success response:", response);     
+                    if (response.status === 'submitted') {
+                        showSubmissionError();
+                    } else {
+                        console.log("Form not submitted yet, proceeding with form submission");
+                        submitForm();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('checking of submission failed:', error);
+                }
+            });
         }
 
         function submitForm() {
-            if (hasSubmitted) return; 
-
             var formData = new FormData(document.getElementById('quiz-form'));
             formData.append('warningCount', warningCount);
 
@@ -354,8 +392,6 @@ $time_limit = $assessment['time_limit'];
             xhr.open('POST', 'submit_assessment.php', true);
 
             xhr.onload = function () {
-                isSubmitting = false;
-                hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
                     sessionStorage.removeItem(`remainingTime_${assessmentId}`);
                     sessionStorage.removeItem(`warningCount_${assessmentId}`);

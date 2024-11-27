@@ -227,8 +227,6 @@ while ($question = $questions_query->fetch_assoc()) {
         var questions = document.querySelectorAll('.questions-container .question');
         const assessmentId = document.querySelector('input[name="assessment_id"]').value;
         let warningCount = parseInt(sessionStorage.getItem(`warningCount_${assessmentId}`)) || 0;
-        let isSubmitting = false;
-        let hasSubmitted = false;
         const max_warnings = parseInt(document.getElementById('maxWarnings_container').value);
         let altKeyPressed = false;
         let winKeyPressed = false;
@@ -374,19 +372,46 @@ while ($question = $questions_query->fetch_assoc()) {
 
 
         // FORM SUBMISSION HANDLING
-        function handleSubmit(event) {
-            if (event) {
-                event.preventDefault();
-            }
-            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
-            isSubmitting = true;
+        function handleSubmit() {
+            const administerId = parseInt(document.getElementById('administerId_container').value);
+            console.log('Checking submission status for administer_id:', administerId);
             
-            submitForm();
+            $.ajax({
+                url: 'check_submission.php',
+                method: 'GET',
+                data: { administer_id: administerId},
+                dataType: 'json',
+                success: function(response) {
+                    console.log("AJAX success response:", response);     
+                    if (response.status === 'submitted') {
+                        Swal.fire({
+                            title: 'Assessment Already Submitted!',
+                            text: 'You have submitted your answers to this assessment already',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                                confirmButton: 'secondary-button'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'enroll.php';
+                                console.log("Redirecting to enroll.php");
+                            }
+                        });
+                    } else {
+                        console.log("Form not submitted yet, proceeding with form submission");
+                        submitForm();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('checking of submission failed:', error);
+                }
+            });
         }
 
         function submitForm() {
-            if (hasSubmitted) return; 
-
             var formData = new FormData(document.getElementById('quiz-form'));
             formData.append('warningCount', warningCount);
 
@@ -394,8 +419,6 @@ while ($question = $questions_query->fetch_assoc()) {
             xhr.open('POST', 'submit_assessment.php', true);
 
             xhr.onload = function () {
-                isSubmitting = false;
-                hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
                     sessionStorage.removeItem('endTime');
                     sessionStorage.removeItem('remainingTime');

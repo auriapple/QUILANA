@@ -279,17 +279,20 @@ if ($assessment_query->num_rows > 0) {
             .general-details {
                 margin-top: 25px;
             }
-            .general-details h1,
+            .general-details h1 {
+                font-size: 30px;
+            }
+            .general-details h3,
             .instructions h3,
             .reminders h3 {
-                font-size: 32px;
+                font-size: 26px;
             }
-            .general-details h3 {
-                font-size: 28px;
-            }
-            .general-details h4,
             .message h5 {
                 font-size: 20px;
+            }
+            .general-details h4 {
+                margin-top: 5px;
+                font-size: 18px;
             }
             .instructions {
                 margin: 15px;
