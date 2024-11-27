@@ -12,7 +12,7 @@ $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $student_id = $_SESSION['login_id'];
 $class_id = $conn->real_escape_string($_GET['class_id']);
 
-$start_time = date('Y-m-d H:i:s');
+$start_time = date('H:i:s');
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
