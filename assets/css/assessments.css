@@ -162,7 +162,9 @@ body, html {
 }
 
 .question p {
-    margin: 0px;
+    overflow: auto;
+    margin: 10px 0 0 0;
+    max-height: 100px;
 }
 
 /* Options and Answer Boxes Styles */
@@ -373,7 +375,7 @@ body, html {
 /* For screens smaller than 500px */
 @media screen and (max-width: 500px) {
     #quiz-modes-container .question-text {
-        font-size: 20px;
+        font-size: 1rem;
         margin: 0;
     }
 

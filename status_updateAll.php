@@ -10,9 +10,9 @@ if (isset($_POST['class_id']) && isset($_POST['status'])) {
     $reason = isset($_POST['reason']) ? $_POST['reason'] : null;
 
     if ($status == 1) {
-        $query = "UPDATE student_enrollment SET status = ?, if_display = 1 WHERE class_id = ?";
+        $query = "UPDATE student_enrollment SET status = ?, if_display = 1 WHERE class_id = ? AND status = 0";
     } else {
-        $query = "UPDATE student_enrollment SET status = ?, reason = ?, if_display = 1 WHERE class_id = ?
+        $query = "UPDATE student_enrollment SET status = ?, reason = ?, if_display = 1 WHERE class_id = ? AND status = 0
         ";
     }
     

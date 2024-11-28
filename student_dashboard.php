@@ -542,7 +542,7 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                     $('.section1').hide();
                     const section2 = document.getElementById('section2');
                     section2.style.width = '100%';
-                    section2.style.flexDirection = 'row';
+                    if (section2.style.width > (850)) section2.style.flexDirection = 'row';
                     section2.style.paddingRight = '10px';
                     section2.style.paddingBottom = '30px';
                 }

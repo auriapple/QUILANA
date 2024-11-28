@@ -106,7 +106,7 @@
                                     <input type="text" id="student_number" name="student_number" class="input-field" />
                                     <label>Student Number</label>
                                 </div>
-                                <div class="validation-note student-number-note" id="studentnumber-validation" style="display: none;">Student number must be xxxx-xxxxx-MN-0</div>
+                                <div class="validation-note student-number-note" id="studentnumber-validation" style="display: none;">Student number must be xxxx-xxxxx-MN-0/1</div>
 
                                 <div class="input-wrap">
                                     <input type="text" id="username" name="username" class="input-field" required />

@@ -161,6 +161,11 @@
                     data: { student_id: studentId },
                     success: function(response) {
                         $('#notification-container').html(response);
+                        
+                        if ($('#numNotif').value == 0) {
+                            $('#notification-container').hide();
+                            console.log('yeee');
+                        } 
                         addCloseListeners();
                     }
                 });

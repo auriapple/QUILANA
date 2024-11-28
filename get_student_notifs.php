@@ -15,6 +15,7 @@
                 $result = $conn->query($sql);
 
                 if ($result->num_rows > 0) {
+                    echo "<input hidden value='$result->num_rows' id='numNotif'> ";
                     while ($row = $result->fetch_assoc()) {
         ?>  
                         <div class="notification-card" data-enrollment-id="<?php echo $row['studentEnrollment_id']; ?>">

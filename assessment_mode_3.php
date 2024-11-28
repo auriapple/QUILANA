@@ -48,7 +48,7 @@ if ($administer_query->num_rows>0) {
     } else {
         $join_details = $join_query->fetch_assoc();
         
-        if ($join_details['attempts'] < 3) {
+        if ($join_details['attempts'] < 3 && $join_details['status'] != 2) {
             // Update the join_assessment status to 1 (answering)
             $update_join_query = $conn->query("
                 UPDATE join_assessment 
@@ -360,11 +360,16 @@ while ($question = $questions_query->fetch_assoc()) {
             nextQuestion();
         }
 
-        function finalSubmit(event) {
+        function finalSubmit() {
             questionTimes[currentQuestionIndex] = elapsedTime;
             console.log(`Question ${currentQuestionIndex} time: ${questionTimes[currentQuestionIndex]} ms`);
             closePopup('final-confirmation-popup');
 
+            handleSubmit();
+        }
+
+        // FORM SUBMISSION HANDLING
+        function handleSubmit() {
             const administerId = parseInt(document.getElementById('administerId_container').value);
             console.log('Checking submission status for administer_id:', administerId);
             
@@ -403,19 +408,8 @@ while ($question = $questions_query->fetch_assoc()) {
             });
         }
 
-        // FORM SUBMISSION HANDLING
-        function handleSubmit(event) {
-            if (event) {
-                event.preventDefault();
-            }
-            if (isSubmitting || hasSubmitted) return; // Prevent multiple submissions
-            isSubmitting = true;
-
-            submitForm();
-        }
-
         function submitForm() {
-            if (hasSubmitted) return; 
+            //if (hasSubmitted) return; 
 
             var formData = new FormData(document.getElementById('quiz-form'));
             formData.append('warningCount', warningCount);
@@ -425,8 +419,8 @@ while ($question = $questions_query->fetch_assoc()) {
             xhr.open('POST', 'submit_assessment.php', true);
 
             xhr.onload = function () {
-                isSubmitting = false;
-                hasSubmitted = true; // Mark as submitted
+                //isSubmitting = false;
+                //hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
                     clearInterval(stopwatchInterval);
                     showPopup('success-popup');

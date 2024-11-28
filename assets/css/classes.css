@@ -312,7 +312,8 @@ tr .status {
     position: absolute;
     bottom: 20px;
     right: 20px;
-    height: 300px;
+    height: fit-content;
+    max-height: 300px;
     width: 300px;
     background-color: transparent;
     overflow-y: auto;

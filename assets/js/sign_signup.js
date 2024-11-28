@@ -181,7 +181,7 @@ $(document).ready(function(){
     }
 
     function validateStudentNumber(studentNumber) {
-        const regex = /^\d{4}-\d{5}-MN-0$/;
+        const regex = /^\d{4}-\d{5}-MN-[01]$/;
         return regex.test(studentNumber);
     }
 

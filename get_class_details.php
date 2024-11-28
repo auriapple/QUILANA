@@ -9,6 +9,13 @@
     #swal2-input {
         width: 340px;
     }
+    #rowCount {
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #333;
+        justify-self: start;
+        margin-bottom: 0px;
+    }
     #acceptRejectContainer {
         width: fit-content;
         display: flex;
@@ -117,8 +124,10 @@ if (isset($_GET['class_id'])) {
 <!-- Tab content for Students -->
 <div id="Students" class="tabcontent" style="display: none;">
     <input hidden id="numPendingContainer" value="">
+    <div id="rowCount">Number of Students: 0</div>
+    <h1></h1>
     <div class="table-wrapper">
-        <table class="table table-bordered">
+        <table class="table table-bordered"  style='height: calc(100% - 30px);'>
             <thead>
                 <tr>
                     <th>Student Number</th>
@@ -127,7 +136,7 @@ if (isset($_GET['class_id'])) {
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id = 'student-table'>
                 <!-- Student Record will be loaded here -->
             </tbody>
         </table>
@@ -189,6 +198,9 @@ if (isset($_GET['class_id'])) {
                 // Update the table's <tbody> with the new HTML
                 $('#Students tbody').html('');
                 $('#Students tbody').html(response);
+
+                const tbodyStudent = document.getElementById('student-table');
+                document.getElementById('rowCount').innerText = `Number of Students: ${tbodyStudent.rows.length}`;
 
                 $.ajax({
                     url: 'get_numPending.php',

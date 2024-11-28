@@ -123,6 +123,7 @@
                     </div> <!-- Close the last course section -->
                 </div>
             </div>
+            </div>
                    
             <div id="details-tab" class="tab-content">
                 <h1></h1>

@@ -11,7 +11,7 @@ if (!isset($_GET['assessment_id']) && !isset($_GET['administer_id'])) {
 $student_id = $_SESSION['login_id'];
 $assessment_id = $conn->real_escape_string($_GET['assessment_id']);
 $administer_id = $conn->real_escape_string($_GET['administer_id']);
-$start_time = date('Y-m-d H:i:s');
+//$start_time = date('Y-m-d H:i:s');
 
 // Fetch administer assessment details
 $administer_query = $conn->query("
@@ -797,7 +797,8 @@ $time_limit = $assessment['time_limit'];
         // Set Timer Functionality and Event Listeners
         window.onload = function() {
             const maxTimeLimit = parseInt(document.getElementById('time_limit').value) * 60; // Convert minutes to seconds
-            const startTime = Date.parse("<?php echo $start_time; ?> GMT+0800");
+            const startTime = Date.parse("<?php echo $start_time; ?>") || new Date("<?php echo $start_time; ?> GMT+0800").getTime();
+
             //const startTime = new Date("<?php echo $start_time; ?> GMT+0800").getTime();
 
             function calculateRemainingTime() {
