@@ -288,6 +288,10 @@ td .btns,
     margin-left: 0;
 }
 
+.dashboard-chart canvas {
+    height: calc(100% - 20px) !important;
+}
+
 /* Dashboard Options */
 #dashboard-options-button {
     display: flex;
@@ -334,6 +338,10 @@ td .btns,
     margin: 0 50px;
     border-bottom: 1px solid #ddd;
     padding: 10px;
+}
+
+.dashboard-option label {
+    margin-bottom: 0px;
 }
 
 #dashboardOptionsBody .last {
@@ -743,5 +751,8 @@ footer h1 {
     .reject .btn-icon {
         display: block;
         color: #e00f0f;
+    }
+    .dashboard-option {
+        margin: 0px;
     }
 }
