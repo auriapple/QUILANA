@@ -368,6 +368,10 @@ if ($assessment_query->num_rows > 0) {
 
                             // Passing rate
                             echo "<li> <strong>Passing Rate:</strong> ". htmlspecialchars($assessment['passing_rate']) ."%</li>";
+
+                            // Max warnings
+                            echo "<li> <strong>Maximum Warnings:</strong> ". htmlspecialchars($assessment['max_warnings'])."</li>";
+
                             echo "</ul>";
 
                         // For Quiz Bee Mode
@@ -439,6 +443,10 @@ if ($assessment_query->num_rows > 0) {
 
                             // Passing rate
                             echo "<li><strong>Passing Rate:</strong> ". htmlspecialchars($assessment['passing_rate']) ."%</li>";
+
+                            // Max warnings
+                            echo "<li> <strong>Maximum Warnings:</strong> ". htmlspecialchars($assessment['max_warnings'])."</li>";
+
                             echo "</ul>";
 
                         // For Speed Mode
@@ -458,6 +466,12 @@ if ($assessment_query->num_rows > 0) {
 
                             // Total Duration
                             echo "<li><strong>Total Questions:</strong> " . htmlspecialchars($question_data['question_count']) . "</li>";
+
+                            // Passing rate
+                            echo "<li> <strong>Passing Rate:</strong> ". htmlspecialchars($assessment['passing_rate']) ."%</li>";
+
+                            // Max warnings
+                            echo "<li> <strong>Maximum Warnings:</strong> ". htmlspecialchars($assessment['max_warnings'])."</li>";
 
                             // Student count and pointing system
                             if ($assessment['student_count'] == 1) {

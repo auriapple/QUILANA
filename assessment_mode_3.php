@@ -41,31 +41,38 @@ if ($administer_query->num_rows>0) {
         ");
 
         $attempts = 1;
+        $is_submitted = false;
 
         if (!$insert_join_query) {
             echo "Error inserting record: " . $conn->error;
         }
     } else {
         $join_details = $join_query->fetch_assoc();
-        
-        if ($join_details['attempts'] < 3 && $join_details['status'] != 2) {
-            // Update the join_assessment status to 1 (answering)
-            $update_join_query = $conn->query("
-                UPDATE join_assessment 
-                SET 
-                    status = 1,
-                    attempts = attempts + 1
-                WHERE administer_id = '$administer_id' 
-                AND student_id = '$student_id'
-            ");
 
-            $attempts = $join_details['attempts'] + 1;
-
-            if (!$update_join_query) {
-                echo "Error updating record: " . $conn->error;
-            }
+        if ($join_details['status'] == 2) {
+            $attempts = $join_details['attempts'];
+            $is_submitted = true;
         } else {
-            $attempts = $join_details['attempts'] + 1;
+            $is_submitted = false;
+            if ($join_details['attempts'] < 3) {
+                // Update the join_assessment status to 1 (answering)
+                $update_join_query = $conn->query("
+                    UPDATE join_assessment 
+                    SET 
+                        status = 1,
+                        attempts = attempts + 1
+                    WHERE administer_id = '$administer_id' 
+                    AND student_id = '$student_id'
+                ");
+
+                $attempts = $join_details['attempts'] + 1;
+
+                if (!$update_join_query) {
+                    echo "Error updating record: " . $conn->error;
+                }
+            } else {
+                $attempts = $join_details['attempts'] + 1;
+            } 
         }
     }
 }
@@ -250,68 +257,84 @@ while ($question = $questions_query->fetch_assoc()) {
 
         // Handle number of attempts warning
         var attempts = <?php echo $attempts; ?>;
+        var is_submitted = <?php echo json_encode($is_submitted); ?>;
 
-        if (attempts > 3) {
+        if (is_submitted === true) {
             Swal.fire({
-                title: 'Maximum Attempts Reached!',
-                text: 'You have already reached the maximum number of attempts for this assessment.',
+                title: 'Assessment Already Submitted!',
+                text: 'You have already answered and submitted your answers for this assessment.',
                 icon: 'error',
-                confirmButtonText: 'OK',
+                showConfirmButton: false,
                 allowOutsideClick: false,
                 customClass: {
-                    popup: 'popup-content',
-                    confirmButton: 'secondary-button'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    handleSubmit();
-                }
-            });
-        } else if (attempts === 3) {
-            Swal.fire({
-                title: 'This is your last attempt!',
-                text: 'This is your final chance to answer this assessment. You can no longer answer this assessment after this attempt.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-                allowOutsideClick: false,
-                customClass: {
-                    popup: 'popup-content',
-                    confirmButton: 'secondary-button'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    showQuestion(currentQuestionIndex); // Show the first question
-                    startStopwatch();
-                }
+                    popup: 'popup-content'
+                },
+                timer: 5000,
+                timerProgressBar: true
+            }).then(() => {
+                window.location.href = 'results.php';
             });
         } else {
-            var attemptText = '';
-            var attemptTitle = '';
-
-            if (attempts === 1) {
-                attemptTitle = 'First Attempt';
-                attemptText = 'You are about to make your first attempt. Remember, you can only attempt to answer this assessment 3 times.';
-            } else if (attempts === 2) {
-                attemptTitle = 'Second Attempt';
-                attemptText = 'This is your second attempt. You have one more chance to answer this assessment.';
-            }
-
-            Swal.fire({
-                title: attemptTitle,
-                text: attemptText,
-                icon: 'info',
-                confirmButtonText: 'OK',
-                allowOutsideClick: false,
-                customClass: {
-                    popup: 'popup-content',
-                    confirmButton: 'secondary-button'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
+            if (attempts > 3) {
+                Swal.fire({
+                    title: 'Maximum Attempts Reached!',
+                    text: 'You have already reached the maximum number of attempts for this assessment.',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                    },
+                    timer: 5000,
+                    timerProgressBar: true
+                }).then(() => {
+                    handleSubmit();
+                    warningTracker = false;
+                });
+            } else if (attempts === 3) {
+                Swal.fire({
+                    title: 'This is your last attempt!',
+                    text: 'You can no longer answer this assessment after this attempt.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                }).then(() => {
+                    warningTracker = false;
                     showQuestion(currentQuestionIndex); // Show the first question
                     startStopwatch();
+                });
+            } else {
+                var attemptText = '';
+                var attemptTitle = '';
+
+                if (attempts === 1) {
+                    attemptTitle = 'First Attempt';
+                    attemptText = 'You are about to make your first attempt. Remember, you can only attempt to answer this assessment 3 times.';
+                } else if (attempts === 2) {
+                    attemptTitle = 'Second Attempt';
+                    attemptText = 'This is your second attempt. You have one more chance to answer this assessment.';
                 }
-            });
+
+                Swal.fire({
+                    title: attemptTitle,
+                    text: attemptText,
+                    icon: 'info',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    customClass: {
+                        popup: 'popup-content',
+                        confirmButton: 'secondary-button'
+                    }
+                }).then(() => {
+                    warningTracker = false;
+                    showQuestion(currentQuestionIndex); // Show the first question
+                    startStopwatch();
+                });
+            } 
         }
 
         let questionTimes = Array(questions.length).fill(0);
@@ -385,17 +408,15 @@ while ($question = $questions_query->fetch_assoc()) {
                             title: 'Assessment Already Submitted!',
                             text: 'You have submitted your answers to this assessment already',
                             icon: 'error',
-                            confirmButtonText: 'OK',
+                            showConfirmButton: false,
                             allowOutsideClick: false,
                             customClass: {
                                 popup: 'popup-content',
-                                confirmButton: 'secondary-button'
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = 'enroll.php';
-                                console.log("Redirecting to enroll.php");
-                            }
+                            },
+                            timer: 5000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            window.location.href = 'results.php';
                         });
                     } else {
                         console.log("Form not submitted yet, proceeding with form submission");
@@ -409,8 +430,6 @@ while ($question = $questions_query->fetch_assoc()) {
         }
 
         function submitForm() {
-            //if (hasSubmitted) return; 
-
             var formData = new FormData(document.getElementById('quiz-form'));
             formData.append('warningCount', warningCount);
             formData.append('time_elapsed', JSON.stringify(questionTimes));
@@ -419,8 +438,6 @@ while ($question = $questions_query->fetch_assoc()) {
             xhr.open('POST', 'submit_assessment.php', true);
 
             xhr.onload = function () {
-                //isSubmitting = false;
-                //hasSubmitted = true; // Mark as submitted
                 if (xhr.status === 200) {
                     clearInterval(stopwatchInterval);
                     showPopup('success-popup');
@@ -481,16 +498,15 @@ while ($question = $questions_query->fetch_assoc()) {
                             title: 'Maximum Warnings Reached!',
                             text: 'Your assessment will be submitted automatically.',
                             icon: 'error',
-                            confirmButtonText: 'OK',
+                            showConfirmButton: false,
                             allowOutsideClick: false,
                             customClass: {
                                 popup: 'popup-content',
-                                confirmButton: 'secondary-button'
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                handleSubmit();
-                            }
+                            },
+                            timer: 5000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            handleSubmit();
                             warningTracker = false;
                         });
                         return;
@@ -648,6 +664,7 @@ while ($question = $questions_query->fetch_assoc()) {
                 e.stopPropagation();
                 flashScreen();
                 handleWarning('Screen recording');
+                warningTracker = true;
                 return;
             }
 
@@ -715,6 +732,7 @@ while ($question = $questions_query->fetch_assoc()) {
             e.preventDefault();
             flashScreen();
             handleWarning('Screen capture');
+            warningTracker = true;
         });
 
         // Mobile phone screenshot andriod detection (three fingers)
@@ -725,6 +743,7 @@ while ($question = $questions_query->fetch_assoc()) {
             
             if (touchCount === 3) {
                 handleWarning('Screenshot');
+                warningTracker = true;
             }
         }, true);
 
