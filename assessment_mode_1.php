@@ -138,14 +138,6 @@ $time_limit = $assessment['time_limit'];
         </div>
     </div>
 
-    <!-- Timer Run Out Popup -->
-    <div id="timer-runout-popup" class="popup-overlay" style="display: none;">
-        <div class="popup-content">
-            <h2 class="popup-title">The timer ran out! You must submit your answers now!</p>
-            <button id="submit-answers" class="secondary-button" onclick="submitForm()">Submit</button>
-        </div>
-    </div>
-
     <!-- Error Popup -->
     <div id="error-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
@@ -419,7 +411,6 @@ $time_limit = $assessment['time_limit'];
             xhr.send(formData);
 
             // Close any open popups
-            closePopup('timer-runout-popup');
             closePopup('confirmation-popup');
         }
 
@@ -820,6 +811,17 @@ $time_limit = $assessment['time_limit'];
             }
         }, true);
 
+        // Mobile Phone Split Screen/Floating Screen Detection
+        window.addEventListener('resize', function() {
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+
+            if (width < 800 && !warningTracker) {
+                handleWarning('Split Screen/Floating Screen');
+                warningTracker = true;
+            }
+        });
+
         // Set Timer Functionality and Event Listeners
         window.onload = function() {
             const maxTimeLimit = parseInt(document.getElementById('time_limit').value) * 60; // Convert minutes to seconds
@@ -843,7 +845,21 @@ $time_limit = $assessment['time_limit'];
 
                     if (newRemainingTime <= 0) {
                         clearInterval(timerInterval);
-                        showPopup('timer-runout-popup');
+                        Swal.fire({
+                            title: 'The Timer Ran Out',
+                            text: 'Your answers will be submitted automatically.',
+                            icon: 'info',
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-content',
+                            },
+                            timer: 5000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            handleSubmit();
+                            warningTracker = false;
+                        });
                     } else {
                         updateDisplay(newRemainingTime);
                     }

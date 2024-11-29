@@ -744,6 +744,17 @@ while ($question = $questions_query->fetch_assoc()) {
             }
         }, true)
 
+        // Mobile Phone Split Screen/Floating Screen Detection
+        window.addEventListener('resize', function() {
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+
+            if (width < 800 && !warningTracker) {
+                handleWarning('Split Screen/Floating Screen');
+                warningTracker = true;
+            }
+        });
+
         // Initialize timer and set up event listeners
         window.onload = function () {
             document.getElementById('quiz-form').addEventListener('submit', handleSubmit);
