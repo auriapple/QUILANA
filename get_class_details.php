@@ -21,7 +21,6 @@
         display: flex;
         justify-self: end;
         gap: 20px;
-        margin-top: 10px;
         margin-right: 10px;
     }
     #accept-all, #reject-all {
@@ -36,6 +35,13 @@
     #reject-all {
         background: #FF8585;
         color: #DE1616;
+    }
+    
+    .detailsContainer {
+        height: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 </style>
 
@@ -94,7 +100,7 @@ if (isset($_GET['class_id'])) {
 
 <!-- Tab navigation -->
 <div style="display: none;" id="class-id-container"><?php echo $class_id; ?></div>
-<div class="tabs-container">
+<div class="tabs-container" style="margin-bottom: 10px;">
     <ul class="tabs">
         <li class="tab-link active" onclick="openTab(event, 'Assessments')">Assessments</li>
         <li class="tab-link" onclick="openTab(event, 'Students')">Students</li>
@@ -124,7 +130,22 @@ if (isset($_GET['class_id'])) {
 <!-- Tab content for Students -->
 <div id="Students" class="tabcontent" style="display: none;">
     <input hidden id="numPendingContainer" value="">
-    <div id="rowCount">Number of Students: 0</div>
+    <div class="detailsContainer">
+        <div id="rowCount">Number of Students: 0</div>
+        <div id = "acceptRejectContainer">
+            <button id="accept-all" class="accept-all"
+                data-class-id="<?php echo $class_id; ?>" 
+                data-status="1" 
+                data-class-sub= "<?php echo $classSub; ?>"
+                data-num="<?php echo $numPending['numPending']; ?>"> Accept All </button>
+            <button id="reject-all" class="reject-all"
+                data-class-id="<?php echo $class_id; ?>" 
+                data-status="2" 
+                data-class-sub="<?php echo $classSub; ?>"
+                data-num="<?php echo $numPending['numPending']; ?>"> Reject All </button>
+        </div>
+    </div>
+    
     <h1></h1>
     <div class="table-wrapper">
         <table class="table table-bordered"  style='height: calc(100% - 30px);'>
@@ -140,19 +161,6 @@ if (isset($_GET['class_id'])) {
                 <!-- Student Record will be loaded here -->
             </tbody>
         </table>
-    </div>
-
-    <div id = "acceptRejectContainer">
-        <button id="accept-all" class="accept-all"
-            data-class-id="<?php echo $class_id; ?>" 
-            data-status="1" 
-            data-class-sub= "<?php echo $classSub; ?>"
-            data-num="<?php echo $numPending['numPending']; ?>"> Accept All </button>
-        <button id="reject-all" class="reject-all"
-            data-class-id="<?php echo $class_id; ?>" 
-            data-status="2" 
-            data-class-sub="<?php echo $classSub; ?>"
-            data-num="<?php echo $numPending['numPending']; ?>"> Reject All </button>
     </div>
 </div>
 

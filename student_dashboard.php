@@ -44,19 +44,42 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
         $settings = $settings_query->fetch_assoc();
 
         $chart_query = $conn->query("
-            SELECT sr.score / sr.total_score * a.passing_rate + (100 - a.passing_rate) AS percentage, a.assessment_name
+            SELECT sr.score / sr.total_score * a.passing_rate + (100 - a.passing_rate) AS percentage, a.assessment_name, a.subject
             FROM student_results sr JOIN assessment a ON sr.assessment_id = a.assessment_id 
             WHERE student_id = '".$_SESSION['login_id']."'
         ");
-        $chart_data = [];
-        $chart_dataLabels = [];
-        while ($chart = $chart_query->fetch_assoc()) {
-            $chart_data[] = $chart['percentage'];
-            $chart_dataLabels[] = $chart['assessment_name'];
-        }
 
-        $json_chart_data = json_encode($chart_data);
-        $json_chart_dataLabels = json_encode($chart_dataLabels);
+        $chart_data = [];
+        $subject_labels = [];
+        
+        while ($row = $chart_query->fetch_assoc()) {
+            $chart_data[$row['subject']][] = [
+                'label' => $row['assessment_name'],
+                'value' => $row['percentage']
+            ];
+        
+            // Store labels specific to each subject
+            $subject_labels[$row['subject']][] = $row['assessment_name'];
+        }
+        
+        $datasets = [];
+        foreach ($chart_data as $subject_name => $data) {
+            $dataset = [
+                'label' => $subject_name,
+                'data' => array_column($data, 'value'),
+                'borderColor' => sprintf('#%06X', mt_rand(0, 0xFFFFFF)), // Random color
+                'fill' => false,
+                'tension' => 0.1
+            ];
+            $datasets[] = $dataset;
+        }
+        
+        // Ensure unique labels for the general case
+        $all_labels = array_unique(array_merge(...array_values($subject_labels)));
+        
+        $json_labels = json_encode(array_values($all_labels));
+        $json_datasets = json_encode($datasets);
+        $json_subjectSpecificLabels = json_encode($subject_labels, JSON_FORCE_OBJECT);
     ?>
         <div hidden>
             <input id='summary-input' value = "<?php echo $settings['summary'] ?>">
@@ -198,6 +221,12 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="section1-2" id="section1-2">
                     <div class="dashboard-chart" id="dashboard-chart">
                         <h1>Report</h1>
+                        <select id="subjectSelector" c>
+                            <option value="All">All Subjects</option>
+                            <?php foreach ($datasets as $index => $dataset): ?>
+                                <option value="<?php echo $index; ?>"><?php echo $dataset['label']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
                         <canvas id="lineChart" width="800" height="400"></canvas>
                     </div>
                 </div>
@@ -320,7 +349,6 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 </div>
             </div>
             
-
             <!-- Dashboard Customization -->
             <button id='dashboard-options-button' data-type="3" data-id="<?php echo $_SESSION['login_id']; ?>"><span class="material-symbols-outlined">settings</span></button> 
 
@@ -611,27 +639,36 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
             });
 
             // Fetch dynamic data from PHP
-            const dataPoints = <?php echo $json_chart_data; ?>;
-            const dataPointLabels = <?php echo $json_chart_dataLabels; ?>
+            const labels = <?php echo $json_labels; ?>;
+            const datasets = <?php echo $json_datasets; ?>;
+            const subjectSpecificLabels = <?php echo $json_subjectSpecificLabels; ?>; // Subject-specific labels
+            const subjectSelector = document.getElementById('subjectSelector');
 
+            console.log('Labels:', labels);
+            console.log('Datasets:', datasets);
+            console.log('Subject-Specific Labels:', subjectSpecificLabels);
+
+            // Initialize the chart
             const ctx = document.getElementById('lineChart').getContext('2d');
-            new Chart(ctx, {
+            const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataPointLabels,
-                    datasets: [{
-                        label: 'Introduction to Computing',
-                        data: dataPoints,
-                        borderColor: '#4A4CA6',
-                        fill: false,
-                        tension: 0.1
-                    }]
+                    labels: labels, // Default labels
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
                     scales: {
-                        x: { title: { display: true, text: 'Assessments' } },
+                        x: { 
+                            title: { display: true, text: 'Assessments' },
+                            ticks: {
+                                display: true // Show x-axis labels initially
+                            }
+                        },
                         y: {
                             title: { display: true, text: 'Percentage' },
                             min: 0,
@@ -640,12 +677,45 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                                 callback: function(value) {
                                     return `${value}%`;
                                 },
-                                stepSize: 25 // Step size between each tick
+                                stepSize: 25
                             }
                         }
                     }
                 }
             });
+
+            // Handle subject selection
+            subjectSelector.addEventListener('change', (e) => {
+            const selectedIndex = e.target.selectedIndex;  // Get the index of the selected option
+            console.log('Available Datasets:', datasets.map(d => d.label));
+            console.log('Selected Index:', selectedIndex);
+
+            // Get the selected option and its label (textContent)
+            const selectedOption = e.target.options[selectedIndex];
+            const selectedSubject = selectedOption.textContent.trim();  // Get the label text
+            console.log('Selected Subject:', selectedSubject);
+
+            // If the "All Subjects" option is selected
+            if (selectedSubject === "All") {
+                chart.data.datasets = datasets;  // Show all datasets
+                chart.options.scales.x.ticks.display = false;  // Optionally hide x-axis ticks
+                chart.data.labels = labels;  // Use the global labels
+            } else {
+                // Find the dataset corresponding to the selected subject
+                const datasetIndex = datasets.findIndex(d => d.label === selectedSubject);
+                console.log(datasetIndex);
+                
+                if (datasetIndex !== -1) {
+                    // Update chart data for the selected subject
+                    chart.data.datasets = [datasets[datasetIndex]];  // Show only the selected subject's dataset
+                    chart.options.scales.x.ticks.display = true;  // Ensure x-axis ticks are displayed
+                    chart.data.labels = subjectSpecificLabels[selectedSubject];  // Set subject-specific labels
+                }
+            }
+
+            // Update the chart to reflect changes
+            chart.update();
+        });
         </script>
     </body>
 </html>
