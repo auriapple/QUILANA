@@ -221,10 +221,10 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                 <div class="section1-2" id="section1-2">
                     <div class="dashboard-chart" id="dashboard-chart">
                         <h1>Report</h1>
-                        <select id="subjectSelector" c>
+                        <select id="subjectSelector" class='popup-input'>
                             <option value="All">All Subjects</option>
                             <?php foreach ($datasets as $index => $dataset): ?>
-                                <option value="<?php echo $index; ?>"><?php echo $dataset['label']; ?></option>
+                                <option value="<?php echo $dataset['label']; ?>"><?php echo $dataset['label']; ?></option>
                             <?php endforeach; ?>
                         </select>
                         <canvas id="lineChart" width="800" height="400"></canvas>
@@ -482,8 +482,6 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                             $('#report-toggle').prop('checked', response?.report == 1 ?? false);
                             $('#calendar-toggle').prop('checked', response?.calendar == 1 ?? false);
                             $('#upcoming-toggle').prop('checked', response?.upcoming == 1 ?? false);
-
-                            console.log('gotta work');
                         } else {
                             console.error("Error checking and setting randomization:", response?.message ?? "Unknown error");
                         }
@@ -530,33 +528,28 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                     $('.dashboard-summary').show();
                     ifSection1Show = true;
                     ifSection1_1Show = true;
-                    console.log('summary');
                 }
 
                 if (document.getElementById('recent-input').value == 1) {
                     $('.recent-assessments').show();
                     ifSection1Show = true;
                     ifSection1_1Show = true;
-                    console.log('recent');
                 }
 
                 if (document.getElementById('report-input').value == 1) {
                     $('.dashboard-chart').show();
                     ifSection1Show = true;
                     ifSection1_2Show = true;
-                    console.log('report');
                 }
 
                 if (document.getElementById('calendar-input').value == 1) {
                     $('.dashboard-calendar').show();
                     ifSection2Show = true;
-                    console.log('calendar');
                 }
 
                 if (document.getElementById('upcoming-input').value == 1) {
                     $('.dashboard-schedule').show();
                     ifSection2Show = true;
-                    console.log('upcoming');
                 } else {
                     const footer = document.getElementById('footer');
                     footer.style.height = '100%';
@@ -597,8 +590,6 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
                     $('.section2').hide();
                     document.getElementById('section1').style.paddingRight = '10px';
                 }
-
-                console.log('Looking like a chef');
             }
 
             $(document).ready(function() {
@@ -686,36 +677,41 @@ while ($schedule_row = $scheduleQuery->fetch_assoc()) {
 
             // Handle subject selection
             subjectSelector.addEventListener('change', (e) => {
-            const selectedIndex = e.target.selectedIndex;  // Get the index of the selected option
-            console.log('Available Datasets:', datasets.map(d => d.label));
-            console.log('Selected Index:', selectedIndex);
+                const selectedIndex = e.target.selectedIndex;  // Get the index of the selected option
+                console.log('Available Datasets:', datasets.map(d => d.label));
+                console.log('Selected Index:', selectedIndex);
 
-            // Get the selected option and its label (textContent)
-            const selectedOption = e.target.options[selectedIndex];
-            const selectedSubject = selectedOption.textContent.trim();  // Get the label text
-            console.log('Selected Subject:', selectedSubject);
+                // Get the selected option and its label (textContent)
+                const selectedOption = e.target.options[selectedIndex];
+                const selectedSubject = selectedOption.textContent.trim();  // Get the label text
+                console.log('Selected Subject:', selectedSubject);
 
-            // If the "All Subjects" option is selected
-            if (selectedSubject === "All") {
-                chart.data.datasets = datasets;  // Show all datasets
-                chart.options.scales.x.ticks.display = false;  // Optionally hide x-axis ticks
-                chart.data.labels = labels;  // Use the global labels
-            } else {
-                // Find the dataset corresponding to the selected subject
-                const datasetIndex = datasets.findIndex(d => d.label === selectedSubject);
-                console.log(datasetIndex);
-                
-                if (datasetIndex !== -1) {
-                    // Update chart data for the selected subject
-                    chart.data.datasets = [datasets[datasetIndex]];  // Show only the selected subject's dataset
-                    chart.options.scales.x.ticks.display = true;  // Ensure x-axis ticks are displayed
-                    chart.data.labels = subjectSpecificLabels[selectedSubject];  // Set subject-specific labels
+                const datasetIndex = datasets.findIndex(d => d.label.trim() === selectedSubject);
+                console.log('Dataset Index:', datasetIndex);
+
+                // If the "All Subjects" option is selected
+                if (selectedSubject === "All Subjects") {
+                    chart.data.datasets = datasets;  // Show all datasets
+                    chart.options.scales.x.ticks.display = false;  // Optionally hide x-axis ticks
+                    chart.data.labels = labels;  // Use the global labels
+                } else if (datasetIndex !== -1) {
+                    // Use the dataset for the selected subject
+                    const matchingDataset = datasets[datasetIndex];
+                    console.log('Matching Dataset:', matchingDataset);
+
+                    // Update chart datasets and labels
+                    chart.data.datasets = [matchingDataset];
+                    chart.data.labels = Array.isArray(subjectSpecificLabels[selectedSubject]) 
+                        ? subjectSpecificLabels[selectedSubject] 
+                        : labels;
+
+                    chart.options.scales.x.ticks.display = true; // Ensure x-axis ticks are visible
+                } else {
+                    console.warn('Dataset not found for subject:', selectedSubject);
                 }
-            }
 
-            // Update the chart to reflect changes
-            chart.update();
-        });
+                chart.update();
+            });
         </script>
     </body>
 </html>
