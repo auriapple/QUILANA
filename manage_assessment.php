@@ -796,6 +796,8 @@ if ($stmt = $conn->prepare($query)) {
             $('input[name="id"]').val(''); 
             $('#manageQuestionLabel').text('Add New Question');
             $('#manage_question').modal('show');
+
+            handleAssessmentModeChange();
         });
 
         // Edit question button handler
